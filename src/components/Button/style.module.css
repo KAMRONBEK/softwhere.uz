@@ -1,0 +1,20 @@
+.button {
+  padding: 11px 24px;
+  border-radius: 8px;
+  background: rgb(45, 102, 238);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: -0.15px;
+  border: none;
+  cursor: pointer;
+}
+
+.button:active {
+  background-color: var(--accent-opacity);
+}
+
+.button:hover {
+  background-color: var(--light-accent);
+}
