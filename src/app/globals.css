@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  scroll-behavior: smooth;
+}
+
 :root {
   --gray-900: rgb(16, 24, 40);
   --gray-800: rgb(29, 41, 57);
@@ -22,6 +26,8 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+
+
 
 .container {
   width: 1222px;

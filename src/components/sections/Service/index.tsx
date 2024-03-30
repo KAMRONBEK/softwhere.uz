@@ -1,56 +1,75 @@
-import React from "react";
-import css from "./style.module.css";
 import SectionText from "@/components/SectionTitle";
-import ChevronIcon from "../../../../public/icons/chevron_right_small_24.svg";
+import ConsultingImage from "../../../../public/images/consulting.png";
+import CrmImage from "../../../../public/images/crm.webp";
+import LandingPageImage2 from "../../../../public/images/landing-page.webp";
+import LandingPageImage from "../../../../public/images/landing.webp";
+import MobileImage from "../../../../public/images/mobile.png";
+import StartupsImage from "../../../../public/images/startups.webp";
+import css from "./style.module.css";
 import Image from "next/image";
 
 function Service() {
   const services = [
-    "iOS  development",
-    "Android development",
-    "Web development",
-    "UI/UX design",
-    "Testing",
-    "Launch",
-    "IT consulting",
+    {
+      id: 0,
+      title: "Landing page",
+      image: LandingPageImage,
+      description:
+        "Show information about the company. A site where you can show your company's location and contact customers",
+    },
+    {
+      id: 1,
+      title: "Corporate sites",
+      image: LandingPageImage2,
+      description:
+        "Official virtual reception of the company. A corporate website contains complete information about the products or services offered.",
+    },
+    {
+      id: 2,
+      title: "Mobile application",
+      image: MobileImage,
+      description:
+        "It allows you to manage and control your desired business through mobile devices such as smartphones and tablets. Makes it convenient for your customers.",
+    },
+    {
+      id: 3,
+      title: "IT CONSULTING",
+      image: ConsultingImage,
+      description:
+        "We help you understand the exact IT requirements for your organization and ensure that you receive only the relevant and relevant information from us.",
+    },
+    {
+      id: 4,
+      title: "IT STARTUPS",
+      image: StartupsImage,
+      description:
+        "The difference between an IT startup and a traditional business is that it offers products or services to customers in ways that have not been used before in the market.",
+    },
+    {
+      id: 5,
+      title: "ERP & CRM",
+      image: CrmImage,
+      description:
+        "By connecting all operational processes of the company to a central database, it allows you to see your business in numbers.",
+    },
   ];
   return (
-    <section className={css.section}>
-      <div className="container grid grid-cols-2 gap-36">
-        <div>
-          <SectionText>Full development cycle</SectionText>
-          <SectionText className="mb-2" type="desc">
-            We use proven technologies
-          </SectionText>
-          <div className={`${css.box} mb-10`}>
-            <b>Web</b>
-            <p>
-              PHP <span>/</span> Javascript <span>/</span> Node.JS{" "}
-              <span>/</span> Web Socket <span>/</span>
-              Socket.io <span>/</span> Vue.js/ Nuxt <span>/</span> MySQL{" "}
-              <span>/</span> Laravel <span>/</span> GO lang <span>/</span>{" "}
-              django <span>/</span>
-              Python
-            </p>
-          </div>
-          <div className={css.box}>
-            <b>Mobile</b>
-            <p>
-              Swift <span>/</span> Kotlin <span>/</span> Alamofire{" "}
-              <span>/</span> Firebase <span>/</span> CoreData <span>/</span>{" "}
-              Room <span>/</span> Realm <span>/</span>
-              Coroutine <span>/</span> RxJava <span>/</span> RxSwift{" "}
-              <span>/</span> Unit Test <span>/</span> Navigation
-            </p>
-          </div>
-        </div>
-        <ul>
-          {services.map((service) => (
-            <li className="flex gap-3 p-3 cursor-pointer" key={service}>
-              <p className="hover:border-b-blue-600 hover:border-b hover:font-semibold hover:pb-1">
-                {service}
-              </p>
-              <Image src={ChevronIcon} alt="" />
+    <section className={css.section} id="services">
+      <div className="container">
+        <SectionText>Our services</SectionText>
+        <SectionText className="mb-6 w-1/2" type="desc">
+          Crafting user-friendly and sophisticated websites and applications
+          tailored to client needs. Developing versatile mobile applications
+          compatible with both iOS and Android platforms.
+        </SectionText>
+        <ul className="grid grid-cols-2 gap-6">
+          {services.map((item) => (
+            <li className={css.serviceItem} key={item.title}>
+              <div>
+                <b>{item.title}</b>
+                <p>{item.description}</p>
+              </div>
+              <Image src={item.image} alt="" />
             </li>
           ))}
         </ul>

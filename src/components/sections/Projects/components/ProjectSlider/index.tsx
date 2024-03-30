@@ -8,6 +8,7 @@ import "slick-carousel/slick/slick.css";
 import css from "./style.module.css";
 
 import AppStoreIcon from "../../../../../../public/icons/ios.svg";
+import LinkToIcon from "../../../../../../public/icons/link.svg";
 import LocationIcon from "../../../../../../public/icons/place_outline_24.svg";
 import PlayMarketIcon from "../../../../../../public/icons/play-market.svg";
 import WorkIcon from "../../../../../../public/icons/work_outline_24.svg";
@@ -25,8 +26,9 @@ function ProjectSlider() {
       technology: "Business analysis / iOS / Android / QA / UI/UX Design",
       location: "Uzbekistan",
       type: "Medicine",
-      playMarket: "aa",
-      appStore: "aa",
+      playMarket: "aaa",
+      appStore: "",
+      website: "aa",
     },
     {
       id: 2,
@@ -36,8 +38,7 @@ function ProjectSlider() {
       technology: "Business analysis / iOS / Android / QA / UI/UX Design",
       location: "Uzbekistan",
       type: "Medicine",
-      playMarket: "aa",
-      appStore: "aa",
+      website: "aa",
     },
     {
       id: 3,
@@ -151,12 +152,21 @@ function ProjectSlider() {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <a href={item.appStore}>
-                  <Image src={AppStoreIcon} alt="" />
-                </a>
-                <a href={item.playMarket}>
-                  <Image src={PlayMarketIcon} alt="" />
-                </a>
+                {item.appStore && (
+                  <a href={item.appStore}>
+                    <Image src={AppStoreIcon} alt="" />
+                  </a>
+                )}
+                {item.playMarket && (
+                  <a href={item.playMarket}>
+                    <Image src={PlayMarketIcon} alt="" />
+                  </a>
+                )}
+                {item.website && (
+                  <a href={item.website}>
+                    <Image src={LinkToIcon} alt="" />
+                  </a>
+                )}
               </div>
             </div>
             <Image className={css.itemImage} src={ProjectImage} alt="" />
