@@ -1,7 +1,6 @@
 .section {
   position: relative;
   z-index: 1;
-  height: 500px;
   width: 100%;
   background-color: var(--white);
   padding: 80px 0;
@@ -25,4 +24,36 @@
 
 .box span {
   color: var(--accent);
+}
+
+.serviceItem {
+  display: flex;
+  gap: 40px;
+  background-color: var(--accent);
+  padding: 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid var(--accent);
+}
+
+.serviceItem b {
+  font-size: 24px;
+  color: white;
+}
+
+.serviceItem p {
+  font-size: 14px;
+  color: white;
+  margin-top: 20px;
+}
+
+.serviceItem img {
+  width: 250px;
+}
+
+.serviceItem:hover {
+  background-color: var(--light-accent);
+  transform: translateY(-10px);
+  box-shadow: 0 0 20px var(--accent);
 }
