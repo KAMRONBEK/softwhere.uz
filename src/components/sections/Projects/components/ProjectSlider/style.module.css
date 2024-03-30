@@ -44,15 +44,12 @@
   margin-top: 32px;
 }
 
-.projectList {
-  display: flex;
-  justify-content: space-between;
-  overflow-x: auto;
-
+.itemContent {
+  width: 600px;
 }
 
-.project {
-    width: 100vw !important;
+.itemImage {
+  width: 600px;
 }
 
 .left {

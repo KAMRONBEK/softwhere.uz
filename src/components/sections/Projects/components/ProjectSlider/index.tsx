@@ -1,19 +1,20 @@
 "use client";
-import React, {useState} from "react";
+import {useRef, useState} from "react";
 import Slider from "react-slick";
 
 import Image from "next/image";
-import css from "./style.module.css";
-import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import "slick-carousel/slick/slick.css";
+import css from "./style.module.css";
 
-import LocationIcon from "../../../../../../public/icons/place_outline_24.svg";
-import WorkIcon from "../../../../../../public/icons/work_outline_24.svg";
 import AppStoreIcon from "../../../../../../public/icons/ios.svg";
+import LocationIcon from "../../../../../../public/icons/place_outline_24.svg";
 import PlayMarketIcon from "../../../../../../public/icons/play-market.svg";
+import WorkIcon from "../../../../../../public/icons/work_outline_24.svg";
 import ProjectImage from "../../../../../../public/images/i-teka.png";
 
 function ProjectSlider() {
+  const sliderRef = useRef<Slider | null>(null);
   const [activeSlide, setActiveSlide] = useState<number>(1);
   const project = [
     {
@@ -96,12 +97,23 @@ function ProjectSlider() {
   ];
 
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
-    speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
+    arrows: false,
+    beforeChange: (current: number, next: number) => {
+      setActiveSlide(next + 1);
+    },
   };
+
+  const handleChangeSlide = (i: number) => {
+    setActiveSlide(i + 1);
+    if (sliderRef.current) {
+      sliderRef.current.slickGoTo(Number(i));
+    }
+  };
+
   return (
     <div className="mt-10">
       <ul className="flex">
@@ -111,20 +123,20 @@ function ProjectSlider() {
               activeSlide === item.id ? css.active : ""
             }`}
             key={item.id}
-            onClick={() => setActiveSlide(item.id)}
+            onClick={() => handleChangeSlide(item.id - 1)}
           >
             <p>{item.name}</p>
           </li>
         ))}
       </ul>
 
-      <Slider {...settings}>
+      <Slider ref={sliderRef} {...settings}>
         {project.map((item) => (
-          <li
+          <div
             key={item.name}
-            className={`grid mt-10 grid-cols-2 gap-4 items-center ${css.project}`}
+            className={`!grid mt-10 grid-cols-2 items-center ${css.project}`}
           >
-            <div>
+            <div className={css.itemContent}>
               <b className={css.name}>{item.name}</b>
               <p className={css.desc}>{item.description}</p>
               <p className={css.desc}>{item.technology}</p>
@@ -147,8 +159,8 @@ function ProjectSlider() {
                 </a>
               </div>
             </div>
-            <Image src={ProjectImage} alt="" />
-          </li>
+            <Image className={css.itemImage} src={ProjectImage} alt="" />
+          </div>
         ))}
       </Slider>
     </div>
