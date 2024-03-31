@@ -30,3 +30,31 @@
     text-align: center;
     color: white;
 }
+
+@media (max-width: 1025px) {
+    .logo {
+        margin-bottom: 30px;
+    }
+    .footerItem a {
+        font-size: 14px;
+    }
+    .copyright {
+        margin-top: 30px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 450px) {
+
+    .footerItem {
+        padding: 10px 0;
+        position: relative;
+    }
+
+    .footerItem a {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+}

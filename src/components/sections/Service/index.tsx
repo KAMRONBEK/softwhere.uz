@@ -15,7 +15,7 @@ function Service() {
       title: "Landing page",
       image: LandingPageImage,
       description:
-        "Show information about the company. A site where you can show your company's location and contact customers",
+        "Show information about the company. A site where you can show your company's location and contact customers. Lorem ipsum, ipsum",
     },
     {
       id: 1,
@@ -50,19 +50,19 @@ function Service() {
       title: "ERP & CRM",
       image: CrmImage,
       description:
-        "By connecting all operational processes of the company to a central database, it allows you to see your business in numbers.",
+        "By connecting all operational processes of the company to a central database, it allows you to see your business in numbers. Lorem ipsum",
     },
   ];
   return (
     <section className={css.section} id="services">
       <div className="container">
         <SectionText>Our services</SectionText>
-        <SectionText className="mb-6 w-1/2" type="desc">
+        <SectionText className="mb-6 lg:w-1/2" type="desc">
           Crafting user-friendly and sophisticated websites and applications
           tailored to client needs. Developing versatile mobile applications
           compatible with both iOS and Android platforms.
         </SectionText>
-        <ul className="grid grid-cols-2 gap-6">
+        <ul className="grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3">
           {services.map((item) => (
             <li className={css.serviceItem} key={item.title}>
               <div>

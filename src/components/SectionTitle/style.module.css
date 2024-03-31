@@ -18,3 +18,27 @@
   line-height: 20px;
   letter-spacing: -0.24px;
 }
+
+@media (max-width: 1025px) {
+  .sectionTitle {
+    font-size: 32px;
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 770px) {
+  .sectionTitle {
+    text-align: center;
+  }
+
+  .description {
+    text-align: center;
+  }
+}
+
+@media (max-width: 450px) {
+  .sectionTitle {
+    font-size: 28px;
+  }
+
+}

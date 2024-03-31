@@ -5,9 +5,9 @@ function Footer() {
   return (
     <footer className={`${css.footer} container`}>
       <h4 className={css.logo}>Logo</h4>
-      <div className="grid grid-cols-4">
+      <div className="grid lg:grid-cols-4 sm:grid-cols-2 sm:gap-2 lg:gap-0">
         <div className={css.footerItem}>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 md:mb-2">
             <svg
               width="24"
               height="25"
@@ -27,7 +27,7 @@ function Footer() {
           <a href="">+7 (778) 395 90 26</a>
         </div>
         <div className={css.footerItem}>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 md:mb-2">
             <svg
               width="20"
               height="17"
@@ -47,7 +47,7 @@ function Footer() {
           <a href="">thousanditcompany@gmail.com</a>
         </div>
         <div className={css.footerItem}>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 md:mb-2">
             <svg
               width="16"
               height="21"
@@ -73,7 +73,7 @@ function Footer() {
           <a href="">Almaty city, Shevchenko st. 90</a>
         </div>
         <div className={css.footerItem}>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 md:mb-2">
             <svg
               width="24"
               height="25"

@@ -7,23 +7,25 @@ import Image from "next/image";
 import BackImage from "../../../../public/images/app-background.png";
 import "react-international-phone/style.css";
 import Button from "@/components/Button";
+import SectionText from "@/components/SectionTitle";
 
 function Hero() {
   const [phone, setPhone] = useState<string>("");
 
   return (
     <section className={`${css.section}`}>
-      <div className="container">
+      <div className="container 2xl:relative">
         <Image className={css.backImage} src={BackImage} alt="" />
         <div className={css.content}>
-          <h1>
+          <SectionText className="lg:w-1/2">
             Development of <span>mobile applications</span> and
-            <span>web services</span> of any complexity
-          </h1>
-          <p className={css.description}>
+            <span> web services</span> of any complexity
+          </SectionText>
+
+          <SectionText type={"desc"} className={css.description}>
             We create mobile applications for iOS, Android that transfer your
             business to mobile applications of your customers' devices
-          </p>
+          </SectionText>
 
           <div className={css.formBox}>
             <b>
@@ -52,7 +54,7 @@ function Hero() {
                 <label htmlFor="name">Full name</label>
                 <input type="text" placeholder="Name" id="name" />
               </div>
-              <Button type="submit">Get consultation</Button>
+              <Button type="submit" className="ml-auto md:ml-0">Get consultation</Button>
             </form>
           </div>
         </div>

@@ -62,3 +62,20 @@
     border: none !important;
     padding: 8px !important;
 }
+
+@media (max-width: 770px) {
+    .section {
+        height: auto;
+        padding: 20px 0;
+    }
+
+    .formBox {
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 450px) {
+    .formBox {
+        height: auto;
+    }
+}

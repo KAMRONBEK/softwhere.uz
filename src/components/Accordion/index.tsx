@@ -36,7 +36,7 @@ function Accordion({title, answer}: IProps) {
                     open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                 }`}
             >
-                <div className="overflow-hidden">{answer}</div>
+                <div className="overflow-hidden lg:text-base sm:text-sm text-xs">{answer}</div>
             </div>
         </div>
     );
