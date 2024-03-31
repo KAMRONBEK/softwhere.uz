@@ -33,3 +33,22 @@
   width: 1222px;
   margin: 0 auto;
 }
+
+@media (max-width: 1025px) {
+  .container {
+    width: 980px;
+  }
+}
+
+@media (max-width: 770px) {
+  .container {
+    width: 600px;
+  }
+}
+
+
+@media (max-width: 450px) {
+  .container {
+    width: 95%;
+  }
+}

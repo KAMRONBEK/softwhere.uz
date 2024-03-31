@@ -7,7 +7,7 @@ function Projects() {
     <section className={css.section} id="portfolio">
       <div className="container">
         <SectionText>Projects we are proud of</SectionText>
-        <SectionText className="mt-6 w-1/2" type="desc">
+        <SectionText className="mt-6 lg:w-1/2" type="desc">
           Our software development company is truly proud of the wonderful
           clients we have worked with. We enjoy a long-term partnership
         </SectionText>

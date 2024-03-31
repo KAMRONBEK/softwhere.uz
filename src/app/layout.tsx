@@ -7,24 +7,24 @@ import Footer from "@/components/Footer";
 const inter = Inter({subsets: ["latin"]});
 
 export const metadata: Metadata = {
-  title:
-    "Закажите Веб-Сайт Любой Сложности, Мобильное Приложение Или Телеграм-Бот со Скидкой от 20% до 50% ",
-  description:
-    "Получите 1 Год Бесплатного Хостинга и Другие Бонусы Для Первых 10 Клиентов.",
+    title:
+        "Закажите Веб-Сайт Любой Сложности, Мобильное Приложение Или Телеграм-Бот со Скидкой от 20% до 50% ",
+    description:
+        "Получите 1 Год Бесплатного Хостинга и Другие Бонусы Для Первых 10 Клиентов.",
 };
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+                                       children,
+                                   }: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Header />
+    return (
+        <html lang="en">
+        <body className={inter.className}>
+        <Header/>
         {children}
-        <Footer />
-      </body>
-    </html>
-  );
+        <Footer/>
+        </body>
+        </html>
+    );
 }

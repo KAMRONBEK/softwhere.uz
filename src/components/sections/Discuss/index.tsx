@@ -12,20 +12,20 @@ function Discuss() {
   const [phone, setPhone] = useState<string>("");
   return (
     <section className={css.section}>
-      <div className="container  grid grid-cols-2 h-full place-items-center">
+      <div className="container  grid lg:grid-cols-2 sm:grid-cols-1 h-full place-items-center">
         <Image className={css.bgTextImg} src={BgTextImg} alt="" />
 
         <div className="relative z-10">
-          <SectionText className="!text-white">
-            Let's discuss <br /> Your project
+          <SectionText className="!text-white ">
+            Let's discuss <br className="hidden lg:block" /> Your project
           </SectionText>
-          <SectionText type="desc" className="!text-white">
+          <SectionText type="desc" className="!text-white ">
             Let's figure out how to create an effective application, its cost
             and terms of its development
           </SectionText>
         </div>
         <form className={css.formBox}>
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
             <div className={css.formInput}>
               <label htmlFor="phone-input">Best phone number</label>
               <PhoneInput
