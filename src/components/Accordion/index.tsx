@@ -9,12 +9,13 @@ import CloseIcon from "../../../public/icons/close.svg";
 interface IProps {
     title: string;
     answer: string;
+    index: number
 }
 
-function Accordion({title, answer}: IProps) {
+function Accordion({title, answer, index}: IProps) {
     const [open, setOpen] = useState<boolean>(false);
     return (
-        <div className={css.accordion}>
+        <div className={css.accordion} data-aos="fade-up" data-aos-delay={index * 100}>
             <button
                 onClick={() => setOpen(!open)}
                 className="flex items-center justify-between w-full	"

@@ -22,7 +22,7 @@ function Contact() {
                         complaints. We will definitely answer you. Your suggestion or request will be positively
                         resolved!</SectionText>
                     <div className="flex flex-col gap-4 mt-5">
-                        <div className="flex items-center gap-1">
+                        <div data-aos="zoom-in" className="flex items-center gap-1">
                             <svg
                                 width="35"
                                 height="35"
@@ -39,7 +39,7 @@ function Contact() {
                             </svg>
                             <a href="" className="text-white xl:text-xl  hover:text-slate-300">+7 (778) 395 90 26</a>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div data-aos="zoom-in" data-aos-delay="100" className="flex items-center gap-2">
                             <svg
                                 width="30"
                                 height="22"
@@ -57,7 +57,7 @@ function Contact() {
                             <a href=""
                                className="text-white xl:text-xl hover:text-slate-300">thousanditcompany@gmail.com</a>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div data-aos="zoom-in" data-aos-delay="200" className="flex items-center gap-2">
                             <svg
                                 width="25"
                                 height="30"
@@ -82,7 +82,7 @@ function Contact() {
                         </div>
                     </div>
                 </div>
-                <form className={css.formBox}>
+                <form data-aos="zoom-in-left" className={css.formBox}>
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className={css.formInput}>
                             <label htmlFor="phone-input">Best phone number</label>

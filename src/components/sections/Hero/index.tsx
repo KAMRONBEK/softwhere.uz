@@ -2,6 +2,7 @@
 import React, {useState} from "react";
 import css from "./style.module.css";
 import {PhoneInput} from "react-international-phone";
+import { TypeAnimation } from 'react-type-animation';
 
 import Image from "next/image";
 import BackImage from "../../../../public/images/app-background.png";
@@ -18,12 +19,19 @@ function Hero() {
         <Image className={css.backImage} src={BackImage} alt="" />
         <div className={css.content}>
           <SectionText className="lg:w-1/2">
-            Development of <span>mobile applications</span> and
-            <span> web services</span> of any complexity
+            <TypeAnimation
+                sequence={[
+                  "Development of mobile applications  and web services of any complexity",
+                  1000,
+                ]}
+                wrapper="p"
+                speed={50}
+                repeat={Infinity}
+            />
           </SectionText>
 
           <SectionText type={"desc"} className={css.description}>
-            We create mobile applications for iOS, Android that transfer your
+            We create <span> mobile applications </span> for iOS, Android that transfer your
             business to mobile applications of your customers' devices
           </SectionText>
 

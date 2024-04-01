@@ -109,14 +109,6 @@ function ProjectSlider() {
         beforeChange: (current: number, next: number) => {
             setActiveSlide(next + 1);
         },
-        responsive: [
-            {
-                breakpoint: 450,
-                settings: {
-                    dots: true
-                }
-            },
-        ]
     };
 
     const handleChangeSlide = (i: number) => {
@@ -129,7 +121,7 @@ function ProjectSlider() {
     return (
         <div className="mt-10">
             <ul className="hidden lg:flex">
-                {project.map((item) => (
+                {project.map((item, index) => (
                     <li
                         className={`lg:p-4 md:p-2  cursor-pointer ${css.slide}  ${
                             activeSlide === item.id ? css.active : ""
@@ -149,38 +141,38 @@ function ProjectSlider() {
                         className={`!grid lg:mt-10 md:mt-6 md:grid-cols-2 grid-cols-1 items-center ${css.project}`}
                     >
                         <div className={css.itemContent}>
-                            <b className={css.name}>{item.name}</b>
-                            <p className={css.desc}>{item.description}</p>
-                            <p className={css.desc}>{item.technology}</p>
+                            <b data-aos="zoom-in" className={css.name}>{item.name}</b>
+                            <p data-aos="zoom-in" data-aos-delay="100" className={css.desc}>{item.description}</p>
+                            <p data-aos="zoom-in" data-aos-delay="200" className={css.desc}>{item.technology}</p>
                             <div className="flex gap-8 md:my-10 my-5 justify-center md:justify-start">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2" data-aos="zoom-in" data-aos-delay="300">
                                     <Image src={LocationIcon} alt=""/>
                                     <p className="md:text-sm lg:text-base">{item.location}</p>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2" data-aos="zoom-in" data-aos-delay="400">
                                     <Image src={WorkIcon} alt=""/>
                                     <p className="md:text-sm lg:text-base">{item.type}</p>
                                 </div>
                             </div>
                             <div className="flex items-center justify-center md:justify-start gap-4">
                                 {item.appStore && (
-                                    <a href={item.appStore}>
+                                    <a data-aos="flip-up" href={item.appStore}>
                                         <Image src={AppStoreIcon} alt=""/>
                                     </a>
                                 )}
                                 {item.playMarket && (
-                                    <a href={item.playMarket}>
+                                    <a data-aos="flip-up" data-aos-delay="100" href={item.playMarket}>
                                         <Image src={PlayMarketIcon} alt=""/>
                                     </a>
                                 )}
                                 {item.website && (
-                                    <a href={item.website}>
+                                    <a data-aos="flip-up" data-aos-delay="200" href={item.website}>
                                         <Image src={LinkToIcon} alt=""/>
                                     </a>
                                 )}
                             </div>
                         </div>
-                        <Image className={css.itemImage} src={ProjectImage} alt=""/>
+                        <Image data-aos="fade-up-left" className={css.itemImage} src={ProjectImage} alt=""/>
                     </div>
                 ))}
             </Slider>
