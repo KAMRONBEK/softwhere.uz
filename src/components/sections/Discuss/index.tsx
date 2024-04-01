@@ -24,7 +24,7 @@ function Discuss() {
             and terms of its development
           </SectionText>
         </div>
-        <form className={css.formBox}>
+        <form data-aos="fade-left" className={css.formBox}>
           <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
             <div className={css.formInput}>
               <label htmlFor="phone-input">Best phone number</label>
