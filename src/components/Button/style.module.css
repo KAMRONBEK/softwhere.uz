@@ -1,7 +1,7 @@
 .button {
   padding: 11px 24px;
   border-radius: 8px;
-  background: rgb(45, 102, 238);
+  background: var(--accent);
   color: var(--white);
   font-size: 14px;
   font-weight: 600;

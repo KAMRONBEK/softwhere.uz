@@ -1,10 +1,13 @@
-import React from "react";
+import Image from "next/image";
+import Logo from "../../../public/icons/logo.svg";
 import css from "./style.module.css";
 
 function Footer() {
   return (
     <footer className={`${css.footer} container`}>
-      <h4 className={css.logo}>Logo</h4>
+      <a href="/">
+        <Image className={css.logo} src={Logo} alt="" />
+      </a>
       <div className="grid lg:grid-cols-4 sm:grid-cols-2 sm:gap-2 lg:gap-0">
         <div className={css.footerItem}>
           <div className="flex items-center gap-2 md:mb-2">
@@ -24,7 +27,9 @@ function Footer() {
             </svg>
             <p>Contact nums</p>
           </div>
-          <a href="">+7 (778) 395 90 26</a>
+          <a href="tel:+998332499111" className="hover:opacity-50">
+            +998 33 249-91-11
+          </a>
         </div>
         <div className={css.footerItem}>
           <div className="flex items-center gap-2 md:mb-2">
@@ -44,7 +49,9 @@ function Footer() {
             </svg>
             <p>Post</p>
           </div>
-          <a href="">thousanditcompany@gmail.com</a>
+          <a href="mailto:kamuranbek98@gmail.com" className="hover:opacity-50">
+            kamuranbek98@gmail.com
+          </a>
         </div>
         <div className={css.footerItem}>
           <div className="flex items-center gap-2 md:mb-2">
@@ -95,7 +102,7 @@ function Footer() {
       </div>
 
       <p className={css.copyright}>
-        &copy; 2024 softwhere.uz. All rights reserved.
+        &copy; 2024 Softwhere | All Rights Reserved. Privacy Policy
       </p>
     </footer>
   );

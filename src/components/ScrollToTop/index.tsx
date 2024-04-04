@@ -9,8 +9,6 @@ function ScrollToTop() {
     const [show, setShow] = useState<boolean>(false)
     useEffect(() => {
         window.addEventListener('scroll', () => {
-            console.log(window.scrollY);
-
             if (window.scrollY > 500) {
                 setShow(true)
             } else {
