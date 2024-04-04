@@ -54,28 +54,31 @@ function Service() {
         },
     ];
     return (
-        <section className={css.section} id="services">
-            <div className="container">
-                <SectionText>Our services</SectionText>
-                <SectionText className="mb-6 lg:w-1/2" type="desc">
-                    Crafting user-friendly and sophisticated websites and applications
-                    tailored to client needs. Developing versatile mobile applications
-                    compatible with both iOS and Android platforms.
-                </SectionText>
-                <ul className="grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3">
-                    {services.map((item, index) => (
-                        <li data-aos={index % 2 === 0 ? "fade-up-right" : "fade-up-left"} className={css.serviceItem}
-                            key={item.title}>
-                            <div>
-                                <b>{item.title}</b>
-                                <p>{item.description}</p>
-                            </div>
-                            <Image src={item.image} alt=""/>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </section>
+      <section className={css.section} id="services">
+        <div className="container">
+          <SectionText>Bizning xizmatlarimiz</SectionText>
+          <SectionText className="mb-6 lg:w-1/2" type="desc">
+            Crafting user-friendly and sophisticated websites and applications
+            tailored to client needs. Developing versatile mobile applications
+            compatible with both iOS and Android platforms.
+          </SectionText>
+          <ul className="grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3">
+            {services.map((item, index) => (
+              <li
+                data-aos={index % 2 === 0 ? "fade-up-right" : "fade-up-left"}
+                className={css.serviceItem}
+                key={item.title}
+              >
+                <div>
+                  <b>{item.title}</b>
+                  <p>{item.description}</p>
+                </div>
+                <Image src={item.image} alt="" />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     );
 }
 
