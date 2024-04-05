@@ -11,25 +11,28 @@ import Image from "next/image";
 // import BgTextImg from "../../../../public/images/bg-text.svg";
 import {toast} from "react-toastify";
 import {sender} from "@/utils/send";
+import {useTranslations} from "use-intl";
 
 function Contact() {
     const [name, setName] = useState<string>("")
     const [phone, setPhone] = useState<string>("");
     const [message, setMessage] = useState<string>("")
+    const t = useTranslations("contact")
+    const tM = useTranslations("toastMessage")
 
 
     const validateForm = () => {
         if (phone.length < 13) {
-            toast.error("Phone number is required");
+            toast.error(tM("phoneNumber"));
             return false
         }
         if (name.trim() === "") {
-            toast.error("Name is required");
+            toast.error(tM("name"));
             return false
         }
 
         if (message.trim() === "") {
-            toast.error("Message is required");
+            toast.error(tM("message"));
             return false
         }
         return true
@@ -39,7 +42,7 @@ function Contact() {
         e.preventDefault();
 
         if (validateForm()) {
-            const id = toast.loading("Please wait...");
+            const id = toast.loading(tM("loading"));
             await sender(String(id), name, phone, message, '');
             setName("")
             setPhone("")
@@ -52,10 +55,8 @@ function Contact() {
             <div className="container grid lg:grid-cols-2 place-items-center gap-6">
                 {/* <Image className={css.bgTextImg} src={BgTextImg} alt=""/> */}
                 <div className={"relative z-10"}>
-                    <SectionText className="!text-white">Contact us</SectionText>
-                    <SectionText className="!text-white" type="desc">Contact us for any questions, suggestions or
-                        complaints. We will definitely answer you. Your suggestion or request will be positively
-                        resolved!</SectionText>
+                    <SectionText className="!text-white">{t("title")}</SectionText>
+                    <SectionText className="!text-white" type="desc">{t("description")}</SectionText>
                     <div className="flex flex-col gap-4 mt-5">
                         <div data-aos="zoom-in" className="flex items-center gap-1">
                             <svg
@@ -72,7 +73,7 @@ function Contact() {
                                     fill="#ffffff"
                                 />
                             </svg>
-                            <a href="" className="text-white xl:text-xl  hover:text-slate-300">+7 (778) 395 90 26</a>
+                            <a href="tel:+998332499111" className="text-white xl:text-xl  hover:text-slate-300">+998 33 249-91-11</a>
                         </div>
                         <div data-aos="zoom-in" data-aos-delay="100" className="flex items-center gap-2">
                             <svg
@@ -89,8 +90,8 @@ function Contact() {
                                     fill="#ffffff"
                                 />
                             </svg>
-                            <a href=""
-                               className="text-white xl:text-xl hover:text-slate-300">thousanditcompany@gmail.com</a>
+                            <a href="mailto:kamuranbek98@gmail.com"
+                               className="text-white xl:text-xl hover:text-slate-300">kamuranbek98@gmail.com</a>
                         </div>
                         <div data-aos="zoom-in" data-aos-delay="200" className="flex items-center gap-2">
                             <svg
@@ -113,14 +114,14 @@ function Contact() {
                                     fill="#ffffff"
                                 />
                             </svg>
-                            <p className="text-white xl:text-xl">Almaty city, Shevchenko st. 90</p>
+                            <p className="text-white xl:text-xl">Tashkent city, Uzbekistan</p>
                         </div>
                     </div>
                 </div>
-                <form onSubmit={handleSubmit} data-aos="zoom-in-left" className={css.formBox}>
+                <form onSubmit={handleSubmit} data-aos="zoom-in" className={css.formBox}>
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className={css.formInput}>
-                            <label htmlFor="phone-input">Best phone number</label>
+                            <label htmlFor="phone-input">{t("phoneNumber")}</label>
                             <PhoneInput
                                 defaultCountry="uz"
                                 value={phone}
@@ -137,18 +138,18 @@ function Contact() {
                             />
                         </div>
                         <div className={css.formInput}>
-                            <label htmlFor="name">Full name</label>
-                            <input value={name} onChange={event => setName(event.target.value)} type="text" placeholder="Name" id="name"/>
+                            <label htmlFor="name">{t("name")}</label>
+                            <input value={name} onChange={event => setName(event.target.value)} type="text" placeholder={t("name")} id="name"/>
                         </div>
                     </div>
 
                     <div className={`${css.formInput} mt-6`}>
-                        <label htmlFor="message">Message</label>
-                        <textarea value={message} onChange={event => setMessage(event.target.value)} name="" id="message" placeholder="Write a message here..."
+                        <label htmlFor="message">{t("message")}</label>
+                        <textarea value={message} onChange={event => setMessage(event.target.value)} name="" id="message" placeholder={t("messagePlaceholder")}
                                   className={css.textarea}></textarea>
                     </div>
                     <Button className="block mt-6 ml-auto" type="submit">
-                        Send message
+                        {t("btn")}
                     </Button>
                 </form>
             </div>

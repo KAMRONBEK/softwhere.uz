@@ -107,6 +107,13 @@
 
 .content li:hover {
   cursor: pointer;
+  background-color: var(--accent-opacity);
+  color: white;
+  border-radius: 6px;
+}
+
+.activeLang {
+  cursor: pointer;
   background-color: var(--accent);
   color: white;
   border-radius: 6px;
@@ -212,6 +219,11 @@
 .navOpen {
   display: block;
   clip-path: circle(100%);
+}
+
+.lang {
+  font-size: 14px;
+  font-weight: 500;
 }
 
 

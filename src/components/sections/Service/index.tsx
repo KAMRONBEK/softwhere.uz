@@ -7,78 +7,72 @@ import MobileImage from "../../../../public/images/mobile.png";
 import StartupsImage from "../../../../public/images/startups.webp";
 import css from "./style.module.css";
 import Image from "next/image";
+import {useTranslations} from "use-intl";
 
 function Service() {
+    const t = useTranslations("services")
     const services = [
         {
             id: 0,
-            title: "Landing page",
+            title: t("service1.title"),
             image: LandingPageImage,
-            description:
-                "Show information about the company. A site where you can show your company's location and contact customers. Lorem ipsum, ipsum",
+            description: t("service1.description"),
         },
         {
             id: 1,
-            title: "Corporate sites",
+            title: t("service2.title"),
             image: LandingPageImage2,
-            description:
-                "Official virtual reception of the company. A corporate website contains complete information about the products or services offered.",
+            description: t("service2.description"),
         },
         {
             id: 2,
-            title: "Mobile application",
+            title: t("service3.title"),
             image: MobileImage,
-            description:
-                "It allows you to manage and control your desired business through mobile devices such as smartphones and tablets. Makes it convenient for your customers.",
+            description: t("service3.description"),
         },
         {
             id: 3,
-            title: "IT CONSULTING",
+            title: t("service4.title"),
             image: ConsultingImage,
-            description:
-                "We help you understand the exact IT requirements for your organization and ensure that you receive only the relevant and relevant information from us.",
+            description: t("service4.description"),
         },
         {
             id: 4,
-            title: "IT STARTUPS",
+            title: t("service5.title"),
             image: StartupsImage,
-            description:
-                "The difference between an IT startup and a traditional business is that it offers products or services to customers in ways that have not been used before in the market.",
+            description: t("service5.description"),
         },
         {
             id: 5,
-            title: "ERP & CRM",
+            title: t("service6.title"),
             image: CrmImage,
-            description:
-                "By connecting all operational processes of the company to a central database, it allows you to see your business in numbers. Lorem ipsum",
+            description: t("service6.description"),
         },
     ];
     return (
-      <section className={css.section} id="services">
-        <div className="container">
-          <SectionText>Bizning xizmatlarimiz</SectionText>
-          <SectionText className="mb-6 lg:w-1/2" type="desc">
-            Crafting user-friendly and sophisticated websites and applications
-            tailored to client needs. Developing versatile mobile applications
-            compatible with both iOS and Android platforms.
-          </SectionText>
-          <ul className="grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3">
-            {services.map((item, index) => (
-              <li
-                data-aos={index % 2 === 0 ? "fade-up-right" : "fade-up-left"}
-                className={css.serviceItem}
-                key={item.title}
-              >
-                <div>
-                  <b>{item.title}</b>
-                  <p>{item.description}</p>
-                </div>
-                <Image src={item.image} alt="" />
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+        <section className={css.section} id="services">
+            <div className="container">
+                <SectionText>{t("title")}</SectionText>
+                <SectionText className="mb-6 lg:w-1/2" type="desc">
+                    {t("description")}
+                </SectionText>
+                <ul className="grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3">
+                    {services.map((item, index) => (
+                        <li
+                            data-aos={index % 2 === 0 ? "flip-down" : "flip-up"}
+                            className={css.serviceItem}
+                            key={item.title}
+                        >
+                            <div>
+                                <b>{item.title}</b>
+                                <p>{item.description}</p>
+                            </div>
+                            <Image src={item.image} alt=""/>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </section>
     );
 }
 
