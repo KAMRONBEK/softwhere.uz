@@ -51,6 +51,10 @@
     gap: 20px;
   }
 
+  .serviceItem b {
+    font-size: 20px;
+  }
+
   .serviceItem img {
     height: 150px;
     object-fit: contain;

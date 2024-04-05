@@ -11,17 +11,21 @@ import Button from "@/components/Button";
 import SectionText from "@/components/SectionTitle";
 import {toast} from "react-toastify";
 import {sender} from "@/utils/send";
+import {useTranslations} from "use-intl";
+import {getCookies} from "undici-types";
 
 function Hero() {
+  const t = useTranslations("hero")
+  const tM = useTranslations("toastMessage")
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const validateForm = () => {
     if (phone.length < 13) {
-      toast.error("Phone number is required");
+      toast.error(tM("phoneNumber"));
       return false;
     }
     if (name.trim() === "") {
-      toast.error("Name is required");
+      toast.error(tM("name"));
       return false;
     }
     return true;
@@ -31,12 +35,13 @@ function Hero() {
     e.preventDefault();
 
     if (validateForm()) {
-      const id = toast.loading("Please wait...");
+      const id = toast.loading(tM("loading"));
       await sender(String(id), name, phone, "", "consultation");
       setName("");
       setPhone("");
     }
   };
+
 
   return (
     <section className={`${css.section}`}>
@@ -46,7 +51,7 @@ function Hero() {
           <SectionText className="lg:w-1/2">
             <TypeAnimation
               sequence={[
-                "Har qanday murakkablikdagi mobil ilovalar va veb-xizmatlarni ishlab chiqish",
+                t("title"),
                 1000,
               ]}
               wrapper="p"
@@ -56,18 +61,16 @@ function Hero() {
           </SectionText>
 
           <SectionText type={"desc"} className={css.description}>
-            Biz iOS, Android uchun mobil ilovalarni yaratamiz, ular sizning
-            biznesingizni mijozlaringiz mobil ilovalariga o'tkazadi.
+            {t("description")}
           </SectionText>
 
           <div className={css.formBox}>
             <b>
-              Biz iOS, Android uchun mobil ilovalarni yaratamiz, ular sizning
-              biznesingizni mijozlaringiz mobil ilovalariga o'tkazadi
+              {t("description")}
             </b>
             <form onSubmit={handleSubmit}>
               <div className={css.formInput}>
-                <label htmlFor="phone-input">Telefon Raqamingiz*</label>
+                <label htmlFor="phone-input">{t("phoneNumber")}</label>
                 <PhoneInput
                   defaultCountry="uz"
                   value={phone}
@@ -84,17 +87,17 @@ function Hero() {
                 />
               </div>
               <div className={css.formInput}>
-                <label htmlFor="name">Ism Sharifingiz</label>
+                <label htmlFor="name">{t("name")}</label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   type="text"
-                  placeholder="Ism Sharifingiz"
+                  placeholder={t("name")}
                   id="name"
                 />
               </div>
               <Button type="submit" className="ml-auto md:ml-0">
-                Maslahat olish
+                {t("btn")}
               </Button>
             </form>
           </div>

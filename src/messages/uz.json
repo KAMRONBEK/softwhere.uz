@@ -1,0 +1,71 @@
+{
+  "header": {
+    "home": "Bosh sahifa",
+    "services": "Xizmatlar",
+    "portfolio": "Portfolio",
+    "contact": "Aloqa",
+    "faq": "FAQ",
+    "lang": "Til"
+  },
+  "hero": {
+    "title": "Har qanday murakkablikdagi mobil ilovalar va veb-xizmatlarni ishlab chiqish.",
+    "description": "Biz IOS, Android uchun mobil ilovalarni yaratamiz, ular sizning biznesingizni mijozlaringiz mobil ilovalariga o'tkazadi.",
+    "phoneNumber": "Telefon Raqamingiz",
+    "name": "Ism Sharifingiz",
+    "btn": "Maslahat olish"
+  },
+  "services": {
+    "title": "Bizning xizmatlarimiz",
+    "description": "Mijozlarning ehtiyojlariga moslashtirilgan foydalanuvchilarga qulay va murakkab veb-saytlar va ilovalarni yaratish. IOS va Android platformalariga mos keladigan ko'p qirrali mobil ilovalarni ishlab chiqish.",
+    "service1": {
+      "title" : "Landing page",
+      "description": "Kompaniya haqida ma'lumotni ko'rsatish. Sizning kompaniyangiz joylashgan joyni ko'rsatishingiz va mijozlar bilan bog'lanishingiz mumkin bo'lgan sayt."
+    },
+    "service2": {
+      "title": "Korporativ saytlar",
+      "description": "Kompaniyaning rasmiy virtual qabulxonasi. Korporativ veb-sayt taklif qilinadigan mahsulotlar yoki xizmatlar haqida to'liq ma'lumotni o'z ichiga oladi."
+    },
+    "service3": {
+      "title": "Mobil Ilovalar",
+      "description": "Bu sizga smartfon va planshetlar kabi mobil qurilmalar orqali kerakli biznesingizni boshqarish va nazorat qilish imkonini beradi. Mijozlaringiz uchun qulaylik yaratadi."
+    },
+    "service4": {
+      "title": "IT Maslahat",
+      "description": "Biz sizga tashkilotingiz uchun aniq IT talablarini tushunishga yordam beramiz va bizdan faqat kompaniyangizga kerak bo'ladigan IT maslahatlarni olishingiz mumkin."
+    },
+    "service5": {
+      "title": "IT Startaplar",
+      "description": "IT startapining anʼanaviy biznesdan farqi shundaki, u xaridorlarga bozorda ilgari ishlatilmagan mahsulotlar yoki xizmatlarni taklif qiladi."
+    },
+    "service6": {
+      "title": "ERP & CRM",
+      "description": "Kompaniyaning barcha operatsion jarayonlarini markaziy ma'lumotlar bazasiga ulab, u sizning biznesingizni raqamlarda ko'rish imkonini beradi."
+    }
+  },
+  "discuss": {
+    "title": "Keling, loyihangizni muhokama qilaylik",
+    "description": "Keling, samarali dasturni qanday yaratishni, uning narxini aniqlaymiz va uning rivojlanish shartlari haqida gaplashamiz.",
+    "phoneNumber": "Telefon Raqamingiz",
+    "name": "Ism Sharifingiz",
+    "btn": "Muhokama qilish"
+  },
+  "projects": {
+    "title": "Biz faxrlanadigan loyihalar",
+    "description": "Bizning dasturiy ta'minot ishlab chiqish kompaniyamiz biz ishlagan ajoyib mijozlar bilan chinakam faxrlanadi. Biz uzoq muddatli hamkorlikdan mamnunmiz."
+  },
+  "contact": {
+    "title": "Biz bilan bog'lanish",
+    "description": "Har qanday savol, taklif yoki shikoyat uchun biz bilan bog'laning. Biz sizga albatta javob beramiz. Taklif yoki iltimosingiz ijobiy hal qilinadi!",
+    "phoneNumber": "Telefon Raqamingiz",
+    "name": "Ism Sharifingiz",
+    "message": "Xabar",
+    "messagePlaceholder": "Xabaringizni shu yerga yozing...",
+    "btn": "Yuborish"
+  },
+  "toastMessage": {
+    "phoneNumber": "Telefon raqamni kiriting!",
+    "name": "Ismingizni kiriting!",
+    "message": "Xabarni kiriting!",
+    "loading": "Kuting..."
+  }
+}

@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type {Metadata} from "next";
+import {Inter} from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import React from "react";
+import {NextIntlClientProvider, useMessages} from "next-intl";
 
 const inter = Inter({subsets: ["latin"]});
 
@@ -14,20 +16,27 @@ export const metadata: Metadata = {
     "Получите 1 Год Бесплатного Хостинга и Другие Бонусы Для Первых 10 Клиентов.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
+type Props = {
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Header />
-        {children}
+  params: {
+    locale: "uz" | "ru";
+  };
+};
 
-        <ScrollToTop />
-        <Footer />
+const RootLayout: React.FC<Props> = ({children, params: {locale}}) => {
+  const messages = useMessages();
+  return (
+    <html lang={locale}>
+      <body className={inter.className}>
+        <NextIntlClientProvider messages={messages}>
+          <Header />
+          {children}
+          <ScrollToTop />
+          <Footer />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

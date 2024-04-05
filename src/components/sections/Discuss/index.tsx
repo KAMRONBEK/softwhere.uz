@@ -9,19 +9,22 @@ import "react-international-phone/style.css";
 import css from "./style.module.css";
 import {toast} from "react-toastify";
 import {sender} from "@/utils/send";
+import {useTranslations} from "use-intl";
 
 function Discuss() {
+  const t = useTranslations("discuss")
+  const tM = useTranslations("toastMessage")
   const [name, setName] = useState<string>("")
   const [phone, setPhone] = useState<string>("");
 
 
   const validateForm = () => {
     if (phone.length < 13) {
-      toast.error("Phone number is required");
+      toast.error(tM("phoneNumber"));
       return false
     }
     if (name.trim() === "") {
-      toast.error("Name is required");
+      toast.error(tM("name"));
       return false
     }
     return true
@@ -31,7 +34,7 @@ function Discuss() {
     e.preventDefault();
 
     if (validateForm()) {
-      const id = toast.loading("Please wait...");
+      const id = toast.loading(tM("loading"));
       await sender(String(id), name, phone, "", "discuss");
       setName("")
       setPhone("")
@@ -45,17 +48,16 @@ function Discuss() {
 
         <div className="relative z-10">
           <SectionText className="!text-white ">
-            Let's discuss <br className="hidden lg:block" /> Your project
+            {t("title")}
           </SectionText>
           <SectionText type="desc" className="!text-white ">
-            Let's figure out how to create an effective application, its cost
-            and terms of its development
+            {t("description")}
           </SectionText>
         </div>
-        <form onSubmit={handleSubmit} data-aos="fade-left" className={css.formBox}>
+        <form onSubmit={handleSubmit} data-aos="zoom-in" className={css.formBox}>
           <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
             <div className={css.formInput}>
-              <label htmlFor="phone-input">Best phone number</label>
+              <label htmlFor="phone-input">{t("phoneNumber")}</label>
               <PhoneInput
                 defaultCountry="uz"
                 value={phone}
@@ -72,12 +74,12 @@ function Discuss() {
               />
             </div>
             <div className={css.formInput}>
-              <label htmlFor="name">Full name</label>
-              <input value={name} onChange={(event) => setName(event.target.value)} type="text" placeholder="Name" id="name" />
+              <label htmlFor="name">{t("name")}</label>
+              <input value={name} onChange={(event) => setName(event.target.value)} type="text" placeholder={t("name")} id="name" />
             </div>
           </div>
           <Button className="block mt-6 ml-auto" type="submit">
-            Discuss the project
+            {t("btn")}
           </Button>
         </form>
       </div>
