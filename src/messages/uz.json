@@ -67,5 +67,17 @@
     "name": "Ismingizni kiriting!",
     "message": "Xabarni kiriting!",
     "loading": "Kuting..."
+  },
+  "faq": {
+    "title": "Saytni noldan yaratish bosqichlari:",
+    "description": "Softwhere tomonidan yaratilgan sayt – bu samarali biznes vositasi va u 24/7 tizimida ishlaydi va biz uni to'g'ri rivojlantirib, targ'ib qilishni kafolatlaymiz.\nBu sizni mijozlarga olib boradi, sotuvni oshiradi va foydalanuvchilar sodiqligini oshirishga xizmat qiladi.",
+    "question1": "1-bosqich Reja (Planlash):",
+    "answer1": "Bu birinchi bosqichda siz web saytingizning maqsadini, mazmuni, manzillarini aniqlash va to'g'ri ma'lumotlarni tayyorlashni o'z ichiga oladi. Reja (plan) kelishilgan paytda, siz saytingizning strukturasi, dizayni va funksiyalari haqida bir qarorga kelasiz.",
+    "question2": "2-bosqich Dizayn (Design):",
+    "answer2": "Ikkinchi bosqichda, siz tayyorlangan reja asosida saytingizning dizaynini yaratishingiz kerak. Bu qadamda, siz o'z brandingiz, ranglar, shriftlar va interfeys dizayni kabi tushunchalardan kelib chiqib dizayn yaratishingiz mumkin.",
+    "question3": "3-bosqich Rivojlantirish (Development):",
+    "answer3": "Ushbu bosqichda, dizayn va funksiyalarni asosida asosan kod yozish boshlanadi. Bu qadamda, front-end (mijoz tomoni) va back-end (server tomonidagi logika va ma'lumotlar bilan ishlash) bo'yicha dasturlash bilan shug'ullanish kerak bo'ladi.",
+    "question4": "4-bosqich Testlash va Taqdim etish (Testing and Deployment):",
+    "answer4": "So'nggi bosqichda, yaratilgan sayt test qilinadi va uni internetga joylashtirish uchun tayyorlashtiriladi. Bu bosqichda, muammo va xato aniqlangan holda, ularni tuzatish va saytni ommaga taqdim etish uchun har qanday testlarni amalga oshirish kerak bo'ladi."
   }
 }
