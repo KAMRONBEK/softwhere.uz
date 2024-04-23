@@ -1,28 +1,82 @@
 .section {
   position: relative;
   z-index: 1;
-  height: 500px;
   width: 100%;
   background-color: var(--white);
   padding: 80px 0;
 }
 
-.box b {
-  color: var(--gray-900);
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 24px;
-  letter-spacing: 0.38px;
-  margin-bottom: 16px;
+.serviceItem {
+  display: flex;
+  gap: 40px;
+  background-color: var(--accent);
+  padding: 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid var(--accent);
 }
 
-.box p {
-  font-size: 17px;
-  font-weight: 400;
-  line-height: 22px;
-  letter-spacing: -0.41px;
+.serviceItem b {
+  font-size: 24px;
+  color: white;
 }
 
-.box span {
-  color: var(--accent);
+.serviceItem p {
+  font-size: 14px;
+  color: white;
+  margin-top: 20px;
+}
+
+.serviceItem img {
+  width: 250px;
+}
+
+.serviceItem:hover {
+  background-color: var(--light-accent);
+  transform: translateY(-10px);
+  box-shadow: 0 0 20px var(--accent);
+}
+
+@media (max-width: 770px) {
+  .section {
+    padding: 50px 0;
+  }
+
+  .serviceItem {
+    flex-direction: column-reverse;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .serviceItem b {
+    font-size: 20px;
+  }
+
+  .serviceItem img {
+    height: 150px;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 450px) {
+  .serviceItem {
+    padding: 15px;
+    gap: 10px;
+  }
+
+  .serviceItem b {
+    font-size: 18px;
+  }
+
+  .serviceItem p {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+
+  .serviceItem:hover {
+    transform: translateY(0) scale(1.01);
+  }
 }
