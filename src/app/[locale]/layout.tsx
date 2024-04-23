@@ -1,11 +1,11 @@
-import type {Metadata} from "next";
-import {Inter} from "next/font/google";
-import "./globals.css";
-import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
-import React from "react";
+import type {Metadata} from "next";
 import {NextIntlClientProvider, useMessages} from "next-intl";
+import {Inter} from "next/font/google";
+import React from "react";
+import "./globals.css";
 
 const inter = Inter({subsets: ["latin"]});
 
