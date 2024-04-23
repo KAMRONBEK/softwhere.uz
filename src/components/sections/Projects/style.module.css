@@ -21,3 +21,9 @@
   line-height: 22px;
   letter-spacing: -0.41px;
 }
+
+@media (max-width: 770px) {
+  .section {
+    padding: 50px 0;
+  }
+}

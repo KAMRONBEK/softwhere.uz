@@ -1,0 +1,81 @@
+.section {
+    position: relative;
+    height: 350px;
+    width: 100%;
+    background-color: var(--accent);
+    background-image: url("../../../../public/images/noise.svg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.bgTextImg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.formBox {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 190px;
+    border-radius: 12px;
+    box-shadow: 0px 0px 24px 0px rgba(0, 0, 0, 0.16),
+    0px 0px 2px 0px rgba(0, 0, 0, 0.08);
+    background: rgb(255, 255, 255);
+    padding: 24px;
+}
+
+.formInput {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.formInput label {
+    color: var(--gray-500);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: -0.08px;
+}
+
+.phoneInput {
+    border-bottom: 0.7px solid var(--gray-300);
+}
+
+.formInput input {
+    outline: none;
+    border-bottom: 0.7px solid var(--gray-300);
+    color: var(--gray-900) !important;
+    font-size: 17px !important;
+    font-weight: 400 !important;
+    line-height: 22px !important;
+    letter-spacing: -0.41px !important;
+    padding: 8px 0 !important;
+}
+
+.input {
+    border: none !important;
+    padding: 8px !important;
+}
+
+@media (max-width: 770px) {
+    .section {
+        height: auto;
+        padding: 20px 0;
+    }
+
+    .formBox {
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 450px) {
+    .formBox {
+        height: auto;
+    }
+}
