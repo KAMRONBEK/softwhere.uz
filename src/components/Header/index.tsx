@@ -1,30 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
 import {useTranslations} from "use-intl";
 import RuFlag from "../../../public/icons/Russia (RU).svg";
 // import EngFlag from "../../../public/icons/United Kingdom (GB).svg";
+import {getCookie} from "cookies-next";
 import UzbFlag from "../../../public/icons/Uzbekistan (UZ).svg";
 import Logo from "../../../public/icons/logo.svg";
 import EmailIcon from "../../../public/icons/mail-outline.svg";
 import SmartphoneIcon from "../../../public/icons/smartphone-icon.svg";
 import css from "./style.module.css";
-import { getCookie } from 'cookies-next';
-
 
 function Header() {
-  const t = useTranslations("header")
+  const t = useTranslations("header");
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [lang, setLang] = useState<string>("uz")
-  const router = useRouter()
+  const [lang, setLang] = useState<string>("uz");
+  const router = useRouter();
 
   useEffect(() => {
     const currentLang = getCookie("NEXT_LOCALE") || "uz";
-    setLang(currentLang)
-  },[])
-
+    setLang(currentLang);
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -32,8 +30,8 @@ function Header() {
   };
 
   const changeLanguage = (locale: string) => {
-    router.push(locale)
-    setLang(locale)
+    router.push(locale);
+    setLang(locale);
   };
 
   return (
@@ -81,11 +79,17 @@ function Header() {
               <Image src={EngFlag} alt={""} />
               <p>Eng</p>
             </li> */}
-            <li className={lang === 'ru' ? css.activeLang : ""} onClick={() => changeLanguage("ru")}>
+            <li
+              className={lang === "ru" ? css.activeLang : ""}
+              onClick={() => changeLanguage("ru")}
+            >
               <Image src={RuFlag} alt={""} />
               <p>Ru</p>
             </li>
-            <li className={lang === 'uz' ? css.activeLang : ""} onClick={() => changeLanguage("uz")}>
+            <li
+              className={lang === "uz" ? css.activeLang : ""}
+              onClick={() => changeLanguage("uz")}
+            >
               <Image src={UzbFlag} alt={""} />
               <p>Uz</p>
             </li>
@@ -117,25 +121,25 @@ function Header() {
       <nav className={`${css.navMobile} ${isOpen ? css.navOpen : ""}`}>
         <ul className={css.mobileLinks}>
           <li onClick={toggleMenu}>
-            <a href="#">Home</a>
+            <a href="#">{t("home")}</a>
           </li>
           <li onClick={toggleMenu}>
-            <a href="#services">Services</a>
+            <a href="#services">{t("services")}</a>
           </li>
           <li onClick={toggleMenu}>
-            <a href="#portfolio">Portfolio</a>
+            <a href="#portfolio">{t("portfolio")}</a>
           </li>
           <li onClick={toggleMenu}>
-            <a href="#contact">Contact</a>
+            <a href="#contact">{t("contact")}</a>
           </li>
 
           <li onClick={toggleMenu}>
-            <a href="#faq">FAQ</a>
+            <a href="#faq">{t("faq")}</a>
           </li>
 
           <li className={css.dropdown}>
             <div className={`flex items-center cursor-pointer ${css.lang}`}>
-              <p>Lang</p>
+              <p>{t("lang")}</p>
               <svg
                 width="24"
                 height="24"
@@ -157,11 +161,17 @@ function Header() {
                 <Image src={EngFlag} alt={""} />
                 <p>Eng</p>
               </li> */}
-              <li className={lang === 'ru' ? css.activeLang : ""} onClick={() => changeLanguage("ru")}>
+              <li
+                className={lang === "ru" ? css.activeLang : ""}
+                onClick={() => changeLanguage("ru")}
+              >
                 <Image src={RuFlag} alt={""} />
                 <p>Ru</p>
               </li>
-              <li className={lang === 'uz' ? css.activeLang : ""} onClick={() => changeLanguage("uz")}>
+              <li
+                className={lang === "uz" ? css.activeLang : ""}
+                onClick={() => changeLanguage("uz")}
+              >
                 <Image src={UzbFlag} alt={""} />
                 <p>Uz</p>
               </li>
@@ -169,8 +179,8 @@ function Header() {
           </li>
           <li>
             <Image src={SmartphoneIcon} alt="" />
-            <a href="" className="hover:text-slate-200">
-              +7 (707) 254 81 47
+            <a href="tel:+998332499111" className="hover:text-slate-200">
+              +998 33 249-91-11
             </a>
           </li>
         </ul>
