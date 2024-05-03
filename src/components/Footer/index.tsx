@@ -77,7 +77,7 @@ function Footer() {
             </svg>
             <p>Address</p>
           </div>
-          <a href="">Almaty city, Shevchenko st. 90</a>
+          <a href="">Tashkent city, Uzbekistan</a>
         </div>
         <div className={css.footerItem}>
           <div className="flex items-center gap-2 md:mb-2">
