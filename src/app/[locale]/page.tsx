@@ -1,5 +1,9 @@
 "use client";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import Head from "next/head";
 import {useEffect} from "react";
+import {ToastContainer} from "react-toastify";
 
 import Contact from "@/components/sections/Contact";
 import Discuss from "@/components/sections/Discuss";
@@ -8,10 +12,6 @@ import Hero from "@/components/sections/Hero";
 import Projects from "@/components/sections/Projects";
 import Service from "@/components/sections/Service";
 
-import AOS from "aos";
-import "aos/dist/aos.css";
-import Head from "next/head";
-import {ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function Home() {
