@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import {useRouter} from "next/navigation";
-import {useEffect, useState} from "react";
-import {useTranslations} from "use-intl";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useTranslations } from "use-intl";
 import RuFlag from "../../../public/icons/Russia (RU).svg";
 // import EngFlag from "../../../public/icons/United Kingdom (GB).svg";
-import {getCookie} from "cookies-next";
+import { getCookie } from "cookies-next";
 import UzbFlag from "../../../public/icons/Uzbekistan (UZ).svg";
 import Logo from "../../../public/icons/logo.svg";
 import EmailIcon from "../../../public/icons/mail-outline.svg";
@@ -30,7 +30,24 @@ function Header() {
   };
 
   const changeLanguage = (locale: string) => {
-    router.push(locale);
+    // Get current path without locale prefix
+    const pathname = window.location.pathname;
+
+    // Extract the path after the locale segment
+    const pathSegments = pathname.split('/').filter(Boolean);
+    let newPath = '/';
+
+    if (pathSegments.length > 0) {
+      // Remove the first segment (current locale) and reconstruct the path
+      const routeWithoutLocale = pathSegments.slice(1).join('/');
+      newPath = `/${locale}/${routeWithoutLocale}`;
+    } else {
+      // If we're at the root, just add the locale
+      newPath = `/${locale}`;
+    }
+
+    // Navigate to the new path
+    router.push(newPath);
     setLang(locale);
   };
 
@@ -41,19 +58,22 @@ function Header() {
       </a>
       <ul className={css.links}>
         <li>
-          <a href="#">{t("home")}</a>
+          <a href="/">{t("home")}</a>
         </li>
         <li>
-          <a href="#services">{t("services")}</a>
+          <a href={`/${lang}#services`}>{t("services")}</a>
         </li>
         <li>
-          <a href="#portfolio">{t("portfolio")}</a>
+          <a href={`/${lang}#portfolio`}>{t("portfolio")}</a>
         </li>
         <li>
-          <a href="#contact">{t("contact")}</a>
+          <a href={`/${lang}/blog`}>{t("blog")}</a>
         </li>
         <li>
-          <a href="#faq">{t("faq")}</a>
+          <a href={`/${lang}#contact`}>{t("contact")}</a>
+        </li>
+        <li>
+          <a href={`/${lang}#faq`}>{t("faq")}</a>
         </li>
         <li className={css.dropdown}>
           <div className={`flex items-center cursor-pointer ${css.lang}`}>
@@ -121,20 +141,23 @@ function Header() {
       <nav className={`${css.navMobile} ${isOpen ? css.navOpen : ""}`}>
         <ul className={css.mobileLinks}>
           <li onClick={toggleMenu}>
-            <a href="#">{t("home")}</a>
+            <a href="/">{t("home")}</a>
           </li>
           <li onClick={toggleMenu}>
-            <a href="#services">{t("services")}</a>
+            <a href={`/${lang}#services`}>{t("services")}</a>
           </li>
           <li onClick={toggleMenu}>
-            <a href="#portfolio">{t("portfolio")}</a>
+            <a href={`/${lang}#portfolio`}>{t("portfolio")}</a>
           </li>
           <li onClick={toggleMenu}>
-            <a href="#contact">{t("contact")}</a>
+            <a href={`/${lang}/blog`}>{t("blog")}</a>
+          </li>
+          <li onClick={toggleMenu}>
+            <a href={`/${lang}#contact`}>{t("contact")}</a>
           </li>
 
           <li onClick={toggleMenu}>
-            <a href="#faq">{t("faq")}</a>
+            <a href={`/${lang}#faq`}>{t("faq")}</a>
           </li>
 
           <li className={css.dropdown}>
@@ -176,12 +199,6 @@ function Header() {
                 <p>Uz</p>
               </li>
             </ul>
-          </li>
-          <li>
-            <Image src={SmartphoneIcon} alt="" />
-            <a href="tel:+998332499111" className="hover:text-slate-200">
-              +998 33 249-91-11
-            </a>
           </li>
         </ul>
       </nav>
