@@ -1,25 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { logger } from '@/utils/logger';
 
 // TODO: Add authentication/authorization check here
 
 export async function GET(request: NextRequest) {
     // In a real app, verify user is authenticated and authorized admin here
-
+    const startTime = Date.now();
+    
     try {
-        await dbConnect();
-
-        // Fetch all posts, sorted by creation date (newest first)
-        const posts = await BlogPost.find({})
-            .sort({ createdAt: -1 })
-            .select('_id title slug content status locale generationGroupId createdAt updatedAt')
-            .lean(); // Use .lean() for plain JS objects
-
+        logger.info('Starting admin posts fetch', undefined, 'API');
+        
+        // Add timeout wrapper
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Database operation timeout')), 25000); // 25 seconds
+        });
+        
+        const dbPromise = (async () => {
+            await dbConnect();
+            logger.info('Database connected for admin posts', undefined, 'API');
+            
+            // Fetch all posts, sorted by creation date (newest first)
+            const posts = await BlogPost.find({})
+                .sort({ createdAt: -1 })
+                .select('_id title slug content status locale generationGroupId createdAt updatedAt')
+                .lean(); // Use .lean() for plain JS objects
+                
+            logger.info(`Fetched ${posts.length} posts for admin`, undefined, 'API');
+            return posts;
+        })();
+        
+        const posts = await Promise.race([dbPromise, timeoutPromise]);
+        
+        const duration = Date.now() - startTime;
+        logger.performance('Admin posts fetch', duration, 'API');
+        
         return NextResponse.json({ posts });
 
     } catch (error: any) {
-        console.error("Error fetching posts for admin:", error);
+        const duration = Date.now() - startTime;
+        logger.error("Error fetching posts for admin", error, 'API');
+        logger.performance('Admin posts fetch (failed)', duration, 'API');
+        
+        // Check if it's a timeout error
+        if (error.message === 'Database operation timeout') {
+            return NextResponse.json(
+                { error: 'Request timeout - database took too long to respond' },
+                { status: 504 }
+            );
+        }
+        
         return NextResponse.json(
             { error: 'Failed to fetch posts', details: error.message || String(error) },
             { status: 500 }
