@@ -1,0 +1,15 @@
+name: Generate Daily Blog Post
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Blog Generation API
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.API_SECRET }}" ${{ secrets.WEBSITE_URL }}/api/blog/generate
+          # We'll need to add error handling and potentially pass parameters later 
