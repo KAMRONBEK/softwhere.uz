@@ -57,4 +57,5 @@ export const ENV = {
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   API_SECRET: process.env.API_SECRET || '',
   NODE_ENV: process.env.NODE_ENV || 'development',
+  BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz',
 } as const; 
