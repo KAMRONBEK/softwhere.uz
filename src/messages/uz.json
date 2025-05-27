@@ -5,7 +5,8 @@
     "portfolio": "Portfolio",
     "contact": "Aloqa",
     "faq": "FAQ",
-    "lang": "Til"
+    "lang": "Til",
+    "blog": "Blog"
   },
   "hero": {
     "title": "Har qanday murakkablikdagi mobil ilovalar va veb-xizmatlarni ishlab chiqish.",
@@ -18,7 +19,7 @@
     "title": "Bizning xizmatlarimiz",
     "description": "Mijozlarning ehtiyojlariga moslashtirilgan foydalanuvchilarga qulay va murakkab veb-saytlar va ilovalarni yaratish. IOS va Android platformalariga mos keladigan ko'p qirrali mobil ilovalarni ishlab chiqish.",
     "service1": {
-      "title" : "Landing page",
+      "title": "Landing page",
       "description": "Kompaniya haqida ma'lumotni ko'rsatish. Sizning kompaniyangiz joylashgan joyni ko'rsatishingiz va mijozlar bilan bog'lanishingiz mumkin bo'lgan sayt."
     },
     "service2": {
@@ -79,5 +80,18 @@
     "answer3": "Ushbu bosqichda, dizayn va funksiyalarni asosida asosan kod yozish boshlanadi. Bu qadamda, front-end (mijoz tomoni) va back-end (server tomonidagi logika va ma'lumotlar bilan ishlash) bo'yicha dasturlash bilan shug'ullanish kerak bo'ladi.",
     "question4": "4-bosqich Testlash va Taqdim etish (Testing and Deployment):",
     "answer4": "So'nggi bosqichda, yaratilgan sayt test qilinadi va uni internetga joylashtirish uchun tayyorlashtiriladi. Bu bosqichda, muammo va xato aniqlangan holda, ularni tuzatish va saytni ommaga taqdim etish uchun har qanday testlarni amalga oshirish kerak bo'ladi."
+  },
+  "blog": {
+    "title": "Blog",
+    "readMore": "Ko'proq o'qish",
+    "backToBlog": "Blogga qaytish",
+    "noPostsAvailable": "Hozirda blog postlari mavjud emas.",
+    "availableIn": "Bu maqola {language} tilida mavjud.",
+    "viewIn": "{language} tilida ko'rish",
+    "russian": "rus",
+    "uzbek": "o'zbek",
+    "english": "ingliz",
+    "showAllLocales": "Barcha tillardagi postlarni ko'rsatish",
+    "showCurrentLocale": "Faqat o'zbek tilidagi postlarni ko'rsatish"
   }
 }
