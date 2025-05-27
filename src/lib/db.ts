@@ -39,20 +39,35 @@ async function dbConnect(): Promise<Mongoose> {
     if (!cached.promise) {
         const opts = {
             bufferCommands: false,
-            serverSelectionTimeoutMS: 10000, // 10 seconds
-            socketTimeoutMS: 45000, // 45 seconds
-            connectTimeoutMS: 10000, // 10 seconds
-            maxPoolSize: 10, // Maintain up to 10 socket connections
-            minPoolSize: 5, // Maintain a minimum of 5 socket connections
-            maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+            serverSelectionTimeoutMS: 5000, // Reduced to 5 seconds for Vercel
+            socketTimeoutMS: 20000, // Reduced to 20 seconds for Vercel
+            connectTimeoutMS: 5000, // Reduced to 5 seconds for Vercel
+            maxPoolSize: 5, // Reduced pool size for serverless
+            minPoolSize: 1, // Reduced minimum pool size
+            maxIdleTimeMS: 10000, // Reduced idle time for serverless
+            heartbeatFrequencyMS: 10000, // Add heartbeat for connection health
+            retryWrites: true,
+            retryReads: true,
         };
 
         logger.info("Creating new MongoDB connection", undefined, 'DB');
-        cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
-            logger.info("MongoDB connection established", undefined, 'DB');
-            return mongooseInstance;
+        
+        // Add timeout wrapper for the entire connection process
+        const connectionTimeout = new Promise<never>((_, reject) => {
+            setTimeout(() => {
+                reject(new Error('MongoDB connection timeout after 8 seconds'));
+            }, 8000);
         });
+
+        cached.promise = Promise.race([
+            mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+                logger.info("MongoDB connection established", undefined, 'DB');
+                return mongooseInstance;
+            }),
+            connectionTimeout
+        ]);
     }
+    
     try {
         cached.conn = await cached.promise;
     } catch (e) {
