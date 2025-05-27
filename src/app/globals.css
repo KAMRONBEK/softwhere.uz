@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    scroll-behavior: smooth;
+}
+
+:root {
+    /* Original color variables */
+    --gray-900: rgb(16, 24, 40);
+    --gray-800: rgb(29, 41, 57);
+    --gray-700: rgb(52, 64, 84);
+    --gray-500: rgb(102, 112, 133);
+    --gray-300: rgb(208, 213, 221);
+    --gray-100: rgb(242, 244, 247);
+    --accent: #fe4502;
+    --accent-opacity: #fe4502aa;
+    --light-accent: #ff5f24aa;
+    --white: rgb(255, 255, 255);
+}
+
+body {
+    position: relative;
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+.hide {
+    height: 100vh;
+    overflow-y: hidden;
+}
+
+/* Universal page layout to account for fixed header */
+.page-layout {
+    padding-top: 120px;
+    min-height: 100vh;
+}
+
+/* Admin page layout to account for fixed header */
+.admin-layout {
+    padding-top: 120px;
+    min-height: 100vh;
+    background-color: rgb(249, 250, 251);
+    /* bg-gray-50 */
+}
+
+/* Re-added original dark mode (prefers-color-scheme) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+        /* You might need to adjust dark mode colors if needed, 
+           but reverting to the original state */
+    }
+}
+
+.container {
+    width: 1222px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1025px) {
+    .container {
+        width: 980px;
+    }
+}
+
+@media (max-width: 770px) {
+    .container {
+        width: 600px;
+    }
+}
+
+@media (max-width: 450px) {
+    .container {
+        width: 95%;
+    }
+}
