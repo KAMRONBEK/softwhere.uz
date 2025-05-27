@@ -1,0 +1,88 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Development Guidelines
+
+## 🎯 **Core Principles**
+
+Follow SOLID principles and clean code practices. Always prioritize maintainability and type safety.
+
+## 📋 **Code Standards**
+
+### **Constants Usage**
+- Import from [src/constants/index.ts](mdc:src/constants/index.ts) instead of hardcoding values
+- Use `UI_CONFIG.SCROLL_THRESHOLD` instead of magic numbers
+- Use `CONTACT_INFO.PHONE` instead of hardcoded contact details
+
+### **Type Safety**
+- Import types from [src/types/index.ts](mdc:src/types/index.ts)
+- Use proper interfaces: `BlogPost`, `Project`, `ApiResponse<T>`
+- Avoid `any` types - use proper generics
+
+### **Logging**
+- Import logger from [src/utils/logger.ts](mdc:src/utils/logger.ts)
+- Use `logger.info()`, `logger.error()`, `logger.debug()` instead of `console.log`
+- Include context: `logger.error('API failed', error, 'CONTEXT')`
+
+### **API Calls**
+- Use API client from [src/utils/api.ts](mdc:src/utils/api.ts)
+- Replace `fetch()` calls with `api.blog.getPosts()`, `api.admin.deletePost()`
+- Handle responses properly: check `response.success` before using `response.data`
+
+## 🔧 **Component Guidelines**
+
+### **Header Component**
+- [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx) handles scroll behavior
+- Uses `UI_CONFIG.SCROLL_THRESHOLD` for scroll detection
+- Implements throttled scroll events with `requestAnimationFrame`
+
+### **Project Slider**
+- [src/components/sections/Projects/components/ProjectSlider/index.tsx](mdc:src/components/sections/Projects/components/ProjectSlider/index.tsx)
+- Uses data from [src/data/projects.ts](mdc:src/data/projects.ts)
+- Supports multi-language descriptions
+
+## 🌐 **Internationalization**
+
+### **Language Switching**
+- Use [src/hooks/useBlogLanguageSwitch.ts](mdc:src/hooks/useBlogLanguageSwitch.ts) for blog posts
+- Handle `generationGroupId` for related posts in different languages
+- Fallback to blog listing if no related post found
+
+### **Supported Locales**
+- `uz` (Uzbek) - default
+- `ru` (Russian)  
+- `en` (English)
+
+## 🔒 **Security**
+
+### **Admin Access**
+- No permanent visible admin buttons
+- Secret access via click sequence (5 clicks on top-left corner)
+- Auto-hide admin button after 10 seconds
+
+### **Environment Variables**
+- Use [src/utils/env.ts](mdc:src/utils/env.ts) for validation
+- Required: `MONGODB_URI`
+- Optional: `GOOGLE_API_KEY`, `OPENAI_API_KEY`, `API_SECRET`
+
+## 📊 **Performance**
+
+### **Scroll Optimization**
+- Use `requestAnimationFrame` for scroll events
+- Throttle expensive operations
+- Use CSS transforms for smooth animations
+
+### **Database**
+- Connection pooling via [src/lib/db.ts](mdc:src/lib/db.ts)
+- Proper error handling and logging
+- Environment validation on startup
+
+## 🚫 **Avoid**
+
+- ❌ `console.log` statements (use logger)
+- ❌ Magic numbers (use constants)
+- ❌ Direct `fetch()` calls (use API client)
+- ❌ Hardcoded values (use constants)
+- ❌ `any` types (use proper interfaces)
