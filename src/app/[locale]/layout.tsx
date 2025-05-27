@@ -3,22 +3,44 @@ import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
 import type { Metadata } from "next";
 import { NextIntlClientProvider, useMessages } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Inter } from "next/font/google";
 import React from "react";
+import { BlogProvider } from "@/contexts/BlogContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title:
-    "Закажите Веб-Сайт Любой Сложности, Мобильное Приложение Или Телеграм-Бот со Скидкой от 20% до 50% ",
-  description:
-    "Получите 1 Год Бесплатного Хостинга и Другие Бонусы Для Первых 10 Клиентов.",
-};
+export async function generateMetadata({
+  params: { locale }
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+  
+  return {
+    title: t('title'),
+    description: t('description'),
+    icons: {
+      icon: [
+        {
+          url: '/favicon.svg',
+          type: 'image/svg+xml',
+        },
+        {
+          url: '/icons/logo.svg',
+          type: 'image/svg+xml',
+        }
+      ],
+      shortcut: '/favicon.svg',
+      apple: '/icons/logo.svg',
+    },
+  };
+}
 
 type Props = {
   children: React.ReactNode;
   params: {
-    locale: "uz" | "ru";
+    locale: "en" | "uz" | "ru";
   };
 };
 
@@ -28,10 +50,12 @@ const RootLayout: React.FC<Props> = ({ children, params: { locale } }) => {
     <html lang={locale}>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages}>
-          <Header />
-          {children}
-          <ScrollToTop />
-          <Footer />
+          <BlogProvider>
+            <Header />
+            {children}
+            <ScrollToTop />
+            <Footer />
+          </BlogProvider>
         </NextIntlClientProvider>
       </body>
     </html>

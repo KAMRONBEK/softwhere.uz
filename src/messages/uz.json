@@ -92,6 +92,18 @@
     "uzbek": "o'zbek",
     "english": "ingliz",
     "showAllLocales": "Barcha tillardagi postlarni ko'rsatish",
-    "showCurrentLocale": "Faqat o'zbek tilidagi postlarni ko'rsatish"
+    "showCurrentLocale": "Faqat o'zbek tilidagi postlarni ko'rsatish",
+    "cta": {
+      "title": "Loyihangizni boshlashga tayyormisiz?",
+      "description": "Tajribali dasturchilar jamoamiz sizga ajoyib mobil ilovalar, veb-ilovalar va Telegram botlarini yaratishda yordam berishga tayyor. Keling, loyihangiz talablarini muhokama qilaylik.",
+      "getStarted": "Boshlash",
+      "viewWork": "Ishlarimizni ko'rish"
+    },
+    "readingTime": "daqiqa o'qish",
+    "readMoreArticles": "Ko'proq maqolalar o'qish"
+  },
+  "metadata": {
+    "title": "Orzuingizdagi Mobil Ilova, Veb-Sayt yoki Telegram Bot Yarating - 50% gacha Chegirma + Bepul Hosting",
+    "description": "Biznesingizni maxsus mobil ilovalar, zamonaviy veb-saytlar va kuchli Telegram botlar bilan o'zgartiring. Professional ishlab chiqish va 1 yillik bepul hosting."
   }
 }
