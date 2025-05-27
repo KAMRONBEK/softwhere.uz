@@ -13,7 +13,7 @@ import LocationIcon from "../../../../../../public/icons/place_outline_24.svg";
 import PlayMarketIcon from "../../../../../../public/icons/play-market.svg";
 import WorkIcon from "../../../../../../public/icons/work_outline_24.svg";
 import ProjectImage from "../../../../../../public/images/i-teka.png";
-import {projects} from "@/utils/data";
+import { projects } from "@/data/projects";
 import {getCookie} from "cookies-next";
 
 function ProjectSlider() {

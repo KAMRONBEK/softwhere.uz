@@ -1,0 +1,56 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Structure Guide
+
+## 🏗️ **Core Architecture**
+
+This is a Next.js project with internationalization (next-intl) and a comprehensive blog system with admin interface.
+
+### **Key Entry Points**
+- Main homepage: [src/app/[locale]/page.tsx](mdc:src/app/[locale]/page.tsx)
+- Admin panel: [src/app/[locale]/admin/posts/page.tsx](mdc:src/app/[locale]/admin/posts/page.tsx)
+- Blog listing: [src/app/[locale]/blog/page.tsx](mdc:src/app/[locale]/blog/page.tsx)
+- Individual blog posts: [src/app/[locale]/blog/[slug]/page.tsx](mdc:src/app/[locale]/blog/[slug]/page.tsx)
+
+### **Optimized Structure**
+
+#### **📁 Constants & Configuration**
+- [src/constants/index.ts](mdc:src/constants/index.ts) - Centralized configuration (API endpoints, UI settings, contact info)
+- [src/utils/env.ts](mdc:src/utils/env.ts) - Environment validation and configuration
+
+#### **📁 Type Definitions**
+- [src/types/index.ts](mdc:src/types/index.ts) - All TypeScript interfaces and types
+
+#### **📁 Utilities**
+- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Structured logging system
+- [src/utils/api.ts](mdc:src/utils/api.ts) - Centralized HTTP client with error handling
+- [src/lib/db.ts](mdc:src/lib/db.ts) - MongoDB connection with logging
+
+#### **📁 Data & Content**
+- [src/data/projects.ts](mdc:src/data/projects.ts) - Project portfolio data
+- [src/hooks/useBlogLanguageSwitch.ts](mdc:src/hooks/useBlogLanguageSwitch.ts) - Blog language switching logic
+
+#### **📁 Components**
+- [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx) - Main navigation with scroll behavior
+- [src/components/sections/Projects/components/ProjectSlider/index.tsx](mdc:src/components/sections/Projects/components/ProjectSlider/index.tsx) - Project showcase slider
+
+## 🔐 **Admin Access**
+
+Secret admin access via clicking top-left corner 5 times quickly within 3 seconds. Button appears for 10 seconds in top-right corner.
+
+## 🌐 **Internationalization**
+
+Supports 3 locales: `uz` (default), `ru`, `en`. Blog posts can be generated in multiple languages with shared `generationGroupId`.
+
+## 📊 **Optimization Status**
+
+Project has been comprehensively optimized following SOLID principles:
+- ✅ Constants centralization
+- ✅ Type safety enhancement  
+- ✅ Structured logging
+- ✅ API client standardization
+- ✅ Environment validation
+- ✅ Security improvements

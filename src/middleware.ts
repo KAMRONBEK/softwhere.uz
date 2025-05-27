@@ -1,8 +1,8 @@
 import createMiddleware from "next-intl/middleware";
-import {NextRequest, NextResponse} from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const nextIntlMiddleware = createMiddleware({
-  locales: ["ru", "uz"],
+  locales: ["en", "ru", "uz"],
   defaultLocale: "uz",
 });
 
@@ -11,5 +11,5 @@ export default function (req: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ["/", "/(uz|ru)/:path*"],
+  matcher: ["/", "/(en|uz|ru)/:path*"],
 };
