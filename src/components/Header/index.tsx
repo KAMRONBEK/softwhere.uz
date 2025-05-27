@@ -5,35 +5,104 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslations } from "use-intl";
 import RuFlag from "../../../public/icons/Russia (RU).svg";
-// import EngFlag from "../../../public/icons/United Kingdom (GB).svg";
+import EngFlag from "../../../public/icons/United Kingdom (GB).svg";
 import { getCookie } from "cookies-next";
 import UzbFlag from "../../../public/icons/Uzbekistan (UZ).svg";
 import Logo from "../../../public/icons/logo.svg";
 import EmailIcon from "../../../public/icons/mail-outline.svg";
 import SmartphoneIcon from "../../../public/icons/smartphone-icon.svg";
 import css from "./style.module.css";
+import { useBlogContext } from "@/contexts/BlogContext";
+import { UI_CONFIG, CONTACT_INFO } from "@/constants";
+import { logger } from "@/utils/logger";
 
 function Header() {
   const t = useTranslations("header");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [lang, setLang] = useState<string>("uz");
+  const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
+  const [lastScrollY, setLastScrollY] = useState<number>(0);
   const router = useRouter();
+  const { currentPost } = useBlogContext();
 
   useEffect(() => {
     const currentLang = getCookie("NEXT_LOCALE") || "uz";
     setLang(currentLang);
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Only show header when within threshold of the top
+      if (currentScrollY <= UI_CONFIG.SCROLL_THRESHOLD) {
+        setIsHeaderVisible(true);
+      }
+      // Hide header when scrolling down past threshold
+      else if (currentScrollY > UI_CONFIG.SCROLL_THRESHOLD) {
+        setIsHeaderVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    // Add scroll event listener with throttling for better performance
+    let ticking = false;
+    const throttledHandleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', throttledHandleScroll);
+    };
+  }, [lastScrollY]);
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
     document.body.classList.toggle("hide");
   };
 
-  const changeLanguage = (locale: string) => {
-    // Get current path without locale prefix
-    const pathname = window.location.pathname;
+  const changeLanguage = async (locale: string) => {
+    // Check if we're on a blog post page and have a current post with generationGroupId
+    if (currentPost?.generationGroupId) {
+      try {
+        // Try to find the related post in the target language
+        const response = await fetch(
+          `/api/blog/posts/related?generationGroupId=${currentPost.generationGroupId}&locale=${locale}`
+        );
 
-    // Extract the path after the locale segment
+        if (response.ok) {
+          const data = await response.json();
+          // Navigate to the related post in the target language
+          router.push(`/${locale}/blog/${data.post.slug}`);
+          setLang(locale);
+          return;
+        } else {
+          // If no related post found, redirect to blog listing in target language
+          router.push(`/${locale}/blog`);
+          setLang(locale);
+          return;
+        }
+              } catch (error) {
+        logger.error('Error switching language', error, 'HEADER');
+        // Fall back to blog listing in target language
+        router.push(`/${locale}/blog`);
+        setLang(locale);
+        return;
+      }
+    }
+
+    // Default language switching for non-blog pages
+    const pathname = window.location.pathname;
     const pathSegments = pathname.split('/').filter(Boolean);
     let newPath = '/';
 
@@ -52,7 +121,7 @@ function Header() {
   };
 
   return (
-    <header className={`${css.header} container`}>
+    <header className={`${css.header} container ${!isHeaderVisible ? css.headerHidden : ''}`}>
       <a href="/">
         <Image src={Logo} alt="" />
       </a>
@@ -95,10 +164,13 @@ function Header() {
           </div>
           <div className={css.triangle}></div>
           <ul className={css.content}>
-            {/* <li>
+            <li
+              className={lang === "en" ? css.activeLang : ""}
+              onClick={() => changeLanguage("en")}
+            >
               <Image src={EngFlag} alt={""} />
-              <p>Eng</p>
-            </li> */}
+              <p>En</p>
+            </li>
             <li
               className={lang === "ru" ? css.activeLang : ""}
               onClick={() => changeLanguage("ru")}
@@ -120,14 +192,14 @@ function Header() {
       <div className={css.contacts}>
         <div className={css.contact}>
           <Image src={SmartphoneIcon} alt="" />
-          <a href="tel:+998332499111" className="hover:opacity-50">
-            +998 33 249-91-11
+          <a href={`tel:${CONTACT_INFO.PHONE}`} className="hover:opacity-50">
+            {CONTACT_INFO.PHONE}
           </a>
         </div>
         <div className={css.contact}>
           <Image src={EmailIcon} alt="" />
-          <a href="mailto:kamuranbek98@gmail.com" className="hover:opacity-50">
-            kamuranbek98@gmail.com
+          <a href={`mailto:${CONTACT_INFO.EMAIL}`} className="hover:opacity-50">
+            {CONTACT_INFO.EMAIL}
           </a>
         </div>
       </div>
@@ -180,10 +252,13 @@ function Header() {
             </div>
             <div className={css.triangle}></div>
             <ul className={css.content}>
-              {/* <li>
+              <li
+                className={lang === "en" ? css.activeLang : ""}
+                onClick={() => changeLanguage("en")}
+              >
                 <Image src={EngFlag} alt={""} />
-                <p>Eng</p>
-              </li> */}
+                <p>En</p>
+              </li>
               <li
                 className={lang === "ru" ? css.activeLang : ""}
                 onClick={() => changeLanguage("ru")}

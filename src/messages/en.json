@@ -1,0 +1,109 @@
+{
+  "header": {
+    "home": "Home",
+    "services": "Services",
+    "portfolio": "Portfolio",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "lang": "Language",
+    "blog": "Blog"
+  },
+  "hero": {
+    "title": "Development of mobile applications and web services of any complexity.",
+    "description": "We create mobile applications for iOS and Android that will bring your business to mobile audiences.",
+    "phoneNumber": "Your Phone Number",
+    "name": "Your Name",
+    "btn": "Get Consultation"
+  },
+  "services": {
+    "title": "Our Services",
+    "description": "Creating user-friendly and complex websites and applications tailored to user needs. Development of high-quality mobile applications suitable for iOS and Android platforms.",
+    "service1": {
+      "title": "Landing Page",
+      "description": "Providing information about the company. Creating a website that allows you to show your company's location and connect with customers."
+    },
+    "service2": {
+      "title": "Corporate Websites",
+      "description": "The official virtual reception of the company. Providing detailed information about products or services offered by the corporate website."
+    },
+    "service3": {
+      "title": "Mobile Applications",
+      "description": "Enabling you to manage and control your business through mobile devices such as smartphones and tablets. Creating convenience for your customers."
+    },
+    "service4": {
+      "title": "IT Consulting",
+      "description": "Helping you understand the specific requirements of your organization and providing exceptional IT consulting needed only for your company."
+    },
+    "service5": {
+      "title": "IT Startups",
+      "description": "The difference between an IT startup and traditional business is that it offers customers products or services that have not been used in the market before."
+    },
+    "service6": {
+      "title": "ERP & CRM",
+      "description": "Providing centralized access to all operational processes of the company and giving you the opportunity to see your business in numbers."
+    }
+  },
+  "discuss": {
+    "title": "Come, let's discuss your project",
+    "description": "Come, let's discuss how to create effective software, determine its cost and discuss the conditions for its development.",
+    "phoneNumber": "Your Phone Number",
+    "name": "Your Name",
+    "btn": "Discuss"
+  },
+  "projects": {
+    "title": "Our pride - projects",
+    "description": "Our software development company is proud of our wonderful clients. We are very pleased with long-term cooperation."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Contact us for any questions, suggestions or complaints. We will definitely answer you. Your suggestion or request will be considered positively!",
+    "phoneNumber": "Your Phone Number",
+    "name": "Your Name",
+    "message": "Message",
+    "messagePlaceholder": "Enter your message here...",
+    "btn": "Send"
+  },
+  "toastMessage": {
+    "phoneNumber": "Enter phone number!",
+    "name": "Enter your name!",
+    "message": "Enter message!",
+    "loading": "Please wait..."
+  },
+  "faq": {
+    "title": "Website creation stages:",
+    "description": "A website created by Softwhere is an effective business tool that works 24/7, and we guarantee its proper development and promotion.\nIt attracts customers to you, increases sales and increases user loyalty.",
+    "question1": "Stage 1 Planning:",
+    "answer1": "In the first stage, you define the goals of your website, content, addresses and prepare the right data. Planning includes making decisions about the structure, design and functions of your site.",
+    "question2": "Stage 2 Design:",
+    "answer2": "In the second stage, you create the design of your site based on the pre-prepared plan. Here you can develop your brand design, colors, fonts and interface design based on your brand concepts.",
+    "question3": "Stage 3 Development:",
+    "answer3": "At this stage, code writing begins based on design and functions. Here you will need front-end (client side) and back-end (server logic and data handling) programming.",
+    "question4": "Stage 4 Testing and Deployment:",
+    "answer4": "In the final stage, the created site is tested and prepared for placement on the Internet. At this stage, it is necessary to conduct all types of tests to detect problems and errors, fix them and present your site to a wide audience."
+  },
+  "blog": {
+    "title": "Blog",
+    "readMore": "Read More",
+    "backToBlog": "Back to Blog",
+    "noPostsAvailable": "No posts available at the moment.",
+    "availableIn": "This article is available in {language}.",
+    "viewIn": "View in {language}",
+    "russian": "Russian",
+    "uzbek": "Uzbek",
+    "english": "English",
+    "showAllLocales": "Show posts in all languages",
+    "showCurrentLocale": "Show only in English",
+    "cta": {
+      "title": "Ready to Start Your Project?",
+      "description": "Our team of experienced developers is ready to help you build amazing mobile apps, web applications, and Telegram bots. Let's discuss your project requirements.",
+      "getStarted": "Get Started",
+      "viewWork": "View Our Work"
+    },
+    "readingTime": "min read",
+    "readMoreArticles": "Read More Articles"
+  },
+  "metadata": {
+    "title": "Build Your Dream Mobile App, Website or Telegram Bot - Up to 50% Off + Free Hosting",
+    "description": "Transform your business with custom mobile apps, modern websites & powerful Telegram bots. Professional development with 1-year free hosting for early clients."
+  }
+} 
