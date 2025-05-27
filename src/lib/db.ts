@@ -1,4 +1,6 @@
 import mongoose, { Mongoose } from 'mongoose';
+import { logger } from '@/utils/logger';
+import { ENV } from '@/constants';
 
 declare global {
     // allow global `var` declarations
@@ -9,7 +11,7 @@ declare global {
     };
 }
 
-const MONGODB_URI: string = process.env.MONGODB_URI!;
+const MONGODB_URI: string = ENV.MONGODB_URI;
 
 if (!MONGODB_URI) {
     throw new Error(
@@ -30,7 +32,7 @@ if (!cached) {
 
 async function dbConnect(): Promise<Mongoose> {
     if (cached.conn) {
-        console.log("Using cached MongoDB connection.");
+        logger.debug("Using cached MongoDB connection", undefined, 'DB');
         return cached.conn;
     }
 
@@ -39,9 +41,9 @@ async function dbConnect(): Promise<Mongoose> {
             bufferCommands: false,
         };
 
-        console.log("Creating new MongoDB connection...");
+        logger.info("Creating new MongoDB connection", undefined, 'DB');
         cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
-            console.log("MongoDB connection established.");
+            logger.info("MongoDB connection established", undefined, 'DB');
             return mongooseInstance;
         });
     }
@@ -49,7 +51,7 @@ async function dbConnect(): Promise<Mongoose> {
         cached.conn = await cached.promise;
     } catch (e) {
         cached.promise = null;
-        console.error("MongoDB connection error:", e);
+        logger.error("MongoDB connection error", e, 'DB');
         throw e;
     }
 

@@ -6,8 +6,20 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "My Awesome Blog", // Replace with your site title
-    description: "Generated blog posts about web and mobile dev", // Replace with your description
+    icons: {
+        icon: [
+            {
+                url: '/favicon.svg',
+                type: 'image/svg+xml',
+            },
+            {
+                url: '/icons/logo.svg',
+                type: 'image/svg+xml',
+            }
+        ],
+        shortcut: '/favicon.svg',
+        apple: '/icons/logo.svg',
+    },
 };
 
 export default function RootLayout({

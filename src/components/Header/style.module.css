@@ -11,6 +11,11 @@
   border-radius: 12px;
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
   padding: 16px 24px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.headerHidden {
+  transform: translateX(-50%) translateY(-150%);
 }
 
 .links {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db'; // Adjust path if necessary
-import BlogPost, { IBlogPost } from '@/models/BlogPost'; // Adjust path if necessary
+import dbConnect from '@/lib/db';
+import BlogPost from '@/models/BlogPost';
 
 // TODO: Add authentication/authorization check here
 
@@ -10,13 +10,10 @@ export async function GET(request: NextRequest) {
     try {
         await dbConnect();
 
-        // Define the type for the selected fields
-        type AdminPostSummary = Pick<IBlogPost, '_id' | 'title' | 'slug' | 'status' | 'locale' | 'createdAt'>;
-
         // Fetch all posts, sorted by creation date (newest first)
-        const posts: AdminPostSummary[] = await BlogPost.find({})
+        const posts = await BlogPost.find({})
             .sort({ createdAt: -1 })
-            .select('_id title slug status locale createdAt') // Include _id for keys/links and locale
+            .select('_id title slug content status locale generationGroupId createdAt updatedAt')
             .lean(); // Use .lean() for plain JS objects
 
         return NextResponse.json({ posts });
@@ -38,7 +35,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
 
         // Validate required fields - locale is mandatory
-        const { title, slug, content, status, locale } = body;
+        const { title, slug, content, status, locale, generationGroupId } = body;
 
         if (!title || !slug || !content || !status || !locale) {
             return NextResponse.json(
@@ -72,7 +69,8 @@ export async function POST(request: NextRequest) {
             slug,
             content,
             status,
-            locale, // Ensuring locale is set
+            locale,
+            generationGroupId,
         });
 
         await newPost.save();

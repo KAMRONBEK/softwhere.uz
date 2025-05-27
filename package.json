@@ -12,6 +12,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/uuid": "^10.0.0",
     "aos": "^2.3.4",
     "cookies-next": "^4.1.1",
     "date-fns": "^4.1.0",
@@ -28,10 +29,13 @@
     "react-syntax-highlighter": "^15.6.1",
     "react-toastify": "^10.0.5",
     "react-type-animation": "^3.2.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
     "sharp": "^0.33.3",
     "slick-carousel": "^1.8.1",
     "slugify": "^1.6.6",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
@@ -46,5 +50,6 @@
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5.8.3"
-  }
+  },
+  "packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import BlogPost, { IBlogPost } from '@/models/BlogPost';
+import BlogPost from '@/models/BlogPost';
 import mongoose from 'mongoose';
 const slugify = require('slugify'); // Use require if import causes issues
 
@@ -18,18 +18,21 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     try {
         await dbConnect();
 
-        const post: IBlogPost | null = await BlogPost.findById(id);
+        const post = await BlogPost.findById(id);
 
         if (!post) {
             return NextResponse.json({ error: 'Post not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ post });
+        return NextResponse.json({
+            success: true,
+            post
+        });
 
     } catch (error: any) {
-        console.error(`Error fetching post ${id} for admin:`, error);
+        console.error('Error fetching post:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch post', details: error.message || String(error) },
+            { error: 'Internal server error' },
             { status: 500 }
         );
     }
@@ -87,16 +90,89 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         }
 
         console.log(`Post ${id} updated successfully.`);
-        return NextResponse.json({ message: 'Post updated successfully', post: updatedPost });
+        return NextResponse.json({
+            success: true,
+            message: 'Post updated successfully',
+            post: updatedPost
+        });
 
     } catch (error: any) {
-        console.error(`Error updating post ${id}:`, error);
+        console.error('Error updating post:', error);
         // Handle potential validation errors from Mongoose
         if (error.name === 'ValidationError') {
             return NextResponse.json({ error: 'Validation failed', details: error.message }, { status: 400 });
         }
         return NextResponse.json(
-            { error: 'Failed to update post', details: error.message || String(error) },
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PATCH(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    try {
+        const { id } = params;
+        const body = await request.json();
+        
+        await dbConnect();
+        
+        const updatedPost = await BlogPost.findByIdAndUpdate(
+            id,
+            body,
+            { new: true, runValidators: true }
+        );
+        
+        if (!updatedPost) {
+            return NextResponse.json(
+                { error: 'Post not found' },
+                { status: 404 }
+            );
+        }
+        
+        return NextResponse.json({
+            success: true,
+            post: updatedPost
+        });
+        
+    } catch (error) {
+        console.error('Error updating post:', error);
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    try {
+        const { id } = params;
+        
+        await dbConnect();
+        
+        const deletedPost = await BlogPost.findByIdAndDelete(id);
+        
+        if (!deletedPost) {
+            return NextResponse.json(
+                { error: 'Post not found' },
+                { status: 404 }
+            );
+        }
+        
+        return NextResponse.json({
+            success: true,
+            message: 'Post deleted successfully'
+        });
+        
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        return NextResponse.json(
+            { error: 'Internal server error' },
             { status: 500 }
         );
     }
