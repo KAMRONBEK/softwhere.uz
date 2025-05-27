@@ -1,13 +1,12 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ScrollToTop from "@/components/ScrollToTop";
-import type {Metadata} from "next";
-import {NextIntlClientProvider, useMessages} from "next-intl";
-import {Inter} from "next/font/google";
+import type { Metadata } from "next";
+import { NextIntlClientProvider, useMessages } from "next-intl";
+import { Inter } from "next/font/google";
 import React from "react";
-import "./globals.css";
 
-const inter = Inter({subsets: ["latin"]});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title:
@@ -23,7 +22,7 @@ type Props = {
   };
 };
 
-const RootLayout: React.FC<Props> = ({children, params: {locale}}) => {
+const RootLayout: React.FC<Props> = ({ children, params: { locale } }) => {
   const messages = useMessages();
   return (
     <html lang={locale}>
