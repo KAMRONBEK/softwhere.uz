@@ -1,4 +1,6 @@
-export const projects = [
+import { Project } from '@/types';
+
+export const projects: Project[] = [
   {
     id: 1,
     name: "Primus mall",
@@ -18,7 +20,7 @@ export const projects = [
     id: 2,
     name: "EDOCS",
     description: {
-      uz: "“E-DOCS” (edocs.uz) yuridik ahamiyatga ega boʻlgan elektron hujjat aylanishini taʼminlash boʻyicha dasturiy taʼminot toʻplami elektron shaklda hisob-fakturalarni (yetkazib berish dalolatnomalari, dalolatnomalar va boshqalar) yaratish hamda ularni mijozlar va hamkorlar bilan almashish imkonini beruvchi tizimdir.",
+      uz: "E-DOCS (edocs.uz) yuridik ahamiyatga ega boʻlgan elektron hujjat aylanishini taʼminlash boʻyicha dasturiy taʼminot toʻplami elektron shaklda hisob-fakturalarni (yetkazib berish dalolatnomalari, dalolatnomalar va boshqalar) yaratish hamda ularni mijozlar va hamkorlar bilan almashish imkonini beruvchi tizimdir.",
       ru: "«E-DOCS» (edocs.uz) – это система, обеспечивающая цифровую обработку электронных документов, создание счетов-фактур (накладные, счета и прочие) в электронном формате и их обмен между клиентами и партнерами.",
     },
     technology: "React Native / Redux Saga / Google Maps API / iOS / Android",
@@ -60,7 +62,7 @@ export const projects = [
     id: 5,
     name: "HeyAll",
     description: {
-      uz: "HeyAll, ikki xil maqsadga xizmat qiluvchi va ularni uzluksiz bog‘laydigan ilova. Bir tomondan, bu xostlar uchun o'z tadbirlarini rejalashtirish uchun ilova bo'lsa, boshqa tomondan, bu tadbirlarda ishlaydigan yetkazib beruvchilar uchun dastur.",
+      uz: "HeyAll, ikki xil maqsadga xizmat qiluvchi va ularni uzluksiz bog'laydigan ilova. Bir tomondan, bu xostlar uchun o'z tadbirlarini rejalashtirish uchun ilova bo'lsa, boshqa tomondan, bu tadbirlarda ishlaydigan yetkazib beruvchilar uchun dastur.",
       ru: "HeyAll – приложение, которое обслуживает две разные цели и связывает их между собой. С одной стороны, это приложение для организации своих мероприятий для хостов, а с другой – это приложение для поставщиков, работающих на этих мероприятиях.",
     },
     technology:
@@ -114,7 +116,7 @@ export const projects = [
     id: 9,
     name: "Asia Insurance",
     description: {
-      uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug‘urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
+      uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug'urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
       ru: "Мобильное приложение Asia Insurance помогает владельцам транспортных средств за несколько минут приобрести ОСАГО, страховку для онлайн-путешествий за границу, и это только начало!",
     },
     technology:
@@ -149,4 +151,4 @@ export const projects = [
     type: "Nestegg.ai",
     website: "https://loans.nestegg.ai/",
   },
-];
+]; 

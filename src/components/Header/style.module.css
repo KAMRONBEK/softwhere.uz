@@ -11,6 +11,11 @@
   border-radius: 12px;
   box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
   padding: 16px 24px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.headerHidden {
+  transform: translateX(-50%) translateY(-150%);
 }
 
 .links {
@@ -44,11 +49,11 @@
   z-index: 77;
 }
 
-.dropdown:hover > .content {
+.dropdown:hover>.content {
   display: flex;
 }
 
-.dropdown:hover > .triangle {
+.dropdown:hover>.triangle {
   display: block;
 }
 
@@ -185,60 +190,71 @@
   gap: 10px;
 }
 
-.navOpen li {
+.navOpen li:nth-of-type(1) {
+  transition-delay: 0.1s;
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0px);
 }
 
-.navOpen li:nth-of-type(1) {
-  transition-delay: 0.15s;
-}
 .navOpen li:nth-of-type(2) {
-  transition-delay: 0.25s;
+  transition-delay: 0.2s;
+  opacity: 1;
+  transform: translateY(0px);
 }
 
 .navOpen li:nth-of-type(3) {
-  transition-delay: 0.35s;
+  transition-delay: 0.3s;
+  opacity: 1;
+  transform: translateY(0px);
 }
+
 .navOpen li:nth-of-type(4) {
-  transition-delay: 0.45s;
+  transition-delay: 0.4s;
+  opacity: 1;
+  transform: translateY(0px);
 }
+
 .navOpen li:nth-of-type(5) {
-  transition-delay: 0.55s;
+  transition-delay: 0.5s;
+  opacity: 1;
+  transform: translateY(0px);
 }
 
 .navOpen li:nth-of-type(6) {
-  transition-delay: 0.65s;
+  transition-delay: 0.6s;
+  opacity: 1;
+  transform: translateY(0px);
 }
+
 .navOpen li:nth-of-type(7) {
-  margin-top: 20px;
-  transition-delay: 0.75s;
+  transition-delay: 0.7s;
+  opacity: 1;
+  transform: translateY(0px);
 }
 
 .navOpen {
-  display: block;
-  clip-path: circle(100%);
+  clip-path: circle(1500px at 0 0px);
 }
 
 @media (max-width: 1025px) {
   .header {
-    padding: 10px 20px;
+    padding: 12px 16px;
   }
 
   .links {
-    gap: 10px;
+    display: none;
   }
 
   .links p {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .contacts {
-    gap: 15px;
+    display: none;
   }
 
   .contact a {
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 
@@ -248,7 +264,7 @@
   }
 
   .links {
-    display: flex;
+    display: none;
   }
 }
 
@@ -259,6 +275,5 @@
 
   .burgerMenu {
     display: flex;
-    z-index: 9999;
   }
 }

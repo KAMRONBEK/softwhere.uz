@@ -1,0 +1,121 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# API Migration Guide
+
+## 🔄 **Migrating from fetch() to API Client**
+
+The centralized API client in [src/utils/api.ts](mdc:src/utils/api.ts) should replace all direct `fetch()` calls for consistency, error handling, and logging.
+
+## 📍 **Files Requiring Migration**
+
+### **Admin Posts Page**
+File: [src/app/[locale]/admin/posts/page.tsx](mdc:src/app/[locale]/admin/posts/page.tsx)
+
+**Before:**
+```typescript
+const response = await fetch('/api/admin/posts');
+const data = await response.json();
+```
+
+**After:**
+```typescript
+import { api } from '@/utils/api';
+const response = await api.admin.getPosts();
+if (response.success) {
+  const posts = response.data;
+}
+```
+
+### **Blog Pages**
+Files: 
+- [src/app/[locale]/blog/page.tsx](mdc:src/app/[locale]/blog/page.tsx)
+- [src/app/[locale]/blog/[slug]/page.tsx](mdc:src/app/[locale]/blog/[slug]/page.tsx)
+
+**Before:**
+```typescript
+const res = await fetch(`/api/blog/posts/${slug}?locale=${locale}`);
+```
+
+**After:**
+```typescript
+import { api } from '@/utils/api';
+const response = await api.blog.getPost(slug, locale);
+```
+
+### **Header Component**
+File: [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx)
+
+**Before:**
+```typescript
+const response = await fetch(`/api/blog/posts/related?generationGroupId=${id}&locale=${locale}`);
+```
+
+**After:**
+```typescript
+import { api } from '@/utils/api';
+const response = await api.blog.getPosts({ generationGroupId: id, locale });
+```
+
+## 🎯 **Available API Methods**
+
+### **Blog API**
+- `api.blog.getPosts(params?)` - Get blog posts with optional filters
+- `api.blog.getPost(slug, locale)` - Get single blog post
+- `api.blog.generatePosts(data)` - Generate new blog posts
+
+### **Admin API**
+- `api.admin.getPosts()` - Get all posts for admin
+- `api.admin.getPost(id)` - Get single post by ID
+- `api.admin.updatePost(id, data)` - Update post
+- `api.admin.deletePost(id)` - Delete post
+- `api.admin.publishPost(id)` - Publish post
+- `api.admin.unpublishPost(id)` - Unpublish post
+
+### **Contact API**
+- `api.contact.send(data)` - Send contact form
+
+## ✅ **Benefits of Migration**
+
+1. **Consistent Error Handling** - All API calls return `{ success: boolean, data?, error? }`
+2. **Automatic Logging** - Request/response logging with performance metrics
+3. **Timeout Management** - Prevents hanging requests (10s default)
+4. **Type Safety** - Proper TypeScript interfaces
+5. **Centralized Configuration** - Easy to modify API behavior
+
+## 🔧 **Error Handling Pattern**
+
+```typescript
+import { api, validateApiResponse } from '@/utils/api';
+
+try {
+  const response = await api.blog.getPosts();
+  if (response.success) {
+    const posts = response.data;
+    // Handle success
+  } else {
+    logger.error('Failed to fetch posts', response.error);
+    // Handle error
+  }
+} catch (error) {
+  logger.error('API call failed', error);
+}
+
+// Or use validation utility
+try {
+  const posts = validateApiResponse(await api.blog.getPosts());
+  // posts is guaranteed to be valid data
+} catch (error) {
+  // Handle error
+}
+```
+
+## 🚨 **Migration Priority**
+
+1. **High Priority**: Admin panel operations (CRUD operations)
+2. **Medium Priority**: Blog listing and individual posts
+3. **Low Priority**: Contact form and other utilities
+
+Replace `fetch()` calls gradually, testing each migration to ensure functionality remains intact.
