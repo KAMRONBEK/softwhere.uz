@@ -1,18 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import {
-  AdminSectionTitle,
-  AdminDescription,
-  AdminCard,
+  AdminBadge,
   AdminButton,
   AdminInput,
-  AdminSelect,
-  AdminBadge,
   AdminLoading,
-  AdminTable,
+  AdminSelect,
 } from '@/components/AdminComponents/index';
+import { format } from 'date-fns';
+import React, { useCallback, useEffect, useState } from 'react';
 
 interface BlogPost {
   _id: string;
@@ -90,15 +86,7 @@ export default function AdminPostsPage() {
     locales: ['en', 'ru', 'uz'],
   });
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  useEffect(() => {
-    groupPosts();
-  }, [posts]);
-
-  const groupPosts = () => {
+  const groupPosts = useCallback(() => {
     const grouped = new Map<string, BlogPost[]>();
     const ungrouped: BlogPost[] = [];
 
@@ -145,7 +133,15 @@ export default function AdminPostsPage() {
     );
 
     setPostGroups(groups);
-  };
+  }, [posts]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
+
+  useEffect(() => {
+    groupPosts();
+  }, [groupPosts]);
 
   const fetchPosts = async () => {
     try {
@@ -500,7 +496,7 @@ export default function AdminPostsPage() {
             </div>
           ) : (
             <div className='divide-y divide-gray-200'>
-              {postGroups.map((group, groupIndex) => (
+              {postGroups.map((group, _groupIndex) => (
                 <div key={group.generationGroupId} className='p-6'>
                   {/* Group Header */}
                   <div className='flex justify-between items-start mb-4'>

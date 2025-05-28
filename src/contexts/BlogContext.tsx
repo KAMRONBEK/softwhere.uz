@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 interface BlogPost {
   generationGroupId?: string;
@@ -10,7 +10,7 @@ interface BlogPost {
 
 interface BlogContextType {
   currentPost: BlogPost | null;
-  setCurrentPost: (post: BlogPost | null) => void;
+  setCurrentPost: (_post: BlogPost | null) => void;
 }
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);

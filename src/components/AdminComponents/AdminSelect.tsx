@@ -3,7 +3,7 @@ import React from 'react';
 interface AdminSelectProps {
   label?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  onChange?: (_e: React.ChangeEvent<HTMLSelectElement>) => void;
   options: { value: string; label: string }[];
   className?: string;
 }
