@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db'; // Adjust path if necessary
 import BlogPost, { IBlogPost } from '@/models/BlogPost'; // Adjust path if necessary
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -17,8 +17,7 @@ export async function GET(request: NextRequest) {
       await dbConnect();
 
       // Get locale from query params, defaulting to all if not specified
-      const url = new URL(request.url);
-      const locale = url.searchParams.get('locale');
+      const locale = request.nextUrl.searchParams.get('locale');
 
       // Define the type for the selected fields
       type PublishedPostSummary = Pick<
