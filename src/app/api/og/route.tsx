@@ -4,11 +4,11 @@ export const runtime = 'edge';
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
+    const url = new URL(request.url);
     const title =
-      searchParams.get('title') ||
+      url.searchParams.get('title') ||
       'SoftWhere.uz - Mobile App & Web Development';
-    const locale = searchParams.get('locale') || 'en';
+    const locale = url.searchParams.get('locale') || 'en';
 
     const localizedSubtitle = {
       en: 'Mobile Apps • Web Development • Telegram Bots',
