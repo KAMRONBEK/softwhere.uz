@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI, GenerationConfig } from "@google/generative-ai";
+import { GoogleGenerativeAI, GenerationConfig } from '@google/generative-ai';
 // Changed back to standard import for slugify
 import slugify from 'slugify';
 // const slugify = require('slugify'); // Previous workaround
@@ -9,22 +9,26 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Ensure API keys and URI are set
 if (!process.env.GOOGLE_API_KEY) {
-    console.error("FATAL ERROR: GOOGLE_API_KEY environment variable not set.");
-    // Optionally throw an error during build/startup if critical
-    // throw new Error("GOOGLE_API_KEY environment variable not set.");
+  console.error('FATAL ERROR: GOOGLE_API_KEY environment variable not set.');
+  // Optionally throw an error during build/startup if critical
+  // throw new Error("GOOGLE_API_KEY environment variable not set.");
 }
 if (!process.env.MONGODB_URI) {
-    console.error("FATAL ERROR: MONGODB_URI environment variable not set.");
-    // throw new Error("MONGODB_URI environment variable not set.");
+  console.error('FATAL ERROR: MONGODB_URI environment variable not set.');
+  // throw new Error("MONGODB_URI environment variable not set.");
 }
 if (!process.env.API_SECRET) {
-    console.warn("API_SECRET environment variable not set. Blog generation endpoint is insecure.");
+  console.warn(
+    'API_SECRET environment variable not set. Blog generation endpoint is insecure.'
+  );
 }
 
 // Initialize the Google Generative AI client (only if API key exists)
-const genAI = process.env.GOOGLE_API_KEY ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY) : null;
+const genAI = process.env.GOOGLE_API_KEY
+  ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
+  : null;
 // Pass model name in an object
-const model = genAI?.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 const TARGET_LOCALES: Array<'en' | 'ru' | 'uz'> = ['en', 'ru', 'uz'];
 
@@ -43,7 +47,7 @@ const BLOG_TOPICS = {
     'App Store Optimization: Getting Your App Discovered',
     'The Complete Mobile App Development Process: From Idea to Launch',
     'Mobile App Monetization Strategies That Actually Work',
-    'Cross-Platform Development with React Native vs Flutter'
+    'Cross-Platform Development with React Native vs Flutter',
   ],
   'telegram-development': [
     'Complete Guide to Telegram Bot Development for Businesses',
@@ -55,7 +59,7 @@ const BLOG_TOPICS = {
     'Telegram Bot Security: Protecting Your Business and Users',
     'Advanced Telegram Bot Features: Payments, Webhooks, and More',
     'Telegram Bot vs WhatsApp Business: Which is Better for Your Business?',
-    'Creating Interactive Telegram Mini Apps with Web Technologies'
+    'Creating Interactive Telegram Mini Apps with Web Technologies',
   ],
   'web-development': [
     `Modern Web Development: Frameworks and Technologies in ${getCurrentYear()}`,
@@ -67,7 +71,7 @@ const BLOG_TOPICS = {
     'SEO-Friendly Web Development: Technical Best Practices',
     'Web Accessibility: Building Inclusive Digital Experiences',
     'E-commerce Website Development: Features That Drive Sales',
-    `Web Development Trends That Will Shape ${getCurrentYear()}`
+    `Web Development Trends That Will Shape ${getCurrentYear()}`,
   ],
   'business-strategy': [
     'How to Choose a Mobile App Development Company: Complete Guide',
@@ -79,8 +83,8 @@ const BLOG_TOPICS = {
     'Outsourcing vs In-House Development: Making the Right Choice',
     'Mobile App Maintenance: Keeping Your App Competitive',
     'User Acquisition Strategies for Mobile Apps',
-    'Building a Successful Tech Startup in Uzbekistan'
-  ]
+    'Building a Successful Tech Startup in Uzbekistan',
+  ],
 };
 
 const CONTENT_TEMPLATES = {
@@ -95,11 +99,11 @@ const CONTENT_TEMPLATES = {
       'Common pitfalls and how to avoid them',
       'Tools, resources, and recommendations',
       'Future trends and predictions',
-      'Strong call-to-action with value proposition'
+      'Strong call-to-action with value proposition',
     ],
     tone: 'authoritative and comprehensive',
     targetLength: '3000-4000 words',
-    seoFocus: 'long-tail keywords, comprehensive coverage'
+    seoFocus: 'long-tail keywords, comprehensive coverage',
   },
   'comparison-analysis': {
     structure: [
@@ -112,11 +116,11 @@ const CONTENT_TEMPLATES = {
       'Cost analysis and ROI considerations',
       'Industry-specific recommendations',
       'Decision framework and checklist',
-      'Expert recommendation with reasoning'
+      'Expert recommendation with reasoning',
     ],
     tone: 'analytical and unbiased',
     targetLength: '2500-3500 words',
-    seoFocus: 'comparison keywords, decision-making terms'
+    seoFocus: 'comparison keywords, decision-making terms',
   },
   'case-study': {
     structure: [
@@ -129,11 +133,11 @@ const CONTENT_TEMPLATES = {
       'Lessons learned and insights',
       'Client testimonial and feedback',
       'How this applies to other businesses',
-      'Next steps for similar projects'
+      'Next steps for similar projects',
     ],
     tone: 'storytelling and results-focused',
     targetLength: '2000-3000 words',
-    seoFocus: 'industry-specific terms, success stories'
+    seoFocus: 'industry-specific terms, success stories',
   },
   'trend-analysis': {
     structure: [
@@ -146,11 +150,11 @@ const CONTENT_TEMPLATES = {
       'How to prepare and adapt',
       'Investment and strategy recommendations',
       'Regional market considerations (Uzbekistan/Central Asia)',
-      'Action plan for businesses'
+      'Action plan for businesses',
     ],
     tone: 'forward-thinking and analytical',
     targetLength: '2500-3500 words',
-    seoFocus: 'trend keywords, future-focused terms'
+    seoFocus: 'trend keywords, future-focused terms',
   },
   'problem-solution': {
     structure: [
@@ -163,11 +167,11 @@ const CONTENT_TEMPLATES = {
       'Implementation roadmap',
       'Success metrics and KPIs',
       'Scaling and optimization strategies',
-      'Getting started guide'
+      'Getting started guide',
     ],
     tone: 'solution-oriented and practical',
     targetLength: '2200-3200 words',
-    seoFocus: 'problem-solving keywords, solution terms'
+    seoFocus: 'problem-solving keywords, solution terms',
   },
   'how-to-guide': {
     structure: [
@@ -181,11 +185,11 @@ const CONTENT_TEMPLATES = {
       'Step 6: Monitoring and optimization',
       'Troubleshooting common issues',
       'Advanced techniques and best practices',
-      'Maintenance and long-term success'
+      'Maintenance and long-term success',
     ],
     tone: 'instructional and practical',
     targetLength: '2800-3800 words',
-    seoFocus: 'how-to keywords, tutorial terms'
+    seoFocus: 'how-to keywords, tutorial terms',
   },
   'industry-insights': {
     structure: [
@@ -198,84 +202,147 @@ const CONTENT_TEMPLATES = {
       'Opportunities for businesses',
       'Investment and partnership strategies',
       'Risk assessment and mitigation',
-      'Strategic recommendations'
+      'Strategic recommendations',
     ],
     tone: 'expert analysis and strategic',
     targetLength: '2600-3600 words',
-    seoFocus: 'industry keywords, market analysis terms'
-  }
+    seoFocus: 'industry keywords, market analysis terms',
+  },
 };
 
 // Helper function to generate content for a specific locale
 async function generateLocalizedContent(
-    baseTitle: string,
-    baseContent: string,
-    targetLocale: 'en' | 'ru' | 'uz'
+  baseTitle: string,
+  baseContent: string,
+  targetLocale: 'en' | 'ru' | 'uz'
 ): Promise<{ title: string; content: string }> {
-    if (!model) throw new Error("AI Model not initialized");
+  if (!model) throw new Error('AI Model not initialized');
 
-    console.log(`Generating content for locale: ${targetLocale}...`);
+  console.log(`Generating content for locale: ${targetLocale}...`);
 
-    if (targetLocale === 'en') {
-        // No translation needed for English
-        return { title: baseTitle, content: baseContent };
-    }
+  if (targetLocale === 'en') {
+    // No translation needed for English
+    return { title: baseTitle, content: baseContent };
+  }
 
-    // Generate Title Translation
-    const titlePrompt = `Translate the following blog post title into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}: "${baseTitle}". Only return the translated title.`;
-    const titleResult = await model.generateContent(titlePrompt);
-    const translatedTitle = (await titleResult.response).text().trim().replace(/^"|"$/g, '');
-    if (!translatedTitle) throw new Error(`Failed to translate title to ${targetLocale}`);
-    console.log(`   Translated Title (${targetLocale}): ${translatedTitle}`);
+  // Generate Title Translation
+  const titlePrompt = `Translate the following blog post title into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}: "${baseTitle}". Only return the translated title.`;
+  const titleResult = await model.generateContent(titlePrompt);
+  const translatedTitle = (await titleResult.response)
+    .text()
+    .trim()
+    .replace(/^"|"$/g, '');
 
-    // Generate Content Translation
-    const contentPrompt = `Translate the following blog post content (which is in Markdown format) into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}. Preserve the Markdown formatting (headings, lists, code blocks etc.). Only return the translated Markdown content.\n\nOriginal Content:\n${baseContent}`;
-    const contentResult = await model.generateContent(contentPrompt);
-    const translatedContent = (await contentResult.response).text().trim();
-    if (!translatedContent) throw new Error(`Failed to translate content to ${targetLocale}`);
-    console.log(`   Translated Content Snippet (${targetLocale}): ${translatedContent.substring(0, 100)}...`);
+  if (!translatedTitle)
+    throw new Error(`Failed to translate title to ${targetLocale}`);
+  console.log(`   Translated Title (${targetLocale}): ${translatedTitle}`);
 
-    return { title: translatedTitle, content: translatedContent };
+  // Generate Content Translation
+  const contentPrompt = `Translate the following blog post content (which is in Markdown format) into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}. Preserve the Markdown formatting (headings, lists, code blocks etc.). Only return the translated Markdown content.\n\nOriginal Content:\n${baseContent}`;
+  const contentResult = await model.generateContent(contentPrompt);
+  const translatedContent = (await contentResult.response).text().trim();
+
+  if (!translatedContent)
+    throw new Error(`Failed to translate content to ${targetLocale}`);
+  console.log(
+    `   Translated Content Snippet (${targetLocale}): ${translatedContent.substring(0, 100)}...`
+  );
+
+  return { title: translatedTitle, content: translatedContent };
 }
 
 // Function to select dynamic content template based on topic
-function selectContentTemplate(topic: string): { templateKey: string; template: any } {
+function selectContentTemplate(topic: string): {
+  templateKey: string;
+  template: any;
+} {
   const templates = Object.keys(CONTENT_TEMPLATES);
-  
+
   // Smart template selection based on topic keywords
-  if (topic.toLowerCase().includes('vs') || topic.toLowerCase().includes('comparison')) {
-    return { templateKey: 'comparison-analysis', template: CONTENT_TEMPLATES['comparison-analysis'] };
-  } else if (topic.toLowerCase().includes('guide') || topic.toLowerCase().includes('complete')) {
-    return { templateKey: 'ultimate-guide', template: CONTENT_TEMPLATES['ultimate-guide'] };
-  } else if (topic.toLowerCase().includes('how to') || topic.toLowerCase().includes('step')) {
-    return { templateKey: 'how-to-guide', template: CONTENT_TEMPLATES['how-to-guide'] };
-  } else if (topic.toLowerCase().includes('trend') || topic.toLowerCase().includes('future')) {
-    return { templateKey: 'trend-analysis', template: CONTENT_TEMPLATES['trend-analysis'] };
-  } else if (topic.toLowerCase().includes('case study') || topic.toLowerCase().includes('success')) {
-    return { templateKey: 'case-study', template: CONTENT_TEMPLATES['case-study'] };
-  } else if (topic.toLowerCase().includes('problem') || topic.toLowerCase().includes('solution')) {
-    return { templateKey: 'problem-solution', template: CONTENT_TEMPLATES['problem-solution'] };
-  } else if (topic.toLowerCase().includes('industry') || topic.toLowerCase().includes('market')) {
-    return { templateKey: 'industry-insights', template: CONTENT_TEMPLATES['industry-insights'] };
+  if (
+    topic.toLowerCase().includes('vs') ||
+    topic.toLowerCase().includes('comparison')
+  ) {
+    return {
+      templateKey: 'comparison-analysis',
+      template: CONTENT_TEMPLATES['comparison-analysis'],
+    };
+  } else if (
+    topic.toLowerCase().includes('guide') ||
+    topic.toLowerCase().includes('complete')
+  ) {
+    return {
+      templateKey: 'ultimate-guide',
+      template: CONTENT_TEMPLATES['ultimate-guide'],
+    };
+  } else if (
+    topic.toLowerCase().includes('how to') ||
+    topic.toLowerCase().includes('step')
+  ) {
+    return {
+      templateKey: 'how-to-guide',
+      template: CONTENT_TEMPLATES['how-to-guide'],
+    };
+  } else if (
+    topic.toLowerCase().includes('trend') ||
+    topic.toLowerCase().includes('future')
+  ) {
+    return {
+      templateKey: 'trend-analysis',
+      template: CONTENT_TEMPLATES['trend-analysis'],
+    };
+  } else if (
+    topic.toLowerCase().includes('case study') ||
+    topic.toLowerCase().includes('success')
+  ) {
+    return {
+      templateKey: 'case-study',
+      template: CONTENT_TEMPLATES['case-study'],
+    };
+  } else if (
+    topic.toLowerCase().includes('problem') ||
+    topic.toLowerCase().includes('solution')
+  ) {
+    return {
+      templateKey: 'problem-solution',
+      template: CONTENT_TEMPLATES['problem-solution'],
+    };
+  } else if (
+    topic.toLowerCase().includes('industry') ||
+    topic.toLowerCase().includes('market')
+  ) {
+    return {
+      templateKey: 'industry-insights',
+      template: CONTENT_TEMPLATES['industry-insights'],
+    };
   }
-  
+
   // Random selection for variety if no specific match
-  const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-  return { templateKey: randomTemplate, template: CONTENT_TEMPLATES[randomTemplate as keyof typeof CONTENT_TEMPLATES] };
+  const randomTemplate =
+    templates[Math.floor(Math.random() * templates.length)];
+
+  return {
+    templateKey: randomTemplate,
+    template:
+      CONTENT_TEMPLATES[randomTemplate as keyof typeof CONTENT_TEMPLATES],
+  };
 }
 
 // Enhanced content generation with dynamic templates
-async function generateBlogContent(topic: string, locale: string): Promise<string> {
+async function generateBlogContent(
+  topic: string,
+  locale: string
+): Promise<string> {
   const currentYear = getCurrentYear();
-  const currentDate = new Date().toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
-  
+
   // Select dynamic template
   const { templateKey, template } = selectContentTemplate(topic);
-  
+
   // Generate content variations
   const contentVariations = [
     'data-driven with statistics and research',
@@ -283,21 +350,25 @@ async function generateBlogContent(topic: string, locale: string): Promise<strin
     'technical deep-dive with code examples and implementations',
     'business-focused with ROI and strategic insights',
     'user-experience centered with practical tips',
-    'industry-specific with regional market insights'
+    'industry-specific with regional market insights',
   ];
-  
-  const selectedVariation = contentVariations[Math.floor(Math.random() * contentVariations.length)];
-  
-  const languageInstruction = locale === 'en' ? 'Write in English' : 
-                              locale === 'ru' ? 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент должен быть на русском языке. Не используйте английский язык.' :
-                              'MUHIM: BUTUNLAY o\'zbek tilida yozing. Barcha kontent o\'zbek tilida bo\'lishi kerak. Ingliz tilini ishlatmang.';
+
+  const selectedVariation =
+    contentVariations[Math.floor(Math.random() * contentVariations.length)];
+
+  const languageInstruction =
+    locale === 'en'
+      ? 'Write in English'
+      : locale === 'ru'
+        ? 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент должен быть на русском языке. Не используйте английский язык.'
+        : "MUHIM: BUTUNLAY o'zbek tilida yozing. Barcha kontent o'zbek tilida bo'lishi kerak. Ingliz tilini ishlatmang.";
 
   const prompt = `${languageInstruction}
 
 Write a comprehensive, SEO-optimized blog post about "${topic}" for a mobile app and web development agency based in Uzbekistan.
 
 CRITICAL LANGUAGE REQUIREMENT:
-- The ENTIRE blog post must be written in ${locale === 'en' ? 'English' : locale === 'ru' ? 'Russian (русский язык)' : 'Uzbek (o\'zbek tili)'}
+- The ENTIRE blog post must be written in ${locale === 'en' ? 'English' : locale === 'ru' ? 'Russian (русский язык)' : "Uzbek (o'zbek tili)"}
 - Do not mix languages - use only ${locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek'} throughout
 - All headings, content, examples, and call-to-actions must be in ${locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek'}
 - Write the SAME comprehensive content as you would in English, just translated
@@ -351,9 +422,13 @@ ENGAGEMENT ELEMENTS:
 SOURCES AND CREDIBILITY:
 - When mentioning statistics, market data, or research findings, include credible sources with URLs
 - Use reputable sources like: Statista, McKinsey, Gartner, IDC, Forrester, industry reports
-- Format sources as: ${locale === 'en' ? '"According to [Source Name](URL), [statistic/fact]"' : 
-                      locale === 'ru' ? '"Согласно [Название источника](URL), [статистика/факт]"' :
-                      '"[Manba nomi](URL) ma\'lumotlariga ko\'ra, [statistika/fakt]"'}
+- Format sources as: ${
+    locale === 'en'
+      ? '"According to [Source Name](URL), [statistic/fact]"'
+      : locale === 'ru'
+        ? '"Согласно [Название источника](URL), [статистика/факт]"'
+        : '"[Manba nomi](URL) ma\'lumotlariga ko\'ra, [statistika/fakt]"'
+  }
 - Include at least 3-5 credible sources throughout the article
 - Prefer recent data (2023-2025) when available
 - For technical facts, reference official documentation or authoritative tech sources
@@ -368,13 +443,15 @@ CONTENT LENGTH REQUIREMENT:
 Make this content unique, valuable, and comprehensive. Avoid generic advice and focus on specific, actionable insights that demonstrate expertise.`;
 
   try {
-    console.log(`Generating content for topic: "${topic}" in locale: ${locale}`);
-    
+    console.log(
+      `Generating content for topic: "${topic}" in locale: ${locale}`
+    );
+
     // Using OpenAI API (you can replace with any AI service)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -384,12 +461,12 @@ Make this content unique, valuable, and comprehensive. Avoid generic advice and 
             role: 'system',
             content: `You are an expert content writer and SEO specialist with deep knowledge of technology, software development, and digital marketing. You create comprehensive, engaging blog posts that rank well in search engines and provide exceptional value to readers. You understand the Uzbekistan and Central Asian market dynamics and can create region-specific content that resonates with local businesses while maintaining global best practices.
 
-${locale === 'ru' ? 'Вы пишете на русском языке для русскоязычной аудитории.' : locale === 'uz' ? 'Siz o\'zbek tilida o\'zbek tilida so\'zlashuvchi auditoriya uchun yozasiz.' : ''}`
+${locale === 'ru' ? 'Вы пишете на русском языке для русскоязычной аудитории.' : locale === 'uz' ? "Siz o'zbek tilida o'zbek tilida so'zlashuvchi auditoriya uchun yozasiz." : ''}`,
           },
           {
             role: 'user',
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
         max_tokens: 8000,
         temperature: 0.8,
@@ -398,25 +475,31 @@ ${locale === 'ru' ? 'Вы пишете на русском языке для р�
 
     if (!response.ok) {
       const errorText = await response.text();
+
       console.error(`OpenAI API error: ${response.status} - ${errorText}`);
       throw new Error(`OpenAI API error: ${response.status}`);
     }
 
     const data = await response.json();
     const generatedContent = data.choices[0].message.content;
-    
+
     // Check if content is too short (likely fallback was used)
     const wordCount = generatedContent.split(/\s+/).length;
+
     console.log(`Generated content for ${locale}: ${wordCount} words`);
-    
+
     if (wordCount < 500) {
-      console.warn(`Generated content for ${locale} is too short (${wordCount} words), using fallback`);
+      console.warn(
+        `Generated content for ${locale} is too short (${wordCount} words), using fallback`
+      );
+
       return generateFallbackContent(topic, locale);
     }
-    
+
     return generatedContent;
   } catch (error) {
     console.error(`Error generating content for ${locale}:`, error);
+
     // Fallback content if AI generation fails
     return generateFallbackContent(topic, locale);
   }
@@ -425,7 +508,7 @@ ${locale === 'ru' ? 'Вы пишете на русском языке для р�
 function generateFallbackContent(topic: string, locale: string): string {
   const currentYear = getCurrentYear();
   const { templateKey, template } = selectContentTemplate(topic);
-  
+
   const fallbackContent = {
     en: `# ${topic}: Complete Guide for ${currentYear}
 
@@ -606,7 +689,7 @@ Our team at Softwhere has successfully delivered 100+ projects across Central As
 **Ready to get started?** Contact us today to discuss your project requirements and learn how we can help bring your vision to life.
 
 *This article was written in ${currentYear} and reflects the latest industry trends and best practices.*`,
-    
+
     ru: `# ${topic}: Полное руководство для ${currentYear} года
 
 ## Почему ${topic} важно в ${currentYear} году
@@ -965,25 +1048,33 @@ Softwhere jamoamiz Markaziy Osiyo bo'ylab 100+ loyihani muvaffaqiyatli amalga os
 
 **Boshlashga tayyormisiz?** Loyiha talablaringizni muhokama qilish va tasavvuringizni hayotga tatbiq etishda qanday yordam bera olishimizni bilish uchun bugun biz bilan bog'laning.
 
-*Ushbu maqola ${currentYear} yilda yozilgan va sohaning eng so'nggi tendentsiyalari va eng yaxshi amaliyotlarini aks ettiradi.*`
+*Ushbu maqola ${currentYear} yilda yozilgan va sohaning eng so'nggi tendentsiyalari va eng yaxshi amaliyotlarini aks ettiradi.*`,
   };
 
-  return fallbackContent[locale as keyof typeof fallbackContent] || fallbackContent.en;
+  return (
+    fallbackContent[locale as keyof typeof fallbackContent] ||
+    fallbackContent.en
+  );
 }
 
 function createSlug(title: string): string {
-  return title
-    .toLowerCase()
-    // Keep letters (including Cyrillic), numbers, spaces, and hyphens
-    // Using a more compatible approach for Cyrillic support
-    .replace(/[^\u0041-\u005A\u0061-\u007A\u0410-\u044F\u0451\u0401\u0400-\u04FF\u0500-\u052F\u2DE0-\u2DFF\uA640-\uA69F\u1C80-\u1C8F\u0030-\u0039\s-]/g, '')
-    // Replace spaces with hyphens
-    .replace(/\s+/g, '-')
-    // Remove multiple consecutive hyphens
-    .replace(/-+/g, '-')
-    // Remove leading/trailing hyphens
-    .replace(/^-+|-+$/g, '')
-    .trim();
+  return (
+    title
+      .toLowerCase()
+      // Keep letters (including Cyrillic), numbers, spaces, and hyphens
+      // Using a more compatible approach for Cyrillic support
+      .replace(
+        /[^\u0041-\u005A\u0061-\u007A\u0410-\u044F\u0451\u0401\u0400-\u04FF\u0500-\u052F\u2DE0-\u2DFF\uA640-\uA69F\u1C80-\u1C8F\u0030-\u0039\s-]/g,
+        ''
+      )
+      // Replace spaces with hyphens
+      .replace(/\s+/g, '-')
+      // Remove multiple consecutive hyphens
+      .replace(/-+/g, '-')
+      // Remove leading/trailing hyphens
+      .replace(/^-+|-+$/g, '')
+      .trim()
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -998,40 +1089,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-        await dbConnect();
+    await dbConnect();
 
     let selectedTopic: string;
-    
+
     if (customTopic) {
       // Normalize custom topic with AI to fix spelling and improve clarity
       try {
-        const normalizeResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [
-              {
-                role: 'system',
-                content: 'You are a professional editor. Your job is to normalize blog post topics by fixing spelling errors, improving grammar, and making them more professional while keeping the original meaning. Return only the normalized topic, nothing else.'
-              },
-              {
-                role: 'user',
-                content: `Normalize this blog post topic for a mobile app and web development agency: "${customTopic}"`
-              }
-            ],
-            max_tokens: 100,
-            temperature: 0.3,
-          }),
-        });
+        const normalizeResponse = await fetch(
+          'https://api.openai.com/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o',
+              messages: [
+                {
+                  role: 'system',
+                  content:
+                    'You are a professional editor. Your job is to normalize blog post topics by fixing spelling errors, improving grammar, and making them more professional while keeping the original meaning. Return only the normalized topic, nothing else.',
+                },
+                {
+                  role: 'user',
+                  content: `Normalize this blog post topic for a mobile app and web development agency: "${customTopic}"`,
+                },
+              ],
+              max_tokens: 100,
+              temperature: 0.3,
+            }),
+          }
+        );
 
         if (normalizeResponse.ok) {
           const normalizeData = await normalizeResponse.json();
+
           selectedTopic = normalizeData.choices[0].message.content.trim();
-          console.log(`Normalized topic: "${customTopic}" -> "${selectedTopic}"`);
+          console.log(
+            `Normalized topic: "${customTopic}" -> "${selectedTopic}"`
+          );
         } else {
           selectedTopic = customTopic; // Fallback to original if normalization fails
         }
@@ -1043,9 +1141,11 @@ export async function POST(request: NextRequest) {
       // If category is 'random', select from all categories
       if (category === 'random') {
         const allTopics = Object.values(BLOG_TOPICS).flat();
+
         selectedTopic = allTopics[Math.floor(Math.random() * allTopics.length)];
       } else {
         const topics = BLOG_TOPICS[category as keyof typeof BLOG_TOPICS];
+
         if (!topics) {
           return NextResponse.json(
             { error: 'Invalid category' },
@@ -1063,15 +1163,20 @@ export async function POST(request: NextRequest) {
     for (const locale of locales) {
       try {
         const content = await generateBlogContent(selectedTopic, locale);
-        
+
         // Generate localized title
         let localizedTitle = selectedTopic;
+
         if (locale !== 'en') {
           try {
             if (model) {
               const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${selectedTopic}". Only return the translated title, nothing else.`;
               const titleResult = await model.generateContent(titlePrompt);
-              const translatedTitle = (await titleResult.response).text().trim().replace(/^"|"$/g, '');
+              const translatedTitle = (await titleResult.response)
+                .text()
+                .trim()
+                .replace(/^"|"$/g, '');
+
               if (translatedTitle) {
                 localizedTitle = translatedTitle;
               }
@@ -1081,8 +1186,8 @@ export async function POST(request: NextRequest) {
             // Keep English title as fallback
           }
         }
-        
-        const slug = createSlug(localizedTitle) + '-' + Date.now();
+
+        const slug = `${createSlug(localizedTitle)}-${Date.now()}`;
 
         const blogPost = new BlogPost({
           title: localizedTitle,
@@ -1094,6 +1199,7 @@ export async function POST(request: NextRequest) {
         });
 
         const savedPost = await blogPost.save();
+
         createdPosts.push({
           id: savedPost._id,
           title: savedPost.title,
@@ -1120,12 +1226,12 @@ export async function POST(request: NextRequest) {
       posts: createdPosts,
       generationGroupId,
     });
-
   } catch (error) {
     console.error('Error in blog generation:', error);
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
-    }
-} 
+  }
+}

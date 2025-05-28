@@ -15,7 +15,9 @@ interface BlogContextType {
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
 
-export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const BlogProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
 
   return (
@@ -27,8 +29,10 @@ export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useBlogContext = () => {
   const context = useContext(BlogContext);
+
   if (context === undefined) {
     throw new Error('useBlogContext must be used within a BlogProvider');
   }
+
   return context;
-}; 
+};

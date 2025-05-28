@@ -13,7 +13,7 @@
 }
 
 .active p::after {
-  content: "";
+  content: '';
   position: absolute;
   left: 0;
   bottom: -4px;
@@ -62,7 +62,7 @@
 }
 
 @media (max-width: 770px) {
-  .slide  {
+  .slide {
     font-size: 14px;
   }
 

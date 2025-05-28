@@ -5,13 +5,15 @@ export const runtime = 'edge';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const title = searchParams.get('title') || 'SoftWhere.uz - Mobile App & Web Development';
+    const title =
+      searchParams.get('title') ||
+      'SoftWhere.uz - Mobile App & Web Development';
     const locale = searchParams.get('locale') || 'en';
-    
+
     const localizedSubtitle = {
       en: 'Mobile Apps • Web Development • Telegram Bots',
       ru: 'Мобильные приложения • Веб-разработка • Telegram боты',
-      uz: 'Mobil ilovalar • Veb ishlab chiqish • Telegram botlar'
+      uz: 'Mobil ilovalar • Veb ishlab chiqish • Telegram botlar',
     };
 
     return new ImageResponse(
@@ -82,6 +84,7 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error('Error generating OG image:', error);
+
     return new Response('Failed to generate image', { status: 500 });
   }
-} 
+}
