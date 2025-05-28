@@ -9,26 +9,14 @@ jobs:
   generate_post:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18' # Or your project's Node.js version
-          cache: 'yarn'
-
-      - name: Clean up conflicting lockfiles
-        run: rm -f package-lock.json
-
-      - name: Install dependencies
-        run: yarn install
-
       - name: Generate blog post
-        run: yarn generate-post
-        env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          API_SECRET: ${{ secrets.API_SECRET }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
-          NODE_ENV: production
-          WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
+            -d '{
+              "category": "AUTOMATED_POSTS",
+              "locales": ["en", "ru", "uz"],
+              "customTopic": "Weekly Tech Update"
+            }' \
+            https://softwhere.uz/api/blog/generate
