@@ -1,40 +1,83 @@
-const { api } = require('../src/utils/api');
-const { logger } = require('../src/utils/logger');
+const https = require('https');
+const http = require('http');
+
+async function makeRequest(url, options, data) {
+  return new Promise((resolve, reject) => {
+    const protocol = url.startsWith('https:') ? https : http;
+
+    const req = protocol.request(url, options, res => {
+      let body = '';
+
+      res.on('data', chunk => (body += chunk));
+      res.on('end', () => {
+        try {
+          const jsonBody = JSON.parse(body);
+
+          resolve({ status: res.statusCode, data: jsonBody });
+        } catch (e) {
+          resolve({ status: res.statusCode, data: body });
+        }
+      });
+    });
+
+    req.on('error', reject);
+
+    if (data) {
+      req.write(JSON.stringify(data));
+    }
+
+    req.end();
+  });
+}
 
 async function generateNewPost() {
-  logger.info('Starting weekly blog post generation...');
+  console.log('Starting weekly blog post generation...');
 
   try {
     // Define the payload for the post generation.
     const postData = {
-      category: 'AUTOMATED_POSTS', // Or any relevant category
-      locales: ['en', 'ru', 'uz'], // Specify locales to generate for
-      customTopic: 'Weekly Tech Update', // Optional: you can remove if not needed or make it dynamic
+      category: 'AUTOMATED_POSTS',
+      locales: ['en', 'ru', 'uz'],
+      customTopic: 'Weekly Tech Update',
     };
 
-    logger.info('Calling api.blog.generatePosts with data:', postData);
-    const response = await api.blog.generatePosts(postData);
+    // Use environment variable for the website URL, fallback to localhost for local testing
+    const baseUrl = process.env.WEBSITE_URL || 'http://localhost:3000';
+    const apiUrl = `${baseUrl}/api/blog/generate`;
 
-    if (response.success) {
-      logger.info('Successfully generated new blog post:', response.data);
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.API_SECRET}`,
+      },
+    };
+
+    console.log('Calling blog generation API with data:', postData);
+    console.log('API URL:', apiUrl);
+
+    const response = await makeRequest(apiUrl, options, postData);
+
+    if (response.status === 200 || response.status === 201) {
       console.log('Successfully generated new blog post:', response.data);
     } else {
-      logger.error('Failed to generate blog post:', response.error);
-      console.error('Failed to generate blog post:', response.error);
-      process.exit(1); // Exit with error code
+      console.error('Failed to generate blog post. Status:', response.status);
+      console.error('Response:', response.data);
+      process.exit(1);
     }
   } catch (error) {
-    logger.error('An error occurred during blog post generation:', error);
-    console.error('An error occurred during blog post generation:', error);
-    process.exit(1); // Exit with error code
+    console.error(
+      'An error occurred during blog post generation:',
+      error.message
+    );
+    process.exit(1);
   }
 }
 
 // Ensure the script is executable and handles promise rejection
 if (require.main === module) {
   generateNewPost().catch(error => {
-    logger.error('Unhandled error in generateNewPost script:', error);
-    console.error('Unhandled error in generateNewPost script:', error);
+    console.error('Unhandled error in generateNewPost script:', error.message);
     process.exit(1);
   });
 }

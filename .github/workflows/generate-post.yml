@@ -31,3 +31,4 @@ jobs:
           API_SECRET: ${{ secrets.API_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
           NODE_ENV: production
+          WEBSITE_URL: ${{ secrets.WEBSITE_URL }}
