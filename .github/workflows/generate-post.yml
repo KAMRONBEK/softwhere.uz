@@ -18,13 +18,16 @@ jobs:
           node-version: '18' # Or your project's Node.js version
           cache: 'yarn'
 
+      - name: Clean up conflicting lockfiles
+        run: rm -f package-lock.json
+
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Generate blog post
         run: yarn generate-post
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           API_SECRET: ${{ secrets.API_SECRET }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Ensure this is set in GitHub Secrets if needed
-          # Add other necessary environment variables for the script, ensure they are in GitHub Secrets
+          OPENAI_API_KEY: ${{ secrets.OPENAI_KEY }}
+          NODE_ENV: production
