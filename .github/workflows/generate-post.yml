@@ -12,4 +12,4 @@ jobs:
       - name: Trigger Blog Generation API
         run: |
           curl -X POST -H "Authorization: Bearer ${{ secrets.API_SECRET }}" ${{ secrets.WEBSITE_URL }}/api/blog/generate
-          # We'll need to add error handling and potentially pass parameters later 
+          # We'll need to add error handling and potentially pass parameters later

@@ -1,5 +1,6 @@
+import { API_CONFIG } from '@/constants';
+import { ApiResponse, AppError, BlogPost } from '@/types';
 import { logger } from './logger';
-import { ApiResponse, AppError } from '@/types';
 
 interface RequestConfig {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -58,21 +59,27 @@ class ApiClient {
 
       if (!response.ok) {
         const errorText = await response.text();
+
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
+
       return {
         success: true,
         data,
       };
     } catch (error) {
       const duration = Date.now() - startTime;
+
       logger.performance(`API ${method} ${endpoint} (failed)`, duration);
-      
+
       if (error instanceof Error) {
-        logger.error(`API request failed: ${method} ${endpoint}`, error.message);
-        
+        logger.error(
+          `API request failed: ${method} ${endpoint}`,
+          error.message
+        );
+
         return {
           success: false,
           error: error.message,
@@ -86,7 +93,10 @@ class ApiClient {
     }
   }
 
-  async get<T = any>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async get<T = any>(
+    endpoint: string,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'GET', headers });
   }
 
@@ -129,14 +139,45 @@ export const apiClient = new ApiClient();
 export const api = {
   // Blog API
   blog: {
-    getPosts: (params?: Record<string, any>) => {
-      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
-      return apiClient.get(`/api/blog/posts${queryString}`);
+    getPosts: async (params?: {
+      locale?: string;
+      generationGroupId?: string;
+      limit?: number;
+    }) => {
+      const searchParams = new URLSearchParams();
+
+      if (params?.locale) searchParams.set('locale', params.locale);
+      if (params?.generationGroupId)
+        searchParams.set('generationGroupId', params.generationGroupId);
+      if (params?.limit) searchParams.set('limit', params.limit.toString());
+
+      const url = `${API_CONFIG.BLOG_POSTS_ENDPOINT}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
+
+      return apiClient.get<{ posts: BlogPost[] }>(url);
     },
-    getPost: (slug: string, locale: string) =>
-      apiClient.get(`/api/blog/posts/${slug}?locale=${locale}`),
-    generatePosts: (data: any) =>
-      apiClient.post('/api/blog/generate', data),
+
+    getPost: async (slug: string, locale: string) => {
+      return apiClient.get<{ post: BlogPost }>(
+        `/api/blog/posts/${slug}?locale=${locale}`
+      );
+    },
+
+    getRelatedPost: async (generationGroupId: string, locale: string) => {
+      return apiClient.get<{ post: { slug: string; locale: string } }>(
+        `/api/blog/posts/related?generationGroupId=${generationGroupId}&locale=${locale}`
+      );
+    },
+
+    generatePosts: async (data: {
+      category: string;
+      customTopic?: string;
+      locales: string[];
+    }) => {
+      return apiClient.post<{ message: string; generationGroupId: string }>(
+        API_CONFIG.BLOG_GENERATION_ENDPOINT,
+        data
+      );
+    },
   },
 
   // Admin API
@@ -171,5 +212,6 @@ export const validateApiResponse = <T>(response: ApiResponse<T>): T => {
   if (!response.success) {
     throw handleApiError(response);
   }
+
   return response.data as T;
-}; 
+};
