@@ -13,10 +13,10 @@ export const AdminBadge: React.FC<AdminBadgeProps> = ({
   variant = 'default',
   status,
   locale,
-  className = ''
+  className = '',
 }) => {
   let badgeClasses = 'px-3 py-1 text-xs font-medium rounded-full';
-  
+
   if (variant === 'status') {
     if (status === 'published') {
       badgeClasses += ' bg-green-100 text-green-800';
@@ -29,18 +29,15 @@ export const AdminBadge: React.FC<AdminBadgeProps> = ({
     const localeColors = {
       en: 'bg-blue-100 text-blue-800',
       ru: 'bg-red-100 text-red-800',
-      uz: 'bg-green-100 text-green-800'
+      uz: 'bg-green-100 text-green-800',
     };
+
     badgeClasses += ` ${localeColors[locale || 'en']}`;
   } else {
     badgeClasses += ' bg-gray-100 text-gray-800';
   }
-  
-  return (
-    <span className={`${badgeClasses} ${className}`}>
-      {children}
-    </span>
-  );
+
+  return <span className={`${badgeClasses} ${className}`}>{children}</span>;
 };
 
-export default AdminBadge; 
+export default AdminBadge;
