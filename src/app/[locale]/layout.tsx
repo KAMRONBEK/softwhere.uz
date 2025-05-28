@@ -1,12 +1,12 @@
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
+import { BlogProvider } from '@/contexts/BlogContext';
 import type { Metadata } from 'next';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import React from 'react';
-import { BlogProvider } from '@/contexts/BlogContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
