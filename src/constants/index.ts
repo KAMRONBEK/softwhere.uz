@@ -25,7 +25,7 @@ export const UI_CONFIG = {
 // Blog Categories
 export const BLOG_CATEGORIES = {
   MOBILE_APP: 'mobile-app-development',
-  TELEGRAM: 'telegram-development', 
+  TELEGRAM: 'telegram-development',
   WEB_DEV: 'web-development',
   BUSINESS: 'business-strategy',
   RANDOM: 'random',
@@ -58,4 +58,4 @@ export const ENV = {
   API_SECRET: process.env.API_SECRET || '',
   NODE_ENV: process.env.NODE_ENV || 'development',
   BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz',
-} as const; 
+} as const;
