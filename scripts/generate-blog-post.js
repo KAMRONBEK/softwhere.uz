@@ -33,7 +33,25 @@ async function makeRequest(url, options, data) {
 async function generateNewPost() {
   console.log('Starting weekly blog post generation...');
 
+  // Debug environment variables (don't log sensitive data)
+  console.log('Environment check:');
+  console.log('- WEBSITE_URL:', process.env.WEBSITE_URL || 'NOT SET');
+  console.log('- API_SECRET:', process.env.API_SECRET ? 'SET' : 'NOT SET');
+  console.log('- NODE_ENV:', process.env.NODE_ENV || 'NOT SET');
+
   try {
+    // Check if WEBSITE_URL is set
+    const baseUrl = process.env.WEBSITE_URL;
+
+    if (!baseUrl) {
+      console.error('ERROR: WEBSITE_URL environment variable is not set!');
+      console.error(
+        'Please set WEBSITE_URL in your GitHub Secrets to your deployed website URL'
+      );
+      console.error('Example: https://softwhere.uz');
+      process.exit(1);
+    }
+
     // Define the payload for the post generation.
     const postData = {
       category: 'AUTOMATED_POSTS',
@@ -41,9 +59,9 @@ async function generateNewPost() {
       customTopic: 'Weekly Tech Update',
     };
 
-    // Use environment variable for the website URL, fallback to localhost for local testing
-    const baseUrl = process.env.WEBSITE_URL || 'http://localhost:3000';
     const apiUrl = `${baseUrl}/api/blog/generate`;
+
+    console.log('API URL:', apiUrl);
 
     const options = {
       method: 'POST',
@@ -54,7 +72,6 @@ async function generateNewPost() {
     };
 
     console.log('Calling blog generation API with data:', postData);
-    console.log('API URL:', apiUrl);
 
     const response = await makeRequest(apiUrl, options, postData);
 
