@@ -1,18 +1,18 @@
 import { ENV } from '@/constants';
 
 export enum LogLevel {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug',
+  _ERROR = 'error',
+  _WARN = 'warn',
+  _INFO = 'info',
+  _DEBUG = 'debug',
 }
 
-interface LogEntry {
+interface _LogEntry {
   level: LogLevel;
   message: string;
-  data?: any;
   timestamp: string;
   context?: string;
+  data?: any;
 }
 
 class Logger {
@@ -40,16 +40,16 @@ class Logger {
     // In production, you might want to send logs to a service
     if (this.isDevelopment) {
       switch (level) {
-        case LogLevel.ERROR:
+        case LogLevel._ERROR:
           console.error(formattedMessage, data || '');
           break;
-        case LogLevel.WARN:
+        case LogLevel._WARN:
           console.warn(formattedMessage, data || '');
           break;
-        case LogLevel.INFO:
+        case LogLevel._INFO:
           console.info(formattedMessage, data || '');
           break;
-        case LogLevel.DEBUG:
+        case LogLevel._DEBUG:
           console.debug(formattedMessage, data || '');
           break;
       }
@@ -57,19 +57,19 @@ class Logger {
   }
 
   error(message: string, data?: any, context?: string): void {
-    this.log(LogLevel.ERROR, message, data, context);
+    this.log(LogLevel._ERROR, message, data, context);
   }
 
   warn(message: string, data?: any, context?: string): void {
-    this.log(LogLevel.WARN, message, data, context);
+    this.log(LogLevel._WARN, message, data, context);
   }
 
   info(message: string, data?: any, context?: string): void {
-    this.log(LogLevel.INFO, message, data, context);
+    this.log(LogLevel._INFO, message, data, context);
   }
 
   debug(message: string, data?: any, context?: string): void {
-    this.log(LogLevel.DEBUG, message, data, context);
+    this.log(LogLevel._DEBUG, message, data, context);
   }
 
   // Specific logging methods for common use cases
@@ -83,7 +83,7 @@ class Logger {
     status: number,
     context?: string
   ): void {
-    const level = status >= 400 ? LogLevel.ERROR : LogLevel.INFO;
+    const level = status >= 400 ? LogLevel._ERROR : LogLevel._INFO;
 
     this.log(
       level,

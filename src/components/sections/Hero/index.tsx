@@ -1,18 +1,17 @@
 'use client';
-import React, { FormEvent, useState } from 'react';
-import css from './style.module.css';
+import { FormEvent, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import { TypeAnimation } from 'react-type-animation';
+import css from './style.module.css';
 
-import Image from 'next/image';
-import BackImage from '../../../../public/images/app-background.png';
-import 'react-international-phone/style.css';
 import Button from '@/components/Button';
 import SectionText from '@/components/SectionTitle';
-import { toast } from 'react-toastify';
 import { sender } from '@/utils/send';
-import { useTranslations } from 'use-intl';
-import { getCookies } from 'undici-types';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import 'react-international-phone/style.css';
+import { toast } from 'react-toastify';
+import BackImage from '../../../../public/images/app-background.png';
 
 function Hero() {
   const t = useTranslations('hero');

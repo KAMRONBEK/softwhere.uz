@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { logger } from '@/utils/logger';
+import { NextRequest, NextResponse } from 'next/server';
 
 // TODO: Add authentication/authorization check here
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   // In a real app, verify user is authenticated and authorized admin here
   const startTime = Date.now();
 
