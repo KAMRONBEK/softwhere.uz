@@ -1,15 +1,14 @@
 'use client';
 import Button from '@/components/Button';
 import SectionText from '@/components/SectionTitle';
-import Image from 'next/image';
 import { FormEvent, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 // import BgTextImg from "../../../../public/images/bg-text.svg";
-import css from './style.module.css';
-import { toast } from 'react-toastify';
 import { sender } from '@/utils/send';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
+import { toast } from 'react-toastify';
+import css from './style.module.css';
 
 function Discuss() {
   const t = useTranslations('discuss');

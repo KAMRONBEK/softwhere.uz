@@ -73,7 +73,7 @@ export interface AdminInputProps extends AdminComponentProps {
   type?: 'text' | 'email' | 'password' | 'number' | 'textarea';
   placeholder?: string;
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (_value: string) => void;
   disabled?: boolean;
   required?: boolean;
   rows?: number;
@@ -82,7 +82,7 @@ export interface AdminInputProps extends AdminComponentProps {
 export interface AdminSelectProps extends AdminComponentProps {
   options: Array<{ value: string; label: string }>;
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (_value: string) => void;
   placeholder?: string;
   disabled?: boolean;
 }
@@ -114,7 +114,7 @@ export interface ContactForm {
 // Context Types
 export interface BlogContextType {
   currentPost: BlogPost | null;
-  setCurrentPost: (post: BlogPost | null) => void;
+  setCurrentPost: (_post: BlogPost | null) => void;
 }
 
 // Error Types
@@ -132,4 +132,34 @@ export interface PaginationParams {
   limit: number;
   locale?: Locale;
   status?: 'draft' | 'published';
+}
+
+// Form validation types
+export interface FormField {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'tel' | 'textarea' | 'select';
+  required?: boolean;
+  options?: string[];
+  validation?: (_value: string) => string | null;
+}
+
+export interface FormData {
+  [key: string]: string;
+}
+
+export interface FormErrors {
+  [key: string]: string;
+}
+
+export interface FormState {
+  data: FormData;
+  errors: FormErrors;
+  isSubmitting: boolean;
+  isValid: boolean;
+  validate: (_value: string) => boolean;
+  setField: (_name: string, _value: string) => void;
+  setError: (_name: string, _error: string) => void;
+  clearErrors: () => void;
+  reset: () => void;
 }
