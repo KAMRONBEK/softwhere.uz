@@ -1,15 +1,30 @@
-name: Generate Daily Blog Post
+name: Generate Weekly Blog Post
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs every day at midnight UTC
+    - cron: '0 9 * * 1' # Runs every Monday at 9 AM UTC (changed from daily)
   workflow_dispatch: # Allows manual triggering
 
 jobs:
-  generate:
+  generate_post: # Changed job name from generate to generate_post
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Blog Generation API
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_SECRET }}" ${{ secrets.WEBSITE_URL }}/api/blog/generate
-          # We'll need to add error handling and potentially pass parameters later
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Or your project's Node.js version
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Generate blog post
+        run: yarn generate-post # Changed from curl to yarn script
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }} # Add if your generation script/API needs it
+          # Add other necessary environment variables for the script
