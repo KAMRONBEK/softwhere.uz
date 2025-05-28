@@ -1,20 +1,21 @@
 'use client';
 
+import { CONTACT_INFO, UI_CONFIG } from '@/constants';
+import { useBlogContext } from '@/contexts/BlogContext';
+import { api } from '@/utils/api';
+import { logger } from '@/utils/logger';
+import { getCookie } from 'cookies-next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import RuFlag from '../../../public/icons/Russia (RU).svg';
 import EngFlag from '../../../public/icons/United Kingdom (GB).svg';
-import { getCookie } from 'cookies-next';
 import UzbFlag from '../../../public/icons/Uzbekistan (UZ).svg';
 import Logo from '../../../public/icons/logo.svg';
 import EmailIcon from '../../../public/icons/mail-outline.svg';
 import SmartphoneIcon from '../../../public/icons/smartphone-icon.svg';
 import css from './style.module.css';
-import { useBlogContext } from '@/contexts/BlogContext';
-import { UI_CONFIG, CONTACT_INFO } from '@/constants';
-import { logger } from '@/utils/logger';
 
 function Header() {
   const t = useTranslations('header');
@@ -76,28 +77,47 @@ function Header() {
     // Check if we're on a blog post page and have a current post with generationGroupId
     if (currentPost?.generationGroupId) {
       try {
-        // Try to find the related post in the target language
-        const response = await fetch(
-          `/api/blog/posts/related?generationGroupId=${currentPost.generationGroupId}&locale=${locale}`
+        logger.info(
+          `Switching language to ${locale} for post with generationGroupId: ${currentPost.generationGroupId}`,
+          undefined,
+          'HEADER_LANGUAGE_SWITCH'
         );
 
-        if (response.ok) {
-          const data = await response.json();
+        // Try to find the related post in the target language using API client
+        const response = await api.blog.getRelatedPost(
+          currentPost.generationGroupId,
+          locale
+        );
 
+        if (response.success && response.data) {
           // Navigate to the related post in the target language
-          router.push(`/${locale}/blog/${data.post.slug}`);
+          router.push(`/${locale}/blog/${response.data.post.slug}`);
           setLang(locale);
+          logger.info(
+            `Successfully switched to related post: ${response.data.post.slug}`,
+            undefined,
+            'HEADER_LANGUAGE_SWITCH'
+          );
 
           return;
         } else {
           // If no related post found, redirect to blog listing in target language
+          logger.info(
+            `No related post found for generationGroupId: ${currentPost.generationGroupId}, redirecting to blog listing`,
+            undefined,
+            'HEADER_LANGUAGE_SWITCH'
+          );
           router.push(`/${locale}/blog`);
           setLang(locale);
 
           return;
         }
       } catch (error) {
-        logger.error('Error switching language', error, 'HEADER');
+        logger.error(
+          'Error switching language',
+          error,
+          'HEADER_LANGUAGE_SWITCH'
+        );
         // Fall back to blog listing in target language
         router.push(`/${locale}/blog`);
         setLang(locale);
