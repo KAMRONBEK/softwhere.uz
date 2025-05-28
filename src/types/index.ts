@@ -132,4 +132,4 @@ export interface PaginationParams {
   limit: number;
   locale?: Locale;
   status?: 'draft' | 'published';
-} 
+}

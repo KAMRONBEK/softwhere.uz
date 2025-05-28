@@ -6,7 +6,7 @@ export async function GET() {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'unknown',
-      region: process.env.VERCEL_REGION || 'unknown'
+      region: process.env.VERCEL_REGION || 'unknown',
     });
   } catch (error) {
     return NextResponse.json(
@@ -14,4 +14,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}
