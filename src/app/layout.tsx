@@ -1,3 +1,4 @@
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google'; // Example font
 import './globals.css';
@@ -30,7 +31,10 @@ export default function RootLayout({
   return (
     // The lang attribute will be handled by the [locale] layout
     <html>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
