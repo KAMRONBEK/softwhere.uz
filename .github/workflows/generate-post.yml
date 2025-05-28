@@ -15,8 +15,12 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
             -d '{
-              "category": "AUTOMATED_POSTS",
-              "locales": ["en", "ru", "uz"],
-              "customTopic": "Weekly Tech Update"
+              "category": "random",
+              "customTopic": "",
+              "locales": [
+                "en",
+                "ru", 
+                "uz"
+              ]
             }' \
-            https://softwhere.uz/api/blog/generate
+            https://www.softwhere.uz/api/blog/generate
