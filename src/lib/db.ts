@@ -1,11 +1,11 @@
-import mongoose, { Mongoose } from 'mongoose';
-import { logger } from '@/utils/logger';
 import { ENV } from '@/constants';
+import { logger } from '@/utils/logger';
+import _mongoose, { Mongoose } from 'mongoose';
 
 declare global {
   // allow global `var` declarations
   // eslint-disable-next-line no-var
-  var mongoose: {
+  var _mongoose: {
     conn: Mongoose | null;
     promise: Promise<Mongoose> | null;
   };
@@ -24,10 +24,10 @@ if (!MONGODB_URI) {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global.mongoose;
+let cached = global._mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = global._mongoose = { conn: null, promise: null };
 }
 
 async function dbConnect(): Promise<Mongoose> {
@@ -61,7 +61,7 @@ async function dbConnect(): Promise<Mongoose> {
     });
 
     cached.promise = Promise.race([
-      mongoose.connect(MONGODB_URI, opts).then(mongooseInstance => {
+      _mongoose.connect(MONGODB_URI, opts).then(mongooseInstance => {
         logger.info('MongoDB connection established', undefined, 'DB');
 
         return mongooseInstance;

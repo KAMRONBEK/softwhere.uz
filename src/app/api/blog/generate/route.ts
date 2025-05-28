@@ -1,10 +1,10 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI, GenerationConfig } from '@google/generative-ai';
 // Changed back to standard import for slugify
-import slugify from 'slugify';
+// import slugify from 'slugify';
 // const slugify = require('slugify'); // Previous workaround
 import dbConnect from '@/lib/db'; // Adjust path if necessary
-import BlogPost, { IBlogPost } from '@/models/BlogPost'; // Adjust path if necessary
+import BlogPost from '@/models/BlogPost'; // Adjust path if necessary
 import { v4 as uuidv4 } from 'uuid';
 
 // Ensure API keys and URI are set
@@ -30,7 +30,7 @@ const genAI = process.env.GOOGLE_API_KEY
 // Pass model name in an object
 const model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-const TARGET_LOCALES: Array<'en' | 'ru' | 'uz'> = ['en', 'ru', 'uz'];
+const _TARGET_LOCALES: Array<'en' | 'ru' | 'uz'> = ['en', 'ru', 'uz'];
 
 // Get current year for dynamic topics
 const getCurrentYear = () => new Date().getFullYear();
@@ -211,7 +211,7 @@ const CONTENT_TEMPLATES = {
 };
 
 // Helper function to generate content for a specific locale
-async function generateLocalizedContent(
+async function _generateLocalizedContent(
   baseTitle: string,
   baseContent: string,
   targetLocale: 'en' | 'ru' | 'uz'
@@ -507,7 +507,8 @@ ${locale === 'ru' ? 'Вы пишете на русском языке для р�
 
 function generateFallbackContent(topic: string, locale: string): string {
   const currentYear = getCurrentYear();
-  const { templateKey, template } = selectContentTemplate(topic);
+  const { templateKey: _templateKey, template: _template } =
+    selectContentTemplate(topic);
 
   const fallbackContent = {
     en: `# ${topic}: Complete Guide for ${currentYear}
@@ -816,41 +817,41 @@ ${topic} включает в себя несколько ключевых ком
 
 Глядя вперед в ${currentYear} году и далее:
 
-### Новые технологии
-- **Интеграция ИИ и машинного обучения**
-- **Голосовые интерфейсы** и разговорный UI
-- **Опыт дополненной реальности**
-- **Блокчейн** для безопасности и прозрачности
+### Emerging Technologies
+- **AI and Machine Learning** integration
+- **Voice interfaces** and conversational UI
+- **Augmented Reality** experiences
+- **Blockchain** for security and transparency
 
-### Эволюция рынка
-- **Экосистемы супер-приложений** набирают популярность
-- **Интеграция социальной коммерции**
-- **Фокус на устойчивости** в цифровых решениях
-- **Подходы, ориентированные на конфиденциальность**
+### Market Evolution
+- **Super app ecosystems** gaining popularity
+- **Social commerce** integration
+- **Sustainability focus** in digital solutions
+- **Privacy-first** design approaches
 
-## Начало работы: План действий
+## Getting Started: Action Plan
 
-### Немедленные шаги (Неделя 1-2)
-1. **Определите четкие цели** и метрики успеха
-2. **Проведите исследование рынка** специфичное для вашей отрасли
-3. **Проанализируйте конкурентов** и определите возможности
-4. **Установите реалистичный бюджет** и ожидания по срокам
+### Immediate Steps (Week 1-2)
+1. **Define clear objectives** and success metrics
+2. **Conduct market research** specific to your industry
+3. **Analyze competitors** and identify opportunities
+4. **Set realistic budget** and timeline expectations
 
-### Краткосрочные цели (Месяц 1-3)
-1. **Разработайте детальный план проекта** с вехами
-2. **Создайте пользовательские персоны** на основе исследований
-3. **Дизайн каркасов** и пользовательских потоков
-4. **Настройте среду разработки** и инструменты
+### Short-term Goals (Month 1-3)
+1. **Develop detailed project plan** with milestones
+2. **Create user personas** based on research
+3. **Design wireframes** and user flows
+4. **Set up development environment** and tools
 
-### Долгосрочная стратегия (3-12 месяцев)
-1. **Выполните разработку** в итеративных фазах
-2. **Проводите регулярное тестирование** и оптимизацию
-3. **Планируйте маркетинг** и стратегии привлечения пользователей
-4. **Подготовьтесь к масштабированию** и будущим улучшениям
+### Long-term Strategy (3-12 months)
+1. **Execute development** in iterative phases
+2. **Conduct regular testing** and optimization
+3. **Plan marketing** and user acquisition strategies
+4. **Prepare for scaling** and future enhancements
 
-## Почему выбрать профессиональные услуги разработки
+## Why Choose Professional Development Services
 
-Хотя DIY решения могут показаться привлекательными, профессиональная разработка предлагает:
+While DIY solutions might seem attractive, professional development offers:
 
 - **Экспертизу и опыт** - Избегайте дорогостоящих ошибок
 - **Эффективность времени** - Быстрее выход на рынок

@@ -7,14 +7,14 @@ import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 import css from './style.module.css';
 
+import { projects } from '@/data/projects';
+import { getCookie } from 'cookies-next';
 import AppStoreIcon from '../../../../../../public/icons/ios.svg';
 import LinkToIcon from '../../../../../../public/icons/link.svg';
 import LocationIcon from '../../../../../../public/icons/place_outline_24.svg';
 import PlayMarketIcon from '../../../../../../public/icons/play-market.svg';
 import WorkIcon from '../../../../../../public/icons/work_outline_24.svg';
 import ProjectImage from '../../../../../../public/images/i-teka.png';
-import { projects } from '@/data/projects';
-import { getCookie } from 'cookies-next';
 
 function ProjectSlider() {
   const sliderRef = useRef<Slider | null>(null);
@@ -50,7 +50,7 @@ function ProjectSlider() {
   return (
     <div className='mt-10'>
       <ul className='hidden lg:flex'>
-        {projects.map((item, index) => (
+        {projects.map((item, _index) => (
           <li
             className={`lg:p-4 md:p-2  cursor-pointer ${css.slide}  ${
               activeSlide === item.id ? css.active : ''
