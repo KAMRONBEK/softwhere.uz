@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const relatedPost = await BlogPost.findOne({
       generationGroupId,
       locale: targetLocale,
-      status: 'published'
+      status: 'published',
     });
 
     if (!relatedPost) {
@@ -35,15 +35,15 @@ export async function GET(request: NextRequest) {
       success: true,
       post: {
         slug: relatedPost.slug,
-        locale: relatedPost.locale
-      }
+        locale: relatedPost.locale,
+      },
     });
-
   } catch (error) {
     console.error('Error finding related post:', error);
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
     );
   }
-} 
+}

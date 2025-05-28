@@ -14,12 +14,14 @@ export const useBlogLanguageSwitch = (post: BlogPost | null) => {
 
       if (pathSegments.length > 0) {
         const routeWithoutLocale = pathSegments.slice(1).join('/');
+
         newPath = `/${targetLocale}/${routeWithoutLocale}`;
       } else {
         newPath = `/${targetLocale}`;
       }
 
       router.push(newPath);
+
       return;
     }
 
@@ -31,6 +33,7 @@ export const useBlogLanguageSwitch = (post: BlogPost | null) => {
 
       if (response.ok) {
         const data = await response.json();
+
         // Navigate to the related post in the target language
         router.push(`/${targetLocale}/blog/${data.post.slug}`);
       } else {
@@ -45,4 +48,4 @@ export const useBlogLanguageSwitch = (post: BlogPost | null) => {
   };
 
   return { switchLanguage };
-}; 
+};

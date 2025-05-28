@@ -7,4 +7,4 @@ export { default as AdminInput } from './AdminInput';
 export { default as AdminSelect } from './AdminSelect';
 export { default as AdminBadge } from './AdminBadge';
 export { default as AdminLoading } from './AdminLoading';
-export { default as AdminTable } from './AdminTable'; 
+export { default as AdminTable } from './AdminTable';

@@ -58,21 +58,27 @@ class ApiClient {
 
       if (!response.ok) {
         const errorText = await response.text();
+
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
+
       return {
         success: true,
         data,
       };
     } catch (error) {
       const duration = Date.now() - startTime;
+
       logger.performance(`API ${method} ${endpoint} (failed)`, duration);
-      
+
       if (error instanceof Error) {
-        logger.error(`API request failed: ${method} ${endpoint}`, error.message);
-        
+        logger.error(
+          `API request failed: ${method} ${endpoint}`,
+          error.message
+        );
+
         return {
           success: false,
           error: error.message,
@@ -86,7 +92,10 @@ class ApiClient {
     }
   }
 
-  async get<T = any>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
+  async get<T = any>(
+    endpoint: string,
+    headers?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'GET', headers });
   }
 
@@ -130,13 +139,15 @@ export const api = {
   // Blog API
   blog: {
     getPosts: (params?: Record<string, any>) => {
-      const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+      const queryString = params
+        ? `?${new URLSearchParams(params).toString()}`
+        : '';
+
       return apiClient.get(`/api/blog/posts${queryString}`);
     },
     getPost: (slug: string, locale: string) =>
       apiClient.get(`/api/blog/posts/${slug}?locale=${locale}`),
-    generatePosts: (data: any) =>
-      apiClient.post('/api/blog/generate', data),
+    generatePosts: (data: any) => apiClient.post('/api/blog/generate', data),
   },
 
   // Admin API
@@ -171,5 +182,6 @@ export const validateApiResponse = <T>(response: ApiResponse<T>): T => {
   if (!response.success) {
     throw handleApiError(response);
   }
+
   return response.data as T;
-}; 
+};
