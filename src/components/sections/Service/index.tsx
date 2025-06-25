@@ -59,11 +59,7 @@ function Service() {
         </SectionText>
         <ul className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3'>
           {services.map((item, index) => (
-            <li
-              data-aos={index % 2 === 0 ? 'flip-down' : 'flip-up'}
-              className={css.serviceItem}
-              key={item.title}
-            >
+            <li data-aos={index % 2 === 0 ? 'flip-down' : 'flip-up'} className={css.serviceItem} key={item.title}>
               <div>
                 <b>{item.title}</b>
                 <p>{item.description}</p>

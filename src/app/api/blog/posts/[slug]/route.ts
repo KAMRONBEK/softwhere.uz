@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   const { slug } = params;
   const startTime = Date.now();
 
@@ -60,14 +57,8 @@ export async function GET(
   } catch (error) {
     const duration = Date.now() - startTime;
 
-    console.error(
-      `Error fetching post with slug '${slug}' after ${duration}ms:`,
-      error
-    );
+    console.error(`Error fetching post with slug '${slug}' after ${duration}ms:`, error);
 
-    return NextResponse.json(
-      { error: 'Failed to fetch post' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
   }
 }

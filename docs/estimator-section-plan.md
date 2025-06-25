@@ -92,7 +92,7 @@ _All work is committed **directly inside this repository** (branch `feature/esti
 | Phase | Key Deliverables | Owner | Est. Time |
 |-------|------------------|-------|----------|
 | 1 | Baseline constants (`constants/estimator.ts`), initial types & utils scaffold (`types/estimator.ts`, `utils/estimator.ts`) | FE Dev | 0.5 d |
-| 2 | UI wireframes (Figma) & skeleton React components committed under `components/Estimator/*` | Designer + FE Dev | 1 d |
+| 2 | UI wireframes (Figma) & skeleton React components committed under `components/Estimator/*` | FE Dev | 3 d |
 | 3 | Step wizard logic, state management, live calculation hooking utils – committed to `app/[locale]/estimator` | FE Dev | 3 d |
 | 4 | API route `/api/estimate` + `api.estimator` client methods, Mongo model `Estimate` | BE Dev | 1 d |
 | 5 | Unit / component tests, i18n strings, accessibility polish | QA + FE Dev | 1 d |

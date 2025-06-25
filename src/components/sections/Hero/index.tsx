@@ -6,7 +6,7 @@ import css from './style.module.css';
 
 import Button from '@/components/Button';
 import SectionText from '@/components/SectionTitle';
-import { sender } from '@/utils/send';
+import { sender } from '@/core/send';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import 'react-international-phone/style.css';
@@ -51,12 +51,7 @@ function Hero() {
         <Image className={css.backImage} src={BackImage} alt='' />
         <div className={css.content}>
           <SectionText className='lg:w-1/2'>
-            <TypeAnimation
-              sequence={[t('title'), 1000]}
-              wrapper='p'
-              speed={50}
-              repeat={Infinity}
-            />
+            <TypeAnimation sequence={[t('title'), 1000]} wrapper='p' speed={50} repeat={Infinity} />
           </SectionText>
 
           <SectionText type={'desc'} className={css.description}>
@@ -85,13 +80,7 @@ function Hero() {
               </div>
               <div className={css.formInput}>
                 <label htmlFor='name'>{t('name')}</label>
-                <input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  type='text'
-                  placeholder={t('name')}
-                  id='name'
-                />
+                <input value={name} onChange={e => setName(e.target.value)} type='text' placeholder={t('name')} id='name' />
               </div>
               <Button type='submit' className='ml-auto md:ml-0'>
                 {t('btn')}

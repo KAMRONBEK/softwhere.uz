@@ -2,8 +2,8 @@
 
 import { CONTACT_INFO, UI_CONFIG } from '@/constants';
 import { useBlogContext } from '@/contexts/BlogContext';
-import { api } from '@/utils/api';
-import { logger } from '@/utils/logger';
+import { api } from '@/core/api';
+import { logger } from '@/core/logger';
 import { getCookie } from 'cookies-next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -84,20 +84,13 @@ function Header() {
         );
 
         // Try to find the related post in the target language using API client
-        const response = await api.blog.getRelatedPost(
-          currentPost.generationGroupId,
-          locale
-        );
+        const response = await api.blog.getRelatedPost(currentPost.generationGroupId, locale);
 
         if (response.success && response.data) {
           // Navigate to the related post in the target language
           router.push(`/${locale}/blog/${response.data.post.slug}`);
           setLang(locale);
-          logger.info(
-            `Successfully switched to related post: ${response.data.post.slug}`,
-            undefined,
-            'HEADER_LANGUAGE_SWITCH'
-          );
+          logger.info(`Successfully switched to related post: ${response.data.post.slug}`, undefined, 'HEADER_LANGUAGE_SWITCH');
 
           return;
         } else {
@@ -113,11 +106,7 @@ function Header() {
           return;
         }
       } catch (error) {
-        logger.error(
-          'Error switching language',
-          error,
-          'HEADER_LANGUAGE_SWITCH'
-        );
+        logger.error('Error switching language', error, 'HEADER_LANGUAGE_SWITCH');
         // Fall back to blog listing in target language
         router.push(`/${locale}/blog`);
         setLang(locale);
@@ -147,9 +136,7 @@ function Header() {
   };
 
   return (
-    <header
-      className={`${css.header} container ${!isHeaderVisible ? css.headerHidden : ''}`}
-    >
+    <header className={`${css.header} container ${!isHeaderVisible ? css.headerHidden : ''}`}>
       <a href='/'>
         <Image src={Logo} alt='' />
       </a>
@@ -175,13 +162,7 @@ function Header() {
         <li className={css.dropdown}>
           <div className={`flex items-center cursor-pointer ${css.lang}`}>
             <p>{t('lang')}</p>
-            <svg
-              width='24'
-              height='24'
-              viewBox='0 0 24 24'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
+            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -192,24 +173,15 @@ function Header() {
           </div>
           <div className={css.triangle}></div>
           <ul className={css.content}>
-            <li
-              className={lang === 'en' ? css.activeLang : ''}
-              onClick={() => changeLanguage('en')}
-            >
+            <li className={lang === 'en' ? css.activeLang : ''} onClick={() => changeLanguage('en')}>
               <Image src={EngFlag} alt={''} />
               <p>En</p>
             </li>
-            <li
-              className={lang === 'ru' ? css.activeLang : ''}
-              onClick={() => changeLanguage('ru')}
-            >
+            <li className={lang === 'ru' ? css.activeLang : ''} onClick={() => changeLanguage('ru')}>
               <Image src={RuFlag} alt={''} />
               <p>Ru</p>
             </li>
-            <li
-              className={lang === 'uz' ? css.activeLang : ''}
-              onClick={() => changeLanguage('uz')}
-            >
+            <li className={lang === 'uz' ? css.activeLang : ''} onClick={() => changeLanguage('uz')}>
               <Image src={UzbFlag} alt={''} />
               <p>Uz</p>
             </li>
@@ -263,13 +235,7 @@ function Header() {
           <li className={css.dropdown}>
             <div className={`flex items-center cursor-pointer ${css.lang}`}>
               <p>{t('lang')}</p>
-              <svg
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
+              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   fillRule='evenodd'
                   clipRule='evenodd'
@@ -280,24 +246,15 @@ function Header() {
             </div>
             <div className={css.triangle}></div>
             <ul className={css.content}>
-              <li
-                className={lang === 'en' ? css.activeLang : ''}
-                onClick={() => changeLanguage('en')}
-              >
+              <li className={lang === 'en' ? css.activeLang : ''} onClick={() => changeLanguage('en')}>
                 <Image src={EngFlag} alt={''} />
                 <p>En</p>
               </li>
-              <li
-                className={lang === 'ru' ? css.activeLang : ''}
-                onClick={() => changeLanguage('ru')}
-              >
+              <li className={lang === 'ru' ? css.activeLang : ''} onClick={() => changeLanguage('ru')}>
                 <Image src={RuFlag} alt={''} />
                 <p>Ru</p>
               </li>
-              <li
-                className={lang === 'uz' ? css.activeLang : ''}
-                onClick={() => changeLanguage('uz')}
-              >
+              <li className={lang === 'uz' ? css.activeLang : ''} onClick={() => changeLanguage('uz')}>
                 <Image src={UzbFlag} alt={''} />
                 <p>Uz</p>
               </li>
