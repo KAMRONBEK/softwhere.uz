@@ -64,13 +64,7 @@ function Contact() {
           </SectionText>
           <div className='flex flex-col gap-4 mt-5'>
             <div data-aos='zoom-in' className='flex items-center gap-1'>
-              <svg
-                width='35'
-                height='35'
-                viewBox='0 0 24 25'
-                fill='none'
-                xmlns='http://www.w3.org/2000/svg'
-              >
+              <svg width='35' height='35' viewBox='0 0 24 25' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   fillRule='evenodd'
                   clipRule='evenodd'
@@ -78,25 +72,12 @@ function Contact() {
                   fill='#ffffff'
                 />
               </svg>
-              <a
-                href='tel:+998332499111'
-                className='text-white xl:text-xl  hover:text-slate-300'
-              >
+              <a href='tel:+998332499111' className='text-white xl:text-xl  hover:text-slate-300'>
                 +998 33 249-91-11
               </a>
             </div>
-            <div
-              data-aos='zoom-in'
-              data-aos-delay='100'
-              className='flex items-center gap-2'
-            >
-              <svg
-                width='30'
-                height='22'
-                viewBox='0 0 20 17'
-                fill='#ffffff'
-                xmlns='http://www.w3.org/2000/svg'
-              >
+            <div data-aos='zoom-in' data-aos-delay='100' className='flex items-center gap-2'>
+              <svg width='30' height='22' viewBox='0 0 20 17' fill='#ffffff' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   fillRule='evenodd'
                   clipRule='evenodd'
@@ -104,25 +85,12 @@ function Contact() {
                   fill='#ffffff'
                 />
               </svg>
-              <a
-                href='mailto:kamuranbek98@gmail.com'
-                className='text-white xl:text-xl hover:text-slate-300'
-              >
+              <a href='mailto:kamuranbek98@gmail.com' className='text-white xl:text-xl hover:text-slate-300'>
                 kamuranbek98@gmail.com
               </a>
             </div>
-            <div
-              data-aos='zoom-in'
-              data-aos-delay='200'
-              className='flex items-center gap-2'
-            >
-              <svg
-                width='25'
-                height='30'
-                viewBox='0 0 16 21'
-                fill='#ffffff'
-                xmlns='http://www.w3.org/2000/svg'
-              >
+            <div data-aos='zoom-in' data-aos-delay='200' className='flex items-center gap-2'>
+              <svg width='25' height='30' viewBox='0 0 16 21' fill='#ffffff' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   fillRule='evenodd'
                   clipRule='evenodd'
@@ -140,11 +108,7 @@ function Contact() {
             </div>
           </div>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          data-aos='zoom-in'
-          className={css.formBox}
-        >
+        <form onSubmit={handleSubmit} data-aos='zoom-in' className={css.formBox}>
           <div className='grid md:grid-cols-2 gap-6'>
             <div className={css.formInput}>
               <label htmlFor='phone-input'>{t('phoneNumber')}</label>
@@ -165,13 +129,7 @@ function Contact() {
             </div>
             <div className={css.formInput}>
               <label htmlFor='name'>{t('name')}</label>
-              <input
-                value={name}
-                onChange={event => setName(event.target.value)}
-                type='text'
-                placeholder={t('name')}
-                id='name'
-              />
+              <input value={name} onChange={event => setName(event.target.value)} type='text' placeholder={t('name')} id='name' />
             </div>
           </div>
 

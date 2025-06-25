@@ -31,11 +31,7 @@ const AdminInput: React.FC<AdminInputProps> = ({
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      {label && (
-        <label className='text-gray-500 text-sm font-medium leading-4 tracking-tight'>
-          {label}
-        </label>
-      )}
+      {label && <label className='text-gray-500 text-sm font-medium leading-4 tracking-tight'>{label}</label>}
       <input
         type={type}
         value={value}

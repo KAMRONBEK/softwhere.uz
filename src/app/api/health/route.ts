@@ -9,9 +9,6 @@ export async function GET() {
       region: process.env.VERCEL_REGION || 'unknown',
     });
   } catch (error) {
-    return NextResponse.json(
-      { status: 'error', error: 'Health check failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ status: 'error', error: 'Health check failed' }, { status: 500 });
   }
 }

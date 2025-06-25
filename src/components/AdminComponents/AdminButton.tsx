@@ -17,8 +17,7 @@ export const AdminButton: React.FC<AdminButtonProps> = ({
   disabled = false,
   className = '',
 }) => {
-  const baseClasses =
-    'px-6 py-3 rounded-lg font-semibold text-sm tracking-tight transition-all duration-300 border-none cursor-pointer';
+  const baseClasses = 'px-6 py-3 rounded-lg font-semibold text-sm tracking-tight transition-all duration-300 border-none cursor-pointer';
 
   const variantClasses = {
     primary: 'bg-[#fe4502] text-white hover:bg-[#ff5f24] active:bg-[#fe4502aa]',

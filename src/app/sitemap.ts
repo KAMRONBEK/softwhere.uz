@@ -21,9 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic blog posts
   try {
     await dbConnect();
-    const posts = await BlogPost.find({ status: 'published' })
-      .select('slug locale updatedAt')
-      .lean();
+    const posts = await BlogPost.find({ status: 'published' }).select('slug locale updatedAt').lean();
 
     const blogUrls = posts.map(post => ({
       url: `${baseUrl}/${post.locale}/blog/${post.slug}`,

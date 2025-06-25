@@ -52,27 +52,14 @@ function extractDescription(content: string): string {
 
       .find(line => line.trim().length > 50)
 
-      ?.substring(0, 160)}...` ||
-    'Expert insights on mobile app development, web development, and Telegram bots.'
+      ?.substring(0, 160)}...` || 'Expert insights on mobile app development, web development, and Telegram bots.'
   );
 }
 
 // Helper function to extract keywords from content
 
 function extractKeywords(content: string): string[] {
-  const keywords = [
-    'mobile app development',
-
-    'web development',
-
-    'telegram bot',
-
-    'software development',
-
-    'uzbekistan',
-
-    'tashkent',
-  ];
+  const keywords = ['mobile app development', 'web development', 'telegram bot', 'software development', 'uzbekistan', 'tashkent'];
 
   const contentLower = content.toLowerCase();
 
@@ -113,11 +100,7 @@ async function getBlogPost(
 
 // Generate metadata for SEO
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { locale: string; slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { locale: string; slug: string } }): Promise<Metadata> {
   const { locale, slug } = params;
 
   const post = await getBlogPost(slug, locale);
@@ -166,9 +149,7 @@ export async function generateMetadata({
 
       images: [
         {
-          url: `${baseUrl}/api/og?title=${encodeURIComponent(
-            post.title
-          )}&locale=${locale}`,
+          url: `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
 
           width: 1200,
 
@@ -186,11 +167,7 @@ export async function generateMetadata({
 
       description,
 
-      images: [
-        `${baseUrl}/api/og?title=${encodeURIComponent(
-          post.title
-        )}&locale=${locale}`,
-      ],
+      images: [`${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`],
     },
 
     alternates: {
@@ -221,9 +198,7 @@ function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
 
     description: extractDescription(post.content),
 
-    image: `${baseUrl}/api/og?title=${encodeURIComponent(
-      post.title
-    )}&locale=${locale}`,
+    image: `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
 
     author: {
       '@type': 'Organization',
@@ -270,19 +245,10 @@ function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
     },
   };
 
-  return (
-    <script
-      type='application/ld+json'
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
+  return <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: { locale: string; slug: string };
-}) {
+export default async function BlogPostPage({ params }: { params: { locale: string; slug: string } }) {
   const { locale, slug } = params;
 
   const post = await getBlogPost(slug, locale);
@@ -301,23 +267,14 @@ export default async function BlogPostPage({
     <BlogPostClient post={post}>
       <BlogPostSchema post={post} locale={locale} />
 
-      <div
-        className='page-layout min-h-screen'
-        style={{ backgroundColor: 'var(--gray-100)' }}
-      >
+      <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--gray-100)' }}>
         {/* Breadcrumbs */}
 
-        <nav
-          className='bg-white border-b border-gray-200'
-          aria-label='Breadcrumb'
-        >
+        <nav className='bg-white border-b border-gray-200' aria-label='Breadcrumb'>
           <div className='container py-4'>
             <ol className='flex items-center space-x-2 text-sm text-gray-500'>
               <li>
-                <Link
-                  href={`/${locale}`}
-                  className='hover:text-[#fe4502] transition-colors'
-                >
+                <Link href={`/${locale}`} className='hover:text-[#fe4502] transition-colors'>
                   Home
                 </Link>
               </li>
@@ -325,10 +282,7 @@ export default async function BlogPostPage({
               <li>›</li>
 
               <li>
-                <Link
-                  href={`/${locale}/blog`}
-                  className='hover:text-[#fe4502] transition-colors'
-                >
+                <Link href={`/${locale}/blog`} className='hover:text-[#fe4502] transition-colors'>
                   Blog
                 </Link>
               </li>
@@ -348,18 +302,8 @@ export default async function BlogPostPage({
               href={`/${locale}/blog`}
               className='inline-flex items-center text-gray-600 hover:text-[#fe4502] transition-colors duration-300 font-medium'
             >
-              <svg
-                className='w-5 h-5 mr-2'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M15 19l-7-7 7-7'
-                ></path>
+              <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>
               </svg>
 
               {t('backToBlog')}
@@ -375,18 +319,11 @@ export default async function BlogPostPage({
               {/* Article header */}
 
               <header className='mb-12 text-center'>
-                <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight tracking-wide'>
-                  {post.title}
-                </h1>
+                <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight tracking-wide'>{post.title}</h1>
 
                 <div className='flex items-center justify-center space-x-8 text-gray-500 text-sm font-medium'>
                   <time dateTime={post.createdAt} className='flex items-center'>
-                    <svg
-                      className='w-4 h-4 mr-2'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
+                    <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path
                         strokeLinecap='round'
                         strokeLinejoin='round'
@@ -399,12 +336,7 @@ export default async function BlogPostPage({
                   </time>
 
                   <span className='flex items-center'>
-                    <svg
-                      className='w-4 h-4 mr-2'
-                      fill='none'
-                      stroke='currentColor'
-                      viewBox='0 0 24 24'
-                    >
+                    <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path
                         strokeLinecap='round'
                         strokeLinejoin='round'
@@ -431,44 +363,24 @@ export default async function BlogPostPage({
                   rehypePlugins={[rehypeHighlight]}
                   components={{
                     h1: ({ children }) => (
-                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mt-12 mb-6 leading-tight'>
-                        {children}
-                      </h1>
+                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mt-12 mb-6 leading-tight'>{children}</h1>
                     ),
 
                     h2: ({ children }) => (
-                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mt-10 mb-5 leading-tight'>
-                        {children}
-                      </h2>
+                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mt-10 mb-5 leading-tight'>{children}</h2>
                     ),
 
                     h3: ({ children }) => (
-                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 mt-8 mb-4 leading-tight'>
-                        {children}
-                      </h3>
+                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 mt-8 mb-4 leading-tight'>{children}</h3>
                     ),
 
-                    p: ({ children }) => (
-                      <p className='text-lg text-gray-700 leading-relaxed mb-6 font-light'>
-                        {children}
-                      </p>
-                    ),
+                    p: ({ children }) => <p className='text-lg text-gray-700 leading-relaxed mb-6 font-light'>{children}</p>,
 
-                    ul: ({ children }) => (
-                      <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700'>
-                        {children}
-                      </ul>
-                    ),
+                    ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700'>{children}</ul>,
 
-                    ol: ({ children }) => (
-                      <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700'>
-                        {children}
-                      </ol>
-                    ),
+                    ol: ({ children }) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700'>{children}</ol>,
 
-                    li: ({ children }) => (
-                      <li className='leading-relaxed'>{children}</li>
-                    ),
+                    li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
 
                     blockquote: ({ children }) => (
                       <blockquote className='border-l-4 border-blue-500 pl-6 py-2 my-8 bg-gray-50 italic text-lg text-gray-700 rounded-r-lg'>
@@ -477,27 +389,17 @@ export default async function BlogPostPage({
                     ),
 
                     code: ({ children }) => (
-                      <code className='bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800'>
-                        {children}
-                      </code>
+                      <code className='bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800'>{children}</code>
                     ),
 
-                    pre: ({ children }) => (
-                      <pre className='bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>
-                        {children}
-                      </pre>
-                    ),
+                    pre: ({ children }) => <pre className='bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>{children}</pre>,
 
                     a: ({ href, children }) => (
                       <a
                         href={href}
                         className='text-[#fe4502] hover:text-[#ff5f24] underline transition-colors'
                         target={href?.startsWith('http') ? '_blank' : undefined}
-                        rel={
-                          href?.startsWith('http')
-                            ? 'noopener noreferrer'
-                            : undefined
-                        }
+                        rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                       >
                         {children}
                       </a>
@@ -514,9 +416,7 @@ export default async function BlogPostPage({
                 <div className='text-center'>
                   <h3 className='text-2xl font-bold mb-4'>{t('cta.title')}</h3>
 
-                  <p className='text-lg mb-6 max-w-2xl mx-auto opacity-90'>
-                    {t('cta.description')}
-                  </p>
+                  <p className='text-lg mb-6 max-w-2xl mx-auto opacity-90'>{t('cta.description')}</p>
 
                   <div className='flex flex-col sm:flex-row gap-4 justify-center'>
                     <Link
@@ -525,18 +425,8 @@ export default async function BlogPostPage({
                     >
                       {t('cta.getStarted')}
 
-                      <svg
-                        className='w-4 h-4 ml-2'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M9 5l7 7-7 7'
-                        ></path>
+                      <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5l7 7-7 7'></path>
                       </svg>
                     </Link>
 
@@ -559,18 +449,8 @@ export default async function BlogPostPage({
               href={`/${locale}/blog`}
               className='inline-flex items-center text-[#fe4502] hover:text-[#ff5f24] font-semibold transition-colors duration-300'
             >
-              <svg
-                className='w-4 h-4 mr-2'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth='2'
-                  d='M15 19l-7-7 7-7'
-                ></path>
+              <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>
               </svg>
 
               {t('readMoreArticles')}

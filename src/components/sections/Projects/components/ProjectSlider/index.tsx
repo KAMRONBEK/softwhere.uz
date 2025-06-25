@@ -52,9 +52,7 @@ function ProjectSlider() {
       <ul className='hidden lg:flex'>
         {projects.map((item, _index) => (
           <li
-            className={`lg:p-4 md:p-2  cursor-pointer ${css.slide}  ${
-              activeSlide === item.id ? css.active : ''
-            }`}
+            className={`lg:p-4 md:p-2  cursor-pointer ${css.slide}  ${activeSlide === item.id ? css.active : ''}`}
             key={item.id}
             onClick={() => handleChangeSlide(item.id - 1)}
           >
@@ -65,38 +63,23 @@ function ProjectSlider() {
 
       <Slider ref={sliderRef} {...settings}>
         {projects.map(item => (
-          <div
-            key={item.name}
-            className={`!grid lg:mt-10 md:mt-6 md:grid-cols-2 grid-cols-1 items-center ${css.project}`}
-          >
+          <div key={item.name} className={`!grid lg:mt-10 md:mt-6 md:grid-cols-2 grid-cols-1 items-center ${css.project}`}>
             <div className={css.itemContent}>
               <b data-aos='zoom-in' className={css.name}>
                 {item.name}
               </b>
               <p data-aos='zoom-in' data-aos-delay='100' className={css.desc}>
-                {lang === 'uz'
-                  ? item.description.uz
-                  : lang === 'ru'
-                    ? item.description.ru
-                    : ''}
+                {lang === 'uz' ? item.description.uz : lang === 'ru' ? item.description.ru : ''}
               </p>
               <p data-aos='zoom-in' data-aos-delay='200' className={css.desc}>
                 {item.technology}
               </p>
               <div className='flex gap-8 md:my-10 my-5 justify-center md:justify-start'>
-                <div
-                  className='flex items-center gap-2'
-                  data-aos='zoom-in'
-                  data-aos-delay='300'
-                >
+                <div className='flex items-center gap-2' data-aos='zoom-in' data-aos-delay='300'>
                   <Image src={LocationIcon} alt='' />
                   <p className='md:text-sm lg:text-base'>{item.location}</p>
                 </div>
-                <div
-                  className='flex items-center gap-2'
-                  data-aos='zoom-in'
-                  data-aos-delay='400'
-                >
+                <div className='flex items-center gap-2' data-aos='zoom-in' data-aos-delay='400'>
                   <Image src={WorkIcon} alt='' />
                   <p className='md:text-sm lg:text-base'>{item.type}</p>
                 </div>
@@ -108,33 +91,18 @@ function ProjectSlider() {
                   </a>
                 )}
                 {item.playMarket && (
-                  <a
-                    data-aos='flip-up'
-                    data-aos-delay='100'
-                    href={item.playMarket}
-                    target='_blank'
-                  >
+                  <a data-aos='flip-up' data-aos-delay='100' href={item.playMarket} target='_blank'>
                     <Image src={PlayMarketIcon} alt='' />
                   </a>
                 )}
                 {item.website && (
-                  <a
-                    data-aos='flip-up'
-                    data-aos-delay='200'
-                    target='_blank'
-                    href={item.website}
-                  >
+                  <a data-aos='flip-up' data-aos-delay='200' target='_blank' href={item.website}>
                     <Image src={LinkToIcon} alt='' />
                   </a>
                 )}
               </div>
             </div>
-            <Image
-              data-aos='fade-up-left'
-              className={css.itemImage}
-              src={ProjectImage}
-              alt=''
-            />
+            <Image data-aos='fade-up-left' className={css.itemImage} src={ProjectImage} alt='' />
           </div>
         ))}
       </Slider>

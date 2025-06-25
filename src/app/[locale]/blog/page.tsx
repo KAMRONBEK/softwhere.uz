@@ -4,11 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
-import {
-  AdminSectionTitle,
-  AdminDescription,
-  AdminLoading,
-} from '@/components/AdminComponents/index';
+import { AdminSectionTitle, AdminDescription, AdminLoading } from '@/components/AdminComponents/index';
 
 interface BlogPostSummary {
   title: string;
@@ -42,9 +38,7 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
         setPosts(data.posts || []);
       } catch (err) {
         console.error('Error loading posts:', err);
-        setError(
-          err instanceof Error ? err.message : 'Failed to load blog posts'
-        );
+        setError(err instanceof Error ? err.message : 'Failed to load blog posts');
       } finally {
         setLoading(false);
       }
@@ -59,15 +53,10 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
 
   if (error) {
     return (
-      <div
-        className='page-layout'
-        style={{ backgroundColor: 'var(--gray-100)' }}
-      >
+      <div className='page-layout' style={{ backgroundColor: 'var(--gray-100)' }}>
         <div className='container py-20'>
           <div className='text-center py-12'>
-            <div className='text-red-500 mb-4 text-xl font-semibold'>
-              Error: {error}
-            </div>
+            <div className='text-red-500 mb-4 text-xl font-semibold'>Error: {error}</div>
             <p className='text-gray-600'>Please try again later.</p>
           </div>
         </div>
@@ -79,12 +68,9 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
     <div className='page-layout' style={{ backgroundColor: 'var(--gray-100)' }}>
       <div className='container py-20'>
         <header className='mb-16 text-center'>
-          <AdminSectionTitle className='text-center'>
-            {t('title')}
-          </AdminSectionTitle>
+          <AdminSectionTitle className='text-center'>{t('title')}</AdminSectionTitle>
           <AdminDescription className='text-center max-w-2xl mx-auto'>
-            Discover insights about mobile app development, web development, and
-            Telegram bots
+            Discover insights about mobile app development, web development, and Telegram bots
           </AdminDescription>
         </header>
 
@@ -101,34 +87,19 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
               >
                 <div className='p-6'>
                   <h2 className='text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight'>
-                    <Link
-                      href={`/${locale}/blog/${post.slug}`}
-                      className='hover:text-[#fe4502] transition-colors duration-300'
-                    >
+                    <Link href={`/${locale}/blog/${post.slug}`} className='hover:text-[#fe4502] transition-colors duration-300'>
                       {post.title}
                     </Link>
                   </h2>
-                  <div className='text-sm text-gray-500 mb-4 font-medium'>
-                    {format(new Date(post.createdAt), 'MMMM dd, yyyy')}
-                  </div>
+                  <div className='text-sm text-gray-500 mb-4 font-medium'>{format(new Date(post.createdAt), 'MMMM dd, yyyy')}</div>
                   <div className='mt-6'>
                     <Link
                       href={`/${locale}/blog/${post.slug}`}
                       className='inline-flex items-center text-[#fe4502] hover:text-[#ff5f24] font-semibold text-sm transition-colors duration-300'
                     >
                       {t('readMore')}
-                      <svg
-                        className='w-4 h-4 ml-2'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M9 5l7 7-7 7'
-                        ></path>
+                      <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5l7 7-7 7'></path>
                       </svg>
                     </Link>
                   </div>

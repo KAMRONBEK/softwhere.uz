@@ -18,23 +18,14 @@ interface _LogEntry {
 class Logger {
   private isDevelopment = ENV.NODE_ENV === 'development';
 
-  private formatMessage(
-    level: LogLevel,
-    message: string,
-    context?: string
-  ): string {
+  private formatMessage(level: LogLevel, message: string, context?: string): string {
     const timestamp = new Date().toISOString();
     const contextStr = context ? `[${context}]` : '';
 
     return `${timestamp} ${level.toUpperCase()} ${contextStr} ${message}`;
   }
 
-  private log(
-    level: LogLevel,
-    message: string,
-    data?: any,
-    context?: string
-  ): void {
+  private log(level: LogLevel, message: string, data?: any, context?: string): void {
     const formattedMessage = this.formatMessage(level, message, context);
 
     // In production, you might want to send logs to a service
@@ -77,20 +68,10 @@ class Logger {
     this.info(`${method} ${url}`, undefined, context || 'API');
   }
 
-  apiResponse(
-    method: string,
-    url: string,
-    status: number,
-    context?: string
-  ): void {
+  apiResponse(method: string, url: string, status: number, context?: string): void {
     const level = status >= 400 ? LogLevel._ERROR : LogLevel._INFO;
 
-    this.log(
-      level,
-      `${method} ${url} - ${status}`,
-      undefined,
-      context || 'API'
-    );
+    this.log(level, `${method} ${url} - ${status}`, undefined, context || 'API');
   }
 
   dbOperation(operation: string, collection: string, context?: string): void {
@@ -110,14 +91,10 @@ class Logger {
 export const logger = new Logger();
 
 // Export convenience functions
-export const logError = (message: string, data?: any, context?: string) =>
-  logger.error(message, data, context);
+export const logError = (message: string, data?: any, context?: string) => logger.error(message, data, context);
 
-export const logWarn = (message: string, data?: any, context?: string) =>
-  logger.warn(message, data, context);
+export const logWarn = (message: string, data?: any, context?: string) => logger.warn(message, data, context);
 
-export const logInfo = (message: string, data?: any, context?: string) =>
-  logger.info(message, data, context);
+export const logInfo = (message: string, data?: any, context?: string) => logger.info(message, data, context);
 
-export const logDebug = (message: string, data?: any, context?: string) =>
-  logger.debug(message, data, context);
+export const logDebug = (message: string, data?: any, context?: string) => logger.debug(message, data, context);

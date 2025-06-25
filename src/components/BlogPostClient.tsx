@@ -1,7 +1,7 @@
 'use client';
 
 import { useBlogContext } from '@/contexts/BlogContext';
-import { logger } from '@/utils/logger';
+import { logger } from '@/core/logger';
 import { useEffect } from 'react';
 
 interface BlogPost {
@@ -21,10 +21,7 @@ interface BlogPostClientProps {
   children: React.ReactNode;
 }
 
-export default function BlogPostClient({
-  post,
-  children,
-}: BlogPostClientProps) {
+export default function BlogPostClient({ post, children }: BlogPostClientProps) {
   const { setCurrentPost } = useBlogContext();
 
   useEffect(() => {
@@ -49,11 +46,7 @@ export default function BlogPostClient({
 
     // Cleanup when component unmounts
     return () => {
-      logger.info(
-        'Clearing current post from context',
-        undefined,
-        'BLOG_POST_CLIENT'
-      );
+      logger.info('Clearing current post from context', undefined, 'BLOG_POST_CLIENT');
       setCurrentPost(null);
     };
   }, [post, setCurrentPost]);

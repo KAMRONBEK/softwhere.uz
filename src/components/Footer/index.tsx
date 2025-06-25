@@ -11,13 +11,7 @@ function Footer() {
       <div className='grid lg:grid-cols-4 sm:grid-cols-2 sm:gap-2 lg:gap-0'>
         <div className={css.footerItem}>
           <div className='flex items-center gap-2 md:mb-2'>
-            <svg
-              width='24'
-              height='25'
-              viewBox='0 0 24 25'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
+            <svg width='24' height='25' viewBox='0 0 24 25' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -33,13 +27,7 @@ function Footer() {
         </div>
         <div className={css.footerItem}>
           <div className='flex items-center gap-2 md:mb-2'>
-            <svg
-              width='20'
-              height='17'
-              viewBox='0 0 20 17'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
+            <svg width='20' height='17' viewBox='0 0 20 17' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -55,13 +43,7 @@ function Footer() {
         </div>
         <div className={css.footerItem}>
           <div className='flex items-center gap-2 md:mb-2'>
-            <svg
-              width='16'
-              height='21'
-              viewBox='0 0 16 21'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
+            <svg width='16' height='21' viewBox='0 0 16 21' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -81,13 +63,7 @@ function Footer() {
         </div>
         <div className={css.footerItem}>
           <div className='flex items-center gap-2 md:mb-2'>
-            <svg
-              width='24'
-              height='25'
-              viewBox='0 0 24 25'
-              fill='none'
-              xmlns='http://www.w3.org/2000/svg'
-            >
+            <svg width='24' height='25' viewBox='0 0 24 25' fill='none' xmlns='http://www.w3.org/2000/svg'>
               <path
                 fillRule='evenodd'
                 clipRule='evenodd'
@@ -101,9 +77,7 @@ function Footer() {
         </div>
       </div>
 
-      <p className={css.copyright}>
-        &copy; 2024 Softwhere | All Rights Reserved. Privacy Policy
-      </p>
+      <p className={css.copyright}>&copy; 2024 Softwhere | All Rights Reserved. Privacy Policy</p>
     </footer>
   );
 }
