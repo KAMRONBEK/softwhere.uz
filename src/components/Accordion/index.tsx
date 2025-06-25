@@ -16,26 +16,15 @@ function Accordion({ title, answer, index }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <div
-      className={css.accordion}
-      data-aos='fade-up'
-      data-aos-delay={index * 100}
-    >
-      <button
-        onClick={() => setOpen(!open)}
-        className='flex items-center justify-between w-full	'
-      >
+    <div className={css.accordion} data-aos='fade-up' data-aos-delay={index * 100}>
+      <button onClick={() => setOpen(!open)} className='flex items-center justify-between w-full	'>
         <span className={css.accordionText}>{title}</span>
         {open ? (
-          <div
-            className={`${css.close} transform origin-center duration-200 ease-out ${open && '!rotate-90'}`}
-          >
+          <div className={`${css.close} transform origin-center duration-200 ease-out ${open && '!rotate-90'}`}>
             <Image className='cursor-pointer' src={CloseIcon} alt='' />
           </div>
         ) : (
-          <div
-            className={`${css.open} transform origin-center rotate-180 duration-200 ease-out ${open && '!rotate-90'}`}
-          >
+          <div className={`${css.open} transform origin-center rotate-180 duration-200 ease-out ${open && '!rotate-90'}`}>
             <Image className='cursor-pointer' src={PlusIcon} alt='' />
           </div>
         )}
@@ -45,9 +34,7 @@ function Accordion({ title, answer, index }: IProps) {
           open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
         }`}
       >
-        <div className='overflow-hidden lg:text-base sm:text-sm text-xs'>
-          {answer}
-        </div>
+        <div className='overflow-hidden lg:text-base sm:text-sm text-xs'>{answer}</div>
       </div>
     </div>
   );

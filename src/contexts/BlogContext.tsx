@@ -15,16 +15,10 @@ interface BlogContextType {
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
 
-export const BlogProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const BlogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
 
-  return (
-    <BlogContext.Provider value={{ currentPost, setCurrentPost }}>
-      {children}
-    </BlogContext.Provider>
-  );
+  return <BlogContext.Provider value={{ currentPost, setCurrentPost }}>{children}</BlogContext.Provider>;
 };
 
 export const useBlogContext = () => {

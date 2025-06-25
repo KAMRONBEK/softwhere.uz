@@ -245,3 +245,26 @@ This project is private and proprietary. All rights reserved.
 <div align="center">
   <strong>Built with ❤️ using Next.js and modern web technologies</strong>
 </div>
+
+## Development Setup
+
+### Line Endings
+
+This project uses LF line endings. To ensure consistent line endings across all environments:
+
+1. Make sure your Git configuration is set correctly:
+   ```bash
+   git config --local core.autocrlf false
+   ```
+
+2. After cloning the repository, run:
+   ```bash
+   yarn normalize-line-endings
+   ```
+
+3. If you're using VS Code, the project settings will automatically use LF line endings.
+
+4. If you encounter line ending issues, run:
+   ```bash
+   yarn format
+   ```

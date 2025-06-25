@@ -1,5 +1,6 @@
 import { API_CONFIG } from '@/constants';
 import { ApiResponse, AppError, BlogPost } from '@/types';
+import { EstimateResult, EstimatorInput } from '@/types/estimator';
 import { logger } from './logger';
 
 interface RequestConfig {
@@ -17,16 +18,8 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
-  private async request<T = any>(
-    endpoint: string,
-    config: RequestConfig = {}
-  ): Promise<ApiResponse<T>> {
-    const {
-      method = 'GET',
-      headers = {},
-      body,
-      timeout = this.defaultTimeout,
-    } = config;
+  private async request<T = any>(endpoint: string, config: RequestConfig = {}): Promise<ApiResponse<T>> {
+    const { method = 'GET', headers = {}, body, timeout = this.defaultTimeout } = config;
 
     const url = `${this.baseURL}${endpoint}`;
     const startTime = Date.now();
@@ -75,10 +68,7 @@ class ApiClient {
       logger.performance(`API ${method} ${endpoint} (failed)`, duration);
 
       if (error instanceof Error) {
-        logger.error(
-          `API request failed: ${method} ${endpoint}`,
-          error.message
-        );
+        logger.error(`API request failed: ${method} ${endpoint}`, error.message);
 
         return {
           success: false,
@@ -93,41 +83,23 @@ class ApiClient {
     }
   }
 
-  async get<T = any>(
-    endpoint: string,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
+  async get<T = any>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'GET', headers });
   }
 
-  async post<T = any>(
-    endpoint: string,
-    body?: any,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
+  async post<T = any>(endpoint: string, body?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'POST', body, headers });
   }
 
-  async put<T = any>(
-    endpoint: string,
-    body?: any,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
+  async put<T = any>(endpoint: string, body?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'PUT', body, headers });
   }
 
-  async delete<T = any>(
-    endpoint: string,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
+  async delete<T = any>(endpoint: string, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'DELETE', headers });
   }
 
-  async patch<T = any>(
-    endpoint: string,
-    body?: any,
-    headers?: Record<string, string>
-  ): Promise<ApiResponse<T>> {
+  async patch<T = any>(endpoint: string, body?: any, headers?: Record<string, string>): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { method: 'PATCH', body, headers });
   }
 }
@@ -139,16 +111,11 @@ export const apiClient = new ApiClient();
 export const api = {
   // Blog API
   blog: {
-    getPosts: async (params?: {
-      locale?: string;
-      generationGroupId?: string;
-      limit?: number;
-    }) => {
+    getPosts: async (params?: { locale?: string; generationGroupId?: string; limit?: number }) => {
       const searchParams = new URLSearchParams();
 
       if (params?.locale) searchParams.set('locale', params.locale);
-      if (params?.generationGroupId)
-        searchParams.set('generationGroupId', params.generationGroupId);
+      if (params?.generationGroupId) searchParams.set('generationGroupId', params.generationGroupId);
       if (params?.limit) searchParams.set('limit', params.limit.toString());
 
       const url = `${API_CONFIG.BLOG_POSTS_ENDPOINT}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
@@ -157,9 +124,7 @@ export const api = {
     },
 
     getPost: async (slug: string, locale: string) => {
-      return apiClient.get<{ post: BlogPost }>(
-        `/api/blog/posts/${slug}?locale=${locale}`
-      );
+      return apiClient.get<{ post: BlogPost }>(`/api/blog/posts/${slug}?locale=${locale}`);
     },
 
     getRelatedPost: async (generationGroupId: string, locale: string) => {
@@ -168,15 +133,8 @@ export const api = {
       );
     },
 
-    generatePosts: async (data: {
-      category: string;
-      customTopic?: string;
-      locales: string[];
-    }) => {
-      return apiClient.post<{ message: string; generationGroupId: string }>(
-        API_CONFIG.BLOG_GENERATION_ENDPOINT,
-        data
-      );
+    generatePosts: async (data: { category: string; customTopic?: string; locales: string[] }) => {
+      return apiClient.post<{ message: string; generationGroupId: string }>(API_CONFIG.BLOG_GENERATION_ENDPOINT, data);
     },
   },
 
@@ -184,18 +142,46 @@ export const api = {
   admin: {
     getPosts: () => apiClient.get('/api/admin/posts'),
     getPost: (id: string) => apiClient.get(`/api/admin/posts/${id}`),
-    updatePost: (id: string, data: any) =>
-      apiClient.put(`/api/admin/posts/${id}`, data),
+    updatePost: (id: string, data: any) => apiClient.put(`/api/admin/posts/${id}`, data),
     deletePost: (id: string) => apiClient.delete(`/api/admin/posts/${id}`),
-    publishPost: (id: string) =>
-      apiClient.patch(`/api/admin/posts/${id}`, { status: 'published' }),
-    unpublishPost: (id: string) =>
-      apiClient.patch(`/api/admin/posts/${id}`, { status: 'draft' }),
+    publishPost: (id: string) => apiClient.patch(`/api/admin/posts/${id}`, { status: 'published' }),
+    unpublishPost: (id: string) => apiClient.patch(`/api/admin/posts/${id}`, { status: 'draft' }),
   },
 
   // Contact API
   contact: {
     send: (data: any) => apiClient.post('/api/contact', data),
+  },
+
+  // Estimator API
+  estimator: {
+    getEstimate: async (input: EstimatorInput): Promise<ApiResponse<EstimateResult & { source: 'ai' | 'formula'; reasoning?: string }>> => {
+      try {
+        const raw = await apiClient.post('/api/estimate', input);
+
+        // The Next.js route already returns { success, data }.
+        // apiClient.post wraps that again inside its own { success, data }.
+        // We need to unwrap one level so the UI gets the plain estimate object.
+        if (raw.success && raw.data && 'data' in (raw.data as any)) {
+          const inner = (raw.data as any).data;
+
+          return { success: true, data: inner } as ApiResponse<EstimateResult & { source: 'ai' | 'formula'; reasoning?: string }>;
+        }
+
+        // Otherwise return as-is (handles network errors etc.)
+        return raw as ApiResponse<EstimateResult & { source: 'ai' | 'formula'; reasoning?: string }>;
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        };
+      }
+    },
+    saveQuote: async (
+      input: EstimatorInput & { email?: string; name?: string; phone?: string }
+    ): Promise<ApiResponse<{ quoteId: string }>> => {
+      return apiClient.post('/api/estimate/save', input);
+    },
   },
 };
 

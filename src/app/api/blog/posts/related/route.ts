@@ -1,6 +1,6 @@
+import { logger } from '@/core/logger';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
-import { logger } from '@/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -16,16 +16,9 @@ export async function GET(request: NextRequest) {
     );
 
     if (!generationGroupId || !targetLocale) {
-      logger.warn(
-        'Missing required parameters: generationGroupId and locale are required',
-        undefined,
-        'RELATED_POSTS_API'
-      );
+      logger.warn('Missing required parameters: generationGroupId and locale are required', undefined, 'RELATED_POSTS_API');
 
-      return NextResponse.json(
-        { error: 'generationGroupId and locale are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'generationGroupId and locale are required' }, { status: 400 });
     }
 
     await dbConnect();
@@ -44,17 +37,10 @@ export async function GET(request: NextRequest) {
         'RELATED_POSTS_API'
       );
 
-      return NextResponse.json(
-        { error: 'No related post found in target language' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'No related post found in target language' }, { status: 404 });
     }
 
-    logger.info(
-      `Found related post: ${relatedPost.slug} for locale: ${targetLocale}`,
-      undefined,
-      'RELATED_POSTS_API'
-    );
+    logger.info(`Found related post: ${relatedPost.slug} for locale: ${targetLocale}`, undefined, 'RELATED_POSTS_API');
 
     return NextResponse.json({
       success: true,
@@ -66,9 +52,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.error('Error finding related post', error, 'RELATED_POSTS_API');
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
