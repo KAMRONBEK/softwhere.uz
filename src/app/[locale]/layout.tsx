@@ -23,6 +23,11 @@ export async function generateMetadata({
     icons: {
       icon: [
         {
+          url: '/favicon-256.png',
+          sizes: '256x256',
+          type: 'image/png',
+        },
+        {
           url: '/favicon.svg',
           type: 'image/svg+xml',
         },
@@ -31,8 +36,8 @@ export async function generateMetadata({
           type: 'image/svg+xml',
         },
       ],
-      shortcut: '/favicon.svg',
-      apple: '/icons/logo.svg',
+      shortcut: '/favicon-256.png',
+      apple: '/favicon-256.png',
     },
   };
 }
