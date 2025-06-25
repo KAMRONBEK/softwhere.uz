@@ -9,11 +9,7 @@ interface EnvConfig {
 }
 
 const requiredEnvVars = ['MONGODB_URI'] as const;
-const optionalEnvVars = [
-  'GOOGLE_API_KEY',
-  'OPENAI_API_KEY',
-  'API_SECRET',
-] as const;
+const optionalEnvVars = ['GOOGLE_API_KEY', 'OPENAI_API_KEY', 'API_SECRET'] as const;
 
 export function validateEnvironment(): EnvConfig {
   const env: Partial<EnvConfig> = {
@@ -38,11 +34,7 @@ export function validateEnvironment(): EnvConfig {
   const missingOptional = optionalEnvVars.filter(key => !env[key]);
 
   if (missingOptional.length > 0) {
-    logger.warn(
-      `Missing optional environment variables: ${missingOptional.join(', ')}. Some features may not work.`,
-      undefined,
-      'ENV'
-    );
+    logger.warn(`Missing optional environment variables: ${missingOptional.join(', ')}. Some features may not work.`, undefined, 'ENV');
   }
 
   logger.info('Environment validation completed', undefined, 'ENV');

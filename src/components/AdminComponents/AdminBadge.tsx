@@ -8,13 +8,7 @@ interface AdminBadgeProps {
   className?: string;
 }
 
-export const AdminBadge: React.FC<AdminBadgeProps> = ({
-  children,
-  variant = 'default',
-  status,
-  locale,
-  className = '',
-}) => {
+export const AdminBadge: React.FC<AdminBadgeProps> = ({ children, variant = 'default', status, locale, className = '' }) => {
   let badgeClasses = 'px-3 py-1 text-xs font-medium rounded-full';
 
   if (variant === 'status') {

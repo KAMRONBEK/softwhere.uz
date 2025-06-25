@@ -60,8 +60,6 @@ BlogPostSchema.index({ locale: 1, slug: 1 }, { unique: true });
 
 // Prevent model recompilation in Next.js dev environment
 // Check if the model already exists before defining it
-const BlogPost: Model<IBlogPost> =
-  mongoose.models.BlogPost ||
-  mongoose.model<IBlogPost>('BlogPost', BlogPostSchema);
+const BlogPost: Model<IBlogPost> = mongoose.models.BlogPost || mongoose.model<IBlogPost>('BlogPost', BlogPostSchema);
 
 export default BlogPost;

@@ -1,5 +1,5 @@
 import { ENV } from '@/constants';
-import { logger } from '@/utils/logger';
+import { logger } from '@/core/logger';
 import _mongoose, { Mongoose } from 'mongoose';
 
 declare global {
@@ -14,9 +14,7 @@ declare global {
 const MONGODB_URI: string = ENV.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env or .env.local'
-  );
+  throw new Error('Please define the MONGODB_URI environment variable inside .env or .env.local');
 }
 
 /**

@@ -37,12 +37,7 @@ function FAQ() {
         </SectionText>
         <div className=''>
           {faq.map((item, index) => (
-            <Accordion
-              index={index}
-              key={item.title}
-              title={item.title}
-              answer={item.answer}
-            />
+            <Accordion index={index} key={item.title} title={item.title} answer={item.answer} />
           ))}
         </div>
       </div>

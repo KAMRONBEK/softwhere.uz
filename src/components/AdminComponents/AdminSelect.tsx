@@ -8,19 +8,9 @@ interface AdminSelectProps {
   className?: string;
 }
 
-export const AdminSelect: React.FC<AdminSelectProps> = ({
-  label,
-  value,
-  onChange,
-  options,
-  className = '',
-}) => (
+export const AdminSelect: React.FC<AdminSelectProps> = ({ label, value, onChange, options, className = '' }) => (
   <div className={`flex flex-col gap-2 ${className}`}>
-    {label && (
-      <label className='text-gray-500 text-sm font-medium leading-4 tracking-tight'>
-        {label}
-      </label>
-    )}
+    {label && <label className='text-gray-500 text-sm font-medium leading-4 tracking-tight'>{label}</label>}
     <select
       value={value}
       onChange={onChange}
