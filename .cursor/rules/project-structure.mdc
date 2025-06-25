@@ -31,11 +31,15 @@ This is a Next.js project with internationalization (next-intl) and a comprehens
 
 #### **📁 Data & Content**
 - [src/data/projects.ts](mdc:src/data/projects.ts) - Project portfolio data
-- [src/hooks/useBlogLanguageSwitch.ts](mdc:src/hooks/useBlogLanguageSwitch.ts) - Blog language switching logic
 
 #### **📁 Components**
 - [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx) - Main navigation with scroll behavior
 - [src/components/sections/Projects/components/ProjectSlider/index.tsx](mdc:src/components/sections/Projects/components/ProjectSlider/index.tsx) - Project showcase slider
+
+#### **📁 Assets & SVGs**
+- [public/favicon.svg](mdc:public/favicon.svg) - Site favicon
+- [public/icons/logo.svg](mdc:public/icons/logo.svg) - Main logo
+- All SVGs use `preserveAspectRatio="xMidYMid meet"` for consistent rendering
 
 ## 🔐 **Admin Access**
 
@@ -54,3 +58,4 @@ Project has been comprehensively optimized following SOLID principles:
 - ✅ API client standardization
 - ✅ Environment validation
 - ✅ Security improvements
+- ✅ SVG optimization for search engines
