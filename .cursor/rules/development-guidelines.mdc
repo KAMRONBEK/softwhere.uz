@@ -31,6 +31,12 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 - Replace `fetch()` calls with `api.blog.getPosts()`, `api.admin.deletePost()`
 - Handle responses properly: check `response.success` before using `response.data`
 
+### **SVG Optimization**
+- Use `preserveAspectRatio="xMidYMid meet"` for all SVGs
+- Avoid fixed width/height on SVG elements (use viewBox instead)
+- Use semantic attributes for better accessibility
+- Minify SVG files before committing
+
 ## 🔧 **Component Guidelines**
 
 ### **Header Component**
@@ -46,7 +52,6 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 ## 🌐 **Internationalization**
 
 ### **Language Switching**
-- Use [src/hooks/useBlogLanguageSwitch.ts](mdc:src/hooks/useBlogLanguageSwitch.ts) for blog posts
 - Handle `generationGroupId` for related posts in different languages
 - Fallback to blog listing if no related post found
 
@@ -74,6 +79,11 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 - Throttle expensive operations
 - Use CSS transforms for smooth animations
 
+### **SVG Performance**
+- Optimize SVGs using SVGO before adding to the codebase
+- Remove unnecessary attributes and metadata
+- Use properly sized SVGs for different screen sizes through media queries
+
 ### **Database**
 - Connection pooling via [src/lib/db.ts](mdc:src/lib/db.ts)
 - Proper error handling and logging
@@ -86,3 +96,5 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 - ❌ Direct `fetch()` calls (use API client)
 - ❌ Hardcoded values (use constants)
 - ❌ `any` types (use proper interfaces)
+- ❌ Fixed width/height on SVGs without preserveAspectRatio
+
