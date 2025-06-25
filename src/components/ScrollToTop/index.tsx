@@ -27,10 +27,7 @@ function ScrollToTop() {
   };
 
   return (
-    <button
-      onClick={handleClick}
-      className={`${css.scrollToTop} ${show ? css.show : ''}`}
-    >
+    <button onClick={handleClick} className={`${css.scrollToTop} ${show ? css.show : ''}`}>
       <Image src={ArrowIcon} alt='' />
     </button>
   );

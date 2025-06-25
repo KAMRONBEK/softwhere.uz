@@ -1,6 +1,6 @@
+import { logger } from '@/core/logger';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
-import { logger } from '@/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 // TODO: Add authentication/authorization check here
@@ -24,9 +24,7 @@ export async function GET(_request: NextRequest) {
       // Fetch all posts, sorted by creation date (newest first)
       const posts = await BlogPost.find({})
         .sort({ createdAt: -1 })
-        .select(
-          '_id title slug content status locale generationGroupId createdAt updatedAt'
-        )
+        .select('_id title slug content status locale generationGroupId createdAt updatedAt')
         .lean(); // Use .lean() for plain JS objects
 
       logger.info(`Fetched ${posts.length} posts for admin`, undefined, 'API');
@@ -49,10 +47,7 @@ export async function GET(_request: NextRequest) {
 
     // Check if it's a timeout error
     if (error.message === 'Database operation timeout') {
-      return NextResponse.json(
-        { error: 'Request timeout - database took too long to respond' },
-        { status: 504 }
-      );
+      return NextResponse.json({ error: 'Request timeout - database took too long to respond' }, { status: 504 });
     }
 
     return NextResponse.json(
@@ -78,25 +73,18 @@ export async function POST(request: NextRequest) {
     if (!title || !slug || !content || !status || !locale) {
       return NextResponse.json(
         {
-          error:
-            'Missing required fields (title, slug, content, status, locale)',
+          error: 'Missing required fields (title, slug, content, status, locale)',
         },
         { status: 400 }
       );
     }
 
     if (!['draft', 'published'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status value' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
     }
 
     if (!['en', 'ru', 'uz'].includes(locale)) {
-      return NextResponse.json(
-        { error: 'Invalid locale value' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
     }
 
     await dbConnect();
@@ -105,10 +93,7 @@ export async function POST(request: NextRequest) {
     const slugCollision = await BlogPost.findOne({ slug, locale });
 
     if (slugCollision) {
-      return NextResponse.json(
-        { error: `Slug "${slug}" already exists for locale "${locale}"` },
-        { status: 409 }
-      ); // 409 Conflict
+      return NextResponse.json({ error: `Slug "${slug}" already exists for locale "${locale}"` }, { status: 409 }); // 409 Conflict
     }
 
     // Create new blog post with locale
@@ -135,10 +120,7 @@ export async function POST(request: NextRequest) {
 
     // Handle potential validation errors from Mongoose
     if (error.name === 'ValidationError') {
-      return NextResponse.json(
-        { error: 'Validation failed', details: error.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Validation failed', details: error.message }, { status: 400 });
     }
 
     return NextResponse.json(

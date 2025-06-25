@@ -12,8 +12,7 @@ export const projects: Project[] = [
     location: 'Uzbekistan',
     type: 'Marketplace',
     playMarket: 'https://play.google.com/store/apps/details?id=uz.pmall.app',
-    appStore:
-      'https://apps.apple.com/uz/app/primus-mall-marketplace/id1546081249',
+    appStore: 'https://apps.apple.com/uz/app/primus-mall-marketplace/id1546081249',
     website: '',
   },
   {
@@ -36,8 +35,7 @@ export const projects: Project[] = [
       uz: "Biznes dasturlash markazi bo'lib, har bir hujjat BDM tizimi orqali imzolanib, qonuniy kuchga ega bo'ladi.",
       ru: 'Бизнес-дастурлаш маркази, каждый документ подписывается через систему BDM и имеет юридическую силу.',
     },
-    technology:
-      'React Native / Redux Saga / Formik / Google Maps API / iOS / Android',
+    technology: 'React Native / Redux Saga / Formik / Google Maps API / iOS / Android',
     location: 'Uzbekistan',
     type: 'BIZNES DASTURLASH MARKAZI',
     playMarket: 'https://play.google.com/store/apps/details?id=uz.bdm.bdm_uz',
@@ -54,8 +52,7 @@ export const projects: Project[] = [
     technology: 'React Native / Redux Saga / Google Maps API / iOS / Android',
     location: 'Uzbekistan',
     type: 'ASCON',
-    playMarket:
-      'https://play.google.com/store/apps/details?id=uz.sos.ascon&hl=ru',
+    playMarket: 'https://play.google.com/store/apps/details?id=uz.sos.ascon&hl=ru',
     appStore: 'https://apps.apple.com/ru/developer/ascon/id570657052',
   },
   {
@@ -65,8 +62,7 @@ export const projects: Project[] = [
       uz: "HeyAll, ikki xil maqsadga xizmat qiluvchi va ularni uzluksiz bog'laydigan ilova. Bir tomondan, bu xostlar uchun o'z tadbirlarini rejalashtirish uchun ilova bo'lsa, boshqa tomondan, bu tadbirlarda ishlaydigan yetkazib beruvchilar uchun dastur.",
       ru: 'HeyAll – приложение, которое обслуживает две разные цели и связывает их между собой. С одной стороны, это приложение для организации своих мероприятий для хостов, а с другой – это приложение для поставщиков, работающих на этих мероприятиях.',
     },
-    technology:
-      'React / React Native / Redux Thunks / Google Maps API / iOS / Android',
+    technology: 'React / React Native / Redux Thunks / Google Maps API / iOS / Android',
     location: 'Europe',
     type: 'HeyAll',
     playMarket: 'https://play.google.com/store/apps/details?id=com.app.heyall',
@@ -80,8 +76,7 @@ export const projects: Project[] = [
       uz: "Align 360 qurilish va ta'mirlash guruhlari uchun mo'ljallangan. Ilova vazifalar menejeri, tahliliy vosita va jamoalar ichida muloqot qilish uchun messenjerni birlashtiradi. Ilovadan ishni tashkil etuvchi pudratchilar ham, turli ixtisoslikdagi subpudratchilar ham foydalanishlari mumkin.",
       ru: 'Align 360 разработан для строительных и ремонтных групп. Приложение объединяет менеджеров задач, аналитические инструменты и коммуникацию внутри групп. Используют его и мастера-монтажники, и подрядчики разных специализаций.',
     },
-    technology:
-      'React Native / Typescript / Redux Thunks / Google Maps API / iOS / Android',
+    technology: 'React Native / Typescript / Redux Thunks / Google Maps API / iOS / Android',
     location: 'All',
     type: 'Align 360',
     playMarket: 'https://play.google.com/store/apps/details?id=com.align360',
@@ -119,8 +114,7 @@ export const projects: Project[] = [
       uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug'urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
       ru: 'Мобильное приложение Asia Insurance помогает владельцам транспортных средств за несколько минут приобрести ОСАГО, страховку для онлайн-путешествий за границу, и это только начало!',
     },
-    technology:
-      'React / Redux-thunks / Google Maps API / Flexbox / Redux / Yandex Maps ',
+    technology: 'React / Redux-thunks / Google Maps API / Flexbox / Redux / Yandex Maps ',
     location: 'Uzbekistan',
     type: 'Asia Insurance',
     website: 'https://asiainsurance.uz/',
@@ -132,8 +126,7 @@ export const projects: Project[] = [
       uz: "NestEgg sizga Buyuk Britaniyaning mas'ul kreditorlaridan ishonchli kreditlarni topishga, ariza topshirishga va ularni qabul qilishga yordam beradi. Platforma mas'ul kreditorlarga kredit arizalarini yuboradi va ular o'zlari va mijozlari uchun yaxshiroq kredit qarorlarini qabul qilishlari uchun kredit qarorlarini qabul qilish xizmatlarini taqdim etadi. U buni kredit, bank va boshqa ma'lumotlarni adolatli, moslashuvchan va shaffof tarzda tahlil qilish orqali amalga oshiradi.",
       ru: 'NestEgg помогает находить надежные кредиты у британских ответственных кредиторов, подавать заявки и получать одобрение. Платформа отправляет кредитные заявки ответственным кредиторам, чтобы они могли принимать лучшие кредитные решения для себя и своих клиентов, а также анализирует кредит, банковские и другие данные честно, интегрированно и безопасно.',
     },
-    technology:
-      'React / Redux-thunks / Google Maps API / Flexbox / Redux / Yandex Maps ',
+    technology: 'React / Redux-thunks / Google Maps API / Flexbox / Redux / Yandex Maps ',
     location: 'Europe',
     type: 'Nestegg.ai',
     website: 'https://nestegg.ai/',
@@ -145,8 +138,7 @@ export const projects: Project[] = [
       uz: "NestEgg platformasi mas'ul kreditorlar tomonidan taqdim etilgan kredit mahsulotlari bilan qulay kredit izlayotganlarga mos keladi. Ariza beruvchilar to'g'ri kreditordan to'g'ri kreditni topadilar, ular qabul qilinadimi yoki yo'qmi va ariza berishadi. Agar yo'q bo'lsa, qanday qilib qabul qilinishi haqida maslahatlar oling.",
       ru: 'Платформа NestEgg предлагает удобные кредитные продукты от ответственных кредиторов тем, кто ищет кредит. Заявители находят правильный кредит прямо от кредитора, они одобряются или нет, и предлагают консультации по тому, как быть, если не одобрены.',
     },
-    technology:
-      'React / Redux-thunks / Google Maps API / Flexbox / Redux / Yandex Maps ',
+    technology: 'React / Redux-thunks / Google Maps API / Flexbox / Redux / Yandex Maps ',
     location: 'Europe',
     type: 'Nestegg.ai',
     website: 'https://loans.nestegg.ai/',

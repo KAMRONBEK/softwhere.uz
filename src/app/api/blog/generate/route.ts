@@ -18,15 +18,11 @@ if (!process.env.MONGODB_URI) {
   // throw new Error("MONGODB_URI environment variable not set.");
 }
 if (!process.env.API_SECRET) {
-  console.warn(
-    'API_SECRET environment variable not set. Blog generation endpoint is insecure.'
-  );
+  console.warn('API_SECRET environment variable not set. Blog generation endpoint is insecure.');
 }
 
 // Initialize the Google Generative AI client (only if API key exists)
-const genAI = process.env.GOOGLE_API_KEY
-  ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY)
-  : null;
+const genAI = process.env.GOOGLE_API_KEY ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY) : null;
 // Pass model name in an object
 const model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
@@ -228,13 +224,9 @@ async function _generateLocalizedContent(
   // Generate Title Translation
   const titlePrompt = `Translate the following blog post title into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}: "${baseTitle}". Only return the translated title.`;
   const titleResult = await model.generateContent(titlePrompt);
-  const translatedTitle = (await titleResult.response)
-    .text()
-    .trim()
-    .replace(/^"|"$/g, '');
+  const translatedTitle = (await titleResult.response).text().trim().replace(/^"|"$/g, '');
 
-  if (!translatedTitle)
-    throw new Error(`Failed to translate title to ${targetLocale}`);
+  if (!translatedTitle) throw new Error(`Failed to translate title to ${targetLocale}`);
   console.log(`   Translated Title (${targetLocale}): ${translatedTitle}`);
 
   // Generate Content Translation
@@ -242,11 +234,8 @@ async function _generateLocalizedContent(
   const contentResult = await model.generateContent(contentPrompt);
   const translatedContent = (await contentResult.response).text().trim();
 
-  if (!translatedContent)
-    throw new Error(`Failed to translate content to ${targetLocale}`);
-  console.log(
-    `   Translated Content Snippet (${targetLocale}): ${translatedContent.substring(0, 100)}...`
-  );
+  if (!translatedContent) throw new Error(`Failed to translate content to ${targetLocale}`);
+  console.log(`   Translated Content Snippet (${targetLocale}): ${translatedContent.substring(0, 100)}...`);
 
   return { title: translatedTitle, content: translatedContent };
 }
@@ -259,58 +248,37 @@ function selectContentTemplate(topic: string): {
   const templates = Object.keys(CONTENT_TEMPLATES);
 
   // Smart template selection based on topic keywords
-  if (
-    topic.toLowerCase().includes('vs') ||
-    topic.toLowerCase().includes('comparison')
-  ) {
+  if (topic.toLowerCase().includes('vs') || topic.toLowerCase().includes('comparison')) {
     return {
       templateKey: 'comparison-analysis',
       template: CONTENT_TEMPLATES['comparison-analysis'],
     };
-  } else if (
-    topic.toLowerCase().includes('guide') ||
-    topic.toLowerCase().includes('complete')
-  ) {
+  } else if (topic.toLowerCase().includes('guide') || topic.toLowerCase().includes('complete')) {
     return {
       templateKey: 'ultimate-guide',
       template: CONTENT_TEMPLATES['ultimate-guide'],
     };
-  } else if (
-    topic.toLowerCase().includes('how to') ||
-    topic.toLowerCase().includes('step')
-  ) {
+  } else if (topic.toLowerCase().includes('how to') || topic.toLowerCase().includes('step')) {
     return {
       templateKey: 'how-to-guide',
       template: CONTENT_TEMPLATES['how-to-guide'],
     };
-  } else if (
-    topic.toLowerCase().includes('trend') ||
-    topic.toLowerCase().includes('future')
-  ) {
+  } else if (topic.toLowerCase().includes('trend') || topic.toLowerCase().includes('future')) {
     return {
       templateKey: 'trend-analysis',
       template: CONTENT_TEMPLATES['trend-analysis'],
     };
-  } else if (
-    topic.toLowerCase().includes('case study') ||
-    topic.toLowerCase().includes('success')
-  ) {
+  } else if (topic.toLowerCase().includes('case study') || topic.toLowerCase().includes('success')) {
     return {
       templateKey: 'case-study',
       template: CONTENT_TEMPLATES['case-study'],
     };
-  } else if (
-    topic.toLowerCase().includes('problem') ||
-    topic.toLowerCase().includes('solution')
-  ) {
+  } else if (topic.toLowerCase().includes('problem') || topic.toLowerCase().includes('solution')) {
     return {
       templateKey: 'problem-solution',
       template: CONTENT_TEMPLATES['problem-solution'],
     };
-  } else if (
-    topic.toLowerCase().includes('industry') ||
-    topic.toLowerCase().includes('market')
-  ) {
+  } else if (topic.toLowerCase().includes('industry') || topic.toLowerCase().includes('market')) {
     return {
       templateKey: 'industry-insights',
       template: CONTENT_TEMPLATES['industry-insights'],
@@ -318,21 +286,16 @@ function selectContentTemplate(topic: string): {
   }
 
   // Random selection for variety if no specific match
-  const randomTemplate =
-    templates[Math.floor(Math.random() * templates.length)];
+  const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
 
   return {
     templateKey: randomTemplate,
-    template:
-      CONTENT_TEMPLATES[randomTemplate as keyof typeof CONTENT_TEMPLATES],
+    template: CONTENT_TEMPLATES[randomTemplate as keyof typeof CONTENT_TEMPLATES],
   };
 }
 
 // Enhanced content generation with dynamic templates
-async function generateBlogContent(
-  topic: string,
-  locale: string
-): Promise<string> {
+async function generateBlogContent(topic: string, locale: string): Promise<string> {
   const currentYear = getCurrentYear();
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -353,8 +316,7 @@ async function generateBlogContent(
     'industry-specific with regional market insights',
   ];
 
-  const selectedVariation =
-    contentVariations[Math.floor(Math.random() * contentVariations.length)];
+  const selectedVariation = contentVariations[Math.floor(Math.random() * contentVariations.length)];
 
   const languageInstruction =
     locale === 'en'
@@ -443,9 +405,7 @@ CONTENT LENGTH REQUIREMENT:
 Make this content unique, valuable, and comprehensive. Avoid generic advice and focus on specific, actionable insights that demonstrate expertise.`;
 
   try {
-    console.log(
-      `Generating content for topic: "${topic}" in locale: ${locale}`
-    );
+    console.log(`Generating content for topic: "${topic}" in locale: ${locale}`);
 
     // Using OpenAI API (you can replace with any AI service)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -489,9 +449,7 @@ ${locale === 'ru' ? 'Вы пишете на русском языке для р�
     console.log(`Generated content for ${locale}: ${wordCount} words`);
 
     if (wordCount < 500) {
-      console.warn(
-        `Generated content for ${locale} is too short (${wordCount} words), using fallback`
-      );
+      console.warn(`Generated content for ${locale} is too short (${wordCount} words), using fallback`);
 
       return generateFallbackContent(topic, locale);
     }
@@ -507,8 +465,7 @@ ${locale === 'ru' ? 'Вы пишете на русском языке для р�
 
 function generateFallbackContent(topic: string, locale: string): string {
   const currentYear = getCurrentYear();
-  const { templateKey: _templateKey, template: _template } =
-    selectContentTemplate(topic);
+  const { templateKey: _templateKey, template: _template } = selectContentTemplate(topic);
 
   const fallbackContent = {
     en: `# ${topic}: Complete Guide for ${currentYear}
@@ -1052,10 +1009,7 @@ Softwhere jamoamiz Markaziy Osiyo bo'ylab 100+ loyihani muvaffaqiyatli amalga os
 *Ushbu maqola ${currentYear} yilda yozilgan va sohaning eng so'nggi tendentsiyalari va eng yaxshi amaliyotlarini aks ettiradi.*`,
   };
 
-  return (
-    fallbackContent[locale as keyof typeof fallbackContent] ||
-    fallbackContent.en
-  );
+  return fallbackContent[locale as keyof typeof fallbackContent] || fallbackContent.en;
 }
 
 function createSlug(title: string): string {
@@ -1084,10 +1038,7 @@ export async function POST(request: NextRequest) {
     const { category, customTopic, locales = ['en', 'ru', 'uz'] } = body;
 
     if (!category && !customTopic) {
-      return NextResponse.json(
-        { error: 'Either category or customTopic is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Either category or customTopic is required' }, { status: 400 });
     }
 
     await dbConnect();
@@ -1097,40 +1048,35 @@ export async function POST(request: NextRequest) {
     if (customTopic) {
       // Normalize custom topic with AI to fix spelling and improve clarity
       try {
-        const normalizeResponse = await fetch(
-          'https://api.openai.com/v1/chat/completions',
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'gpt-4o',
-              messages: [
-                {
-                  role: 'system',
-                  content:
-                    'You are a professional editor. Your job is to normalize blog post topics by fixing spelling errors, improving grammar, and making them more professional while keeping the original meaning. Return only the normalized topic, nothing else.',
-                },
-                {
-                  role: 'user',
-                  content: `Normalize this blog post topic for a mobile app and web development agency: "${customTopic}"`,
-                },
-              ],
-              max_tokens: 100,
-              temperature: 0.3,
-            }),
-          }
-        );
+        const normalizeResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              {
+                role: 'system',
+                content:
+                  'You are a professional editor. Your job is to normalize blog post topics by fixing spelling errors, improving grammar, and making them more professional while keeping the original meaning. Return only the normalized topic, nothing else.',
+              },
+              {
+                role: 'user',
+                content: `Normalize this blog post topic for a mobile app and web development agency: "${customTopic}"`,
+              },
+            ],
+            max_tokens: 100,
+            temperature: 0.3,
+          }),
+        });
 
         if (normalizeResponse.ok) {
           const normalizeData = await normalizeResponse.json();
 
           selectedTopic = normalizeData.choices[0].message.content.trim();
-          console.log(
-            `Normalized topic: "${customTopic}" -> "${selectedTopic}"`
-          );
+          console.log(`Normalized topic: "${customTopic}" -> "${selectedTopic}"`);
         } else {
           selectedTopic = customTopic; // Fallback to original if normalization fails
         }
@@ -1148,10 +1094,7 @@ export async function POST(request: NextRequest) {
         const topics = BLOG_TOPICS[category as keyof typeof BLOG_TOPICS];
 
         if (!topics) {
-          return NextResponse.json(
-            { error: 'Invalid category' },
-            { status: 400 }
-          );
+          return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
         }
         selectedTopic = topics[Math.floor(Math.random() * topics.length)];
       }
@@ -1173,10 +1116,7 @@ export async function POST(request: NextRequest) {
             if (model) {
               const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${selectedTopic}". Only return the translated title, nothing else.`;
               const titleResult = await model.generateContent(titlePrompt);
-              const translatedTitle = (await titleResult.response)
-                .text()
-                .trim()
-                .replace(/^"|"$/g, '');
+              const translatedTitle = (await titleResult.response).text().trim().replace(/^"|"$/g, '');
 
               if (translatedTitle) {
                 localizedTitle = translatedTitle;
@@ -1215,10 +1155,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (createdPosts.length === 0) {
-      return NextResponse.json(
-        { error: 'Failed to generate any posts' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to generate any posts' }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -1230,9 +1167,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in blog generation:', error);
 
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
