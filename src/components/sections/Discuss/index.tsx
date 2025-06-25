@@ -5,7 +5,7 @@ import { FormEvent, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 // import BgTextImg from "../../../../public/images/bg-text.svg";
-import { sender } from '@/utils/send';
+import { sender } from '@/core/send';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
 import css from './style.module.css';
@@ -54,11 +54,7 @@ function Discuss() {
             {t('description')}
           </SectionText>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          data-aos='zoom-in'
-          className={css.formBox}
-        >
+        <form onSubmit={handleSubmit} data-aos='zoom-in' className={css.formBox}>
           <div className='grid md:grid-cols-2 grid-cols-1 gap-6'>
             <div className={css.formInput}>
               <label htmlFor='phone-input'>{t('phoneNumber')}</label>
@@ -79,13 +75,7 @@ function Discuss() {
             </div>
             <div className={css.formInput}>
               <label htmlFor='name'>{t('name')}</label>
-              <input
-                value={name}
-                onChange={event => setName(event.target.value)}
-                type='text'
-                placeholder={t('name')}
-                id='name'
-              />
+              <input value={name} onChange={event => setName(event.target.value)} type='text' placeholder={t('name')} id='name' />
             </div>
           </div>
           <Button className='block mt-6 ml-auto' type='submit'>

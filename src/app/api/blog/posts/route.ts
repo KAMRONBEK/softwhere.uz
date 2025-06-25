@@ -20,10 +20,7 @@ export async function GET(request: NextRequest) {
       const locale = request.nextUrl.searchParams.get('locale');
 
       // Define the type for the selected fields
-      type PublishedPostSummary = Pick<
-        IBlogPost,
-        'title' | 'slug' | 'createdAt' | 'locale'
-      >;
+      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale'>;
 
       // Build query - filter by locale if provided
       const query: any = { status: 'published' };
@@ -53,10 +50,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     const duration = Date.now() - startTime;
 
-    console.error(
-      `Error fetching published blog posts after ${duration}ms:`,
-      error
-    );
+    console.error(`Error fetching published blog posts after ${duration}ms:`, error);
 
     return NextResponse.json(
       {
