@@ -46,7 +46,6 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 ## 🌐 **Internationalization**
 
 ### **Language Switching**
-- Use [src/hooks/useBlogLanguageSwitch.ts](mdc:src/hooks/useBlogLanguageSwitch.ts) for blog posts
 - Handle `generationGroupId` for related posts in different languages
 - Fallback to blog listing if no related post found
 
@@ -86,3 +85,4 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 - ❌ Direct `fetch()` calls (use API client)
 - ❌ Hardcoded values (use constants)
 - ❌ `any` types (use proper interfaces)
+
