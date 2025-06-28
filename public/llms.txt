@@ -1,0 +1,25 @@
+# SoftWhere.uz
+
+> SoftWhere.uz is a web and mobile app development company based in Uzbekistan, specializing in custom software solutions, web applications, mobile apps, and business consulting.
+
+## About Us
+
+- [Homepage](https://softwhere.uz/) - Overview of our services and company information
+- [Blog](https://softwhere.uz/blog) - Articles and insights about development, business, and technology
+
+## Services
+
+- [Website Development](https://softwhere.uz#services) - Custom website development services
+- [Mobile App Development](https://softwhere.uz#services) - iOS and Android app development
+- [Business Consulting](https://softwhere.uz#services) - Strategic consulting for businesses
+- [Project Estimation Tool](https://softwhere.uz/estimator) - Get cost and timeline estimates for your project
+
+## Projects
+
+- [Portfolio](https://softwhere.uz#projects) - Overview of our previous projects and case studies
+- [Client Testimonials](https://softwhere.uz#contact) - What our clients say about us
+
+## Optional
+
+- [FAQ](https://softwhere.uz#faq) - Common questions about our services and process
+- [Contact Information](https://softwhere.uz#contact) - Get in touch with our team

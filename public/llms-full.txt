@@ -1,0 +1,101 @@
+# SoftWhere.uz
+
+> SoftWhere.uz is a web and mobile app development company based in Uzbekistan, specializing in custom software solutions, web applications, mobile apps, and business consulting for local and international clients.
+
+## About Us
+
+SoftWhere.uz was founded to provide cutting-edge technology solutions to businesses in Uzbekistan and Central Asia. Our team of experienced developers and designers create high-quality, scalable software solutions that help businesses grow and succeed in the digital world.
+
+### Our Mission
+
+Our mission is to deliver exceptional software solutions that solve real business problems, while providing excellent customer service and technical support throughout the development process and beyond.
+
+### Our Values
+
+- **Quality:** We maintain high standards in our code and design
+- **Transparency:** We keep clients informed throughout the development process
+- **Innovation:** We stay updated with the latest technologies and best practices
+- **Reliability:** We deliver projects on time and within budget
+
+## Services
+
+### Website Development
+
+We design and develop custom websites that are tailored to your business needs, from simple landing pages to complex web applications. Our websites are:
+
+- Responsive and mobile-friendly
+- SEO-optimized
+- Fast-loading
+- Secure
+- Easy to maintain
+
+Technologies we use for web development:
+- Next.js
+- React
+- TypeScript
+- Node.js
+- MongoDB
+- PostgreSQL
+
+### Mobile App Development
+
+We create native and cross-platform mobile applications for iOS and Android devices, focusing on user experience and performance.
+
+Our mobile app development services include:
+- Custom app development
+- App design
+- API integration
+- App testing
+- App maintenance and support
+- App store optimization
+
+Technologies we use for mobile development:
+- React Native
+- Swift
+- Kotlin
+- Flutter
+
+### Business Consulting
+
+We help businesses identify opportunities for digital transformation and provide strategic advice on implementing technology solutions.
+
+Our consulting services include:
+- Digital transformation strategy
+- Technology stack recommendations
+- Process automation
+- System integration
+- Data analysis and reporting
+
+## Project Estimation Tool
+
+Our online project estimation tool helps you get a quick estimate of the cost and timeline for your software development project. Simply enter your project details and receive an instant estimate.
+
+Factors considered in the estimation:
+- Project type (web, mobile, etc.)
+- Project complexity
+- Number of pages/screens
+- Features required
+- Technology stack
+
+## Our Development Process
+
+1. **Discovery:** We learn about your business, goals, and requirements
+2. **Planning:** We create a detailed project plan and timeline
+3. **Design:** We design the user interface and user experience
+4. **Development:** We write clean, efficient code that meets your requirements
+5. **Testing:** We conduct thorough testing to ensure quality
+6. **Deployment:** We launch your project and provide training
+7. **Maintenance:** We provide ongoing support and updates
+
+## Contact Information
+
+- **Email:** info@softwhere.uz
+- **Phone:** +998332499111
+- **Address:** Tashkent, Uzbekistan
+
+## Languages
+
+We provide our services in multiple languages:
+- Uzbek
+- Russian
+- English
