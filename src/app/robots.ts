@@ -10,3 +10,4 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: 'https://softwhere.uz/sitemap.xml',
   };
 }
+// LLM-friendly content available at: https://softwhere.uz/llms.txt
