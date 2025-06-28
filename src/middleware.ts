@@ -24,5 +24,16 @@ export default function middleware(req: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ['/', '/(en|uz|ru)/:path*', '/llms.txt', '/llms-full.txt'],
+  matcher: [
+    // Match all paths that need locale handling
+    '/',
+    '/(en|uz|ru)/:path*',
+
+    // Explicitly match llms.txt files at root
+    '/llms.txt',
+    '/llms-full.txt',
+
+    // Exclude static files and api routes from middleware processing
+    '!/(api|_next|.*\\..*)/:path*'
+  ],
 };
