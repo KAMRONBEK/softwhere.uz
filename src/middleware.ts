@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const nextIntlMiddleware = createMiddleware({
   locales: ['en', 'ru', 'uz'],
   defaultLocale: 'uz',
+  localePrefix: 'as-needed',
 });
 
 export default function middleware(req: NextRequest): NextResponse {
@@ -16,20 +17,19 @@ export default function middleware(req: NextRequest): NextResponse {
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/icons/') ||
     pathname.startsWith('/images/') ||
-    pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|webp)$/)
+    pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|txt|xml|json)$/)
   ) {
     return NextResponse.next();
   }
 
-  // Handle llms.txt and llms-full.txt files
+  // Handle llms.txt files directly without locale processing
   if (pathname === '/llms.txt' || pathname === '/llms-full.txt') {
-    const response = NextResponse.next();
+    return NextResponse.rewrite(new URL(pathname, req.url));
+  }
 
-    // Add the recommended X-Robots-Tag header for llms.txt files
-    response.headers.set('X-Robots-Tag', 'llms-txt');
-    response.headers.set('Content-Type', 'text/markdown; charset=UTF-8');
-
-    return response;
+  // Handle robots.txt and sitemap.xml
+  if (pathname === '/robots.txt' || pathname === '/sitemap.xml') {
+    return NextResponse.next();
   }
 
   return nextIntlMiddleware(req);
@@ -37,9 +37,9 @@ export default function middleware(req: NextRequest): NextResponse {
 
 export const config = {
   matcher: [
-    // Match all paths except API routes, static files, and special files
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    // Include root path
+    // Match all routes except excluded ones
+    '/((?!api|_next|.*\\..*|llms.*\\.txt|robots\\.txt|sitemap\\.xml|favicon\\.ico).*)',
+    // Include home page
     '/',
   ],
 };
