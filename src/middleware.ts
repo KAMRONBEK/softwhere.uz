@@ -9,6 +9,18 @@ const nextIntlMiddleware = createMiddleware({
 export default function middleware(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
 
+  // Skip middleware for API routes, static files, and special files
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/icons/') ||
+    pathname.startsWith('/images/') ||
+    pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|webp)$/)
+  ) {
+    return NextResponse.next();
+  }
+
   // Handle llms.txt and llms-full.txt files
   if (pathname === '/llms.txt' || pathname === '/llms-full.txt') {
     const response = NextResponse.next();
@@ -24,5 +36,10 @@ export default function middleware(req: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ['/', '/(en|uz|ru)/:path*', '/llms.txt', '/llms-full.txt'],
+  matcher: [
+    // Match all paths except API routes, static files, and special files
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    // Include root path
+    '/',
+  ],
 };
