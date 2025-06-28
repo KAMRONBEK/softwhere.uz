@@ -35,8 +35,8 @@ export default function RootLayout({
 }>) {
   return (
     // The lang attribute will be handled by the [locale] layout
-    <html>
-      <body className={inter.className}>
+    <html suppressHydrationWarning>
+      <body className={inter.className} suppressHydrationWarning>
         {children}
         <SpeedInsights />
       </body>

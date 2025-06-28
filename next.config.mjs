@@ -22,6 +22,20 @@ const nextConfig = {
       },
     ];
   },
+
+  // Handle rewrites for static files
+  async rewrites() {
+    return [
+      {
+        source: '/llms.txt',
+        destination: '/llms.txt',
+      },
+      {
+        source: '/llms-full.txt',
+        destination: '/llms-full.txt',
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);
