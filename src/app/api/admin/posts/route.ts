@@ -1,6 +1,5 @@
-import { logger } from '@/core/logger';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { adminService } from '@/services/admin.service';
+import { logger } from '@/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 // TODO: Add authentication/authorization check here
@@ -10,45 +9,31 @@ export async function GET(_request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    logger.info('Starting admin posts fetch', undefined, 'API');
+    logger.info('Admin posts API request started', undefined, 'API');
 
-    // Add timeout wrapper
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database operation timeout')), 25000); // 25 seconds
-    });
-
-    const dbPromise = (async () => {
-      await dbConnect();
-      logger.info('Database connected for admin posts', undefined, 'API');
-
-      // Fetch all posts, sorted by creation date (newest first)
-      const posts = await BlogPost.find({})
-        .sort({ createdAt: -1 })
-        .select('_id title slug content status locale generationGroupId createdAt updatedAt')
-        .lean(); // Use .lean() for plain JS objects
-
-      logger.info(`Fetched ${posts.length} posts for admin`, undefined, 'API');
-
-      return posts;
-    })();
-
-    const posts = await Promise.race([dbPromise, timeoutPromise]);
+    // Use service layer
+    const result = await adminService.getAllPosts();
 
     const duration = Date.now() - startTime;
+    logger.performance('Admin posts API', duration, 'API');
 
-    logger.performance('Admin posts fetch', duration, 'API');
+    if (!result.success) {
+      logger.error('Admin posts API failed', result.error, 'API');
+      return NextResponse.json(
+        {
+          error: result.error,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ posts });
+    logger.info(`Admin posts API completed successfully - ${result.data?.length} posts`, undefined, 'API');
+
+    return NextResponse.json({ posts: result.data });
   } catch (error: any) {
     const duration = Date.now() - startTime;
-
-    logger.error('Error fetching posts for admin', error, 'API');
-    logger.performance('Admin posts fetch (failed)', duration, 'API');
-
-    // Check if it's a timeout error
-    if (error.message === 'Database operation timeout') {
-      return NextResponse.json({ error: 'Request timeout - database took too long to respond' }, { status: 504 });
-    }
+    logger.error('Admin posts API error', error, 'API');
+    logger.performance('Admin posts API (failed)', duration, 'API');
 
     return NextResponse.json(
       {
@@ -63,41 +48,16 @@ export async function GET(_request: NextRequest) {
 // POST handler to create a new blog post
 export async function POST(request: NextRequest) {
   // In a real app, verify user is authenticated and authorized admin here
+  const startTime = Date.now();
 
   try {
-    const body = await request.json();
+    logger.info('Admin create post API request started', undefined, 'API');
 
-    // Validate required fields - locale is mandatory
+    const body = await request.json();
     const { title, slug, content, status, locale, generationGroupId } = body;
 
-    if (!title || !slug || !content || !status || !locale) {
-      return NextResponse.json(
-        {
-          error: 'Missing required fields (title, slug, content, status, locale)',
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!['draft', 'published'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
-    }
-
-    if (!['en', 'ru', 'uz'].includes(locale)) {
-      return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
-    }
-
-    await dbConnect();
-
-    // Check for slug collision within the same locale
-    const slugCollision = await BlogPost.findOne({ slug, locale });
-
-    if (slugCollision) {
-      return NextResponse.json({ error: `Slug "${slug}" already exists for locale "${locale}"` }, { status: 409 }); // 409 Conflict
-    }
-
-    // Create new blog post with locale
-    const newPost = new BlogPost({
+    // Use service layer
+    const result = await adminService.createPost({
       title,
       slug,
       content,
@@ -106,22 +66,41 @@ export async function POST(request: NextRequest) {
       generationGroupId,
     });
 
-    await newPost.save();
+    const duration = Date.now() - startTime;
+    logger.performance('Admin create post API', duration, 'API');
+
+    if (!result.success) {
+      logger.error('Admin create post API failed', result.error, 'API');
+
+      // Determine appropriate status code based on error
+      const statusCode =
+        result.error?.includes('required') || result.error?.includes('Invalid')
+          ? 400
+          : result.error?.includes('already exists')
+            ? 409
+            : 500;
+
+      return NextResponse.json(
+        {
+          error: result.error,
+        },
+        { status: statusCode }
+      );
+    }
+
+    logger.info(`Admin create post API completed successfully - ${result.data?._id}`, undefined, 'API');
 
     return NextResponse.json(
       {
         message: 'Post created successfully',
-        post: newPost,
+        post: result.data,
       },
       { status: 201 }
     );
   } catch (error: any) {
-    console.error('Error creating new post:', error);
-
-    // Handle potential validation errors from Mongoose
-    if (error.name === 'ValidationError') {
-      return NextResponse.json({ error: 'Validation failed', details: error.message }, { status: 400 });
-    }
+    const duration = Date.now() - startTime;
+    logger.error('Admin create post API error', error, 'API');
+    logger.performance('Admin create post API (failed)', duration, 'API');
 
     return NextResponse.json(
       {

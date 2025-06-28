@@ -1,56 +1,45 @@
-import { logger } from '@/core/logger';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { blogService } from '@/services/blog.service';
+import { logger } from '@/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+
   try {
     const { searchParams } = request.nextUrl;
     const generationGroupId = searchParams.get('generationGroupId');
     const targetLocale = searchParams.get('locale');
 
-    logger.info(
-      `Finding related post for generationGroupId: ${generationGroupId}, locale: ${targetLocale}`,
-      undefined,
-      'RELATED_POSTS_API'
-    );
+    logger.info(`Related post API request started: generationGroupId=${generationGroupId}, locale=${targetLocale}`, undefined, 'API');
 
     if (!generationGroupId || !targetLocale) {
-      logger.warn('Missing required parameters: generationGroupId and locale are required', undefined, 'RELATED_POSTS_API');
-
+      logger.error('Related post API: Missing required parameters', undefined, 'API');
       return NextResponse.json({ error: 'generationGroupId and locale are required' }, { status: 400 });
     }
 
-    await dbConnect();
+    // Use service layer
+    const result = await blogService.getRelatedPost(generationGroupId, targetLocale);
 
-    // Find the post in the target locale with the same generation group ID
-    const relatedPost = await BlogPost.findOne({
-      generationGroupId,
-      locale: targetLocale,
-      status: 'published',
-    });
+    const duration = Date.now() - startTime;
+    logger.performance(`Related post API: ${generationGroupId}`, duration, 'API');
 
-    if (!relatedPost) {
-      logger.info(
-        `No related post found for generationGroupId: ${generationGroupId}, locale: ${targetLocale}`,
-        undefined,
-        'RELATED_POSTS_API'
-      );
+    if (!result.success) {
+      const statusCode = result.error?.includes('not found') ? 404 : 500;
 
-      return NextResponse.json({ error: 'No related post found in target language' }, { status: 404 });
+      logger.error(`Related post API failed: ${generationGroupId}`, result.error, 'API');
+      return NextResponse.json({ error: result.error }, { status: statusCode });
     }
 
-    logger.info(`Found related post: ${relatedPost.slug} for locale: ${targetLocale}`, undefined, 'RELATED_POSTS_API');
+    logger.info(`Related post API completed successfully: ${result.data?.slug}`, undefined, 'API');
 
     return NextResponse.json({
       success: true,
-      post: {
-        slug: relatedPost.slug,
-        locale: relatedPost.locale,
-      },
+      post: result.data,
     });
   } catch (error) {
-    logger.error('Error finding related post', error, 'RELATED_POSTS_API');
+    const duration = Date.now() - startTime;
+    logger.error('Related post API error', error, 'API');
+    logger.performance('Related post API (failed)', duration, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

@@ -74,15 +74,14 @@ async function getBlogPost(
   locale: string
 ): Promise<BlogPost | null> {
   try {
+    // Use relative URL for better SSR compatibility
+    const apiUrl = `/api/blog/posts/${slug}?locale=${locale}`;
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const fullUrl = typeof window === 'undefined' ? `${baseUrl}${apiUrl}` : apiUrl;
 
-    const response = await fetch(
-      `${baseUrl}/api/blog/posts/${slug}?locale=${locale}`,
-
-      {
-        next: { revalidate: 3600 }, // Revalidate every hour
-      }
-    );
+    const response = await fetch(fullUrl, {
+      next: { revalidate: 3600 }, // Revalidate every hour
+    });
 
     if (!response.ok) {
       return null;
@@ -362,46 +361,48 @@ export default async function BlogPostPage({ params }: { params: { locale: strin
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
                   components={{
-                    h1: ({ children }) => (
-                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mt-12 mb-6 leading-tight'>{children}</h1>
+                    h1: (props: any) => (
+                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mt-12 mb-6 leading-tight'>{props.children}</h1>
                     ),
 
-                    h2: ({ children }) => (
-                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mt-10 mb-5 leading-tight'>{children}</h2>
+                    h2: (props: any) => (
+                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mt-10 mb-5 leading-tight'>{props.children}</h2>
                     ),
 
-                    h3: ({ children }) => (
-                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 mt-8 mb-4 leading-tight'>{children}</h3>
+                    h3: (props: any) => (
+                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 mt-8 mb-4 leading-tight'>{props.children}</h3>
                     ),
 
-                    p: ({ children }) => <p className='text-lg text-gray-700 leading-relaxed mb-6 font-light'>{children}</p>,
+                    p: (props: any) => <p className='text-lg text-gray-700 leading-relaxed mb-6 font-light'>{props.children}</p>,
 
-                    ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700'>{children}</ul>,
+                    ul: (props: any) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700'>{props.children}</ul>,
 
-                    ol: ({ children }) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700'>{children}</ol>,
+                    ol: (props: any) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700'>{props.children}</ol>,
 
-                    li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
+                    li: (props: any) => <li className='leading-relaxed'>{props.children}</li>,
 
-                    blockquote: ({ children }) => (
+                    blockquote: (props: any) => (
                       <blockquote className='border-l-4 border-blue-500 pl-6 py-2 my-8 bg-gray-50 italic text-lg text-gray-700 rounded-r-lg'>
-                        {children}
+                        {props.children}
                       </blockquote>
                     ),
 
-                    code: ({ children }) => (
-                      <code className='bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800'>{children}</code>
+                    code: (props: any) => (
+                      <code className='bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800'>{props.children}</code>
                     ),
 
-                    pre: ({ children }) => <pre className='bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>{children}</pre>,
+                    pre: (props: any) => (
+                      <pre className='bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>{props.children}</pre>
+                    ),
 
-                    a: ({ href, children }) => (
+                    a: (props: any) => (
                       <a
-                        href={href}
+                        href={props.href}
                         className='text-[#fe4502] hover:text-[#ff5f24] underline transition-colors'
-                        target={href?.startsWith('http') ? '_blank' : undefined}
-                        rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        target={props.href?.startsWith('http') ? '_blank' : undefined}
+                        rel={props.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                       >
-                        {children}
+                        {props.children}
                       </a>
                     ),
                   }}

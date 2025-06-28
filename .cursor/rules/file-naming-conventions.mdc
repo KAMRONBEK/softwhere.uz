@@ -1,0 +1,233 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# 📁 File Naming & Organization Conventions
+
+## File Naming Standards
+
+Based on Arno's Next.js architecture guide, follow these naming conventions for consistency and clarity.
+
+## Service & Manager Files
+
+### Service Files
+- **Pattern**: `*.service.ts`
+- **Location**: [src/services/](mdc:src/services)
+- **Examples**:
+  - [blog.service.ts](mdc:src/services/blog.service.ts)
+  - [admin.service.ts](mdc:src/services/admin.service.ts)
+  - [generation.service.ts](mdc:src/services/generation.service.ts)
+
+### Manager Files
+- **Pattern**: `*.manager.ts`
+- **Location**: [src/managers/](mdc:src/managers)
+- **Examples**:
+  - [blog.manager.ts](mdc:src/managers/blog.manager.ts)
+  - [validation.manager.ts](mdc:src/managers/validation.manager.ts)
+  - [ai.manager.ts](mdc:src/managers/ai.manager.ts)
+
+## Component Files
+
+### React Components
+- **Pattern**: `*.tsx` for components, `*.ts` for utilities
+- **Structure**: Each component in its own directory with `index.tsx`
+- **Examples**:
+  - [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx)
+  - [src/components/Estimator/index.tsx](mdc:src/components/Estimator/index.tsx)
+
+### Client vs Server Components
+- **Client Components**: `*.client.tsx` (client-side only)
+- **Server Components**: `*.server.tsx` (server-side only)
+- **Shared Components**: `*.shared.tsx` (universal)
+
+## Type Definitions
+
+### TypeScript Types
+- **Pattern**: `*.ts` for type files
+- **Location**: [src/types/](mdc:src/types)
+- **Examples**:
+  - [src/types/index.ts](mdc:src/types/index.ts) - Common interfaces
+  - [src/types/estimator.ts](mdc:src/types/estimator.ts) - Domain-specific types
+
+### Interface Naming
+```typescript
+// Service interfaces
+interface BlogServiceResult<T> extends ServiceResult<T> {}
+
+// Manager interfaces
+interface BlogManagerOptions {
+  locale?: string;
+  status?: 'published' | 'draft';
+}
+
+// Component props
+interface HeaderProps {
+  locale: string;
+  isOpen?: boolean;
+}
+```
+
+## Constants & Configuration
+
+### Constants Files
+- **Pattern**: `*.ts` for constants
+- **Location**: [src/constants/](mdc:src/constants)
+- **Examples**:
+  - [src/constants/index.ts](mdc:src/constants/index.ts) - General constants
+  - [src/constants/estimator.ts](mdc:src/constants/estimator.ts) - Domain constants
+
+### Constant Naming
+```typescript
+// Use SCREAMING_SNAKE_CASE for constants
+export const API_ENDPOINTS = {
+  BLOG_POSTS: '/api/blog/posts',
+  ADMIN_POSTS: '/api/admin/posts'
+} as const;
+
+export const UI_CONFIG = {
+  SCROLL_THRESHOLD: 100,
+  ANIMATION_DURATION: 300
+} as const;
+```
+
+## API Route Organization
+
+### Route File Structure
+- **Pattern**: `route.ts` for API endpoints
+- **Location**: [src/app/api/](mdc:src/app/api)
+- **Structure**: RESTful organization
+
+```
+src/app/api/
+├── blog/
+│   ├── posts/
+│   │   ├── route.ts           # GET /api/blog/posts
+│   │   ├── [slug]/
+│   │   │   └── route.ts       # GET /api/blog/posts/[slug]
+│   │   └── related/
+│   │       └── route.ts       # GET /api/blog/posts/related
+│   └── generate/
+│       └── route.ts           # POST /api/blog/generate
+├── admin/
+│   └── posts/
+│       ├── route.ts           # GET,POST /api/admin/posts
+│       └── [id]/
+│           └── route.ts       # GET,PUT,DELETE /api/admin/posts/[id]
+└── estimate/
+    ├── route.ts               # POST /api/estimate
+    └── save/
+        └── route.ts           # POST /api/estimate/save
+```
+
+## Utility & Helper Files
+
+### Utility Files
+- **Pattern**: `*.ts` for utilities
+- **Location**: [src/utils/](mdc:src/utils)
+- **Examples**:
+  - [src/utils/api.ts](mdc:src/utils/api.ts) - HTTP client
+  - [src/utils/logger.ts](mdc:src/utils/logger.ts) - Logging utilities
+  - [src/utils/env.ts](mdc:src/utils/env.ts) - Environment validation
+
+### Hook Files
+- **Pattern**: `*.hook.ts` for custom hooks
+- **Naming**: Start with `use` prefix
+- **Example**: `useLocalStorage.hook.ts`, `useBlogPosts.hook.ts`
+
+## Database & Model Files
+
+### Model Files
+- **Pattern**: `*.ts` for database models
+- **Location**: [src/models/](mdc:src/models)
+- **Naming**: PascalCase matching entity name
+- **Example**: [src/models/BlogPost.ts](mdc:src/models/BlogPost.ts)
+
+### Model Naming Convention
+```typescript
+// Model class naming
+export class BlogPost extends Model<IBlogPost> {
+  // Implementation
+}
+
+// Interface naming (prefix with I)
+interface IBlogPost {
+  title: string;
+  slug: string;
+  content: string;
+}
+
+// Type naming (no prefix)
+type BlogPostStatus = 'draft' | 'published';
+```
+
+## Test Files
+
+### Test File Organization
+- **Pattern**: `*.test.ts` or `*.spec.ts`
+- **Location**: Adjacent to source files or in `__tests__` directories
+- **Examples**:
+  - `src/services/blog.service.test.ts`
+  - `src/services/__tests__/blog.service.test.ts`
+
+## Barrel Exports
+
+### Index Files for Clean Imports
+Create `index.ts` files for clean imports:
+
+```typescript
+// src/services/index.ts
+export { BlogService } from './blog.service';
+export { AdminService } from './admin.service';
+export { GenerationService } from './generation.service';
+export { EstimatorService } from './estimator.service';
+
+// src/managers/index.ts
+export { BlogManager } from './blog.manager';
+export { ValidationManager } from './validation.manager';
+export { AIManager } from './ai.manager';
+export { EstimatorManager } from './estimator.manager';
+```
+
+## Class & Method Naming
+
+### Class Naming
+- **Services**: `[Domain]Service` (e.g., `BlogService`)
+- **Managers**: `[Domain]Manager` (e.g., `BlogManager`)
+- **Components**: `[ComponentName]` (e.g., `Header`, `ProjectSlider`)
+
+### Method Naming
+Follow verb-first, noun-second pattern:
+
+```typescript
+// CRUD operations
+createPost(), getPost(), updatePost(), deletePost()
+
+// Query operations
+searchPosts(), fetchData(), countItems()
+
+// State operations
+initService(), startProcess(), stopProcess()
+
+// Batch operations
+batchCreate(), bulkUpdate(), multiDelete()
+```
+
+## Directory Structure Standards
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── [locale]/          # Internationalized routes
+│   └── api/               # API routes
+├── components/            # React components
+├── services/              # Business logic layer
+├── managers/              # Data operations layer
+├── utils/                 # Utilities & helpers
+├── constants/             # Configuration constants
+├── types/                 # TypeScript definitions
+├── models/                # Database models
+├── contexts/              # React contexts
+├── messages/              # i18n translations
+└── lib/                   # External integrations
+```

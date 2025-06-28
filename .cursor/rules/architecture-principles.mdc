@@ -1,0 +1,71 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# 🏗️ Architecture Principles - Softwhere.uz
+
+## Core Layered Architecture Pattern
+
+This project follows [Arno's Next.js Architecture Guide](mdc:https:/arno.surfacew.com/posts/nextjs-architecture) with a strict 5-layer architecture:
+
+```
+Client Layer → Controller Layer → Service Layer → Manager Layer → Data Layer
+```
+
+## Layer Structure
+
+### 🎨 Client Layer
+- **Location**: [src/components/](mdc:src/components), [src/app/[locale]/](mdc:src/app/[locale]/)
+- **Purpose**: UI rendering, user interactions, and presentation logic
+- **Rules**: No business logic, no direct API calls to external services
+
+### 🎛️ Controller Layer
+- **Location**: [src/app/api/](mdc:src/app/api)
+- **Purpose**: HTTP request/response handling, routing, middleware
+- **Rules**: ZERO business logic, delegate everything to services
+
+### 🔧 Service Layer
+- **Location**: [src/services/](mdc:src/services)
+- **Purpose**: Business logic, domain operations, orchestration
+- **Examples**: [BlogService](mdc:src/services/blog.service.ts), [AdminService](mdc:src/services/admin.service.ts)
+
+### ⚙️ Manager Layer
+- **Location**: [src/managers/](mdc:src/managers)
+- **Purpose**: Data operations, external API integrations, utilities
+- **Examples**: [BlogManager](mdc:src/managers/blog.manager.ts), [ValidationManager](mdc:src/managers/validation.manager.ts)
+
+### 💾 Data Layer
+- **Location**: [src/models/](mdc:src/models), [src/lib/](mdc:src/lib)
+- **Purpose**: Database models, external service connections
+- **Examples**: [BlogPost.ts](mdc:src/models/BlogPost.ts), [db.ts](mdc:src/lib/db.ts)
+
+## Import Direction Rules
+
+**ALLOWED:**
+- Client → Controller (HTTP requests)
+- Controller → Service (business logic delegation)
+- Service → Manager (data operations)
+- Manager → Data (database/external APIs)
+- Any layer → [Utils](mdc:src/utils), [Constants](mdc:src/constants), [Types](mdc:src/types)
+
+**FORBIDDEN:**
+- Reverse imports (Manager → Service, Service → Controller)
+- Layer skipping (Controller → Manager directly)
+- Circular dependencies
+
+## Domain-Driven Design
+
+Follow DDD principles with clear domain boundaries:
+- **Blog Domain**: Content management, publishing, SEO
+- **Admin Domain**: Administrative operations, user management
+- **Estimator Domain**: Project estimation, AI integration
+- **Generation Domain**: AI content creation, automation
+
+## Architecture Goals
+
+1. **Separation of Concerns**: Each layer has single responsibility
+2. **Testability**: Isolated, mockable components
+3. **Maintainability**: Clear code organization and patterns
+4. **Scalability**: Easy to extend with new features
+5. **Type Safety**: Comprehensive TypeScript coverage

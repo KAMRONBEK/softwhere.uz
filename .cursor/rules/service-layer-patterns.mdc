@@ -1,0 +1,133 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# 🔧 Service Layer Patterns
+
+## Service Implementation Standards
+
+All services in [src/services/](mdc:src/services) must follow these patterns based on Arno's architecture guide.
+
+## Standard Service Structure
+
+```typescript
+export class [Domain]Service {
+  private [domain]Manager: [Domain]Manager;
+  private validationManager: ValidationManager;
+
+  constructor() {
+    this.[domain]Manager = new [Domain]Manager();
+    this.validationManager = new ValidationManager();
+  }
+
+  async [operation](mdc:params): Promise<ServiceResult<T>> {
+    try {
+      // 1. Input validation
+      const validation = this.validationManager.validate[Operation](mdc:params);
+      if (!validation.isValid) {
+        return { success: false, error: validation.error };
+      }
+
+      // 2. Business logic
+      const result = await this.[domain]Manager.[operation](mdc:params);
+
+      // 3. Return consistent format
+      return { success: true, data: result };
+    } catch (error) {
+      logger.error('Operation failed', error, '[Domain]Service');
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Operation failed'
+      };
+    }
+  }
+}
+```
+
+## Service Layer Rules
+
+### ✅ ALWAYS
+- Return `ServiceResult<T>` format from [types/index.ts](mdc:src/types/index.ts)
+- Validate inputs at service boundaries using [ValidationManager](mdc:src/managers/validation.manager.ts)
+- Use structured logging from [utils/logger.ts](mdc:src/utils/logger.ts)
+- Handle errors gracefully (never throw from services)
+- Use dependency injection for managers
+
+### ❌ NEVER
+- Throw unhandled errors (always return ServiceResult)
+- Access database directly (use managers)
+- Include HTTP-specific logic (status codes, headers)
+- Mix UI/presentation logic with business logic
+
+## Existing Service Examples
+
+### BlogService Pattern
+See [BlogService](mdc:src/services/blog.service.ts) for blog content management:
+- `getPublishedPosts()` - Retrieve published blog content
+- `getPost()` - Get single post with validation
+- `getRelatedPost()` - Find related content across languages
+
+### AdminService Pattern
+See [AdminService](mdc:src/services/admin.service.ts) for administrative operations:
+- `getAllPosts()` - Admin post listing
+- `updatePost()` - Content updates with validation
+- `deletePost()` - Safe content deletion
+
+### GenerationService Pattern
+See [GenerationService](mdc:src/services/generation.service.ts) for AI integration:
+- `generatePosts()` - AI-powered content creation
+- Coordinates between [AIManager](mdc:src/managers/ai.manager.ts) and [BlogManager](mdc:src/managers/blog.manager.ts)
+
+## Error Handling Pattern
+
+```typescript
+// Service method example
+async getPost(slug: string, locale: string): Promise<ServiceResult<BlogPost>> {
+  try {
+    // 1. Validation
+    const validation = this.validationManager.validatePostQuery(slug, locale);
+    if (!validation.isValid) {
+      return { success: false, error: validation.error };
+    }
+
+    logger.info('Getting post', { slug, locale }, 'BlogService');
+
+    // 2. Business logic
+    const post = await this.blogManager.getPostBySlug(slug, locale);
+
+    if (!post) {
+      return { success: false, error: 'Post not found' };
+    }
+
+    // 3. Success response
+    return { success: true, data: post };
+  } catch (error) {
+    logger.error('Failed to get post', error, 'BlogService');
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to get post'
+    };
+  }
+}
+```
+
+## Service Result Interface
+
+Use the unified response format from [types/index.ts](mdc:src/types/index.ts):
+
+```typescript
+interface ServiceResult<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+```
+
+## Method Naming Conventions
+
+Follow verb-first, noun-second pattern:
+- **CRUD**: `createPost`, `getPost`, `updatePost`, `deletePost`
+- **Queries**: `searchPosts`, `fetchData`, `countItems`
+- **Operations**: `publishPost`, `generateContent`, `validateInput`
+- **Batch**: `batchCreate`, `bulkUpdate`, `multiDelete`

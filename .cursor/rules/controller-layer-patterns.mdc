@@ -1,0 +1,166 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# 🎛️ Controller Layer Patterns
+
+## API Route Standards
+
+All controllers in [src/app/api/](mdc:src/app/api) must be thin and delegate to services based on Arno's architecture guide.
+
+## Standard Controller Structure
+
+```typescript
+export async function [METHOD](
+  request: NextRequest,
+  { params }: { params: { [key: string]: string } }
+) {
+  const startTime = Date.now();
+
+  try {
+    logger.info('[Operation] API request started', undefined, 'API');
+
+    // Extract parameters (no validation here)
+    const data = await request.json();
+    const { locale } = params;
+
+    // Delegate to service layer
+    const result = await [domain]Service.[operation](mdc:{ ...data, locale });
+
+    const duration = Date.now() - startTime;
+    logger.performance('[Operation] API', duration, 'API');
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    return NextResponse.json({ success: true, data: result.data });
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.error('[Operation] API error', error, 'API');
+    logger.performance('[Operation] API (failed)', duration, 'API');
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Controller Rules
+
+### ✅ ONLY DO
+- Extract request parameters
+- Delegate to services
+- Handle HTTP responses
+- Log performance metrics
+- Return consistent JSON format
+
+### ❌ NEVER DO
+- Include business logic
+- Access database directly
+- Complex validation (delegate to services)
+- Multiple concerns in single route
+
+## Existing Controller Examples
+
+### Blog API Routes
+- [Blog Posts API](mdc:src/app/api/blog/posts/route.ts) - Blog listing
+- [Single Post API](mdc:src/app/api/blog/posts/[slug]/route.ts) - Individual posts
+- [Related Posts API](mdc:src/app/api/blog/posts/related/route.ts) - Content relationships
+
+### Admin API Routes
+- [Admin Posts API](mdc:src/app/api/admin/posts/route.ts) - Admin operations
+- [Admin Post CRUD](mdc:src/app/api/admin/posts/[id]/route.ts) - Individual post management
+
+### Estimation API Routes
+- [Estimation API](mdc:src/app/api/estimate/route.ts) - Project cost estimation
+- [Quote Save API](mdc:src/app/api/estimate/save/route.ts) - Quote persistence
+
+## HTTP Status Code Standards
+
+- **200**: Success with data
+- **400**: Client error (validation, bad request)
+- **404**: Resource not found
+- **500**: Server error (unexpected failures)
+
+## Response Format Standards
+
+### Success Response
+```typescript
+return NextResponse.json({
+  success: true,
+  data: result.data
+});
+```
+
+### Error Response
+```typescript
+return NextResponse.json({
+  error: result.error || 'Operation failed'
+}, { status: 400 });
+```
+
+## Performance Logging Pattern
+
+```typescript
+export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+
+  try {
+    // ... operation
+
+    const duration = Date.now() - startTime;
+    logger.performance('API operation', duration, 'API');
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    const duration = Date.now() - startTime;
+    logger.error('API error', error, 'API');
+    logger.performance('API operation (failed)', duration, 'API');
+
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+
+## Parameter Extraction
+
+```typescript
+// Query parameters
+const locale = request.nextUrl.searchParams.get('locale');
+const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
+
+// Route parameters
+const { slug, id } = params;
+
+// Request body
+const body = await request.json();
+```
+
+## Service Integration Pattern
+
+```typescript
+// Always delegate to services
+import { blogService } from '@/services/blog.service';
+
+export async function GET(request: NextRequest) {
+  try {
+    const locale = request.nextUrl.searchParams.get('locale') || undefined;
+
+    // Delegate to service - no business logic here
+    const result = await blogService.getPublishedPosts({ locale });
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    return NextResponse.json({ posts: result.data });
+  } catch (error) {
+    logger.error('API error', error, 'BlogController');
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```

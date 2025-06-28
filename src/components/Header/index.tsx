@@ -2,13 +2,13 @@
 
 import { CONTACT_INFO, UI_CONFIG } from '@/constants';
 import { useBlogContext } from '@/contexts/BlogContext';
-import { api } from '@/core/api';
-import { logger } from '@/core/logger';
+import { api } from '@/utils/api';
+import { logger } from '@/utils/logger';
 import { getCookie } from 'cookies-next';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'use-intl';
 import RuFlag from '../../../public/icons/Russia (RU).svg';
 import EngFlag from '../../../public/icons/United Kingdom (GB).svg';
 import UzbFlag from '../../../public/icons/Uzbekistan (UZ).svg';
@@ -31,6 +31,22 @@ function Header() {
 
     setLang(currentLang);
   }, []);
+
+  // Cleanup body class on component unmount and state changes
+  useEffect(() => {
+    return () => {
+      document.body.classList.remove('hide');
+    };
+  }, []);
+
+  // Ensure body class is properly managed when menu state changes
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('hide');
+    } else {
+      document.body.classList.remove('hide');
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,7 +86,7 @@ function Header() {
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-    document.body.classList.toggle('hide');
+    // Body class manipulation is now handled by useEffect
   };
 
   const changeLanguage = async (locale: string) => {

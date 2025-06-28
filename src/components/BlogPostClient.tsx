@@ -1,7 +1,7 @@
 'use client';
 
 import { useBlogContext } from '@/contexts/BlogContext';
-import { logger } from '@/core/logger';
+import { logger } from '@/utils/logger';
 import { useEffect } from 'react';
 
 interface BlogPost {
