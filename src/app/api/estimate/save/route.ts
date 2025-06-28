@@ -6,18 +6,18 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    logger.info('Estimation API request started', undefined, 'API');
+    logger.info('Quote save API request started', undefined, 'API');
 
     const body = await request.json();
 
     // Use service layer
-    const result = await estimatorService.getEstimate(body);
+    const result = await estimatorService.saveQuote(body);
 
     const duration = Date.now() - startTime;
-    logger.performance('Estimation API', duration, 'API');
+    logger.performance('Quote save API', duration, 'API');
 
     if (!result.success) {
-      logger.error('Estimation API failed', result.error, 'API');
+      logger.error('Quote save API failed', result.error, 'API');
 
       // Determine appropriate status code
       let statusCode = 500;
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: statusCode });
     }
 
-    logger.info(`Estimation API completed successfully using ${result.data?.source} method`, undefined, 'API');
+    logger.info(`Quote save API completed successfully: ${result.data?.quoteId}`, undefined, 'API');
 
     return NextResponse.json({
       success: true,
@@ -36,9 +36,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const duration = Date.now() - startTime;
-    logger.error('Estimation API error', error, 'API');
-    logger.performance('Estimation API (failed)', duration, 'API');
+    logger.error('Quote save API error', error, 'API');
+    logger.performance('Quote save API (failed)', duration, 'API');
 
-    return NextResponse.json({ error: 'Failed to process estimate request' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to save quote' }, { status: 500 });
   }
 }

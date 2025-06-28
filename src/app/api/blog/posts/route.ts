@@ -1,56 +1,46 @@
-import dbConnect from '@/lib/db'; // Adjust path if necessary
-import BlogPost, { IBlogPost } from '@/models/BlogPost'; // Adjust path if necessary
+import { blogService } from '@/services/blog.service';
+import { logger } from '@/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Add timeout wrapper for the entire operation
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('API operation timeout after 25 seconds'));
-      }, 25000);
+    logger.info('Blog posts API request started', undefined, 'API');
+
+    // Extract query parameters
+    const locale = request.nextUrl.searchParams.get('locale') || undefined;
+    const generationGroupId = request.nextUrl.searchParams.get('generationGroupId') || undefined;
+    const limitParam = request.nextUrl.searchParams.get('limit');
+    const limit = limitParam ? parseInt(limitParam, 10) : undefined;
+
+    // Use service layer
+    const result = await blogService.getPosts({
+      locale,
+      generationGroupId,
+      limit,
     });
 
-    const operationPromise = async () => {
-      await dbConnect();
-
-      // Get locale from query params, defaulting to all if not specified
-      const locale = request.nextUrl.searchParams.get('locale');
-
-      // Define the type for the selected fields
-      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale'>;
-
-      // Build query - filter by locale if provided
-      const query: any = { status: 'published' };
-
-      if (locale) {
-        query.locale = locale;
-      }
-
-      // Fetch only published posts, sorted by creation date (newest first)
-      // Add limit for better performance on Vercel
-      const posts: PublishedPostSummary[] = await BlogPost.find(query)
-        .sort({ createdAt: -1 })
-        .select('title slug createdAt locale') // Include locale in the response
-        .limit(50) // Add limit for performance
-        .lean(); // Use .lean() for plain JS objects if not modifying
-
-      return posts;
-    };
-
-    const posts = await Promise.race([operationPromise(), timeoutPromise]);
-
     const duration = Date.now() - startTime;
+    logger.performance('Blog posts API', duration, 'API');
 
-    console.log(`Blog posts fetch completed in ${duration}ms`);
+    if (!result.success) {
+      logger.error('Blog posts API failed', result.error, 'API');
+      return NextResponse.json(
+        {
+          error: result.error,
+        },
+        { status: 500 }
+      );
+    }
 
-    return NextResponse.json({ posts });
+    logger.info(`Blog posts API completed successfully - ${result.data?.length} posts`, undefined, 'API');
+
+    return NextResponse.json({ posts: result.data });
   } catch (error: any) {
     const duration = Date.now() - startTime;
-
-    console.error(`Error fetching published blog posts after ${duration}ms:`, error);
+    logger.error('Blog posts API error', error, 'API');
+    logger.performance('Blog posts API (failed)', duration, 'API');
 
     return NextResponse.json(
       {

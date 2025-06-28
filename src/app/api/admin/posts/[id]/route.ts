@@ -1,5 +1,5 @@
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
+import { adminService } from '@/services/admin.service';
+import { logger } from '@/utils/logger';
 import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,26 +9,39 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   // In a real app, verify user is authenticated and authorized admin here
   const { id } = params;
-
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
-  }
+  const startTime = Date.now();
 
   try {
-    await dbConnect();
+    logger.info(`Admin get post API request started: ${id}`, undefined, 'API');
 
-    const post = await BlogPost.findById(id);
-
-    if (!post) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      logger.error(`Admin get post API: Invalid post ID: ${id}`, undefined, 'API');
+      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
     }
+
+    // Use service layer
+    const result = await adminService.getPost(id);
+
+    const duration = Date.now() - startTime;
+    logger.performance(`Admin get post API: ${id}`, duration, 'API');
+
+    if (!result.success) {
+      const statusCode = result.error === 'Post not found' ? 404 : 500;
+
+      logger.error(`Admin get post API failed: ${id}`, result.error, 'API');
+      return NextResponse.json({ error: result.error }, { status: statusCode });
+    }
+
+    logger.info(`Admin get post API completed successfully: ${id}`, undefined, 'API');
 
     return NextResponse.json({
       success: true,
-      post,
+      post: result.data,
     });
   } catch (error: any) {
-    console.error('Error fetching post:', error);
+    const duration = Date.now() - startTime;
+    logger.error(`Admin get post API error: ${id}`, error, 'API');
+    logger.performance(`Admin get post API (failed): ${id}`, duration, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -38,131 +51,148 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   // In a real app, verify user is authenticated and authorized admin here
   const { id } = params;
-
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
-  }
+  const startTime = Date.now();
 
   try {
+    logger.info(`Admin update post API request started: ${id}`, undefined, 'API');
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      logger.error(`Admin update post API: Invalid post ID: ${id}`, undefined, 'API');
+      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
+    }
+
     const body = await request.json();
-    // Validate required fields
-    const { title, slug, content, status, locale } = body;
+    const { title, slug, content, status, locale, generationGroupId } = body;
 
-    if (!title || !slug || !content || !status || !locale) {
-      return NextResponse.json(
-        {
-          error: 'Missing required fields (title, slug, content, status, locale)',
-        },
-        { status: 400 }
-      );
-    }
-    if (!['draft', 'published'].includes(status)) {
-      return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
-    }
-    if (!['en', 'ru', 'uz'].includes(locale)) {
-      return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
-    }
+    // Use service layer
+    const result = await adminService.updatePost(id, {
+      title,
+      slug,
+      content,
+      status,
+      locale,
+      generationGroupId,
+    });
 
-    await dbConnect();
+    const duration = Date.now() - startTime;
+    logger.performance(`Admin update post API: ${id}`, duration, 'API');
 
-    // Find the existing post
-    const existingPost = await BlogPost.findById(id);
-
-    if (!existingPost) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
-    }
-
-    // Check for slug collision only if the slug has changed
-    if (slug !== existingPost.slug) {
-      const slugCollision = await BlogPost.findOne({
-        slug,
-        locale,
-        _id: { $ne: id },
-      }); // Check other posts in same locale
-
-      if (slugCollision) {
-        return NextResponse.json({ error: `Slug "${slug}" already exists for locale "${locale}"` }, { status: 409 }); // 409 Conflict
+    if (!result.success) {
+      let statusCode = 500;
+      if (result.error?.includes('required') || result.error?.includes('Invalid')) {
+        statusCode = 400;
+      } else if (result.error?.includes('already exists')) {
+        statusCode = 409;
+      } else if (result.error?.includes('not found')) {
+        statusCode = 404;
       }
+
+      logger.error(`Admin update post API failed: ${id}`, result.error, 'API');
+      return NextResponse.json({ error: result.error }, { status: statusCode });
     }
 
-    // Perform the update
-    const updatedPost = await BlogPost.findByIdAndUpdate(
-      id,
-      { title, slug, content, status, locale },
-      { new: true, runValidators: true } // Return the updated document and run schema validators
-    );
-
-    if (!updatedPost) {
-      // Should not happen if findById found it, but handle just in case
-      return NextResponse.json({ error: 'Post not found after update attempt' }, { status: 404 });
-    }
-
-    console.log(`Post ${id} updated successfully.`);
+    logger.info(`Admin update post API completed successfully: ${id}`, undefined, 'API');
 
     return NextResponse.json({
       success: true,
       message: 'Post updated successfully',
-      post: updatedPost,
+      post: result.data,
     });
   } catch (error: any) {
-    console.error('Error updating post:', error);
-    // Handle potential validation errors from Mongoose
-    if (error.name === 'ValidationError') {
-      return NextResponse.json({ error: 'Validation failed', details: error.message }, { status: 400 });
-    }
+    const duration = Date.now() - startTime;
+    logger.error(`Admin update post API error: ${id}`, error, 'API');
+    logger.performance(`Admin update post API (failed): ${id}`, duration, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+  const startTime = Date.now();
+
   try {
-    const { id } = params;
+    logger.info(`Admin patch post API request started: ${id}`, undefined, 'API');
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      logger.error(`Admin patch post API: Invalid post ID: ${id}`, undefined, 'API');
+      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
+    }
+
     const body = await request.json();
 
-    await dbConnect();
-
-    const updatedPost = await BlogPost.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedPost) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    // Use service layer - handle common PATCH operations
+    let result;
+    if (body.status === 'published') {
+      result = await adminService.publishPost(id);
+    } else if (body.status === 'draft') {
+      result = await adminService.unpublishPost(id);
+    } else {
+      // Generic update for other fields
+      result = await adminService.updatePost(id, body);
     }
+
+    const duration = Date.now() - startTime;
+    logger.performance(`Admin patch post API: ${id}`, duration, 'API');
+
+    if (!result.success) {
+      const statusCode = result.error?.includes('not found') ? 404 : 500;
+
+      logger.error(`Admin patch post API failed: ${id}`, result.error, 'API');
+      return NextResponse.json({ error: result.error }, { status: statusCode });
+    }
+
+    logger.info(`Admin patch post API completed successfully: ${id}`, undefined, 'API');
 
     return NextResponse.json({
       success: true,
-      post: updatedPost,
+      post: result.data,
     });
   } catch (error) {
-    console.error('Error updating post:', error);
+    const duration = Date.now() - startTime;
+    logger.error(`Admin patch post API error: ${id}`, error, 'API');
+    logger.performance(`Admin patch post API (failed): ${id}`, duration, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+  const startTime = Date.now();
+
   try {
-    const { id } = params;
+    logger.info(`Admin delete post API request started: ${id}`, undefined, 'API');
 
-    await dbConnect();
-
-    const deletedPost = await BlogPost.findByIdAndDelete(id);
-
-    if (!deletedPost) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      logger.error(`Admin delete post API: Invalid post ID: ${id}`, undefined, 'API');
+      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
     }
+
+    // Use service layer
+    const result = await adminService.deletePost(id);
+
+    const duration = Date.now() - startTime;
+    logger.performance(`Admin delete post API: ${id}`, duration, 'API');
+
+    if (!result.success) {
+      const statusCode = result.error?.includes('not found') ? 404 : 500;
+
+      logger.error(`Admin delete post API failed: ${id}`, result.error, 'API');
+      return NextResponse.json({ error: result.error }, { status: statusCode });
+    }
+
+    logger.info(`Admin delete post API completed successfully: ${id}`, undefined, 'API');
 
     return NextResponse.json({
       success: true,
       message: 'Post deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting post:', error);
+    const duration = Date.now() - startTime;
+    logger.error(`Admin delete post API error: ${id}`, error, 'API');
+    logger.performance(`Admin delete post API (failed): ${id}`, duration, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-// TODO: Add DELETE handler here later for deleting the post

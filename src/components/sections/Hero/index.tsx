@@ -6,7 +6,7 @@ import css from './style.module.css';
 
 import Button from '@/components/Button';
 import SectionText from '@/components/SectionTitle';
-import { sender } from '@/core/send';
+import { sender } from '@/utils/send';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import 'react-international-phone/style.css';

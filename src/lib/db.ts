@@ -1,5 +1,5 @@
 import { ENV } from '@/constants';
-import { logger } from '@/core/logger';
+import { logger } from '@/utils/logger';
 import _mongoose, { Mongoose } from 'mongoose';
 
 declare global {

@@ -11,8 +11,8 @@ import {
   TechStackStep,
 } from '@/components/Estimator';
 import { FeatureKey, TechnologyKey } from '@/constants/estimator';
-import { api } from '@/core/api';
 import type { EstimateResult, EstimatorInput } from '@/types/estimator';
+import { api } from '@/utils/api';
 import { calculateEstimate } from '@/utils/estimator';
 import { useMemo, useState } from 'react';
 

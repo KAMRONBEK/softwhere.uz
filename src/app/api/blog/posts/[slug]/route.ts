@@ -1,63 +1,42 @@
+import { blogService } from '@/services/blog.service';
+import { logger } from '@/utils/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
 
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   const { slug } = params;
   const startTime = Date.now();
 
-  // Get locale from query string, defaulting to "en"
-  const locale = request.nextUrl.searchParams.get('locale') || 'en';
-
-  if (!slug) {
-    return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
-  }
-
   try {
-    // Add timeout wrapper for the entire operation
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('API operation timeout after 20 seconds'));
-      }, 20000);
-    });
+    logger.info(`Blog post detail API request started: ${slug}`, undefined, 'API');
 
-    const operationPromise = async () => {
-      await dbConnect();
+    // Get locale from query string, defaulting to "en"
+    const locale = request.nextUrl.searchParams.get('locale') || 'en';
 
-      // First, try to find the published post with this slug and the requested locale
-      let post = await BlogPost.findOne({
-        slug,
-        locale,
-        status: 'published',
-      }).lean();
-
-      // If not found in the requested locale, try to find it in any locale
-      if (!post) {
-        post = await BlogPost.findOne({
-          slug,
-          status: 'published',
-        }).lean();
-      }
-
-      return post;
-    };
-
-    const post = await Promise.race([operationPromise(), timeoutPromise]);
-
-    if (!post) {
-      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    if (!slug) {
+      logger.error('Blog post detail API: Slug is required', undefined, 'API');
+      return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
     }
 
+    // Use service layer
+    const result = await blogService.getPost(slug, locale);
+
     const duration = Date.now() - startTime;
+    logger.performance(`Blog post detail API: ${slug}`, duration, 'API');
 
-    console.log(`Blog post fetch completed in ${duration}ms`);
+    if (!result.success) {
+      const statusCode = result.error === 'Post not found' ? 404 : 500;
 
-    // Return the post
-    return NextResponse.json({ post });
-  } catch (error) {
+      logger.error(`Blog post detail API failed: ${slug}`, result.error, 'API');
+      return NextResponse.json({ error: result.error }, { status: statusCode });
+    }
+
+    logger.info(`Blog post detail API completed successfully: ${slug}`, undefined, 'API');
+
+    return NextResponse.json({ post: result.data });
+  } catch (error: any) {
     const duration = Date.now() - startTime;
-
-    console.error(`Error fetching post with slug '${slug}' after ${duration}ms:`, error);
+    logger.error(`Blog post detail API error: ${slug}`, error, 'API');
+    logger.performance(`Blog post detail API (failed): ${slug}`, duration, 'API');
 
     return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
   }

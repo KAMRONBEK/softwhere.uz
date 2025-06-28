@@ -5,7 +5,7 @@ import { FormEvent, useState } from 'react';
 import { PhoneInput } from 'react-international-phone';
 import 'react-international-phone/style.css';
 // import BgTextImg from "../../../../public/images/bg-text.svg";
-import { sender } from '@/core/send';
+import { sender } from '@/utils/send';
 import { useTranslations } from 'next-intl';
 import { toast } from 'react-toastify';
 import css from './style.module.css';

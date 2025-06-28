@@ -1,0 +1,448 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# 🧪 Testing Standards
+
+## Testing Strategy
+
+Following Arno's architecture guide principles for comprehensive testing across all layers.
+
+## Test File Organization
+
+### Test File Naming
+- **Unit Tests**: `*.test.ts` or `*.spec.ts`
+- **Integration Tests**: `*.integration.test.ts`
+- **E2E Tests**: `*.e2e.test.ts`
+
+### Test File Location
+```
+src/
+├── services/
+│   ├── blog.service.ts
+│   ├── blog.service.test.ts
+│   └── __tests__/
+│       └── blog.service.integration.test.ts
+├── managers/
+│   ├── blog.manager.ts
+│   └── blog.manager.test.ts
+└── components/
+    ├── Header/
+    │   ├── index.tsx
+    │   └── Header.test.tsx
+    └── __tests__/
+        └── integration/
+```
+
+## Service Layer Testing
+
+### Service Test Pattern
+```typescript
+import { BlogService } from './blog.service';
+import { BlogManager } from '@/managers/blog.manager';
+import { ValidationManager } from '@/managers/validation.manager';
+
+// Mock dependencies
+jest.mock('@/managers/blog.manager');
+jest.mock('@/managers/validation.manager');
+
+describe('BlogService', () => {
+  let blogService: BlogService;
+  let mockBlogManager: jest.Mocked<BlogManager>;
+  let mockValidationManager: jest.Mocked<ValidationManager>;
+
+  beforeEach(() => {
+    mockBlogManager = new BlogManager() as jest.Mocked<BlogManager>;
+    mockValidationManager = new ValidationManager() as jest.Mocked<ValidationManager>;
+
+    blogService = new BlogService();
+    (blogService as any).blogManager = mockBlogManager;
+    (blogService as any).validationManager = mockValidationManager;
+  });
+
+  describe('getPost', () => {
+    it('should return success result when post exists', async () => {
+      // Arrange
+      const slug = 'test-post';
+      const locale = 'en';
+      const mockPost = { id: '1', title: 'Test Post', slug, locale };
+
+      mockValidationManager.validatePostQuery.mockReturnValue({
+        isValid: true
+      });
+      mockBlogManager.getPostBySlug.mockResolvedValue(mockPost);
+
+      // Act
+      const result = await blogService.getPost(slug, locale);
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(mockPost);
+      expect(mockValidationManager.validatePostQuery).toHaveBeenCalledWith(slug, locale);
+      expect(mockBlogManager.getPostBySlug).toHaveBeenCalledWith(slug, locale);
+    });
+
+    it('should return error when validation fails', async () => {
+      // Arrange
+      mockValidationManager.validatePostQuery.mockReturnValue({
+        isValid: false,
+        error: 'Invalid slug format'
+      });
+
+      // Act
+      const result = await blogService.getPost('invalid-slug', 'en');
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Invalid slug format');
+      expect(mockBlogManager.getPostBySlug).not.toHaveBeenCalled();
+    });
+
+    it('should handle manager exceptions gracefully', async () => {
+      // Arrange
+      mockValidationManager.validatePostQuery.mockReturnValue({ isValid: true });
+      mockBlogManager.getPostBySlug.mockRejectedValue(new Error('Database error'));
+
+      // Act
+      const result = await blogService.getPost('test-post', 'en');
+
+      // Assert
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Database error');
+    });
+  });
+});
+```
+
+## Manager Layer Testing
+
+### Manager Test Pattern
+```typescript
+import { BlogManager } from './blog.manager';
+import { BlogPost } from '@/models/BlogPost';
+import { dbConnect } from '@/lib/db';
+
+// Mock external dependencies
+jest.mock('@/lib/db');
+jest.mock('@/models/BlogPost');
+
+describe('BlogManager', () => {
+  let blogManager: BlogManager;
+  let mockDbConnect: jest.MockedFunction<typeof dbConnect>;
+  let mockBlogPost: jest.Mocked<typeof BlogPost>;
+
+  beforeEach(() => {
+    mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
+    mockBlogPost = BlogPost as jest.Mocked<typeof BlogPost>;
+    blogManager = new BlogManager();
+  });
+
+  describe('getPostBySlug', () => {
+    it('should return post when found', async () => {
+      // Arrange
+      const mockPost = { _id: '1', title: 'Test', slug: 'test' };
+      mockDbConnect.mockResolvedValue(undefined);
+      mockBlogPost.findOne.mockReturnValue({
+        lean: jest.fn().mockResolvedValue(mockPost)
+      } as any);
+
+      // Act
+      const result = await blogManager.getPostBySlug('test', 'en');
+
+      // Assert
+      expect(result).toEqual(mockPost);
+      expect(mockDbConnect).toHaveBeenCalled();
+      expect(mockBlogPost.findOne).toHaveBeenCalledWith({
+        slug: 'test',
+        locale: 'en',
+        status: 'published'
+      });
+    });
+
+    it('should throw error when database fails', async () => {
+      // Arrange
+      mockDbConnect.mockRejectedValue(new Error('Connection failed'));
+
+      // Act & Assert
+      await expect(blogManager.getPostBySlug('test', 'en'))
+        .rejects.toThrow('Connection failed');
+    });
+  });
+});
+```
+
+## API Route Testing
+
+### Controller Test Pattern
+```typescript
+import { GET } from './route';
+import { blogService } from '@/services/blog.service';
+import { NextRequest } from 'next/server';
+
+// Mock service layer
+jest.mock('@/services/blog.service');
+
+describe('/api/blog/posts', () => {
+  let mockBlogService: jest.Mocked<typeof blogService>;
+
+  beforeEach(() => {
+    mockBlogService = blogService as jest.Mocked<typeof blogService>;
+  });
+
+  describe('GET', () => {
+    it('should return posts successfully', async () => {
+      // Arrange
+      const mockPosts = [{ id: '1', title: 'Test Post' }];
+      const request = new NextRequest('http://localhost/api/blog/posts?locale=en');
+
+      mockBlogService.getPublishedPosts.mockResolvedValue({
+        success: true,
+        data: mockPosts
+      });
+
+      // Act
+      const response = await GET(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.posts).toEqual(mockPosts);
+      expect(mockBlogService.getPublishedPosts).toHaveBeenCalledWith({
+        locale: 'en'
+      });
+    });
+
+    it('should handle service errors', async () => {
+      // Arrange
+      const request = new NextRequest('http://localhost/api/blog/posts');
+
+      mockBlogService.getPublishedPosts.mockResolvedValue({
+        success: false,
+        error: 'Database connection failed'
+      });
+
+      // Act
+      const response = await GET(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(400);
+      expect(data.error).toBe('Database connection failed');
+    });
+
+    it('should handle unexpected errors', async () => {
+      // Arrange
+      const request = new NextRequest('http://localhost/api/blog/posts');
+
+      mockBlogService.getPublishedPosts.mockRejectedValue(new Error('Unexpected error'));
+
+      // Act
+      const response = await GET(request);
+      const data = await response.json();
+
+      // Assert
+      expect(response.status).toBe(500);
+      expect(data.error).toBe('Internal server error');
+    });
+  });
+});
+```
+
+## Component Testing
+
+### React Component Test Pattern
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Header } from './index';
+
+describe('Header Component', () => {
+  const defaultProps = {
+    locale: 'en'
+  };
+
+  it('should render navigation links', () => {
+    render(<Header {...defaultProps} />);
+
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Blog')).toBeInTheDocument();
+    expect(screen.getByText('Contact')).toBeInTheDocument();
+  });
+
+  it('should toggle mobile menu on click', () => {
+    render(<Header {...defaultProps} />);
+
+    const menuButton = screen.getByRole('button', { name: /toggle menu/i });
+    fireEvent.click(menuButton);
+
+    expect(screen.getByTestId('mobile-menu')).toHaveClass('open');
+  });
+
+  it('should handle scroll behavior', () => {
+    render(<Header {...defaultProps} />);
+
+    // Simulate scroll event
+    Object.defineProperty(window, 'pageYOffset', {
+      value: 150,
+      writable: true
+    });
+
+    fireEvent.scroll(window);
+
+    expect(screen.getByTestId('header')).toHaveClass('scrolled');
+  });
+});
+```
+
+## Integration Testing
+
+### Service Integration Test Pattern
+```typescript
+import { BlogService } from '@/services/blog.service';
+import { dbConnect } from '@/lib/db';
+import { BlogPost } from '@/models/BlogPost';
+
+describe('BlogService Integration Tests', () => {
+  let blogService: BlogService;
+
+  beforeAll(async () => {
+    await dbConnect();
+  });
+
+  beforeEach(() => {
+    blogService = new BlogService();
+  });
+
+  afterEach(async () => {
+    // Clean up test data
+    await BlogPost.deleteMany({ title: /test/i });
+  });
+
+  describe('createPost', () => {
+    it('should create and retrieve post successfully', async () => {
+      // Arrange
+      const postData = {
+        title: 'Test Integration Post',
+        slug: 'test-integration-post',
+        content: 'Test content',
+        locale: 'en',
+        status: 'published' as const
+      };
+
+      // Act - Create post
+      const createResult = await blogService.createPost(postData);
+      expect(createResult.success).toBe(true);
+
+      // Act - Retrieve post
+      const getResult = await blogService.getPost(postData.slug, postData.locale);
+
+      // Assert
+      expect(getResult.success).toBe(true);
+      expect(getResult.data?.title).toBe(postData.title);
+      expect(getResult.data?.slug).toBe(postData.slug);
+    });
+  });
+});
+```
+
+## Test Configuration
+
+### Jest Configuration
+```javascript
+// jest.config.js
+module.exports = {
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src'],
+  testMatch: [
+    '**/__tests__/**/*.+(ts|tsx|js)',
+    '**/*.(test|spec).+(ts|tsx|js)'
+  ],
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest'
+  },
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  moduleNameMapping: {
+    '^@/(.*)$': '<rootDir>/src/$1'
+  },
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.test.{ts,tsx}',
+    '!src/test-setup.ts'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    }
+  }
+};
+```
+
+## Testing Guidelines
+
+### Unit Testing Rules
+- **Test services and managers independently**
+- **Mock all external dependencies**
+- **Focus on business logic and edge cases**
+- **Use descriptive test names**
+
+### Integration Testing Rules
+- **Test actual database operations**
+- **Test service + manager interactions**
+- **Use test database/environment**
+- **Clean up test data**
+
+### API Testing Rules
+- **Test HTTP request/response flow**
+- **Mock service layer dependencies**
+- **Test error handling and status codes**
+- **Validate response formats**
+
+### Coverage Requirements
+- **Services**: 90% coverage minimum
+- **Managers**: 85% coverage minimum
+- **API Routes**: 80% coverage minimum
+- **Components**: 75% coverage minimum
+
+## Mock Patterns
+
+### Service Mocking
+```typescript
+// Mock entire service
+jest.mock('@/services/blog.service', () => ({
+  blogService: {
+    getPost: jest.fn(),
+    createPost: jest.fn(),
+    updatePost: jest.fn()
+  }
+}));
+
+// Partial service mock
+const mockGetPost = jest.fn();
+jest.mock('@/services/blog.service', () => ({
+  BlogService: jest.fn().mockImplementation(() => ({
+    getPost: mockGetPost
+  }))
+}));
+```
+
+### Database Mocking
+```typescript
+// Mock database connection
+jest.mock('@/lib/db', () => ({
+  dbConnect: jest.fn().mockResolvedValue(undefined)
+}));
+
+// Mock model operations
+jest.mock('@/models/BlogPost', () => ({
+  BlogPost: {
+    findOne: jest.fn(),
+    create: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+    findByIdAndDelete: jest.fn()
+  }
+}));
+```
