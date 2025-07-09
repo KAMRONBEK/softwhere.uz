@@ -10,36 +10,28 @@ const nextIntlMiddleware = createMiddleware({
 export default function middleware(req: NextRequest): NextResponse {
   const { pathname } = req.nextUrl;
 
-  // Skip middleware for API routes, static files, and special files
+  // Skip middleware for static files, API routes, and special files
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
-    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/favicon') ||
     pathname.startsWith('/icons/') ||
     pathname.startsWith('/images/') ||
-    pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|txt|xml|json)$/)
+    pathname.startsWith('/robots.txt') ||
+    pathname.startsWith('/sitemap.xml') ||
+    pathname.startsWith('/llms') ||
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
 
-  // Handle llms.txt files directly without locale processing
-  if (pathname === '/llms.txt' || pathname === '/llms-full.txt') {
-    return NextResponse.rewrite(new URL(pathname, req.url));
-  }
-
-  // Handle robots.txt and sitemap.xml
-  if (pathname === '/robots.txt' || pathname === '/sitemap.xml') {
-    return NextResponse.next();
-  }
-
+  // Apply internationalization middleware
   return nextIntlMiddleware(req);
 }
 
 export const config = {
   matcher: [
-    // Match all routes except excluded ones
-    '/((?!api|_next|.*\\..*|llms.*\\.txt|robots\\.txt|sitemap\\.xml|favicon\\.ico).*)',
-    // Include home page
-    '/',
+    // Skip all internal paths (_next, api, etc.)
+    '/((?!api|_next|.*\\..*|robots\\.txt|sitemap\\.xml|favicon|icons|images|llms).*)',
   ],
 };
