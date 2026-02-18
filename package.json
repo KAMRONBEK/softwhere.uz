@@ -3,15 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "yarn env:pull:development && next dev",
+    "build": "yarn env:pull:development && next build",
+    "start": "yarn env:pull:development && next start",
+    "dev:production": "yarn env:pull:production && next dev",
+    "build:production": "yarn env:pull:production && next build",
+    "start:production": "yarn env:pull:production && next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "normalize-line-endings": "git add --renormalize ."
+    "normalize-line-endings": "git add --renormalize .",
+    "env:pull:production": "npx vercel env pull .env --environment production --yes",
+    "env:pull:development": "npx vercel env pull .env --environment development --yes"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
