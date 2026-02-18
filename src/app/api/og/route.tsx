@@ -8,6 +8,7 @@ export async function GET(request: Request) {
     const title = url.searchParams.get('title') || 'SoftWhere.uz - Mobile App & Web Development';
     const localeParam = url.searchParams.get('locale');
     const locale = localeParam && ['en', 'ru', 'uz'].includes(localeParam) ? localeParam : 'en';
+    const imageUrl = url.searchParams.get('image');
 
     const localizedSubtitle = {
       en: 'Mobile Apps • Web Development • Telegram Bots',
@@ -15,28 +16,55 @@ export async function GET(request: Request) {
       uz: 'Mobil ilovalar • Veb ishlab chiqish • Telegram botlar',
     };
 
+    const backgroundStyle: React.CSSProperties = imageUrl
+      ? {
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          backgroundImage: `url(${imageUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }
+      : {
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: '#1f2937',
+          backgroundImage: 'linear-gradient(45deg, #fe4502, #ff5f24)',
+        };
+
     return new ImageResponse(
       (
-        <div
-          style={{
-            height: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#1f2937',
-            backgroundImage: 'linear-gradient(45deg, #fe4502, #ff5f24)',
-          }}
-        >
+        <div style={backgroundStyle}>
+          {imageUrl && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%)',
+                display: 'flex',
+              }}
+            />
+          )}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: imageUrl ? 'flex-start' : 'center',
               justifyContent: 'center',
-              padding: '40px',
-              textAlign: 'center',
+              padding: imageUrl ? '40px 60px' : '40px',
+              textAlign: imageUrl ? 'left' : 'center',
+              position: 'relative',
+              width: '100%',
             }}
           >
             <h1
@@ -47,7 +75,7 @@ export async function GET(request: Request) {
                 marginBottom: '20px',
                 maxWidth: '900px',
                 lineHeight: 1.2,
-                textAlign: 'center',
+                textShadow: imageUrl ? '0 2px 10px rgba(0,0,0,0.5)' : 'none',
               }}
             >
               {title}
@@ -56,23 +84,25 @@ export async function GET(request: Request) {
               style={{
                 fontSize: '24px',
                 color: 'rgba(255, 255, 255, 0.9)',
-                marginBottom: '30px',
+                marginBottom: imageUrl ? '10px' : '30px',
                 fontWeight: '600',
               }}
             >
               SoftWhere.uz
             </p>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                fontSize: '18px',
-                color: 'rgba(255, 255, 255, 0.8)',
-                fontWeight: '500',
-              }}
-            >
-              {localizedSubtitle[locale as keyof typeof localizedSubtitle]}
-            </div>
+            {!imageUrl && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '18px',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  fontWeight: '500',
+                }}
+              >
+                {localizedSubtitle[locale as keyof typeof localizedSubtitle]}
+              </div>
+            )}
           </div>
         </div>
       ),

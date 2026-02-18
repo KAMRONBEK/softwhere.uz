@@ -1,8 +1,9 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { verifyApiSecret } from '@/utils/auth';
+import { getCoverImageForTopic } from '@/utils/unsplash';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
 // Ensure API keys and URI are set
@@ -22,7 +23,7 @@ if (!process.env.API_SECRET) {
 // Initialize the Google Generative AI client (only if API key exists)
 const genAI = process.env.GOOGLE_API_KEY ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY) : null;
 // Pass model name in an object
-const model = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI?.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 const _TARGET_LOCALES: Array<'en' | 'ru' | 'uz'> = ['en', 'ru', 'uz'];
 
@@ -405,58 +406,31 @@ Make this content unique, valuable, and comprehensive. Avoid generic advice and 
   try {
     console.log(`Generating content for topic: "${topic}" in locale: ${locale}`);
 
-    // Using OpenAI API (you can replace with any AI service)
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert content writer and SEO specialist with deep knowledge of technology, software development, and digital marketing. You create comprehensive, engaging blog posts that rank well in search engines and provide exceptional value to readers. You understand the Uzbekistan and Central Asian market dynamics and can create region-specific content that resonates with local businesses while maintaining global best practices.
-
-${locale === 'ru' ? 'Вы пишете на русском языке для русскоязычной аудитории.' : locale === 'uz' ? "Siz o'zbek tilida o'zbek tilida so'zlashuvchi auditoriya uchun yozasiz." : ''}`,
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        max_tokens: 8000,
-        temperature: 0.8,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-
-      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
-      throw new Error(`OpenAI API error: ${response.status}`);
+    if (!model) {
+      console.warn('Gemini model not initialized (GOOGLE_API_KEY missing), using fallback content');
+      return generateFallbackContent(topic, locale);
     }
 
-    const data = await response.json();
-    const generatedContent = data.choices[0].message.content;
+    const systemPrompt = `You are an expert content writer and SEO specialist with deep knowledge of technology, software development, and digital marketing. You create comprehensive, engaging blog posts that rank well in search engines and provide exceptional value to readers. You understand the Uzbekistan and Central Asian market dynamics and can create region-specific content that resonates with local businesses while maintaining global best practices.
 
-    // Check if content is too short (likely fallback was used)
+${locale === 'ru' ? 'Вы пишете на русском языке для русскоязычной аудитории.' : locale === 'uz' ? "Siz o'zbek tilida o'zbek tilida so'zlashuvchi auditoriya uchun yozasiz." : ''}`;
+
+    const fullPrompt = `${systemPrompt}\n\n---\n\n${prompt}`;
+
+    const result = await model.generateContent(fullPrompt);
+    const generatedContent = (await result.response).text();
+
     const wordCount = generatedContent.split(/\s+/).length;
-
     console.log(`Generated content for ${locale}: ${wordCount} words`);
 
     if (wordCount < 500) {
       console.warn(`Generated content for ${locale} is too short (${wordCount} words), using fallback`);
-
       return generateFallbackContent(topic, locale);
     }
 
     return generatedContent;
   } catch (error) {
     console.error(`Error generating content for ${locale}:`, error);
-
-    // Fallback content if AI generation fails
     return generateFallbackContent(topic, locale);
   }
 }
@@ -477,7 +451,7 @@ The digital landscape in ${currentYear} has transformed how businesses operate, 
 In ${currentYear}, we're seeing unprecedented growth in digital adoption across Central Asia. According to [Statista](https://www.statista.com/outlook/dmo/digital-media/central-asia), the digital market in Central Asia is expected to grow by 15.2% annually. Businesses that invest in ${topic.toLowerCase()} are experiencing:
 
 - **40% higher customer engagement** compared to traditional approaches ([McKinsey Digital](https://www.mckinsey.com/capabilities/mckinsey-digital))
-- **Increased market reach** beyond geographical boundaries  
+- **Increased market reach** beyond geographical boundaries
 - **Improved operational efficiency** through digital transformation
 - **Better ROI** on marketing and development investments
 
@@ -1063,43 +1037,25 @@ export async function POST(request: NextRequest) {
     let selectedTopic: string;
 
     if (customTopic) {
-      // Normalize custom topic with AI to fix spelling and improve clarity
       try {
-        const normalizeResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [
-              {
-                role: 'system',
-                content:
-                  'You are a professional editor. Your job is to normalize blog post topics by fixing spelling errors, improving grammar, and making them more professional while keeping the original meaning. Return only the normalized topic, nothing else.',
-              },
-              {
-                role: 'user',
-                content: `Normalize this blog post topic for a mobile app and web development agency: "${customTopic}"`,
-              },
-            ],
-            max_tokens: 100,
-            temperature: 0.3,
-          }),
-        });
+        if (model) {
+          const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic, nothing else.
 
-        if (normalizeResponse.ok) {
-          const normalizeData = await normalizeResponse.json();
-
-          selectedTopic = normalizeData.choices[0].message.content.trim();
-          console.log(`Normalized topic: "${customTopic}" -> "${selectedTopic}"`);
+Topic: "${customTopic}"`;
+          const normalizeResult = await model.generateContent(normalizePrompt);
+          const normalized = (await normalizeResult.response).text().trim();
+          if (normalized) {
+            selectedTopic = normalized.replace(/^"|"$/g, '');
+            console.log(`Normalized topic: "${customTopic}" -> "${selectedTopic}"`);
+          } else {
+            selectedTopic = customTopic;
+          }
         } else {
-          selectedTopic = customTopic; // Fallback to original if normalization fails
+          selectedTopic = customTopic;
         }
       } catch (error) {
         console.error('Error normalizing topic:', error);
-        selectedTopic = customTopic; // Fallback to original
+        selectedTopic = customTopic;
       }
     } else {
       // If category is 'random', select from all categories
@@ -1119,6 +1075,9 @@ export async function POST(request: NextRequest) {
 
     const generationGroupId = uuidv4();
     const createdPosts = [];
+
+    // Fetch a cover image once for the entire generation group (Unsplash only)
+    const coverImage = await getCoverImageForTopic(selectedTopic);
 
     // Generate posts for each requested locale
     for (const locale of locales) {
@@ -1141,7 +1100,6 @@ export async function POST(request: NextRequest) {
             }
           } catch (titleError) {
             console.error(`Error translating title for ${locale}:`, titleError);
-            // Keep English title as fallback
           }
         }
 
@@ -1154,6 +1112,7 @@ export async function POST(request: NextRequest) {
           status: 'draft',
           locale,
           generationGroupId,
+          ...(coverImage && { coverImage }),
         });
 
         const savedPost = await blogPost.save();

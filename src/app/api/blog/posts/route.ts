@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
       const localeParam = request.nextUrl.searchParams.get('locale');
 
-      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale'>;
+      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale' | 'coverImage'>;
 
       const query: Record<string, string> = { status: 'published' };
 
@@ -31,13 +31,11 @@ export async function GET(request: NextRequest) {
         query.locale = localeParam;
       }
 
-      // Fetch only published posts, sorted by creation date (newest first)
-      // Add limit for better performance on Vercel
       const posts: PublishedPostSummary[] = await BlogPost.find(query)
         .sort({ createdAt: -1 })
-        .select('title slug createdAt locale') // Include locale in the response
-        .limit(50) // Add limit for performance
-        .lean(); // Use .lean() for plain JS objects if not modifying
+        .select('title slug createdAt locale coverImage')
+        .limit(50)
+        .lean();
 
       return posts;
     };

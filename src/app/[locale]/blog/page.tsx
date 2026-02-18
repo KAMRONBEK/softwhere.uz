@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { AdminDescription, AdminLoading, AdminSectionTitle } from '@/components/AdminComponents/index';
+import { CoverImage } from '@/types';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
-import { AdminSectionTitle, AdminDescription, AdminLoading } from '@/components/AdminComponents/index';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface BlogPostSummary {
   title: string;
   slug: string;
   createdAt: string;
   locale: string;
+  coverImage?: CoverImage;
 }
 
 export default function BlogPage({ params }: { params: { locale: string } }) {
@@ -85,6 +88,35 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
                 key={post.slug}
                 className='bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100'
               >
+                <Link href={`/${locale}/blog/${post.slug}`} className='block relative h-48 overflow-hidden'>
+                  {post.coverImage?.thumbUrl ? (
+                    <>
+                      <Image
+                        src={post.coverImage.thumbUrl}
+                        alt={post.title}
+                        fill
+                        className='object-cover transition-transform duration-300 hover:scale-105'
+                        sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                      />
+                      <span className='absolute bottom-2 right-2 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded'>
+                        Photo by{' '}
+                        <a
+                          href={`${post.coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='underline'
+                          onClick={e => e.stopPropagation()}
+                        >
+                          {post.coverImage.authorName}
+                        </a>
+                      </span>
+                    </>
+                  ) : (
+                    <div className='w-full h-full bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
+                      <span className='text-white/80 text-4xl font-bold'>{post.title.charAt(0)}</span>
+                    </div>
+                  )}
+                </Link>
                 <div className='p-6'>
                   <h2 className='text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-tight'>
                     <Link href={`/${locale}/blog/${post.slug}`} className='hover:text-[#fe4502] transition-colors duration-300'>
@@ -92,7 +124,7 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
                     </Link>
                   </h2>
                   <div className='text-sm text-gray-500 mb-4 font-medium'>{format(new Date(post.createdAt), 'MMMM dd, yyyy')}</div>
-                  <div className='mt-6'>
+                  <div className='mt-4'>
                     <Link
                       href={`/${locale}/blog/${post.slug}`}
                       className='inline-flex items-center text-[#fe4502] hover:text-[#ff5f24] font-semibold text-sm transition-colors duration-300'
