@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "yarn env:pull:development && next dev",
-    "build": "yarn env:pull:development && next build",
+    "build": "next build",
     "start": "yarn env:pull:development && next start",
     "dev:production": "yarn env:pull:production && next dev",
-    "build:production": "yarn env:pull:production && next build",
+    "build:production": "next build",
     "start:production": "yarn env:pull:production && next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
