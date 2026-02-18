@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/Button';
+import { adminFetch } from '@/utils/adminFetch';
 
 export default function NewPostPage({ params }: { params: { locale: string } }) {
   const router = useRouter();
@@ -35,11 +36,8 @@ export default function NewPostPage({ params }: { params: { locale: string } }) 
         locale: postLocale,
       };
 
-      const res = await fetch('/api/admin/posts', {
+      const res = await adminFetch('/api/admin/posts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(postData),
       });
 

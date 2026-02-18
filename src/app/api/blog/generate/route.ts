@@ -1,10 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
-// Changed back to standard import for slugify
-// import slugify from 'slugify';
-// const slugify = require('slugify'); // Previous workaround
-import dbConnect from '@/lib/db'; // Adjust path if necessary
-import BlogPost from '@/models/BlogPost'; // Adjust path if necessary
+import dbConnect from '@/lib/db';
+import BlogPost from '@/models/BlogPost';
+import { verifyApiSecret } from '@/utils/auth';
 import { v4 as uuidv4 } from 'uuid';
 
 // Ensure API keys and URI are set
@@ -1032,13 +1030,32 @@ function createSlug(title: string): string {
   );
 }
 
+const ALLOWED_LOCALES = ['en', 'ru', 'uz'];
+const MAX_CUSTOM_TOPIC_LENGTH = 200;
+
 export async function POST(request: NextRequest) {
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
+
   try {
     const body = await request.json();
     const { category, customTopic, locales = ['en', 'ru', 'uz'] } = body;
 
     if (!category && !customTopic) {
       return NextResponse.json({ error: 'Either category or customTopic is required' }, { status: 400 });
+    }
+
+    if (customTopic && typeof customTopic === 'string' && customTopic.length > MAX_CUSTOM_TOPIC_LENGTH) {
+      return NextResponse.json({ error: `customTopic must be ${MAX_CUSTOM_TOPIC_LENGTH} characters or fewer` }, { status: 400 });
+    }
+
+    if (!Array.isArray(locales) || locales.length === 0 || locales.length > 3) {
+      return NextResponse.json({ error: 'locales must be an array of 1-3 items' }, { status: 400 });
+    }
+
+    const invalidLocales = locales.filter((l: string) => !ALLOWED_LOCALES.includes(l));
+    if (invalidLocales.length > 0) {
+      return NextResponse.json({ error: `Invalid locales: ${invalidLocales.join(', ')}` }, { status: 400 });
     }
 
     await dbConnect();

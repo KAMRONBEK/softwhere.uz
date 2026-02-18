@@ -1,6 +1,7 @@
 'use client';
 
 import { AdminBadge, AdminButton, AdminInput, AdminLoading, AdminSelect } from '@/components/AdminComponents/index';
+import { adminFetch } from '@/utils/adminFetch';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -122,7 +123,7 @@ export default function AdminPostsPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/posts');
+      const response = await adminFetch('/api/admin/posts');
 
       if (response.ok) {
         const data = await response.json();
@@ -139,11 +140,8 @@ export default function AdminPostsPage() {
   const generatePosts = async () => {
     try {
       setGenerating(true);
-      const response = await fetch('/api/blog/generate', {
+      const response = await adminFetch('/api/blog/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(generationForm),
       });
 
@@ -169,11 +167,8 @@ export default function AdminPostsPage() {
   const updateGroupStatus = async (group: PostGroup, status: 'draft' | 'published') => {
     try {
       const promises = group.posts.map(post =>
-        fetch(`/api/admin/posts/${post._id}`, {
+        adminFetch(`/api/admin/posts/${post._id}`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           body: JSON.stringify({ status }),
         })
       );
@@ -198,7 +193,7 @@ export default function AdminPostsPage() {
 
     try {
       const promises = group.posts.map(post =>
-        fetch(`/api/admin/posts/${post._id}`, {
+        adminFetch(`/api/admin/posts/${post._id}`, {
           method: 'DELETE',
         })
       );

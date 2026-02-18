@@ -1,12 +1,12 @@
 import { logger } from '@/core/logger';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { verifyApiSecret } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-// TODO: Add authentication/authorization check here
-
-export async function GET(_request: NextRequest) {
-  // In a real app, verify user is authenticated and authorized admin here
+export async function GET(request: NextRequest) {
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
   const startTime = Date.now();
 
   try {
@@ -62,7 +62,8 @@ export async function GET(_request: NextRequest) {
 
 // POST handler to create a new blog post
 export async function POST(request: NextRequest) {
-  // In a real app, verify user is authenticated and authorized admin here
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
 
   try {
     const body = await request.json();

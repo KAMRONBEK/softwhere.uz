@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/Button';
+import { adminFetch } from '@/utils/adminFetch';
 
 interface PostData {
   _id: string;
@@ -39,7 +40,7 @@ export default function EditPostPage({ params }: { params: { locale: string; pos
     async function loadPost() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/admin/posts/${postId}`);
+        const res = await adminFetch(`/api/admin/posts/${postId}`);
 
         if (!res.ok) {
           const errorData = await res.json();
@@ -85,11 +86,8 @@ export default function EditPostPage({ params }: { params: { locale: string; pos
         locale: postLocale,
       };
 
-      const res = await fetch(`/api/admin/posts/${postId}`, {
+      const res = await adminFetch(`/api/admin/posts/${postId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(updateData),
       });
 

@@ -5,14 +5,34 @@ import { EstimatorInput } from '@/types/estimator';
 import { calculateEstimate } from '@/utils/estimator';
 import { NextRequest, NextResponse } from 'next/server';
 
+const VALID_PROJECT_TYPES = ['mobile', 'web', 'telegram', 'desktop', 'other'];
+const VALID_COMPLEXITIES = ['mvp', 'standard', 'enterprise'];
+const MAX_PAGES = 500;
+const MAX_FEATURES = 50;
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const input = body as EstimatorInput;
 
-    // Validate the input
     if (!input.projectType || !input.complexity || input.pages === undefined) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (!VALID_PROJECT_TYPES.includes(input.projectType)) {
+      return NextResponse.json({ error: 'Invalid projectType' }, { status: 400 });
+    }
+
+    if (!VALID_COMPLEXITIES.includes(input.complexity)) {
+      return NextResponse.json({ error: 'Invalid complexity' }, { status: 400 });
+    }
+
+    if (typeof input.pages !== 'number' || input.pages < 1 || input.pages > MAX_PAGES) {
+      return NextResponse.json({ error: `pages must be between 1 and ${MAX_PAGES}` }, { status: 400 });
+    }
+
+    if (input.features && (!Array.isArray(input.features) || input.features.length > MAX_FEATURES)) {
+      return NextResponse.json({ error: `features must be an array of up to ${MAX_FEATURES} items` }, { status: 400 });
     }
 
     // Calculate the formula-based estimate first as a fallback

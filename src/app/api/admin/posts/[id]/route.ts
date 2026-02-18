@@ -1,13 +1,13 @@
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { verifyApiSecret } from '@/utils/auth';
 import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
-// TODO: Add authentication/authorization check here
-
-// GET handler to fetch a single post by ID
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  // In a real app, verify user is authenticated and authorized admin here
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
+
   const { id } = params;
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -36,7 +36,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
 // PUT handler to update a single post
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
-  // In a real app, verify user is authenticated and authorized admin here
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
+
   const { id } = params;
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -115,14 +117,41 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
+const PATCH_ALLOWED_FIELDS = ['status', 'title', 'content', 'slug', 'locale'] as const;
+
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
+
   try {
     const { id } = params;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
+    }
+
     const body = await request.json();
+
+    const update: Record<string, unknown> = {};
+    for (const field of PATCH_ALLOWED_FIELDS) {
+      if (field in body) update[field] = body[field];
+    }
+
+    if (Object.keys(update).length === 0) {
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+    }
+
+    if (update.status && !['draft', 'published'].includes(update.status as string)) {
+      return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
+    }
+
+    if (update.locale && !['en', 'ru', 'uz'].includes(update.locale as string)) {
+      return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
+    }
 
     await dbConnect();
 
-    const updatedPost = await BlogPost.findByIdAndUpdate(id, body, {
+    const updatedPost = await BlogPost.findByIdAndUpdate(id, update, {
       new: true,
       runValidators: true,
     });
@@ -143,8 +172,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const authError = verifyApiSecret(request);
+  if (authError) return authError;
+
   try {
     const { id } = params;
+
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
+    }
 
     await dbConnect();
 
@@ -164,5 +200,3 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
-
-// TODO: Add DELETE handler here later for deleting the post

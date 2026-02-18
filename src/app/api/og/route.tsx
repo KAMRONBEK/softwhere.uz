@@ -6,7 +6,8 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const title = url.searchParams.get('title') || 'SoftWhere.uz - Mobile App & Web Development';
-    const locale = url.searchParams.get('locale') || 'en';
+    const localeParam = url.searchParams.get('locale');
+    const locale = localeParam && ['en', 'ru', 'uz'].includes(localeParam) ? localeParam : 'en';
 
     const localizedSubtitle = {
       en: 'Mobile Apps • Web Development • Telegram Bots',

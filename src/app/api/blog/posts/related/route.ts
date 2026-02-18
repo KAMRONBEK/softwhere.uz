@@ -1,7 +1,10 @@
 import { logger } from '@/core/logger';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { isValidLocale } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
+
+const MAX_GROUP_ID_LENGTH = 128;
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,17 +12,23 @@ export async function GET(request: NextRequest) {
     const generationGroupId = searchParams.get('generationGroupId');
     const targetLocale = searchParams.get('locale');
 
+    if (!generationGroupId || !targetLocale) {
+      return NextResponse.json({ error: 'generationGroupId and locale are required' }, { status: 400 });
+    }
+
+    if (!isValidLocale(targetLocale)) {
+      return NextResponse.json({ error: 'Invalid locale. Allowed: en, ru, uz' }, { status: 400 });
+    }
+
+    if (typeof generationGroupId !== 'string' || generationGroupId.length > MAX_GROUP_ID_LENGTH) {
+      return NextResponse.json({ error: 'Invalid generationGroupId' }, { status: 400 });
+    }
+
     logger.info(
       `Finding related post for generationGroupId: ${generationGroupId}, locale: ${targetLocale}`,
       undefined,
       'RELATED_POSTS_API'
     );
-
-    if (!generationGroupId || !targetLocale) {
-      logger.warn('Missing required parameters: generationGroupId and locale are required', undefined, 'RELATED_POSTS_API');
-
-      return NextResponse.json({ error: 'generationGroupId and locale are required' }, { status: 400 });
-    }
 
     await dbConnect();
 
