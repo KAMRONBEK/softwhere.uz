@@ -3,6 +3,8 @@ import BlogPost, { IBlogPost } from '@/models/BlogPost';
 import { isValidLocale } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
