@@ -1,12 +1,12 @@
-import dbConnect from '@/lib/db'; // Adjust path if necessary
-import BlogPost, { IBlogPost } from '@/models/BlogPost'; // Adjust path if necessary
+import dbConnect from '@/lib/db';
+import BlogPost, { IBlogPost } from '@/models/BlogPost';
+import { isValidLocale } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    // Add timeout wrapper for the entire operation
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => {
         reject(new Error('API operation timeout after 25 seconds'));
@@ -16,17 +16,17 @@ export async function GET(request: NextRequest) {
     const operationPromise = async () => {
       await dbConnect();
 
-      // Get locale from query params, defaulting to all if not specified
-      const locale = request.nextUrl.searchParams.get('locale');
+      const localeParam = request.nextUrl.searchParams.get('locale');
 
-      // Define the type for the selected fields
       type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale'>;
 
-      // Build query - filter by locale if provided
-      const query: any = { status: 'published' };
+      const query: Record<string, string> = { status: 'published' };
 
-      if (locale) {
-        query.locale = locale;
+      if (localeParam) {
+        if (!isValidLocale(localeParam)) {
+          throw new Error('INVALID_LOCALE');
+        }
+        query.locale = localeParam;
       }
 
       // Fetch only published posts, sorted by creation date (newest first)
@@ -51,6 +51,10 @@ export async function GET(request: NextRequest) {
     const duration = Date.now() - startTime;
 
     console.error(`Error fetching published blog posts after ${duration}ms:`, error);
+
+    if (error.message === 'INVALID_LOCALE') {
+      return NextResponse.json({ error: 'Invalid locale. Allowed: en, ru, uz' }, { status: 400 });
+    }
 
     return NextResponse.json(
       {

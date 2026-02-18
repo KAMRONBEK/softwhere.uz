@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { validateLocale } from '@/utils/auth';
 
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   const { slug } = params;
   const startTime = Date.now();
 
-  // Get locale from query string, defaulting to "en"
-  const locale = request.nextUrl.searchParams.get('locale') || 'en';
+  const locale = validateLocale(request.nextUrl.searchParams.get('locale'), 'en');
 
   if (!slug) {
     return NextResponse.json({ error: 'Slug is required' }, { status: 400 });
