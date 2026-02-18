@@ -13,6 +13,7 @@ interface BlogPost {
   status: 'draft' | 'published';
   locale: 'en' | 'ru' | 'uz';
   generationGroupId?: string;
+  coverImage?: { url: string; thumbUrl: string; authorName: string; authorUrl: string; keyword: string };
   createdAt: string;
   updatedAt: string;
 }
@@ -568,8 +569,20 @@ export default function AdminPostsPage() {
               </div>
 
               {/* Modal Content */}
-              <div className='overflow-y-auto max-h-[60vh] p-8 bg-white'>
-                <article className='prose prose-lg max-w-none'>
+              <div className='overflow-y-auto max-h-[60vh] bg-white'>
+                {selectedPost.coverImage?.url && (
+                  <div className='relative w-full h-48 md:h-64 bg-gray-100'>
+                    <img
+                      src={selectedPost.coverImage.url}
+                      alt={selectedPost.title}
+                      className='w-full h-full object-cover'
+                    />
+                    <span className='absolute bottom-2 right-3 text-[10px] text-white/80 bg-black/40 px-2 py-1 rounded'>
+                      Photo by {selectedPost.coverImage.authorName}
+                    </span>
+                  </div>
+                )}
+                <article className='prose prose-lg max-w-none p-8'>
                   <div
                     className='text-gray-800 leading-relaxed'
                     dangerouslySetInnerHTML={{

@@ -4,6 +4,8 @@ import { Metadata } from 'next';
 
 import { getTranslations } from 'next-intl/server';
 
+import Image from 'next/image';
+
 import Link from 'next/link';
 
 import { notFound } from 'next/navigation';
@@ -15,6 +17,8 @@ import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 
 import BlogPostClient from '@/components/BlogPostClient';
+
+import { CoverImage } from '@/types';
 
 interface BlogPost {
   _id: string;
@@ -30,6 +34,8 @@ interface BlogPost {
   locale: 'en' | 'ru' | 'uz';
 
   generationGroupId?: string;
+
+  coverImage?: CoverImage;
 
   createdAt: string;
 
@@ -149,7 +155,9 @@ export async function generateMetadata({ params }: { params: { locale: string; s
 
       images: [
         {
-          url: `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
+          url: post.coverImage?.url
+            ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}&image=${encodeURIComponent(post.coverImage.url)}`
+            : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
 
           width: 1200,
 
@@ -167,7 +175,11 @@ export async function generateMetadata({ params }: { params: { locale: string; s
 
       description,
 
-      images: [`${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`],
+      images: [
+        post.coverImage?.url
+          ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}&image=${encodeURIComponent(post.coverImage.url)}`
+          : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
+      ],
     },
 
     alternates: {
@@ -198,7 +210,7 @@ function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
 
     description: extractDescription(post.content),
 
-    image: `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
+    image: post.coverImage?.url || `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
 
     author: {
       '@type': 'Organization',
@@ -310,6 +322,36 @@ export default async function BlogPostPage({ params }: { params: { locale: strin
             </Link>
           </div>
         </header>
+
+        {/* Hero cover image */}
+        {post.coverImage?.url && (
+          <div className='relative w-full h-64 md:h-96'>
+            <Image
+              src={post.coverImage.url}
+              alt={post.title}
+              fill
+              priority
+              className='object-cover'
+              sizes='100vw'
+            />
+            <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent' />
+            <span className='absolute bottom-3 right-4 text-xs text-white/80 bg-black/30 px-2 py-1 rounded'>
+              Photo by{' '}
+              <a
+                href={`${post.coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='underline'
+              >
+                {post.coverImage.authorName}
+              </a>
+              {' on '}
+              <a href='https://unsplash.com?utm_source=softwhere&utm_medium=referral' target='_blank' rel='noopener noreferrer' className='underline'>
+                Unsplash
+              </a>
+            </span>
+          </div>
+        )}
 
         {/* Main content */}
 

@@ -1,6 +1,15 @@
 // Locale Types
 export type Locale = 'en' | 'ru' | 'uz';
 
+// Cover Image Types
+export interface CoverImage {
+  url: string;
+  thumbUrl: string;
+  authorName: string;
+  authorUrl: string;
+  keyword: string;
+}
+
 // Blog Post Types
 export interface BlogPost {
   _id: string;
@@ -10,6 +19,7 @@ export interface BlogPost {
   status: 'draft' | 'published';
   locale: Locale;
   generationGroupId?: string;
+  coverImage?: CoverImage;
   createdAt: string;
   updatedAt: string;
 }

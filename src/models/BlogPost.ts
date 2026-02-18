@@ -1,6 +1,14 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
 // Define the structure of a BlogPost document
+export interface ICoverImage {
+  url: string;
+  thumbUrl: string;
+  authorName: string;
+  authorUrl: string;
+  keyword: string;
+}
+
 export interface IBlogPost extends Document {
   title: string;
   slug: string;
@@ -8,13 +16,9 @@ export interface IBlogPost extends Document {
   status: 'draft' | 'published';
   locale: 'en' | 'ru' | 'uz';
   generationGroupId?: string;
+  coverImage?: ICoverImage;
   createdAt: Date;
   updatedAt: Date;
-  // Add other fields as needed, e.g.:
-  // author?: Schema.Types.ObjectId | IUser; // Example if referencing a User model
-  // tags?: string[];
-  // featuredImage?: string;
-  // metaDescription?: string;
 }
 
 const BlogPostSchema = new Schema<IBlogPost>(
@@ -48,6 +52,13 @@ const BlogPostSchema = new Schema<IBlogPost>(
       type: String,
       index: true,
       sparse: true,
+    },
+    coverImage: {
+      url: String,
+      thumbUrl: String,
+      authorName: String,
+      authorUrl: String,
+      keyword: String,
     },
   },
   {

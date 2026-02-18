@@ -3,20 +3,20 @@ import { logger } from './logger';
 interface EnvConfig {
   MONGODB_URI: string;
   GOOGLE_API_KEY?: string;
-  OPENAI_API_KEY?: string;
   API_SECRET?: string;
+  UNSPLASH_ACCESS_KEY?: string;
   NODE_ENV: string;
 }
 
 const requiredEnvVars = ['MONGODB_URI'] as const;
-const optionalEnvVars = ['GOOGLE_API_KEY', 'OPENAI_API_KEY', 'API_SECRET'] as const;
+const optionalEnvVars = ['GOOGLE_API_KEY', 'API_SECRET', 'UNSPLASH_ACCESS_KEY'] as const;
 
 export function validateEnvironment(): EnvConfig {
   const env: Partial<EnvConfig> = {
     MONGODB_URI: process.env.MONGODB_URI,
     GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     API_SECRET: process.env.API_SECRET,
+    UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY,
     NODE_ENV: process.env.NODE_ENV || 'development',
   };
 
