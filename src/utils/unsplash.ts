@@ -1,14 +1,12 @@
 import { ICoverImage } from '@/models/BlogPost';
-import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from '@google/generative-ai';
+import { safeGenerateContent } from './ai';
 import { logger } from './logger';
 
 const UNSPLASH_API = 'https://api.unsplash.com';
 const FETCH_TIMEOUT_MS = 5000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const MAX_UNSPLASH_CALLS = 10;
-const MAX_GEMINI_CALLS = 10;
 
-// In-memory sliding window rate limiter
 class RateLimiter {
   private timestamps: number[] = [];
   private readonly maxCalls: number;
@@ -31,7 +29,6 @@ class RateLimiter {
 }
 
 const unsplashLimiter = new RateLimiter(MAX_UNSPLASH_CALLS, RATE_LIMIT_WINDOW_MS);
-const geminiLimiter = new RateLimiter(MAX_GEMINI_CALLS, RATE_LIMIT_WINDOW_MS);
 
 function sanitizeKeyword(keyword: string): string {
   return keyword
@@ -41,80 +38,31 @@ function sanitizeKeyword(keyword: string): string {
     .slice(0, 100);
 }
 
-/** Fallback when Gemini fails: extract searchable keywords from title */
+/** Ask Gemini for a visual keyword (returns null when quota-blocked or unavailable). */
+async function generateImageKeyword(title: string): Promise<string | null> {
+  const prompt = `Return 2-3 English keywords for a stock photo that would visually represent this blog topic: "${title}". Focus on visual concepts a photographer would capture, not technical jargon. Only output the keywords, space-separated.`;
+  const text = await safeGenerateContent(prompt, 'image-keyword');
+  if (!text) return null;
+  const keyword = sanitizeKeyword(text.trim());
+  return keyword || null;
+}
+
+/** Deterministic fallback: derive image-friendly keywords from title */
 function extractFallbackKeyword(title: string): string {
   const stopWords = new Set([
     'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
     'vs', 'versus', 'what', 'how', 'why', 'when', 'where', 'which', 'that', 'this', 'it',
     'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does',
     'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'need',
+    'complete', 'guide', 'ultimate', 'best', 'top', 'new', 'your', 'our',
   ]);
   const words = title
     .toLowerCase()
     .replace(/[^a-zA-Z0-9\s-]/g, ' ')
     .split(/\s+/)
-    .filter(w => w.length > 2 && !stopWords.has(w));
-  const keyword = words.slice(0, 4).join(' ') || title.slice(0, 50);
+    .filter(w => w.length > 2 && !stopWords.has(w) && !/^\d+$/.test(w));
+  const keyword = words.slice(0, 3).join(' ') || title.slice(0, 50);
   return sanitizeKeyword(keyword) || 'technology';
-}
-
-async function generateImageKeyword(title: string): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_API_KEY;
-  if (!apiKey) {
-    logger.warn('GOOGLE_API_KEY not set, skipping keyword generation', undefined, 'UNSPLASH');
-    return null;
-  }
-
-  if (!geminiLimiter.canProceed()) {
-    logger.warn('Gemini rate limit reached, skipping keyword generation', undefined, 'UNSPLASH');
-    return null;
-  }
-
-  const prompt = `Return 2-3 English keywords for a stock photo about: "${title}". Only output the keywords, space-separated.`;
-
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 50,
-        },
-        safetySettings: [
-          { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-          { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-        ],
-      });
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-
-      let text: string;
-      try {
-        text = response.text();
-      } catch (textError) {
-        logger.warn(`Gemini response blocked or empty (attempt ${attempt})`, undefined, 'UNSPLASH');
-        if (attempt === 2) return null;
-        continue;
-      }
-
-      geminiLimiter.record();
-      const keyword = sanitizeKeyword(text.trim());
-      if (!keyword) {
-        logger.warn('Gemini returned empty keyword after sanitize', undefined, 'UNSPLASH');
-        return null;
-      }
-      logger.info(`Generated image keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
-      return keyword;
-    } catch (error) {
-      logger.error(`Gemini keyword generation failed (attempt ${attempt})`, error, 'UNSPLASH');
-      if (attempt === 2) return null;
-    }
-  }
-  return null;
 }
 
 interface UnsplashPhoto {
@@ -125,7 +73,7 @@ interface UnsplashPhoto {
 async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, 'keyword'> | null> {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!accessKey) {
-    console.warn('[Unsplash] UNSPLASH_ACCESS_KEY not set in .env — add it for cover images');
+    logger.warn('UNSPLASH_ACCESS_KEY not set — add it for cover images', undefined, 'UNSPLASH');
     return null;
   }
 
@@ -179,14 +127,16 @@ async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, '
 
 /**
  * Generates a cover image for a blog post topic.
- * Uses Unsplash only. Returns null if Unsplash fails or UNSPLASH_ACCESS_KEY is missing.
+ * Uses AI for keyword generation when available, falls back to deterministic extraction.
  */
 export async function getCoverImageForTopic(title: string): Promise<ICoverImage | null> {
   try {
     let keyword = await generateImageKeyword(title);
     if (!keyword) {
       keyword = extractFallbackKeyword(title);
-      logger.info(`Using fallback keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
+      logger.info(`Fallback keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
+    } else {
+      logger.info(`AI keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
     }
 
     const image = await searchUnsplashImage(keyword);

@@ -87,7 +87,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 14
 
    ```env
    MONGODB_URI=your_mongodb_connection_string
-   GOOGLE_API_KEY=your_google_ai_api_key
+   DEEPSEEK_API_KEY=your_deepseek_api_key
    API_SECRET=your_api_secret_key
    UNSPLASH_ACCESS_KEY=your_unsplash_access_key (optional, for blog cover images)
    ```
