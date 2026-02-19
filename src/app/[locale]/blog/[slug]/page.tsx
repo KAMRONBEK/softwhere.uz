@@ -80,9 +80,7 @@ async function getBlogPost(
   locale: string
 ): Promise<BlogPost | null> {
   try {
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`;
     const url = `${baseUrl}/api/blog/posts/${slug}?locale=${locale}`;
 
     const response = await fetch(url, { cache: 'no-store' });
