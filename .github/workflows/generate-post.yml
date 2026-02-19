@@ -36,6 +36,7 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Generate blog post
         env:
