@@ -1,29 +1,21 @@
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { verifyApiSecret } from '@/utils/auth';
+import { safeGenerateContent, aiStats } from '@/utils/ai';
+import { logger } from '@/utils/logger';
 import { getCoverImageForTopic } from '@/utils/unsplash';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
-// Ensure API keys and URI are set
-if (!process.env.GOOGLE_API_KEY) {
-  console.error('FATAL ERROR: GOOGLE_API_KEY environment variable not set.');
-  // Optionally throw an error during build/startup if critical
-  // throw new Error("GOOGLE_API_KEY environment variable not set.");
+if (!process.env.DEEPSEEK_API_KEY) {
+  logger.error('DEEPSEEK_API_KEY environment variable not set', undefined, 'BLOG');
 }
 if (!process.env.MONGODB_URI) {
-  console.error('FATAL ERROR: MONGODB_URI environment variable not set.');
-  // throw new Error("MONGODB_URI environment variable not set.");
+  logger.error('MONGODB_URI environment variable not set', undefined, 'BLOG');
 }
 if (!process.env.API_SECRET) {
-  console.warn('API_SECRET environment variable not set. Blog generation endpoint is insecure.');
+  logger.warn('API_SECRET not set — blog generation endpoint is insecure', undefined, 'BLOG');
 }
-
-// Initialize the Google Generative AI client (only if API key exists)
-const genAI = process.env.GOOGLE_API_KEY ? new GoogleGenerativeAI(process.env.GOOGLE_API_KEY) : null;
-// Pass model name in an object
-const model = genAI?.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 const _TARGET_LOCALES: Array<'en' | 'ru' | 'uz'> = ['en', 'ru', 'uz'];
 
@@ -211,32 +203,24 @@ async function _generateLocalizedContent(
   baseContent: string,
   targetLocale: 'en' | 'ru' | 'uz'
 ): Promise<{ title: string; content: string }> {
-  if (!model) throw new Error('AI Model not initialized');
-
-  console.log(`Generating content for locale: ${targetLocale}...`);
-
   if (targetLocale === 'en') {
-    // No translation needed for English
     return { title: baseTitle, content: baseContent };
   }
 
-  // Generate Title Translation
-  const titlePrompt = `Translate the following blog post title into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}: "${baseTitle}". Only return the translated title.`;
-  const titleResult = await model.generateContent(titlePrompt);
-  const translatedTitle = (await titleResult.response).text().trim().replace(/^"|"$/g, '');
+  const lang = targetLocale === 'ru' ? 'Russian' : 'Uzbek';
 
+  const titlePrompt = `Translate the following blog post title into ${lang}: "${baseTitle}". Only return the translated title.`;
+  const translatedTitle = await safeGenerateContent(titlePrompt, `translate-title-${targetLocale}`);
   if (!translatedTitle) throw new Error(`Failed to translate title to ${targetLocale}`);
-  console.log(`   Translated Title (${targetLocale}): ${translatedTitle}`);
 
-  // Generate Content Translation
-  const contentPrompt = `Translate the following blog post content (which is in Markdown format) into ${targetLocale === 'ru' ? 'Russian' : 'Uzbek'}. Preserve the Markdown formatting (headings, lists, code blocks etc.). Only return the translated Markdown content.\n\nOriginal Content:\n${baseContent}`;
-  const contentResult = await model.generateContent(contentPrompt);
-  const translatedContent = (await contentResult.response).text().trim();
-
+  const contentPrompt = `Translate the following blog post content (which is in Markdown format) into ${lang}. Preserve the Markdown formatting (headings, lists, code blocks etc.). Only return the translated Markdown content.\n\nOriginal Content:\n${baseContent}`;
+  const translatedContent = await safeGenerateContent(contentPrompt, `translate-content-${targetLocale}`);
   if (!translatedContent) throw new Error(`Failed to translate content to ${targetLocale}`);
-  console.log(`   Translated Content Snippet (${targetLocale}): ${translatedContent.substring(0, 100)}...`);
 
-  return { title: translatedTitle, content: translatedContent };
+  return {
+    title: translatedTitle.trim().replace(/^"|"$/g, ''),
+    content: translatedContent.trim(),
+  };
 }
 
 // Function to select dynamic content template based on topic
@@ -403,36 +387,29 @@ CONTENT LENGTH REQUIREMENT:
 
 Make this content unique, valuable, and comprehensive. Avoid generic advice and focus on specific, actionable insights that demonstrate expertise.`;
 
-  try {
-    console.log(`Generating content for topic: "${topic}" in locale: ${locale}`);
+  logger.info(`Generating content for topic: "${topic}" in locale: ${locale}`, undefined, 'BLOG');
 
-    if (!model) {
-      console.warn('Gemini model not initialized (GOOGLE_API_KEY missing), using fallback content');
-      return generateFallbackContent(topic, locale);
-    }
-
-    const systemPrompt = `You are an expert content writer and SEO specialist with deep knowledge of technology, software development, and digital marketing. You create comprehensive, engaging blog posts that rank well in search engines and provide exceptional value to readers. You understand the Uzbekistan and Central Asian market dynamics and can create region-specific content that resonates with local businesses while maintaining global best practices.
+  const systemPrompt = `You are an expert content writer and SEO specialist with deep knowledge of technology, software development, and digital marketing. You create comprehensive, engaging blog posts that rank well in search engines and provide exceptional value to readers. You understand the Uzbekistan and Central Asian market dynamics and can create region-specific content that resonates with local businesses while maintaining global best practices.
 
 ${locale === 'ru' ? 'Вы пишете на русском языке для русскоязычной аудитории.' : locale === 'uz' ? "Siz o'zbek tilida o'zbek tilida so'zlashuvchi auditoriya uchun yozasiz." : ''}`;
 
-    const fullPrompt = `${systemPrompt}\n\n---\n\n${prompt}`;
+  const fullPrompt = `${systemPrompt}\n\n---\n\n${prompt}`;
 
-    const result = await model.generateContent(fullPrompt);
-    const generatedContent = (await result.response).text();
+  const generatedContent = await safeGenerateContent(fullPrompt, `blog-content-${locale}`);
 
-    const wordCount = generatedContent.split(/\s+/).length;
-    console.log(`Generated content for ${locale}: ${wordCount} words`);
-
-    if (wordCount < 500) {
-      console.warn(`Generated content for ${locale} is too short (${wordCount} words), using fallback`);
-      return generateFallbackContent(topic, locale);
-    }
-
-    return generatedContent;
-  } catch (error) {
-    console.error(`Error generating content for ${locale}:`, error);
+  if (!generatedContent) {
     return generateFallbackContent(topic, locale);
   }
+
+  const wordCount = generatedContent.split(/\s+/).length;
+  logger.info(`Generated content for ${locale}: ${wordCount} words`, undefined, 'BLOG');
+
+  if (wordCount < 500) {
+    logger.warn(`Content for ${locale} too short (${wordCount} words), using fallback`, undefined, 'BLOG');
+    return generateFallbackContent(topic, locale);
+  }
+
+  return generatedContent;
 }
 
 function generateFallbackContent(topic: string, locale: string): string {
@@ -1037,24 +1014,12 @@ export async function POST(request: NextRequest) {
     let selectedTopic: string;
 
     if (customTopic) {
-      try {
-        if (model) {
-          const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic, nothing else.
-
-Topic: "${customTopic}"`;
-          const normalizeResult = await model.generateContent(normalizePrompt);
-          const normalized = (await normalizeResult.response).text().trim();
-          if (normalized) {
-            selectedTopic = normalized.replace(/^"|"$/g, '');
-            console.log(`Normalized topic: "${customTopic}" -> "${selectedTopic}"`);
-          } else {
-            selectedTopic = customTopic;
-          }
-        } else {
-          selectedTopic = customTopic;
-        }
-      } catch (error) {
-        console.error('Error normalizing topic:', error);
+      const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic, nothing else.\n\nTopic: "${customTopic}"`;
+      const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize');
+      if (normalized) {
+        selectedTopic = normalized.trim().replace(/^"|"$/g, '');
+        logger.info(`Normalized topic: "${customTopic}" -> "${selectedTopic}"`, undefined, 'BLOG');
+      } else {
         selectedTopic = customTopic;
       }
     } else {
@@ -1088,18 +1053,10 @@ Topic: "${customTopic}"`;
         let localizedTitle = selectedTopic;
 
         if (locale !== 'en') {
-          try {
-            if (model) {
-              const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${selectedTopic}". Only return the translated title, nothing else.`;
-              const titleResult = await model.generateContent(titlePrompt);
-              const translatedTitle = (await titleResult.response).text().trim().replace(/^"|"$/g, '');
-
-              if (translatedTitle) {
-                localizedTitle = translatedTitle;
-              }
-            }
-          } catch (titleError) {
-            console.error(`Error translating title for ${locale}:`, titleError);
+          const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${selectedTopic}". Only return the translated title, nothing else.`;
+          const translatedTitle = await safeGenerateContent(titlePrompt, `title-translate-${locale}`);
+          if (translatedTitle) {
+            localizedTitle = translatedTitle.trim().replace(/^"|"$/g, '');
           }
         }
 
@@ -1125,7 +1082,7 @@ Topic: "${customTopic}"`;
           status: savedPost.status,
         });
       } catch (error) {
-        console.error(`Error generating post for locale ${locale}:`, error);
+        logger.error(`Error generating post for locale ${locale}`, error, 'BLOG');
         // Continue with other locales even if one fails
       }
     }
@@ -1134,6 +1091,12 @@ Topic: "${customTopic}"`;
       return NextResponse.json({ error: 'Failed to generate any posts' }, { status: 500 });
     }
 
+    logger.info(
+      `Generation complete: ${createdPosts.length} post(s)`,
+      { aiStats: { ...aiStats } },
+      'BLOG',
+    );
+
     return NextResponse.json({
       success: true,
       message: `Generated ${createdPosts.length} blog post(s)`,
@@ -1141,7 +1104,7 @@ Topic: "${customTopic}"`;
       generationGroupId,
     });
   } catch (error) {
-    console.error('Error in blog generation:', error);
+    logger.error('Error in blog generation', error, 'BLOG');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }

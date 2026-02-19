@@ -70,7 +70,7 @@ Follow SOLID principles and clean code practices. Always prioritize maintainabil
 ### **Environment Variables**
 - Use [src/utils/env.ts](mdc:src/utils/env.ts) for validation
 - Required: `MONGODB_URI`
-- Optional: `GOOGLE_API_KEY`, `API_SECRET`, `UNSPLASH_ACCESS_KEY`
+- Optional: `DEEPSEEK_API_KEY`, `API_SECRET`, `UNSPLASH_ACCESS_KEY`
 
 ## 📊 **Performance**
 
