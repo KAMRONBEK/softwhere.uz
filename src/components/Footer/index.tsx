@@ -24,7 +24,11 @@ function Footer() {
             </svg>
             <p>Contact nums</p>
           </div>
-          <a href='tel:+998332499111' className='hover:opacity-50' onClick={() => trackEvent('external_link_click', { type: 'phone', source: 'footer' })}>
+          <a
+            href='tel:+998332499111'
+            className='hover:opacity-50'
+            onClick={() => trackEvent('external_link_click', { type: 'phone', source: 'footer' })}
+          >
             +998 33 249-91-11
           </a>
         </div>
@@ -40,7 +44,11 @@ function Footer() {
             </svg>
             <p>Post</p>
           </div>
-          <a href='mailto:kamuranbek98@gmail.com' className='hover:opacity-50' onClick={() => trackEvent('external_link_click', { type: 'email', source: 'footer' })}>
+          <a
+            href='mailto:kamuranbek98@gmail.com'
+            className='hover:opacity-50'
+            onClick={() => trackEvent('external_link_click', { type: 'email', source: 'footer' })}
+          >
             kamuranbek98@gmail.com
           </a>
         </div>

@@ -13,11 +13,7 @@ interface TrackedCTALinkProps {
 
 export default function TrackedCTALink({ href, type, slug, className, children }: TrackedCTALinkProps) {
   return (
-    <Link
-      href={href}
-      className={className}
-      onClick={() => trackEvent('cta_click', { type, slug })}
-    >
+    <Link href={href} className={className} onClick={() => trackEvent('cta_click', { type, slug })}>
       {children}
     </Link>
   );
