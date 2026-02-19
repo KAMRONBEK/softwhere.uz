@@ -80,14 +80,14 @@ async function getBlogPost(
   locale: string
 ): Promise<BlogPost | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NODE_ENV === 'development'
+      ? `http://localhost:${process.env.PORT || 3000}`
+      : process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz';
+    const url = `${baseUrl}/api/blog/posts/${slug}?locale=${locale}`;
 
     const response = await fetch(
-      `${baseUrl}/api/blog/posts/${slug}?locale=${locale}`,
-
-      {
-        next: { revalidate: 3600 }, // Revalidate every hour
-      }
+      url,
+      { cache: 'no-store' },
     );
 
     if (!response.ok) {
