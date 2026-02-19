@@ -1,3 +1,6 @@
+'use client';
+
+import { trackEvent } from '@/utils/analytics';
 import Image from 'next/image';
 import Logo from '../../../public/icons/logo.svg';
 import css from './style.module.css';
@@ -21,7 +24,7 @@ function Footer() {
             </svg>
             <p>Contact nums</p>
           </div>
-          <a href='tel:+998332499111' className='hover:opacity-50'>
+          <a href='tel:+998332499111' className='hover:opacity-50' onClick={() => trackEvent('external_link_click', { type: 'phone', source: 'footer' })}>
             +998 33 249-91-11
           </a>
         </div>
@@ -37,7 +40,7 @@ function Footer() {
             </svg>
             <p>Post</p>
           </div>
-          <a href='mailto:kamuranbek98@gmail.com' className='hover:opacity-50'>
+          <a href='mailto:kamuranbek98@gmail.com' className='hover:opacity-50' onClick={() => trackEvent('external_link_click', { type: 'email', source: 'footer' })}>
             kamuranbek98@gmail.com
           </a>
         </div>

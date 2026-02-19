@@ -1,4 +1,11 @@
 import { toast } from 'react-toastify';
+import { trackEvent } from '@/utils/analytics';
+
+const FORM_SOURCE_MAP: Record<string, 'hero' | 'discuss' | 'contact'> = {
+  consultation: 'hero',
+  discuss: 'discuss',
+  '': 'contact',
+};
 
 const sender = async function (id: string, name: string, phone: string, message: string, from: string) {
   try {
@@ -9,6 +16,7 @@ const sender = async function (id: string, name: string, phone: string, message:
     });
 
     if (res.ok) {
+      trackEvent('form_submit', { source: FORM_SOURCE_MAP[from] ?? 'contact' });
       toast.update(id, {
         render: 'Message sent successfully!',
         type: 'success',

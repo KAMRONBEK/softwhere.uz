@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import TrackedCTALink from '@/components/TrackedCTALink';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -285,7 +286,7 @@ export default async function BlogPostPage({ params }: { params: { locale: strin
   const relatedPosts = await getRelatedPosts(post.category, post._id, locale);
 
   return (
-    <BlogPostClient post={post}>
+    <BlogPostClient post={post} category={post.category}>
       <BlogPostSchema post={post} locale={locale} />
 
       <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--gray-100)' }}>
@@ -458,21 +459,25 @@ export default async function BlogPostPage({ params }: { params: { locale: strin
                   <h3 className='text-2xl font-bold mb-4'>{t('cta.title')}</h3>
                   <p className='text-lg mb-6 max-w-2xl mx-auto opacity-90'>{t('cta.description')}</p>
                   <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-                    <Link
+                    <TrackedCTALink
                       href={`/${locale}#contact`}
+                      type='get_started'
+                      slug={post.slug}
                       className='inline-flex items-center px-6 py-3 bg-white text-[#fe4502] font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300'
                     >
                       {t('cta.getStarted')}
                       <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5l7 7-7 7'></path>
                       </svg>
-                    </Link>
-                    <Link
+                    </TrackedCTALink>
+                    <TrackedCTALink
                       href={`/${locale}#portfolio`}
+                      type='view_work'
+                      slug={post.slug}
                       className='inline-flex items-center px-6 py-3 bg-transparent text-white font-semibold rounded-lg border-2 border-white hover:bg-white hover:text-[#fe4502] transition-colors duration-300'
                     >
                       {t('cta.viewWork')}
-                    </Link>
+                    </TrackedCTALink>
                   </div>
                 </div>
               </div>

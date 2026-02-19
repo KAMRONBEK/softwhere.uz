@@ -7,7 +7,7 @@ import 'react-international-phone/style.css';
 import css from './style.module.css';
 
 import Button from '@/components/Button';
-// import BgTextImg from "../../../../public/images/bg-text.svg";
+import { trackEvent } from '@/utils/analytics';
 import { sender } from '@/utils/send';
 import { toast } from 'react-toastify';
 import { useTranslations } from 'use-intl';
@@ -72,7 +72,7 @@ function Contact() {
                   fill='#ffffff'
                 />
               </svg>
-              <a href='tel:+998332499111' className='text-white xl:text-xl  hover:text-slate-300'>
+              <a href='tel:+998332499111' className='text-white xl:text-xl  hover:text-slate-300' onClick={() => trackEvent('external_link_click', { type: 'phone', source: 'contact' })}>
                 +998 33 249-91-11
               </a>
             </div>
@@ -85,7 +85,7 @@ function Contact() {
                   fill='#ffffff'
                 />
               </svg>
-              <a href='mailto:kamuranbek98@gmail.com' className='text-white xl:text-xl hover:text-slate-300'>
+              <a href='mailto:kamuranbek98@gmail.com' className='text-white xl:text-xl hover:text-slate-300' onClick={() => trackEvent('external_link_click', { type: 'email', source: 'contact' })}>
                 kamuranbek98@gmail.com
               </a>
             </div>

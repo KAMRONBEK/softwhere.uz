@@ -57,7 +57,7 @@ jobs:
 
           echo "Payload: $PAYLOAD"
 
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 360 -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $API_SECRET" \
             -d "$PAYLOAD" \

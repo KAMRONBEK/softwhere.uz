@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
+import { trackEvent } from '@/utils/analytics';
 import { useEffect, useMemo, useState } from 'react';
 
 interface BlogPostSummary {
@@ -70,6 +71,11 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
     });
   }, [posts]);
 
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    trackEvent('blog_category_filter', { category });
+  };
+
   const filteredPosts = useMemo(() => {
     if (activeCategory === 'all') return posts;
     return posts.filter(p => p.category === activeCategory);
@@ -104,7 +110,7 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
         {availableCategories.length > 1 && (
           <div className='flex flex-wrap justify-center gap-2 mb-12'>
             <button
-              onClick={() => setActiveCategory('all')}
+              onClick={() => handleCategoryChange('all')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 activeCategory === 'all' ? 'bg-[#fe4502] text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
               }`}
@@ -114,7 +120,7 @@ export default function BlogPage({ params }: { params: { locale: string } }) {
             {availableCategories.map(cat => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   activeCategory === cat ? 'bg-[#fe4502] text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                 }`}

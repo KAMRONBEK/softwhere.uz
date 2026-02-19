@@ -4,6 +4,7 @@ import { CONTACT_INFO, UI_CONFIG } from '@/constants';
 import { useBlogContext } from '@/contexts/BlogContext';
 import { api } from '@/core/api';
 import { logger } from '@/core/logger';
+import { trackEvent } from '@/utils/analytics';
 import { getCookie } from 'cookies-next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -74,7 +75,8 @@ function Header() {
   };
 
   const changeLanguage = async (locale: string) => {
-    // Check if we're on a blog post page and have a current post with generationGroupId
+    trackEvent('language_switch', { from: lang, to: locale });
+
     if (currentPost?.generationGroupId) {
       try {
         logger.info(

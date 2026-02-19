@@ -9,6 +9,8 @@ import { getBlueprintForFormat } from '@/data/post-blueprints';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
+export const maxDuration = 60;
+
 if (!process.env.DEEPSEEK_API_KEY) {
   logger.error('DEEPSEEK_API_KEY environment variable not set', undefined, 'BLOG');
 }
