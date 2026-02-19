@@ -17,6 +17,200 @@ if (!process.env.MONGODB_URI) {
 }
 
 const getCurrentYear = () => new Date().getFullYear();
+const MAX_SOURCE_TEXT_LENGTH = 5000;
+const MAX_EXTRACTED_TEXT_LENGTH = 4000;
+
+// ---------------------------------------------------------------------------
+// URL text extraction — fetch page, strip HTML, return plain text
+// ---------------------------------------------------------------------------
+
+async function extractTextFromUrl(url: string): Promise<string> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SoftwherBot/1.0)' },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const html = await res.text();
+
+    return html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+      .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, MAX_EXTRACTED_TEXT_LENGTH);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Source classification — AI picks category, format, keywords from source text
+// ---------------------------------------------------------------------------
+
+interface SourceClassification {
+  title: string;
+  category: string;
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+  postFormat: PostFormat;
+  imageHints: string[];
+}
+
+const POST_FORMATS: PostFormat[] = [
+  'cost-guide',
+  'comparison',
+  'how-to',
+  'listicle',
+  'faq',
+  'case-study',
+  'myth-buster',
+  'checklist',
+  'trend-report',
+  'roi-analysis',
+  'beginner-guide',
+  'deep-dive',
+];
+
+async function classifySourceContent(sourceText: string): Promise<SourceClassification> {
+  const categories = SERVICE_PILLARS.map(p => p.id).join(', ');
+
+  const prompt = `Analyze this source content and classify it for a blog post by Softwhere.uz (a software development company in Uzbekistan). Return ONLY valid JSON, no markdown fences.
+
+SOURCE CONTENT (excerpt):
+"${sourceText.slice(0, 2000)}"
+
+Return JSON:
+{
+  "title": "Engaging blog post title from Softwhere.uz perspective (in English)",
+  "category": "one of: ${categories}",
+  "primaryKeyword": "main SEO keyword (2-4 words)",
+  "secondaryKeywords": ["kw1", "kw2", "kw3"],
+  "postFormat": "one of: ${POST_FORMATS.join(', ')}",
+  "imageHints": ["unsplash search term 1", "unsplash search term 2"]
+}
+
+Pick the category that best matches how Softwhere.uz would cover this topic. Security/hacking → cybersecurity. AI news → ai-solutions. App news → mobile-app-development. Etc.`;
+
+  const result = await safeGenerateContent(prompt, 'source-classify');
+
+  if (result) {
+    try {
+      const cleaned = result
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .trim();
+      const parsed = JSON.parse(cleaned);
+      const validCategories = SERVICE_PILLARS.map(p => p.id);
+      return {
+        title: parsed.title || 'Industry Update: Expert Analysis',
+        category: validCategories.includes(parsed.category) ? parsed.category : 'cybersecurity',
+        primaryKeyword: parsed.primaryKeyword || 'software development',
+        secondaryKeywords: Array.isArray(parsed.secondaryKeywords) ? parsed.secondaryKeywords.slice(0, 5) : [],
+        postFormat: POST_FORMATS.includes(parsed.postFormat) ? (parsed.postFormat as PostFormat) : 'deep-dive',
+        imageHints: Array.isArray(parsed.imageHints) ? parsed.imageHints.slice(0, 3) : [],
+      };
+    } catch {
+      logger.warn('Failed to parse source classification JSON', undefined, 'BLOG');
+    }
+  }
+
+  return {
+    title: 'Industry Update: What Businesses Need to Know',
+    category: 'cybersecurity',
+    primaryKeyword: 'data security',
+    secondaryKeywords: ['cybersecurity', 'data protection'],
+    postFormat: 'deep-dive' as PostFormat,
+    imageHints: ['cybersecurity', 'data protection'],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Source-based prompt — writes original post using external content as context
+// ---------------------------------------------------------------------------
+
+function buildSourcePrompt(sourceText: string, classification: SourceClassification, locale: string, inlineImages: ICoverImage[]): string {
+  const year = getCurrentYear();
+  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const blueprint = getBlueprintForFormat(classification.postFormat);
+  const pillar = SERVICE_PILLARS.find(p => p.id === classification.category);
+  const pillarName = pillar?.name ?? 'Software Development';
+
+  const langName = locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek';
+  const langInstruction =
+    locale === 'en'
+      ? 'Write in English.'
+      : locale === 'ru'
+        ? 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент, заголовки и CTA на русском.'
+        : "MUHIM: BUTUNLAY o'zbek tilida yozing. Barcha kontent, sarlavhalar va CTA o'zbek tilida.";
+
+  let imageInstruction = '';
+  if (inlineImages.length > 0) {
+    const imgMarkdown = inlineImages.map((img, i) => `![${classification.primaryKeyword} - illustration ${i + 1}](${img.url})`).join('\n');
+    imageInstruction = `\nINLINE IMAGES — Insert these images naturally between sections:\n${imgMarkdown}`;
+  }
+
+  return `You are an expert content writer for Softwhere.uz, a software development company in Uzbekistan. You've been given source material to use as inspiration. Write a completely ORIGINAL blog post — do NOT copy the source. Analyze the topic and write from Softwhere.uz's expert perspective with unique value and practical advice.
+
+---
+
+${langInstruction}
+
+LANGUAGE: Write the ENTIRE post in ${langName}. Do not mix languages.
+
+SOURCE MATERIAL (context/inspiration ONLY — do NOT copy):
+---
+${sourceText.slice(0, 3000)}
+---
+
+Write an original blog post. Suggested title: "${classification.title}"
+
+FORMAT: ${blueprint.name}
+TONE: ${blueprint.tone}
+TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words
+
+OPENING: ${blueprint.openingInstruction}
+
+STRUCTURE:
+${blueprint.structurePrompt}
+
+FORMATTING RULES:
+${blueprint.formattingRules}
+
+SEO REQUIREMENTS:
+- Primary keyword: "${classification.primaryKeyword}" — use 3-5 times naturally
+- Secondary keywords: ${classification.secondaryKeywords.map(k => `"${k}"`).join(', ')} — use each 1-2 times
+- ${blueprint.seoHint}
+- Use H1 for the title, H2 for major sections, H3 for subsections
+
+GUIDELINES:
+- Reference the source news/event but add YOUR expert analysis
+- Include actionable advice for business owners
+- Subtle CTA tying back to how Softwhere.uz can help
+- Add practical steps readers can take immediately
+- Include 2-4 statistics from credible sources (${year - 2}–${year})
+
+CONTEXT:
+- Today is ${date}, we are in ${year}
+- Target audience: business owners in Uzbekistan and Central Asia
+- Company: Softwhere.uz — ${pillarName} specialists
+${imageInstruction}
+
+Write a unique, valuable post. Every paragraph should teach something or persuade.`;
+}
 
 // ---------------------------------------------------------------------------
 // Smart topic selection — picks the best next topic based on DB history
@@ -318,10 +512,24 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { category, customTopic, locales = ['en', 'ru', 'uz'] } = body;
+    const { category, customTopic, sourceUrl, sourceText, locales = ['en', 'ru', 'uz'] } = body;
+
+    // --- Validation -----------------------------------------------------------
 
     if (customTopic && typeof customTopic === 'string' && customTopic.length > MAX_CUSTOM_TOPIC_LENGTH) {
       return NextResponse.json({ error: `customTopic must be ${MAX_CUSTOM_TOPIC_LENGTH} characters or fewer` }, { status: 400 });
+    }
+
+    if (sourceText && typeof sourceText === 'string' && sourceText.length > MAX_SOURCE_TEXT_LENGTH) {
+      return NextResponse.json({ error: `sourceText must be ${MAX_SOURCE_TEXT_LENGTH} characters or fewer` }, { status: 400 });
+    }
+
+    if (sourceUrl && typeof sourceUrl === 'string') {
+      try {
+        new URL(sourceUrl);
+      } catch {
+        return NextResponse.json({ error: 'sourceUrl must be a valid URL' }, { status: 400 });
+      }
     }
 
     if (!Array.isArray(locales) || locales.length === 0 || locales.length > 3) {
@@ -335,13 +543,51 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
-    // -----------------------------------------------------------------------
-    // Topic selection: auto (smart), category-based, or custom
-    // -----------------------------------------------------------------------
-    let selectedTopic: SEOTopic & { servicePillar: string; pillarName: string };
+    // --- Resolve source content (if any) -------------------------------------
 
-    if (customTopic) {
-      // Normalize custom topic with AI
+    let resolvedSource: string | null = null;
+
+    if (sourceUrl) {
+      try {
+        logger.info(`Fetching source URL: ${sourceUrl}`, undefined, 'BLOG');
+        resolvedSource = await extractTextFromUrl(sourceUrl);
+        logger.info(`Extracted ${resolvedSource.length} chars from URL`, undefined, 'BLOG');
+      } catch (err) {
+        logger.error('Failed to fetch source URL', err, 'BLOG');
+        return NextResponse.json({ error: 'Could not fetch the provided URL' }, { status: 400 });
+      }
+    } else if (sourceText) {
+      resolvedSource = sourceText.trim().slice(0, MAX_SOURCE_TEXT_LENGTH);
+    }
+
+    // --- Topic selection -----------------------------------------------------
+
+    let selectedTopic: SEOTopic & { servicePillar: string; pillarName: string };
+    let sourceClassification: SourceClassification | null = null;
+
+    if (resolvedSource) {
+      // Source-based mode: AI classifies the content
+      sourceClassification = await classifySourceContent(resolvedSource);
+      const pillar = SERVICE_PILLARS.find(p => p.id === sourceClassification!.category);
+
+      selectedTopic = {
+        id: `source-${Date.now()}`,
+        title: sourceClassification.title,
+        primaryKeyword: sourceClassification.primaryKeyword,
+        secondaryKeywords: sourceClassification.secondaryKeywords,
+        searchIntent: 'informational',
+        postFormat: sourceClassification.postFormat,
+        targetQueries: [sourceClassification.primaryKeyword],
+        imageHints: sourceClassification.imageHints,
+        servicePillar: sourceClassification.category,
+        pillarName: pillar?.name ?? 'Software Development',
+      };
+      logger.info(
+        `Source classified: "${selectedTopic.title}" (${selectedTopic.servicePillar}/${selectedTopic.postFormat})`,
+        undefined,
+        'BLOG'
+      );
+    } else if (customTopic) {
       const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${customTopic}"`;
       const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize');
       const topicTitle = normalized ? normalized.trim().replace(/^"|"$/g, '') : customTopic;
@@ -360,7 +606,6 @@ export async function POST(request: NextRequest) {
       };
       logger.info(`Custom topic: "${topicTitle}"`, undefined, 'BLOG');
     } else if (category && category !== 'auto') {
-      // Pick from specific pillar
       if (category !== 'random' && !VALID_CATEGORIES.includes(category)) {
         return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
       }
@@ -373,7 +618,6 @@ export async function POST(request: NextRequest) {
 
       selectedTopic = pillarTopics[Math.floor(Math.random() * pillarTopics.length)];
     } else {
-      // Auto mode: smart selection based on DB history
       selectedTopic = await smartSelectTopic();
       logger.info(
         `Smart selected: "${selectedTopic.title}" (${selectedTopic.servicePillar}/${selectedTopic.postFormat})`,
@@ -384,20 +628,33 @@ export async function POST(request: NextRequest) {
 
     const generationGroupId = uuidv4();
 
-    // Fetch cover image + inline images
+    // --- Images --------------------------------------------------------------
+
     const coverKeyword = selectedTopic.imageHints?.[0];
     const coverImage = await getCoverImageForTopic(selectedTopic.title, coverKeyword);
     const inlineImages = await getImagesForPost(selectedTopic.imageHints, selectedTopic.title);
     const allContentImages = [...(coverImage ? [coverImage] : []), ...inlineImages];
 
-    // Generate meta description (once, in English, then translate)
+    // --- Meta description ----------------------------------------------------
+
     const metaDesc = await generateMetaDescription(selectedTopic.title, selectedTopic.primaryKeyword, 'en');
+
+    // --- Generate per locale -------------------------------------------------
 
     const createdPosts = [];
 
     for (const locale of locales) {
       try {
-        const content = await generateBlogContent(selectedTopic, locale, inlineImages);
+        let content: string;
+
+        if (resolvedSource && sourceClassification) {
+          const prompt = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
+          logger.info(`Generating source-based content for "${selectedTopic.title}" in ${locale}`, undefined, 'BLOG');
+          const generated = await safeGenerateContent(prompt, `blog-source-${locale}`);
+          content = generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
+        } else {
+          content = await generateBlogContent(selectedTopic, locale, inlineImages);
+        }
 
         // Localize title
         let localizedTitle = selectedTopic.title;
