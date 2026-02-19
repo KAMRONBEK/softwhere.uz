@@ -74,6 +74,7 @@ export default function AdminPostsPage() {
   const [generating, setGenerating] = useState(false);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [showGenerator, setShowGenerator] = useState(false);
+  const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
   const [genMode, setGenMode] = useState<'topic' | 'source'>('topic');
   const [generationForm, setGenerationForm] = useState<GenerationRequest>({
     category: 'auto',
@@ -212,6 +213,67 @@ export default function AdminPostsPage() {
     } catch (error) {
       console.error('Error updating posts:', error);
       alert('Failed to update posts');
+    }
+  };
+
+  const toggleGroup = (groupId: string) => {
+    setSelectedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupId)) next.delete(groupId);
+      else next.add(groupId);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedGroups.size === postGroups.length) {
+      setSelectedGroups(new Set());
+    } else {
+      setSelectedGroups(new Set(postGroups.map(g => g.generationGroupId)));
+    }
+  };
+
+  const getSelectedGroups = () => postGroups.filter(g => selectedGroups.has(g.generationGroupId));
+
+  const batchUpdateStatus = async (status: 'draft' | 'published') => {
+    const groups = getSelectedGroups();
+    const allPosts = groups.flatMap(g => g.posts);
+    try {
+      const results = await Promise.all(
+        allPosts.map(post =>
+          adminFetch(`/api/admin/posts/${post._id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status }),
+          })
+        )
+      );
+      const allOk = results.every(r => r.ok);
+      setSelectedGroups(new Set());
+      fetchPosts();
+      alert(allOk
+        ? `${groups.length} group(s) ${status === 'published' ? 'published' : 'unpublished'} successfully!`
+        : 'Some posts failed to update');
+    } catch {
+      alert('Failed to update posts');
+    }
+  };
+
+  const batchDelete = async () => {
+    const groups = getSelectedGroups();
+    const allPosts = groups.flatMap(g => g.posts);
+    if (!confirm(`Delete ${groups.length} group(s) (${allPosts.length} posts total)?`)) return;
+    try {
+      const results = await Promise.all(
+        allPosts.map(post =>
+          adminFetch(`/api/admin/posts/${post._id}`, { method: 'DELETE' })
+        )
+      );
+      const allOk = results.every(r => r.ok);
+      setSelectedGroups(new Set());
+      fetchPosts();
+      alert(allOk ? 'Selected groups deleted!' : 'Some posts failed to delete');
+    } catch {
+      alert('Failed to delete posts');
     }
   };
 
@@ -459,11 +521,25 @@ export default function AdminPostsPage() {
         <div className='bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden'>
           <div className='px-6 py-4 border-b border-gray-200 bg-gray-50'>
             <div className='flex justify-between items-center'>
-              <div>
-                <h3 className='text-lg font-semibold text-gray-900'>All Posts</h3>
-                <p className='text-sm text-gray-600'>
-                  {posts.length} total posts in {postGroups.length} groups
-                </p>
+              <div className='flex items-center space-x-4'>
+                {postGroups.length > 0 && (
+                  <input
+                    type='checkbox'
+                    checked={postGroups.length > 0 && selectedGroups.size === postGroups.length}
+                    onChange={toggleAll}
+                    className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer'
+                  />
+                )}
+                <div>
+                  <h3 className='text-lg font-semibold text-gray-900'>
+                    {selectedGroups.size > 0
+                      ? `${selectedGroups.size} of ${postGroups.length} groups selected`
+                      : 'All Posts'}
+                  </h3>
+                  <p className='text-sm text-gray-600'>
+                    {posts.length} total posts in {postGroups.length} groups
+                  </p>
+                </div>
               </div>
               <div className='flex space-x-2'>
                 <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
@@ -495,7 +571,13 @@ export default function AdminPostsPage() {
                 <div key={group.generationGroupId} className='p-6'>
                   {/* Group Header */}
                   <div className='flex justify-between items-start mb-4'>
-                    <div className='flex-1'>
+                    <div className='flex items-center flex-1 min-w-0'>
+                      <input
+                        type='checkbox'
+                        checked={selectedGroups.has(group.generationGroupId)}
+                        onChange={() => toggleGroup(group.generationGroupId)}
+                        className='w-4 h-4 mr-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer flex-shrink-0'
+                      />
                       <div className='flex items-center space-x-3'>
                         <h4 className='text-sm font-medium text-gray-900'>
                           {group.posts.length > 1 ? `Post Group (${group.posts.length} languages)` : 'Individual Post'}
@@ -704,6 +786,42 @@ export default function AdminPostsPage() {
           </div>
         )}
       </div>
+
+      {selectedGroups.size > 0 && (
+        <div className='fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200 shadow-lg'>
+          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between'>
+            <span className='text-sm font-medium text-gray-700'>
+              {selectedGroups.size} group(s) selected ({getSelectedGroups().flatMap(g => g.posts).length} posts)
+            </span>
+            <div className='flex items-center space-x-3'>
+              <button
+                onClick={() => batchUpdateStatus('published')}
+                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors'
+              >
+                Publish Selected
+              </button>
+              <button
+                onClick={() => batchUpdateStatus('draft')}
+                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 transition-colors'
+              >
+                Unpublish Selected
+              </button>
+              <button
+                onClick={batchDelete}
+                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors'
+              >
+                Delete Selected
+              </button>
+              <button
+                onClick={() => setSelectedGroups(new Set())}
+                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors'
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
