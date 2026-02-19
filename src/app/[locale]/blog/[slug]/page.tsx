@@ -80,15 +80,13 @@ async function getBlogPost(
   locale: string
 ): Promise<BlogPost | null> {
   try {
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? `http://localhost:${process.env.PORT || 3000}`
-      : process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz';
+    const baseUrl =
+      process.env.NODE_ENV === 'development'
+        ? `http://localhost:${process.env.PORT || 3000}`
+        : process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz';
     const url = `${baseUrl}/api/blog/posts/${slug}?locale=${locale}`;
 
-    const response = await fetch(
-      url,
-      { cache: 'no-store' },
-    );
+    const response = await fetch(url, { cache: 'no-store' });
 
     if (!response.ok) {
       return null;
@@ -326,14 +324,7 @@ export default async function BlogPostPage({ params }: { params: { locale: strin
         {/* Hero cover image */}
         {post.coverImage?.url && (
           <div className='relative w-full h-64 md:h-96'>
-            <Image
-              src={post.coverImage.url}
-              alt={post.title}
-              fill
-              priority
-              className='object-cover'
-              sizes='100vw'
-            />
+            <Image src={post.coverImage.url} alt={post.title} fill priority className='object-cover' sizes='100vw' />
             <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent' />
             <span className='absolute bottom-3 right-4 text-xs text-white/80 bg-black/30 px-2 py-1 rounded'>
               Photo by{' '}
@@ -346,7 +337,12 @@ export default async function BlogPostPage({ params }: { params: { locale: strin
                 {post.coverImage.authorName}
               </a>
               {' on '}
-              <a href='https://unsplash.com?utm_source=softwhere&utm_medium=referral' target='_blank' rel='noopener noreferrer' className='underline'>
+              <a
+                href='https://unsplash.com?utm_source=softwhere&utm_medium=referral'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='underline'
+              >
                 Unsplash
               </a>
             </span>
