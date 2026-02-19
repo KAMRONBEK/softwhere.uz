@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/utils/analytics';
 import Image from 'next/image';
 import { useState } from 'react';
 import css from './style.module.css';
@@ -17,7 +18,10 @@ function Accordion({ title, answer, index }: IProps) {
 
   return (
     <div className={css.accordion} data-aos='fade-up' data-aos-delay={index * 100}>
-      <button onClick={() => setOpen(!open)} className='flex items-center justify-between w-full	'>
+      <button onClick={() => {
+        if (!open) trackEvent('faq_toggle', { question: title });
+        setOpen(!open);
+      }} className='flex items-center justify-between w-full	'>
         <span className={css.accordionText}>{title}</span>
         {open ? (
           <div className={`${css.close} transform origin-center duration-200 ease-out ${open && '!rotate-90'}`}>

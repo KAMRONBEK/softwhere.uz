@@ -2,6 +2,7 @@
 
 import { useBlogContext } from '@/contexts/BlogContext';
 import { logger } from '@/core/logger';
+import { trackEvent } from '@/utils/analytics';
 import { useEffect } from 'react';
 
 interface BlogPost {
@@ -18,14 +19,24 @@ interface BlogPost {
 
 interface BlogPostClientProps {
   post: BlogPost;
+  category?: string;
   children: React.ReactNode;
 }
 
-export default function BlogPostClient({ post, children }: BlogPostClientProps) {
+export default function BlogPostClient({ post, category, children }: BlogPostClientProps) {
   const { setCurrentPost } = useBlogContext();
 
   useEffect(() => {
-    // Set the current post in the context so Header can access it for language switching
+    const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
+    trackEvent('blog_post_view', {
+      slug: post.slug,
+      category: category,
+      locale: post.locale,
+      readingTime,
+    });
+  }, [post.slug, post.content, post.locale, category]);
+
+  useEffect(() => {
     const postContext = {
       generationGroupId: post.generationGroupId,
       locale: post.locale,

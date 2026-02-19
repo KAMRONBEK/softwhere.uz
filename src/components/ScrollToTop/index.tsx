@@ -1,5 +1,6 @@
 'use client';
 
+import { trackEvent } from '@/utils/analytics';
 import React, { useEffect, useState } from 'react';
 import css from './style.module.css';
 import ArrowIcon from '../../../public/icons/chevron_right_small_24.svg';
@@ -19,6 +20,7 @@ function ScrollToTop() {
   }, []);
 
   const handleClick = () => {
+    trackEvent('scroll_to_top');
     window.scroll({
       top: 0,
       left: 0,
