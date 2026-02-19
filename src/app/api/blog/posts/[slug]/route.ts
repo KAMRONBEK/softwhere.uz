@@ -37,6 +37,7 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
           slug,
           status: 'published',
         }).lean();
+
       }
 
       return post;
