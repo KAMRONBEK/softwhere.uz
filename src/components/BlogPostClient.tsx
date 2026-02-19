@@ -30,7 +30,7 @@ export default function BlogPostClient({ post, category, children }: BlogPostCli
     const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
     trackEvent('blog_post_view', {
       slug: post.slug,
-      category: category,
+      category,
       locale: post.locale,
       readingTime,
     });

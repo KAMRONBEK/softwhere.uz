@@ -12,10 +12,7 @@ type EventMap = {
   external_link_click: { type: 'phone' | 'email'; source: string };
 };
 
-export function trackEvent<K extends keyof EventMap>(
-  name: K,
-  ...args: EventMap[K] extends Record<string, never> ? [] : [EventMap[K]]
-) {
+export function trackEvent<K extends keyof EventMap>(name: K, ...args: EventMap[K] extends Record<string, never> ? [] : [EventMap[K]]) {
   try {
     const props = args[0];
     if (props && Object.keys(props).length > 0) {

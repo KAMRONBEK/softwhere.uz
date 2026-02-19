@@ -72,7 +72,11 @@ function Contact() {
                   fill='#ffffff'
                 />
               </svg>
-              <a href='tel:+998332499111' className='text-white xl:text-xl  hover:text-slate-300' onClick={() => trackEvent('external_link_click', { type: 'phone', source: 'contact' })}>
+              <a
+                href='tel:+998332499111'
+                className='text-white xl:text-xl  hover:text-slate-300'
+                onClick={() => trackEvent('external_link_click', { type: 'phone', source: 'contact' })}
+              >
                 +998 33 249-91-11
               </a>
             </div>
@@ -85,7 +89,11 @@ function Contact() {
                   fill='#ffffff'
                 />
               </svg>
-              <a href='mailto:kamuranbek98@gmail.com' className='text-white xl:text-xl hover:text-slate-300' onClick={() => trackEvent('external_link_click', { type: 'email', source: 'contact' })}>
+              <a
+                href='mailto:kamuranbek98@gmail.com'
+                className='text-white xl:text-xl hover:text-slate-300'
+                onClick={() => trackEvent('external_link_click', { type: 'email', source: 'contact' })}
+              >
                 kamuranbek98@gmail.com
               </a>
             </div>
