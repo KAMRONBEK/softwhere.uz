@@ -20,6 +20,12 @@ export interface BlogPost {
   locale: Locale;
   generationGroupId?: string;
   coverImage?: CoverImage;
+  category?: string;
+  postFormat?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  metaDescription?: string;
+  contentImages?: CoverImage[];
   createdAt: string;
   updatedAt: string;
 }

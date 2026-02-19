@@ -83,6 +83,8 @@
   },
   "blog": {
     "title": "Blog",
+    "description": "Expert insights on mobile app development, AI solutions, web development, and more",
+    "allCategories": "All",
     "readMore": "Read More",
     "backToBlog": "Back to Blog",
     "noPostsAvailable": "No posts available at the moment.",
@@ -100,6 +102,7 @@
       "viewWork": "View Our Work"
     },
     "readingTime": "min read",
+    "relatedArticles": "Related Articles",
     "readMoreArticles": "Read More Articles"
   },
   "metadata": {

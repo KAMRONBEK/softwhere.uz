@@ -83,6 +83,8 @@
   },
   "blog": {
     "title": "Blog",
+    "description": "Mobil ilovalar, AI yechimlar, veb-dasturlash va boshqalar bo'yicha ekspert maqolalar",
+    "allCategories": "Barchasi",
     "readMore": "Ko'proq o'qish",
     "backToBlog": "Blogga qaytish",
     "noPostsAvailable": "Hozirda blog postlari mavjud emas.",
@@ -100,6 +102,7 @@
       "viewWork": "Ishlarimizni ko'rish"
     },
     "readingTime": "daqiqa o'qish",
+    "relatedArticles": "Tegishli maqolalar",
     "readMoreArticles": "Ko'proq maqolalar o'qish"
   },
   "metadata": {

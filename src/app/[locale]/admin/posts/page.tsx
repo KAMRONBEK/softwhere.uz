@@ -32,11 +32,22 @@ interface GenerationRequest {
 }
 
 const BLOG_CATEGORIES = {
+  auto: 'Auto (Smart Selection)',
   random: 'Random Topic (All Categories)',
   'mobile-app-development': 'Mobile App Development',
-  'telegram-development': 'Telegram Development',
-  'web-development': 'Web Development',
-  'business-strategy': 'Business Strategy',
+  'mvp-startup': 'MVP & Startup Development',
+  'ai-solutions': 'AI Solutions & RAG',
+  'web-app-development': 'Web App Development',
+  'telegram-bot-development': 'Telegram Bot Development',
+  'crm-development': 'CRM Development',
+  'business-automation': 'Business Automation',
+  'saas-development': 'SaaS Development',
+  outsourcing: 'Developer Outsourcing',
+  'project-rescue': 'Project Rescue',
+  ecommerce: 'E-commerce Development',
+  'ui-ux-design': 'UI/UX Design',
+  'maintenance-support': 'Maintenance & Support',
+  cybersecurity: 'Cybersecurity',
 };
 
 // Markdown to HTML converter (simple version)
@@ -62,7 +73,7 @@ export default function AdminPostsPage() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [showGenerator, setShowGenerator] = useState(false);
   const [generationForm, setGenerationForm] = useState<GenerationRequest>({
-    category: 'random',
+    category: 'auto',
     customTopic: '',
     locales: ['en', 'ru', 'uz'],
   });
