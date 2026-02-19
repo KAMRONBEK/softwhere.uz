@@ -2,25 +2,73 @@ name: Generate Weekly Blog Post
 
 on:
   schedule:
-    - cron: '0 9 * * 1' # Runs every Monday at 9 AM UTC
-  workflow_dispatch: # Allows manual triggering
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      category:
+        description: 'Service pillar (leave empty for smart auto-selection)'
+        required: false
+        type: choice
+        default: ''
+        options:
+          - ''
+          - mobile-app-development
+          - mvp-startup
+          - ai-solutions
+          - web-app-development
+          - telegram-bot-development
+          - crm-development
+          - business-automation
+          - saas-development
+          - outsourcing
+          - project-rescue
+          - ecommerce
+          - ui-ux-design
+          - maintenance-support
+          - cybersecurity
+          - random
+      customTopic:
+        description: 'Custom topic (overrides category if set)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
-  generate_post:
+  generate:
     runs-on: ubuntu-latest
     steps:
       - name: Generate blog post
+        env:
+          API_SECRET: ${{ secrets.API_SECRET }}
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          CATEGORY: ${{ github.event.inputs.category }}
+          CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
         run: |
-          curl -X POST \
+          # Build JSON payload
+          if [ -n "$CUSTOM_TOPIC" ]; then
+            PAYLOAD=$(printf '{"customTopic":"%s","locales":["en","ru","uz"]}' "$CUSTOM_TOPIC")
+          elif [ -n "$CATEGORY" ]; then
+            PAYLOAD=$(printf '{"category":"%s","locales":["en","ru","uz"]}' "$CATEGORY")
+          else
+            # Auto mode: no category or topic — API uses smart selection
+            PAYLOAD='{"locales":["en","ru","uz"]}'
+          fi
+
+          echo "Payload: $PAYLOAD"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.API_SECRET }}" \
-            -d '{
-              "category": "random",
-              "customTopic": "",
-              "locales": [
-                "en",
-                "ru", 
-                "uz"
-              ]
-            }' \
-            https://www.softwhere.uz/api/blog/generate
+            -H "Authorization: Bearer $API_SECRET" \
+            -d "$PAYLOAD" \
+            "${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::error::Blog generation failed with status $HTTP_CODE"
+            exit 1
+          fi

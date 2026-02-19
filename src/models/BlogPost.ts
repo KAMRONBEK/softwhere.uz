@@ -17,6 +17,12 @@ export interface IBlogPost extends Document {
   locale: 'en' | 'ru' | 'uz';
   generationGroupId?: string;
   coverImage?: ICoverImage;
+  category?: string;
+  postFormat?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  metaDescription?: string;
+  contentImages?: ICoverImage[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +66,20 @@ const BlogPostSchema = new Schema<IBlogPost>(
       authorUrl: String,
       keyword: String,
     },
+    category: { type: String, index: true, sparse: true },
+    postFormat: String,
+    primaryKeyword: String,
+    secondaryKeywords: [String],
+    metaDescription: String,
+    contentImages: [
+      {
+        url: String,
+        thumbUrl: String,
+        authorName: String,
+        authorUrl: String,
+        keyword: String,
+      },
+    ],
   },
   {
     timestamps: true, // Adds createdAt and updatedAt fields automatically

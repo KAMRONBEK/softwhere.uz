@@ -5,7 +5,7 @@ import { logger } from './logger';
 const UNSPLASH_API = 'https://api.unsplash.com';
 const FETCH_TIMEOUT_MS = 5000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_UNSPLASH_CALLS = 10;
+const MAX_UNSPLASH_CALLS = 20;
 
 class RateLimiter {
   private timestamps: number[] = [];
@@ -177,17 +177,28 @@ async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, '
 
 /**
  * Generates a cover image for a blog post topic.
- * Uses AI for keyword generation when available, falls back to deterministic extraction.
+ * When a curated keywordHint is provided (from SEO topic imageHints), uses it directly.
+ * Otherwise falls back to AI keyword generation from the title.
  */
-export async function getCoverImageForTopic(title: string): Promise<ICoverImage | null> {
+export async function getCoverImageForTopic(title: string, keywordHint?: string): Promise<ICoverImage | null> {
   try {
-    let keyword = await generateImageKeyword(title);
-    if (!keyword) {
-      keyword = extractFallbackKeyword(title);
-      logger.info(`Fallback keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
+    let keyword: string;
+
+    if (keywordHint) {
+      keyword = sanitizeKeyword(keywordHint);
+      logger.info(`Using curated keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
     } else {
-      logger.info(`AI keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
+      const aiKeyword = await generateImageKeyword(title);
+      if (aiKeyword) {
+        keyword = aiKeyword;
+        logger.info(`AI keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
+      } else {
+        keyword = extractFallbackKeyword(title);
+        logger.info(`Fallback keyword: "${keyword}" for title: "${title}"`, undefined, 'UNSPLASH');
+      }
     }
+
+    if (!keyword) return null;
 
     const image = await searchUnsplashImage(keyword);
     if (image) return { ...image, keyword };
@@ -197,4 +208,29 @@ export async function getCoverImageForTopic(title: string): Promise<ICoverImage 
     logger.error('Unexpected error in getCoverImageForTopic', error, 'UNSPLASH');
     return null;
   }
+}
+
+/**
+ * Fetches multiple images for inline use in a blog post.
+ * Uses provided imageHints as keywords, falls back to AI-generated keywords.
+ */
+export async function getImagesForPost(imageHints: string[], fallbackTitle: string): Promise<ICoverImage[]> {
+  const images: ICoverImage[] = [];
+  const hints = imageHints.length > 0 ? imageHints : [extractFallbackKeyword(fallbackTitle)];
+
+  for (const hint of hints.slice(0, 2)) {
+    try {
+      const keyword = sanitizeKeyword(hint);
+      if (!keyword) continue;
+
+      const image = await searchUnsplashImage(keyword);
+      if (image) {
+        images.push({ ...image, keyword });
+      }
+    } catch (error) {
+      logger.error(`Failed to fetch inline image for "${hint}"`, error, 'UNSPLASH');
+    }
+  }
+
+  return images;
 }

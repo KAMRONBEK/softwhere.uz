@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
       const localeParam = request.nextUrl.searchParams.get('locale');
 
-      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale' | 'coverImage'>;
+      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale' | 'coverImage'> & { category?: string };
 
       const query: Record<string, string> = { status: 'published' };
 
@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
 
       const posts: PublishedPostSummary[] = await BlogPost.find(query)
         .sort({ createdAt: -1 })
-        .select('title slug createdAt locale coverImage')
-        .limit(50)
+        .select('title slug createdAt locale coverImage category')
+        .limit(100)
         .lean();
 
       return posts;

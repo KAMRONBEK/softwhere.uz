@@ -6,7 +6,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://softwhere.uz';
   const locales = ['uz', 'ru', 'en'];
 
-  // Static pages
   const staticPages = ['', '/blog'];
 
   const staticUrls = locales.flatMap(locale =>
@@ -18,22 +17,45 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   );
 
-  // Dynamic blog posts
   try {
     await dbConnect();
-    const posts = await BlogPost.find({ status: 'published' }).select('slug locale updatedAt').lean();
+    const posts = await BlogPost.find({ status: 'published' }).select('slug locale updatedAt generationGroupId').lean();
 
-    const blogUrls = posts.map(post => ({
-      url: `${baseUrl}/${post.locale}/blog/${post.slug}`,
-      lastModified: new Date(post.updatedAt),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    }));
+    // Group posts by generationGroupId to build hreflang alternates
+    const groupMap = new Map<string, Array<{ slug: string; locale: string }>>();
+    for (const post of posts) {
+      if (post.generationGroupId) {
+        if (!groupMap.has(post.generationGroupId)) {
+          groupMap.set(post.generationGroupId, []);
+        }
+        groupMap.get(post.generationGroupId)!.push({
+          slug: post.slug,
+          locale: post.locale,
+        });
+      }
+    }
+
+    const blogUrls: MetadataRoute.Sitemap = posts.map(post => {
+      const siblings = post.generationGroupId ? (groupMap.get(post.generationGroupId) ?? []) : [];
+
+      const alternates: Record<string, string> = {};
+      for (const s of siblings) {
+        alternates[s.locale] = `${baseUrl}/${s.locale}/blog/${s.slug}`;
+      }
+
+      return {
+        url: `${baseUrl}/${post.locale}/blog/${post.slug}`,
+        lastModified: new Date(post.updatedAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+        ...(Object.keys(alternates).length > 1 && {
+          alternates: { languages: alternates },
+        }),
+      };
+    });
 
     return [...staticUrls, ...blogUrls];
-  } catch (error) {
-    console.error('Error generating sitemap:', error);
-
+  } catch {
     return staticUrls;
   }
 }
