@@ -28,6 +28,8 @@ interface PostGroup {
 interface GenerationRequest {
   category?: string;
   customTopic?: string;
+  sourceUrl?: string;
+  sourceText?: string;
   locales: string[];
 }
 
@@ -72,9 +74,12 @@ export default function AdminPostsPage() {
   const [generating, setGenerating] = useState(false);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [showGenerator, setShowGenerator] = useState(false);
+  const [genMode, setGenMode] = useState<'topic' | 'source'>('topic');
   const [generationForm, setGenerationForm] = useState<GenerationRequest>({
     category: 'auto',
     customTopic: '',
+    sourceUrl: '',
+    sourceText: '',
     locales: ['en', 'ru', 'uz'],
   });
 
@@ -152,9 +157,19 @@ export default function AdminPostsPage() {
   const generatePosts = async () => {
     try {
       setGenerating(true);
+
+      const payload: Record<string, unknown> = { locales: generationForm.locales };
+      if (genMode === 'source') {
+        if (generationForm.sourceUrl) payload.sourceUrl = generationForm.sourceUrl;
+        else if (generationForm.sourceText) payload.sourceText = generationForm.sourceText;
+      } else {
+        if (generationForm.customTopic) payload.customTopic = generationForm.customTopic;
+        else if (generationForm.category) payload.category = generationForm.category;
+      }
+
       const response = await adminFetch('/api/blog/generate', {
         method: 'POST',
-        body: JSON.stringify(generationForm),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -280,35 +295,93 @@ export default function AdminPostsPage() {
               </div>
 
               <div className='p-6'>
+                {/* Mode tabs */}
+                <div className='flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1'>
+                  <button
+                    onClick={() => setGenMode('topic')}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'topic' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    Topic / Category
+                  </button>
+                  <button
+                    onClick={() => setGenMode('source')}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'source' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    From Source
+                  </button>
+                </div>
+
                 <div className='grid lg:grid-cols-2 gap-6'>
                   <div className='space-y-4'>
-                    <AdminSelect
-                      label='Content Category'
-                      value={generationForm.category}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                        setGenerationForm({
-                          ...generationForm,
-                          category: e.target.value,
-                        })
-                      }
-                      options={Object.entries(BLOG_CATEGORIES).map(([key, label]) => ({
-                        value: key,
-                        label,
-                      }))}
-                    />
+                    {genMode === 'topic' ? (
+                      <>
+                        <AdminSelect
+                          label='Content Category'
+                          value={generationForm.category}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                            setGenerationForm({
+                              ...generationForm,
+                              category: e.target.value,
+                            })
+                          }
+                          options={Object.entries(BLOG_CATEGORIES).map(([key, label]) => ({
+                            value: key,
+                            label,
+                          }))}
+                        />
 
-                    <AdminInput
-                      label='Custom Topic (Optional)'
-                      type='text'
-                      value={generationForm.customTopic}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setGenerationForm({
-                          ...generationForm,
-                          customTopic: e.target.value,
-                        })
-                      }
-                      placeholder='Enter a specific topic...'
-                    />
+                        <AdminInput
+                          label='Custom Topic (Optional)'
+                          type='text'
+                          value={generationForm.customTopic}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setGenerationForm({
+                              ...generationForm,
+                              customTopic: e.target.value,
+                            })
+                          }
+                          placeholder='Enter a specific topic...'
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <AdminInput
+                          label='Source URL'
+                          type='url'
+                          value={generationForm.sourceUrl}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setGenerationForm({
+                              ...generationForm,
+                              sourceUrl: e.target.value,
+                              sourceText: e.target.value ? '' : generationForm.sourceText,
+                            })
+                          }
+                          placeholder='https://example.com/news-article...'
+                        />
+
+                        <div>
+                          <label className='block text-sm font-medium text-gray-700 mb-1'>Or Paste Content</label>
+                          <textarea
+                            value={generationForm.sourceText}
+                            onChange={e =>
+                              setGenerationForm({
+                                ...generationForm,
+                                sourceText: e.target.value,
+                                sourceUrl: e.target.value ? '' : generationForm.sourceUrl,
+                              })
+                            }
+                            placeholder='Paste article text, news content, or any source material...'
+                            rows={5}
+                            maxLength={5000}
+                            disabled={!!generationForm.sourceUrl}
+                            className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400'
+                          />
+                          <p className='mt-1 text-xs text-gray-400'>
+                            {generationForm.sourceText?.length ?? 0}/5000 chars. AI will write an original post using this as context.
+                          </p>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <div className='space-y-4'>
@@ -352,7 +425,11 @@ export default function AdminPostsPage() {
                   </AdminButton>
                   <AdminButton
                     onClick={generatePosts}
-                    disabled={generating || generationForm.locales.length === 0}
+                    disabled={
+                      generating ||
+                      generationForm.locales.length === 0 ||
+                      (genMode === 'source' && !generationForm.sourceUrl && !generationForm.sourceText)
+                    }
                     variant='success'
                     className='min-w-[140px]'
                   >
