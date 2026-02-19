@@ -1091,11 +1091,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to generate any posts' }, { status: 500 });
     }
 
-    logger.info(
-      `Generation complete: ${createdPosts.length} post(s)`,
-      { aiStats: { ...aiStats } },
-      'BLOG',
-    );
+    logger.info(`Generation complete: ${createdPosts.length} post(s)`, { aiStats: { ...aiStats } }, 'BLOG');
 
     return NextResponse.json({
       success: true,

@@ -572,11 +572,7 @@ export default function AdminPostsPage() {
               <div className='overflow-y-auto max-h-[60vh] bg-white'>
                 {selectedPost.coverImage?.url && (
                   <div className='relative w-full h-48 md:h-64 bg-gray-100'>
-                    <img
-                      src={selectedPost.coverImage.url}
-                      alt={selectedPost.title}
-                      className='w-full h-full object-cover'
-                    />
+                    <img src={selectedPost.coverImage.url} alt={selectedPost.title} className='w-full h-full object-cover' />
                     <span className='absolute bottom-2 right-3 text-[10px] text-white/80 bg-black/40 px-2 py-1 rounded'>
                       Photo by {selectedPost.coverImage.authorName}
                     </span>

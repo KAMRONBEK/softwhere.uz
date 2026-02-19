@@ -81,8 +81,12 @@ Important: All monetary values must be numbers, not strings with currency symbol
         if (developmentCost > 0 && deadlineWeeks > 0 && supportCost > 0) {
           logger.info(
             'AI estimation successful',
-            { developmentCost: Math.round(developmentCost), deadlineWeeks: Math.round(deadlineWeeks), supportCost: Math.round(supportCost) },
-            'AI',
+            {
+              developmentCost: Math.round(developmentCost),
+              deadlineWeeks: Math.round(deadlineWeeks),
+              supportCost: Math.round(supportCost),
+            },
+            'AI'
           );
 
           return NextResponse.json({
@@ -98,7 +102,7 @@ Important: All monetary values must be numbers, not strings with currency symbol
                 complexityMultiplier: ESTIMATOR.COMPLEXITY_MULTIPLIER[input.complexity],
                 featuresCost: input.features.reduce(
                   (sum, feature) => sum + (ESTIMATOR.FEATURE_PRICES[feature as keyof typeof ESTIMATOR.FEATURE_PRICES] || 0),
-                  0,
+                  0
                 ),
                 pagesCost: input.pages * ESTIMATOR.PAGE_PRICE,
                 techAdjustmentFactor: 1.0,

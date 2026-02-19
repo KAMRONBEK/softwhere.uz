@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
             complexityMultiplier: ESTIMATOR.COMPLEXITY_MULTIPLIER[input.complexity],
             featuresCost: input.features.reduce(
               (sum, feature) => sum + (ESTIMATOR.FEATURE_PRICES[feature as keyof typeof ESTIMATOR.FEATURE_PRICES] || 0),
-              0,
+              0
             ),
             pagesCost: input.pages * ESTIMATOR.PAGE_PRICE,
             techAdjustmentFactor: 1.0,

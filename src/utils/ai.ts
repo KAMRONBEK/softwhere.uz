@@ -58,10 +58,7 @@ export function recordQuotaCooldown(delayMs?: number): void {
  * Quota-aware text generation with bounded retry.
  * Returns the generated text or null when blocked/failed.
  */
-export async function safeGenerateContent(
-  prompt: string,
-  label: string,
-): Promise<string | null> {
+export async function safeGenerateContent(prompt: string, label: string): Promise<string | null> {
   const client = getClient();
   if (!client) {
     aiStats.fallbackUsed++;
@@ -103,10 +100,7 @@ export async function safeGenerateContent(
  * Quota-aware JSON generation with bounded retry.
  * Returns raw JSON string or null when blocked/failed.
  */
-export async function safeGenerateJSON(
-  prompt: string,
-  label: string,
-): Promise<string | null> {
+export async function safeGenerateJSON(prompt: string, label: string): Promise<string | null> {
   const client = getClient();
   if (!client) {
     aiStats.fallbackUsed++;
