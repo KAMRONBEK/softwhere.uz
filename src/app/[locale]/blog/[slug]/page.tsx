@@ -18,7 +18,13 @@ import remarkGfm from 'remark-gfm';
 
 import BlogPostClient from '@/components/BlogPostClient';
 
+import dbConnect from '@/lib/db';
+
+import BlogPostModel from '@/models/BlogPost';
+
 import { CoverImage } from '@/types';
+
+import { validateLocale } from '@/utils/auth';
 
 interface BlogPost {
   _id: string;
@@ -72,29 +78,22 @@ function extractKeywords(content: string): string[] {
   return keywords.filter(keyword => contentLower.includes(keyword));
 }
 
-// Fetch blog post data
-
-async function getBlogPost(
-  slug: string,
-
-  locale: string
-): Promise<BlogPost | null> {
+async function getBlogPost(slug: string, locale: string): Promise<BlogPost | null> {
   try {
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `http://localhost:${process.env.PORT || 3000}`;
-    const url = `${baseUrl}/api/blog/posts/${slug}?locale=${locale}`;
+    await dbConnect();
+    const validLocale = validateLocale(locale, 'en');
 
-    const response = await fetch(url, { cache: 'no-store' });
+    let post = await BlogPostModel.findOne({ slug, locale: validLocale, status: 'published' }).lean();
 
-    if (!response.ok) {
-      return null;
+    if (!post) {
+      post = await BlogPostModel.findOne({ slug, status: 'published' }).lean();
     }
 
-    const data = await response.json();
+    if (!post) return null;
 
-    return data.post;
+    return JSON.parse(JSON.stringify(post));
   } catch (error) {
     console.error('Error fetching blog post:', error);
-
     return null;
   }
 }
