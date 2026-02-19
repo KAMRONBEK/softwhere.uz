@@ -250,9 +250,11 @@ export default function AdminPostsPage() {
       const allOk = results.every(r => r.ok);
       setSelectedGroups(new Set());
       fetchPosts();
-      alert(allOk
-        ? `${groups.length} group(s) ${status === 'published' ? 'published' : 'unpublished'} successfully!`
-        : 'Some posts failed to update');
+      alert(
+        allOk
+          ? `${groups.length} group(s) ${status === 'published' ? 'published' : 'unpublished'} successfully!`
+          : 'Some posts failed to update'
+      );
     } catch {
       alert('Failed to update posts');
     }
@@ -263,11 +265,7 @@ export default function AdminPostsPage() {
     const allPosts = groups.flatMap(g => g.posts);
     if (!confirm(`Delete ${groups.length} group(s) (${allPosts.length} posts total)?`)) return;
     try {
-      const results = await Promise.all(
-        allPosts.map(post =>
-          adminFetch(`/api/admin/posts/${post._id}`, { method: 'DELETE' })
-        )
-      );
+      const results = await Promise.all(allPosts.map(post => adminFetch(`/api/admin/posts/${post._id}`, { method: 'DELETE' })));
       const allOk = results.every(r => r.ok);
       setSelectedGroups(new Set());
       fetchPosts();
@@ -532,9 +530,7 @@ export default function AdminPostsPage() {
                 )}
                 <div>
                   <h3 className='text-lg font-semibold text-gray-900'>
-                    {selectedGroups.size > 0
-                      ? `${selectedGroups.size} of ${postGroups.length} groups selected`
-                      : 'All Posts'}
+                    {selectedGroups.size > 0 ? `${selectedGroups.size} of ${postGroups.length} groups selected` : 'All Posts'}
                   </h3>
                   <p className='text-sm text-gray-600'>
                     {posts.length} total posts in {postGroups.length} groups
