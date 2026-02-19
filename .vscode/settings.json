@@ -3,7 +3,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
+    "source.organizeImports": "never"
   },
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
@@ -37,7 +37,7 @@
   ],
   "eslint.format.enable": false,
   "prettier.requireConfig": true,
-  "prettier.useEditorConfig": false,
+  "prettier.useEditorConfig": true,
   "files.associations": {
     "*.css": "tailwindcss",
     "*.scss": "tailwindcss"
@@ -81,7 +81,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
   },
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

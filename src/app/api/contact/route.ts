@@ -19,8 +19,7 @@ export async function POST(request: NextRequest) {
 
     const text =
       `<b>Message from softwhere.uz contact form ${from || ''}:</b>\n` +
-      `<b>\nName:</b> ${name}\n<b>Phone Number:</b> ${phone}` +
-      (message ? `\n<b>Message:</b> ${message}` : '');
+      `<b>\nName:</b> ${name}\n<b>Phone Number:</b> ${phone}${message ? `\n<b>Message:</b> ${message}` : ''}`;
 
     const tgResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?parse_mode=html`, {
       method: 'POST',

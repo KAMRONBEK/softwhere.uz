@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+.vercel/
+coverage/
+
+*.config.js
+*.config.ts
+*.config.mjs
+next.config.*
+tailwind.config.*
+postcss.config.*
