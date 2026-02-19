@@ -38,38 +38,93 @@ jobs:
     runs-on: ubuntu-latest
     environment: Production
     steps:
-      - name: Generate blog post
+      - name: Generate English post
+        id: generate_en
         env:
           API_SECRET: ${{ secrets.API_SECRET }}
           PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
           CATEGORY: ${{ github.event.inputs.category }}
           CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
         run: |
-          # Build JSON payload
+          API_URL="${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate"
+
           if [ -n "$CUSTOM_TOPIC" ]; then
-            PAYLOAD=$(printf '{"customTopic":"%s","locales":["en","ru","uz"]}' "$CUSTOM_TOPIC")
+            PAYLOAD=$(printf '{"customTopic":"%s","locales":["en"]}' "$CUSTOM_TOPIC")
           elif [ -n "$CATEGORY" ]; then
-            PAYLOAD=$(printf '{"category":"%s","locales":["en","ru","uz"]}' "$CATEGORY")
+            PAYLOAD=$(printf '{"category":"%s","locales":["en"]}' "$CATEGORY")
           else
-            # Auto mode: no category or topic — API uses smart selection
-            PAYLOAD='{"locales":["en","ru","uz"]}'
+            PAYLOAD='{"locales":["en"]}'
           fi
 
-          echo "Payload: $PAYLOAD"
+          echo "EN Payload: $PAYLOAD"
 
-          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 360 -X POST \
+          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 90 -X POST \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $API_SECRET" \
-            -d "$PAYLOAD" \
-            "${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate")
+            -d "$PAYLOAD" "$API_URL")
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | head -n -1)
 
-          echo "HTTP Status: $HTTP_CODE"
-          echo "Response: $BODY"
+          echo "EN Status: $HTTP_CODE"
+          echo "EN Response: $BODY"
 
           if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "::error::Blog generation failed with status $HTTP_CODE"
+            echo "::error::English generation failed with status $HTTP_CODE"
             exit 1
+          fi
+
+          GROUP_ID=$(echo "$BODY" | jq -r '.generationGroupId')
+          echo "generationGroupId=$GROUP_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Russian post
+        env:
+          API_SECRET: ${{ secrets.API_SECRET }}
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          GROUP_ID: ${{ steps.generate_en.outputs.generationGroupId }}
+        run: |
+          API_URL="${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate"
+          PAYLOAD=$(printf '{"generationGroupId":"%s","locales":["ru"]}' "$GROUP_ID")
+
+          echo "RU Payload: $PAYLOAD"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 90 -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $API_SECRET" \
+            -d "$PAYLOAD" "$API_URL")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "RU Status: $HTTP_CODE"
+          echo "RU Response: $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::warning::Russian generation failed with status $HTTP_CODE"
+          fi
+
+      - name: Generate Uzbek post
+        env:
+          API_SECRET: ${{ secrets.API_SECRET }}
+          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
+          GROUP_ID: ${{ steps.generate_en.outputs.generationGroupId }}
+        run: |
+          API_URL="${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate"
+          PAYLOAD=$(printf '{"generationGroupId":"%s","locales":["uz"]}' "$GROUP_ID")
+
+          echo "UZ Payload: $PAYLOAD"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 90 -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $API_SECRET" \
+            -d "$PAYLOAD" "$API_URL")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "UZ Status: $HTTP_CODE"
+          echo "UZ Response: $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "::warning::Uzbek generation failed with status $HTTP_CODE"
           fi

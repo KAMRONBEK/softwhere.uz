@@ -5,6 +5,7 @@ const CONTEXT = 'AI';
 const DEFAULT_COOLDOWN_MS = 60_000;
 const MAX_RETRIES = 2;
 const MODEL = 'deepseek-chat';
+const DEFAULT_TEMPERATURE = 0.7;
 
 let quotaBlockedUntil = 0;
 let _client: OpenAI | null = null;
@@ -58,7 +59,7 @@ export function recordQuotaCooldown(delayMs?: number): void {
  * Quota-aware text generation with bounded retry.
  * Returns the generated text or null when blocked/failed.
  */
-export async function safeGenerateContent(prompt: string, label: string): Promise<string | null> {
+export async function safeGenerateContent(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
   const client = getClient();
   if (!client) {
     aiStats.fallbackUsed++;
@@ -78,6 +79,8 @@ export async function safeGenerateContent(prompt: string, label: string): Promis
       const completion = await client.chat.completions.create({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
+        temperature: DEFAULT_TEMPERATURE,
+        ...(maxTokens && { max_tokens: maxTokens }),
       });
       return completion.choices[0]?.message?.content ?? null;
     } catch (error) {
@@ -100,7 +103,7 @@ export async function safeGenerateContent(prompt: string, label: string): Promis
  * Quota-aware JSON generation with bounded retry.
  * Returns raw JSON string or null when blocked/failed.
  */
-export async function safeGenerateJSON(prompt: string, label: string): Promise<string | null> {
+export async function safeGenerateJSON(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
   const client = getClient();
   if (!client) {
     aiStats.fallbackUsed++;
@@ -121,6 +124,8 @@ export async function safeGenerateJSON(prompt: string, label: string): Promise<s
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_object' },
+        temperature: DEFAULT_TEMPERATURE,
+        ...(maxTokens && { max_tokens: maxTokens }),
       });
       return completion.choices[0]?.message?.content ?? null;
     } catch (error) {
