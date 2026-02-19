@@ -1,5 +1,5 @@
 import dbConnect from '@/lib/db';
-import BlogPost, { ICoverImage } from '@/models/BlogPost';
+import BlogPost, { IBlogPost, ICoverImage } from '@/models/BlogPost';
 import { verifyApiSecret } from '@/utils/auth';
 import { safeGenerateContent, aiStats } from '@/utils/ai';
 import { logger } from '@/utils/logger';
@@ -107,7 +107,7 @@ Return JSON:
 
 Pick the category that best matches how Softwhere.uz would cover this topic. Security/hacking → cybersecurity. AI news → ai-solutions. App news → mobile-app-development. Etc.`;
 
-  const result = await safeGenerateContent(prompt, 'source-classify');
+  const result = await safeGenerateContent(prompt, 'source-classify', 500);
 
   if (result) {
     try {
@@ -438,7 +438,7 @@ The Central Asian tech market is evolving rapidly. Uzbekistan in particular has 
 async function generateMetaDescription(title: string, primaryKeyword: string, locale: string): Promise<string> {
   const prompt = `Write a 150-160 character meta description for a blog post titled "${title}". Include the keyword "${primaryKeyword}". Make it compelling and action-oriented. Write in ${locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek'}. Return ONLY the meta description.`;
 
-  const result = await safeGenerateContent(prompt, `meta-desc-${locale}`);
+  const result = await safeGenerateContent(prompt, `meta-desc-${locale}`, 200);
   if (result && result.length <= 200) return result.trim().replace(/^"|"$/g, '');
 
   return `${title} — Expert insights and practical advice from Softwhere.uz`;
@@ -545,101 +545,131 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
-    // --- Resolve source content (if any) -------------------------------------
-
-    let resolvedSource: string | null = null;
-
-    if (sourceUrl) {
-      try {
-        logger.info(`Fetching source URL: ${sourceUrl}`, undefined, 'BLOG');
-        resolvedSource = await extractTextFromUrl(sourceUrl);
-        logger.info(`Extracted ${resolvedSource.length} chars from URL`, undefined, 'BLOG');
-      } catch (err) {
-        logger.error('Failed to fetch source URL', err, 'BLOG');
-        return NextResponse.json({ error: 'Could not fetch the provided URL' }, { status: 400 });
-      }
-    } else if (sourceText) {
-      resolvedSource = sourceText.trim().slice(0, MAX_SOURCE_TEXT_LENGTH);
-    }
-
-    // --- Topic selection -----------------------------------------------------
-
     let selectedTopic: SEOTopic & { servicePillar: string; pillarName: string };
     let sourceClassification: SourceClassification | null = null;
+    let resolvedSource: string | null = null;
+    let generationGroupId: string;
+    let coverImage: ICoverImage | null = null;
+    let inlineImages: ICoverImage[] = [];
+    let allContentImages: ICoverImage[] = [];
+    let metaDesc: string;
 
-    if (resolvedSource) {
-      // Source-based mode: AI classifies the content
-      sourceClassification = await classifySourceContent(resolvedSource);
-      const pillar = SERVICE_PILLARS.find(p => p.id === sourceClassification!.category);
+    // --- Continuation mode: reuse topic/images from a previous call ----------
+
+    if (body.generationGroupId) {
+      const existingPost = await BlogPost.findOne({ generationGroupId: body.generationGroupId }).lean<IBlogPost>();
+
+      if (!existingPost) {
+        return NextResponse.json({ error: 'No post found for the given generationGroupId' }, { status: 404 });
+      }
+
+      const pillar = SERVICE_PILLARS.find(p => p.id === existingPost.category);
 
       selectedTopic = {
-        id: `source-${Date.now()}`,
-        title: sourceClassification.title,
-        primaryKeyword: sourceClassification.primaryKeyword,
-        secondaryKeywords: sourceClassification.secondaryKeywords,
+        id: existingPost.category ?? 'unknown',
+        title: existingPost.title,
+        primaryKeyword: existingPost.primaryKeyword ?? existingPost.title.toLowerCase().slice(0, 60),
+        secondaryKeywords: existingPost.secondaryKeywords ?? [],
         searchIntent: 'informational',
-        postFormat: sourceClassification.postFormat,
-        targetQueries: [sourceClassification.primaryKeyword],
-        imageHints: sourceClassification.imageHints,
-        servicePillar: sourceClassification.category,
+        postFormat: (existingPost.postFormat ?? 'beginner-guide') as PostFormat,
+        targetQueries: [existingPost.primaryKeyword ?? existingPost.title.toLowerCase()],
+        imageHints: [],
+        servicePillar: existingPost.category ?? 'web-app-development',
         pillarName: pillar?.name ?? 'Software Development',
       };
-      logger.info(
-        `Source classified: "${selectedTopic.title}" (${selectedTopic.servicePillar}/${selectedTopic.postFormat})`,
-        undefined,
-        'BLOG'
-      );
-    } else if (customTopic) {
-      const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${customTopic}"`;
-      const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize');
-      const topicTitle = normalized ? normalized.trim().replace(/^"|"$/g, '') : customTopic;
 
-      selectedTopic = {
-        id: `custom-${Date.now()}`,
-        title: topicTitle,
-        primaryKeyword: topicTitle.toLowerCase().slice(0, 60),
-        secondaryKeywords: [],
-        searchIntent: 'informational',
-        postFormat: 'beginner-guide' as PostFormat,
-        targetQueries: [topicTitle.toLowerCase()],
-        imageHints: [],
-        servicePillar: 'web-app-development',
-        pillarName: 'Software Development',
-      };
-      logger.info(`Custom topic: "${topicTitle}"`, undefined, 'BLOG');
-    } else if (category && category !== 'auto') {
-      if (category !== 'random' && !VALID_CATEGORIES.includes(category)) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
+      generationGroupId = body.generationGroupId;
+      coverImage = existingPost.coverImage ?? null;
+      allContentImages = existingPost.contentImages ?? [];
+      inlineImages = coverImage ? allContentImages.filter(img => img.url !== coverImage!.url) : allContentImages;
+      metaDesc = existingPost.metaDescription ?? `${selectedTopic.title} — Expert insights from Softwhere.uz`;
 
-      const pillarTopics = category === 'random' ? getAllTopics() : getAllTopics().filter(t => t.servicePillar === category);
-
-      if (pillarTopics.length === 0) {
-        return NextResponse.json({ error: 'No topics for category' }, { status: 400 });
-      }
-
-      selectedTopic = pillarTopics[Math.floor(Math.random() * pillarTopics.length)];
+      logger.info(`Continuing generation group ${generationGroupId} for locales: ${locales.join(', ')}`, undefined, 'BLOG');
     } else {
-      selectedTopic = await smartSelectTopic();
-      logger.info(
-        `Smart selected: "${selectedTopic.title}" (${selectedTopic.servicePillar}/${selectedTopic.postFormat})`,
-        undefined,
-        'BLOG'
-      );
+      // --- Full setup: resolve source, select topic, fetch images, meta ------
+
+      if (sourceUrl) {
+        try {
+          logger.info(`Fetching source URL: ${sourceUrl}`, undefined, 'BLOG');
+          resolvedSource = await extractTextFromUrl(sourceUrl);
+          logger.info(`Extracted ${resolvedSource.length} chars from URL`, undefined, 'BLOG');
+        } catch (err) {
+          logger.error('Failed to fetch source URL', err, 'BLOG');
+          return NextResponse.json({ error: 'Could not fetch the provided URL' }, { status: 400 });
+        }
+      } else if (sourceText) {
+        resolvedSource = sourceText.trim().slice(0, MAX_SOURCE_TEXT_LENGTH);
+      }
+
+      if (resolvedSource) {
+        sourceClassification = await classifySourceContent(resolvedSource);
+        const pillar = SERVICE_PILLARS.find(p => p.id === sourceClassification!.category);
+
+        selectedTopic = {
+          id: `source-${Date.now()}`,
+          title: sourceClassification.title,
+          primaryKeyword: sourceClassification.primaryKeyword,
+          secondaryKeywords: sourceClassification.secondaryKeywords,
+          searchIntent: 'informational',
+          postFormat: sourceClassification.postFormat,
+          targetQueries: [sourceClassification.primaryKeyword],
+          imageHints: sourceClassification.imageHints,
+          servicePillar: sourceClassification.category,
+          pillarName: pillar?.name ?? 'Software Development',
+        };
+        logger.info(
+          `Source classified: "${selectedTopic.title}" (${selectedTopic.servicePillar}/${selectedTopic.postFormat})`,
+          undefined,
+          'BLOG'
+        );
+      } else if (customTopic) {
+        const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${customTopic}"`;
+        const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize', 100);
+        const topicTitle = normalized ? normalized.trim().replace(/^"|"$/g, '') : customTopic;
+
+        selectedTopic = {
+          id: `custom-${Date.now()}`,
+          title: topicTitle,
+          primaryKeyword: topicTitle.toLowerCase().slice(0, 60),
+          secondaryKeywords: [],
+          searchIntent: 'informational',
+          postFormat: 'beginner-guide' as PostFormat,
+          targetQueries: [topicTitle.toLowerCase()],
+          imageHints: [],
+          servicePillar: 'web-app-development',
+          pillarName: 'Software Development',
+        };
+        logger.info(`Custom topic: "${topicTitle}"`, undefined, 'BLOG');
+      } else if (category && category !== 'auto') {
+        if (category !== 'random' && !VALID_CATEGORIES.includes(category)) {
+          return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+        }
+
+        const pillarTopics = category === 'random' ? getAllTopics() : getAllTopics().filter(t => t.servicePillar === category);
+
+        if (pillarTopics.length === 0) {
+          return NextResponse.json({ error: 'No topics for category' }, { status: 400 });
+        }
+
+        selectedTopic = pillarTopics[Math.floor(Math.random() * pillarTopics.length)];
+      } else {
+        selectedTopic = await smartSelectTopic();
+        logger.info(
+          `Smart selected: "${selectedTopic.title}" (${selectedTopic.servicePillar}/${selectedTopic.postFormat})`,
+          undefined,
+          'BLOG'
+        );
+      }
+
+      generationGroupId = uuidv4();
+
+      const coverKeyword = selectedTopic.imageHints?.[0];
+      coverImage = await getCoverImageForTopic(selectedTopic.title, coverKeyword);
+      inlineImages = await getImagesForPost(selectedTopic.imageHints, selectedTopic.title);
+      allContentImages = [...(coverImage ? [coverImage] : []), ...inlineImages];
+
+      metaDesc = await generateMetaDescription(selectedTopic.title, selectedTopic.primaryKeyword, 'en');
     }
-
-    const generationGroupId = uuidv4();
-
-    // --- Images --------------------------------------------------------------
-
-    const coverKeyword = selectedTopic.imageHints?.[0];
-    const coverImage = await getCoverImageForTopic(selectedTopic.title, coverKeyword);
-    const inlineImages = await getImagesForPost(selectedTopic.imageHints, selectedTopic.title);
-    const allContentImages = [...(coverImage ? [coverImage] : []), ...inlineImages];
-
-    // --- Meta description ----------------------------------------------------
-
-    const metaDesc = await generateMetaDescription(selectedTopic.title, selectedTopic.primaryKeyword, 'en');
 
     // --- Generate per locale -------------------------------------------------
 
@@ -662,7 +692,7 @@ export async function POST(request: NextRequest) {
         let localizedTitle = selectedTopic.title;
         if (locale !== 'en') {
           const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${selectedTopic.title}". Only return the translated title, nothing else.`;
-          const translated = await safeGenerateContent(titlePrompt, `title-translate-${locale}`);
+          const translated = await safeGenerateContent(titlePrompt, `title-translate-${locale}`, 100);
           if (translated) {
             localizedTitle = translated.trim().replace(/^"|"$/g, '');
           }
@@ -672,7 +702,7 @@ export async function POST(request: NextRequest) {
         let localizedMeta = metaDesc;
         if (locale !== 'en') {
           const metaPrompt = `Translate this meta description into ${locale === 'ru' ? 'Russian' : 'Uzbek'}. Keep it under 160 characters. Return ONLY the translation.\n\n"${metaDesc}"`;
-          const translatedMeta = await safeGenerateContent(metaPrompt, `meta-translate-${locale}`);
+          const translatedMeta = await safeGenerateContent(metaPrompt, `meta-translate-${locale}`, 200);
           if (translatedMeta) {
             localizedMeta = translatedMeta.trim().replace(/^"|"$/g, '');
           }
