@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
 
-A modern, multilingual blog platform and portfolio website built with Next.js 14, featuring AI-powered content generation (DeepSeek), internationalization, project cost estimator, and an admin panel.
+A modern, multilingual blog platform and portfolio website built with Next.js 14, featuring AI-powered content generation (DeepSeek), internationalization, and project cost estimator.
 
 ---
 
@@ -32,7 +32,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 14
 
 - **3 Languages**: Uzbek (uz), Russian (ru), English (en)
 - **Smart Language Switching**: Automatic detection and seamless switching via `next-intl`
-- **Locale-aware Routes**: `/[locale]/blog`, `/[locale]/admin`, etc.
+- **Locale-aware Routes**: `/[locale]/blog`, `/[locale]/estimator`, etc.
 
 ### 🤖 AI-Powered Content Generation
 
@@ -62,11 +62,6 @@ A modern, multilingual blog platform and portfolio website built with Next.js 14
 - **Dark/Light Theme**: `next-themes` integration
 - **Animations**: AOS (Animate On Scroll), React Type Animation
 - **Project Showcase**: Portfolio slider with App Store / Play Market links
-
-### 🔐 Admin Panel
-
-- **Content Management**: Full CRUD for blog posts
-- **Publish/Unpublish**: Draft and published post management
 
 ### 📊 Performance & SEO
 
@@ -127,7 +122,6 @@ A modern, multilingual blog platform and portfolio website built with Next.js 14
 | `NEXT_PUBLIC_TG_BOT_TOKEN` | ✅* | Telegram bot for contact form notifications |
 | `NEXT_PUBLIC_TG_CHAT_ID` | ✅* | Telegram chat for contact form notifications |
 | `DEEPSEEK_API_KEY` | ❌ | DeepSeek AI for blog generation & estimator |
-| `API_SECRET` | ❌ | Secures admin API endpoints |
 | `UNSPLASH_ACCESS_KEY` | ❌ | Cover images for AI-generated posts |
 
 *Required for contact form
@@ -194,7 +188,6 @@ softwhere.uz/
 │   │   ├── [locale]/        # Internationalized routes
 │   │   │   ├── page.tsx     # Home
 │   │   │   ├── blog/        # Blog listing & posts
-│   │   │   ├── admin/       # Admin panel
 │   │   │   └── estimator/   # Cost estimator
 │   │   ├── api/             # API routes
 │   │   ├── sitemap.ts
@@ -236,8 +229,6 @@ softwhere.uz/
 | `/api/blog/posts/[slug]` | GET | Single post by slug |
 | `/api/blog/posts/related` | GET | Related posts by `generationGroupId` |
 | `/api/blog/generate` | POST | Generate blog posts (AI) |
-| `/api/admin/posts` | GET/POST | Admin content management |
-| `/api/admin/posts/[id]` | GET/PUT/DELETE | Admin post management |
 | `/api/contact` | POST | Contact form (Telegram) |
 | `/api/estimate` | POST | Project cost estimate |
 | `/api/health` | GET | Health check |
