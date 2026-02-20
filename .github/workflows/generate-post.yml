@@ -32,99 +32,48 @@ on:
         required: false
         type: string
         default: ''
+      sourceUrl:
+        description: 'URL to fetch and use as source material (overrides topic selection)'
+        required: false
+        type: string
+        default: ''
+      sourceText:
+        description: 'Raw text as source material (overrides topic selection; max 5000 chars)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     environment: Production
+    timeout-minutes: 30
     steps:
-      - name: Generate English post
-        id: generate_en
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Generate blog post
         env:
-          API_SECRET: ${{ secrets.API_SECRET }}
-          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
-          CATEGORY: ${{ github.event.inputs.category }}
-          CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          INPUT_CATEGORY: ${{ github.event.inputs.category }}
+          INPUT_CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
+          INPUT_SOURCE_URL: ${{ github.event.inputs.sourceUrl }}
+          INPUT_SOURCE_TEXT: ${{ github.event.inputs.sourceText }}
         run: |
-          API_URL="${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate"
-
-          if [ -n "$CUSTOM_TOPIC" ]; then
-            PAYLOAD=$(printf '{"customTopic":"%s","locales":["en"]}' "$CUSTOM_TOPIC")
-          elif [ -n "$CATEGORY" ]; then
-            PAYLOAD=$(printf '{"category":"%s","locales":["en"]}' "$CATEGORY")
-          else
-            PAYLOAD='{"locales":["en"]}'
-          fi
-
-          echo "EN Payload: $PAYLOAD"
-
-          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 90 -X POST \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $API_SECRET" \
-            -d "$PAYLOAD" "$API_URL")
-
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-
-          echo "EN Status: $HTTP_CODE"
-          echo "EN Response: $BODY"
-
-          if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "::error::English generation failed with status $HTTP_CODE"
-            exit 1
-          fi
-
-          GROUP_ID=$(echo "$BODY" | jq -r '.generationGroupId')
-          echo "generationGroupId=$GROUP_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Generate Russian post
-        env:
-          API_SECRET: ${{ secrets.API_SECRET }}
-          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
-          GROUP_ID: ${{ steps.generate_en.outputs.generationGroupId }}
-        run: |
-          API_URL="${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate"
-          PAYLOAD=$(printf '{"generationGroupId":"%s","locales":["ru"]}' "$GROUP_ID")
-
-          echo "RU Payload: $PAYLOAD"
-
-          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 90 -X POST \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $API_SECRET" \
-            -d "$PAYLOAD" "$API_URL")
-
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-
-          echo "RU Status: $HTTP_CODE"
-          echo "RU Response: $BODY"
-
-          if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "::warning::Russian generation failed with status $HTTP_CODE"
-          fi
-
-      - name: Generate Uzbek post
-        env:
-          API_SECRET: ${{ secrets.API_SECRET }}
-          PRODUCTION_URL: ${{ secrets.PRODUCTION_URL }}
-          GROUP_ID: ${{ steps.generate_en.outputs.generationGroupId }}
-        run: |
-          API_URL="${PRODUCTION_URL:-https://www.softwhere.uz}/api/blog/generate"
-          PAYLOAD=$(printf '{"generationGroupId":"%s","locales":["uz"]}' "$GROUP_ID")
-
-          echo "UZ Payload: $PAYLOAD"
-
-          RESPONSE=$(curl -s -w "\n%{http_code}" --max-time 90 -X POST \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $API_SECRET" \
-            -d "$PAYLOAD" "$API_URL")
-
-          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
-          BODY=$(echo "$RESPONSE" | head -n -1)
-
-          echo "UZ Status: $HTTP_CODE"
-          echo "UZ Response: $BODY"
-
-          if [ "$HTTP_CODE" -ne 200 ]; then
-            echo "::warning::Uzbek generation failed with status $HTTP_CODE"
-          fi
+          npx tsx scripts/generate-post.ts \
+            --category "$INPUT_CATEGORY" \
+            --customTopic "$INPUT_CUSTOM_TOPIC" \
+            --sourceUrl "$INPUT_SOURCE_URL" \
+            --sourceText "$INPUT_SOURCE_TEXT" \
+            --locales "en,ru,uz"
