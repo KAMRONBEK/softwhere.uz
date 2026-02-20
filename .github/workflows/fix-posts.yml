@@ -1,0 +1,49 @@
+name: Fix Blog Posts
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        type: choice
+        default: 'dry-run'
+        options:
+          - dry-run
+          - analyze-only
+          - fix
+      force:
+        description: 'Process all groups (even healthy ones)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 120
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Fix blog posts
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+        run: |
+          FLAGS=""
+          if [ "${{ inputs.mode }}" = "dry-run" ]; then FLAGS="--dry-run"; fi
+          if [ "${{ inputs.mode }}" = "analyze-only" ]; then FLAGS="--analyze-only"; fi
+          if [ "${{ inputs.force }}" = "true" ]; then FLAGS="$FLAGS --force"; fi
+          npx tsx scripts/regenerate-posts.ts $FLAGS
