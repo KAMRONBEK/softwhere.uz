@@ -1,21 +1,35 @@
 /**
- * Regenerate all blog posts in production using current prompts/blueprints.
+ * Fix & heal all blog posts: enforce structure, fill missing fields,
+ * deduplicate covers/titles/content, inject inline images.
  *
  * Usage:
  *   1. Pull production env:  yarn env:pull:production
- *   2. Run:                  npx tsx scripts/regenerate-posts.ts
+ *   2. Run:                  npx tsx scripts/regenerate-posts.ts [flags]
  *
- * - Processes groups sequentially (~15 min each, ~30 hours total for 41 groups)
- * - Keeps existing images, slugs, status, and dates
- * - Regenerates content, titles (translated), meta descriptions
- * - Classifies topic via DeepSeek for posts missing category/postFormat
- * - Safe to resume: skips groups whose EN post already has a `postFormat` field
- *   (remove the --resume flag logic if you want a full re-run)
+ * Flags:
+ *   --dry-run         Report issues without writing to DB
+ *   --analyze-only    Only run analysis phase, print report, exit
+ *   --resume          Skip groups that already have zero detected issues
+ *   --force           Process every group even if it looks healthy
  */
 
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import OpenAI from 'openai';
+import {
+  findDuplicateCovers,
+  findSimilarTitles,
+  findSimilarContent,
+} from './lib/similarity';
+import {
+  analyzeGroup,
+  countIssues,
+  type GroupAnalysis,
+  type PostDoc,
+  SERVICE_PILLARS,
+  POST_FORMATS,
+  type PostFormat,
+} from './lib/post-structure';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -23,18 +37,20 @@ import OpenAI from 'openai';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
 if (!MONGODB_URI) throw new Error('MONGODB_URI not set');
 if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
-
-const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
 const MODEL = 'deepseek-chat';
 const TEMPERATURE = 0.7;
 const UNSPLASH_API = 'https://api.unsplash.com';
 
-const SKIP_ALREADY_DONE = process.argv.includes('--resume');
+const DRY_RUN = process.argv.includes('--dry-run');
+const ANALYZE_ONLY = process.argv.includes('--analyze-only');
+const RESUME = process.argv.includes('--resume');
+const FORCE = process.argv.includes('--force');
 
 // ---------------------------------------------------------------------------
 // Mongoose model (inline to avoid @/ alias issues)
@@ -73,6 +89,10 @@ const BlogPost = mongoose.models.BlogPost || mongoose.model('BlogPost', BlogPost
 // AI helpers
 // ---------------------------------------------------------------------------
 
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function generate(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
@@ -98,25 +118,8 @@ async function generate(prompt: string, label: string, maxTokens?: number): Prom
 }
 
 // ---------------------------------------------------------------------------
-// Topic classification (for posts missing category/postFormat)
+// Topic classification
 // ---------------------------------------------------------------------------
-
-const SERVICE_PILLARS = [
-  'mobile-app-development',
-  'mvp-startup',
-  'ai-solutions',
-  'web-app-development',
-  'telegram-bot-development',
-  'crm-development',
-  'business-automation',
-  'saas-development',
-  'outsourcing',
-  'project-rescue',
-  'ecommerce',
-  'ui-ux-design',
-  'maintenance-support',
-  'cybersecurity',
-];
 
 const PILLAR_NAMES: Record<string, string> = {
   'mobile-app-development': 'Mobile App Development',
@@ -134,23 +137,6 @@ const PILLAR_NAMES: Record<string, string> = {
   'maintenance-support': 'Maintenance & Support',
   cybersecurity: 'Cybersecurity',
 };
-
-const POST_FORMATS = [
-  'cost-guide',
-  'comparison',
-  'how-to',
-  'listicle',
-  'faq',
-  'case-study',
-  'myth-buster',
-  'checklist',
-  'trend-report',
-  'roi-analysis',
-  'beginner-guide',
-  'deep-dive',
-] as const;
-
-type PostFormat = (typeof POST_FORMATS)[number];
 
 interface TopicInfo {
   title: string;
@@ -186,13 +172,11 @@ Pick the category that best matches how a software development company would cov
         title,
         category,
         pillarName: PILLAR_NAMES[category] ?? 'Software Development',
-        postFormat: POST_FORMATS.includes(parsed.postFormat) ? (parsed.postFormat as PostFormat) : 'beginner-guide',
+        postFormat: (POST_FORMATS as readonly string[]).includes(parsed.postFormat) ? (parsed.postFormat as PostFormat) : 'beginner-guide',
         primaryKeyword: parsed.primaryKeyword || title.toLowerCase().slice(0, 60),
         secondaryKeywords: Array.isArray(parsed.secondaryKeywords) ? parsed.secondaryKeywords.slice(0, 5) : [],
       };
-    } catch {
-      /* fall through */
-    }
+    } catch { /* fall through */ }
   }
   return {
     title,
@@ -205,7 +189,7 @@ Pick the category that best matches how a software development company would cov
 }
 
 // ---------------------------------------------------------------------------
-// Blueprint data (inlined from src/data/post-blueprints.ts)
+// Blueprint data
 // ---------------------------------------------------------------------------
 
 interface Blueprint {
@@ -238,10 +222,15 @@ function getBlueprint(format: string): Blueprint {
 }
 
 // ---------------------------------------------------------------------------
-// Prompt builder (mirrors route.ts buildPrompt)
+// Prompt builder
 // ---------------------------------------------------------------------------
 
-function buildPrompt(topic: TopicInfo, locale: string, inlineImages: ICoverImage[]): string {
+function buildPrompt(
+  topic: TopicInfo,
+  locale: string,
+  inlineImages: ICoverImage[],
+  opts: { avoidTitles?: string[]; uniqueness?: boolean } = {},
+): string {
   const bp = getBlueprint(topic.postFormat);
   const year = new Date().getFullYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -257,7 +246,17 @@ function buildPrompt(topic: TopicInfo, locale: string, inlineImages: ICoverImage
   let imageInstruction = '';
   if (inlineImages.length > 0) {
     const imgMd = inlineImages.map((img, i) => `![${topic.primaryKeyword} - illustration ${i + 1}](${img.url})`).join('\n');
-    imageInstruction = `\nINLINE IMAGES — Insert these naturally between sections:\n${imgMd}`;
+    imageInstruction = `\nINLINE IMAGES — You MUST insert these images into the article between sections (after the 2nd and 4th H2). Do NOT skip them:\n${imgMd}`;
+  }
+
+  let uniquenessBlock = '';
+  if (opts.uniqueness || (opts.avoidTitles && opts.avoidTitles.length > 0)) {
+    uniquenessBlock = `\nUNIQUENESS REQUIREMENT:
+- This blog MUST be completely unique in structure, opening, and phrasing.
+- Do NOT use generic blog-post openings. Start with a fresh, original angle.`;
+    if (opts.avoidTitles && opts.avoidTitles.length > 0) {
+      uniquenessBlock += `\n- AVOID similarity to these existing titles:\n${opts.avoidTitles.map(t => `  • "${t}"`).join('\n')}`;
+    }
   }
 
   const system = `You are an expert content writer and SEO specialist for Softwhere.uz, a software development company in Uzbekistan. ${
@@ -293,6 +292,7 @@ CONTEXT:
 - Target audience: business owners in Uzbekistan and Central Asia
 - Company: Softwhere.uz — ${topic.pillarName} specialists
 ${imageInstruction}
+${uniquenessBlock}
 
 CREDIBILITY:
 - Include 2-4 statistics from credible sources (Statista, Gartner, McKinsey, etc.)
@@ -304,15 +304,7 @@ Write a unique, valuable post. Every paragraph should teach something or persuad
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// ---------------------------------------------------------------------------
-// Unsplash image fetching
+// Unsplash image fetching (with page support for variety)
 // ---------------------------------------------------------------------------
 
 function extractFallbackKeyword(title: string): string {
@@ -331,11 +323,21 @@ function extractFallbackKeyword(title: string): string {
   return words.slice(0, 3).join(' ') || 'technology';
 }
 
-async function searchUnsplash(keyword: string): Promise<ICoverImage | null> {
-  if (!UNSPLASH_ACCESS_KEY) return null;
+function simpleHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
 
+async function searchUnsplash(keyword: string, page = 1): Promise<ICoverImage | null> {
+  if (!UNSPLASH_ACCESS_KEY) return null;
   try {
-    const params = new URLSearchParams({ query: keyword, per_page: '1', orientation: 'landscape' });
+    const params = new URLSearchParams({
+      query: keyword,
+      per_page: '1',
+      page: String(page),
+      orientation: 'landscape',
+    });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
@@ -366,22 +368,535 @@ async function searchUnsplash(keyword: string): Promise<ICoverImage | null> {
   }
 }
 
-async function fetchImagesForTopic(title: string, primaryKeyword: string): Promise<{ cover: ICoverImage | null; inline: ICoverImage[]; all: ICoverImage[] }> {
-  if (!UNSPLASH_ACCESS_KEY) {
-    console.log('   ⚠️  UNSPLASH_ACCESS_KEY not set, skipping images');
-    return { cover: null, inline: [], all: [] };
+async function fetchFreshCover(
+  title: string,
+  primaryKeyword: string,
+  slug: string,
+  avoidUrls: Set<string>,
+): Promise<ICoverImage | null> {
+  const keyword = extractFallbackKeyword(title);
+  const pageOffset = (simpleHash(slug) % 10) + 1;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const img = await searchUnsplash(keyword, pageOffset + attempt);
+    if (img && !avoidUrls.has(img.url)) return img;
   }
 
-  const coverKeyword = extractFallbackKeyword(title);
-  const cover = await searchUnsplash(coverKeyword);
+  const altKeyword = primaryKeyword.split(/\s+/).slice(0, 2).join(' ');
+  if (altKeyword !== keyword) {
+    const img = await searchUnsplash(altKeyword, pageOffset);
+    if (img && !avoidUrls.has(img.url)) return img;
+  }
 
-  const inlineKeyword = primaryKeyword.length > 3 ? primaryKeyword.split(/\s+/).slice(0, 2).join(' ') : coverKeyword;
-  const inlineImg = await searchUnsplash(inlineKeyword);
+  return await searchUnsplash(keyword);
+}
 
-  const inline = inlineImg ? [inlineImg] : [];
-  const all = [...(cover ? [cover] : []), ...inline];
+async function fetchInlineImages(
+  title: string,
+  primaryKeyword: string,
+  secondaryKeywords: string[],
+  existingUrls: Set<string>,
+  count: number,
+): Promise<ICoverImage[]> {
+  if (!UNSPLASH_ACCESS_KEY) return [];
+  const images: ICoverImage[] = [];
 
-  return { cover, inline, all };
+  const keywords = [
+    primaryKeyword.split(/\s+/).slice(0, 2).join(' '),
+    ...(secondaryKeywords.length > 0 ? [secondaryKeywords[0]] : []),
+    extractFallbackKeyword(title) + ' technology',
+  ];
+
+  for (const kw of keywords) {
+    if (images.length >= count) break;
+    for (let page = 1; page <= 3 && images.length < count; page++) {
+      const img = await searchUnsplash(kw, page);
+      if (img && !existingUrls.has(img.url) && !images.some(i => i.url === img.url)) {
+        images.push(img);
+        existingUrls.add(img.url);
+      }
+    }
+  }
+
+  return images;
+}
+
+// ---------------------------------------------------------------------------
+// Inline image injection into markdown content
+// ---------------------------------------------------------------------------
+
+function injectInlineImages(content: string, images: ICoverImage[], primaryKeyword: string): string {
+  if (images.length === 0) return content;
+  if (/!\[.*?\]\(https?:\/\/.*?\)/.test(content)) return content;
+
+  const lines = content.split('\n');
+  const h2Indices: number[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    if (/^##\s+/.test(lines[i])) h2Indices.push(i);
+  }
+
+  if (h2Indices.length < 2) return content;
+
+  const insertPoints: number[] = [];
+  if (h2Indices.length >= 2) insertPoints.push(h2Indices[2] ?? h2Indices[h2Indices.length - 1]);
+  if (h2Indices.length >= 4 && images.length >= 2) insertPoints.push(h2Indices[4] ?? h2Indices[h2Indices.length - 1]);
+
+  let offset = 0;
+  for (let i = 0; i < Math.min(insertPoints.length, images.length); i++) {
+    const img = images[i];
+    const markdown = `\n![${primaryKeyword} - illustration ${i + 1}](${img.url})\n`;
+    lines.splice(insertPoints[i] + offset, 0, markdown);
+    offset++;
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Phase 1: Analysis
+// ---------------------------------------------------------------------------
+
+interface AnalysisResult {
+  groups: Map<string, GroupAnalysis>;
+  duplicateCoverGroups: Map<string, string[]>;
+  similarTitleGroups: Map<string, string[]>;
+  similarContentGroups: Map<string, string[]>;
+  totalIssues: number;
+  stats: {
+    totalGroups: number;
+    totalPosts: number;
+    groupsWithIssues: number;
+    missingCover: number;
+    missingInline: number;
+    missingCategory: number;
+    missingMeta: number;
+    contentTooShort: number;
+    duplicateCovers: number;
+    similarTitles: number;
+    similarContent: number;
+    contentNoImages: number;
+  };
+}
+
+async function runAnalysis(): Promise<AnalysisResult> {
+  console.log('\n═══════════════════════════════════════════════════');
+  console.log('  PHASE 1: ANALYSIS');
+  console.log('═══════════════════════════════════════════════════\n');
+
+  const allPosts = (await BlogPost.find({}).lean()) as PostDoc[];
+  console.log(`📦 Loaded ${allPosts.length} posts from DB`);
+
+  // Build indexes for duplicate/similarity detection
+  const coverRefs = allPosts
+    .filter((p: PostDoc) => p.coverImage && (p.coverImage as ICoverImage).url)
+    .map((p: PostDoc) => ({
+      _id: String(p._id),
+      generationGroupId: p.generationGroupId!,
+      coverUrl: (p.coverImage as ICoverImage).url,
+    }));
+
+  const titleRefs = allPosts.map((p: PostDoc) => ({
+    _id: String(p._id),
+    generationGroupId: p.generationGroupId!,
+    title: p.title!,
+    locale: p.locale!,
+  }));
+
+  const contentRefs = allPosts
+    .filter((p: PostDoc) => p.locale === 'en')
+    .map((p: PostDoc) => ({
+      _id: String(p._id),
+      generationGroupId: p.generationGroupId!,
+      content: p.content!,
+      locale: p.locale!,
+    }));
+
+  console.log('🔍 Detecting duplicate covers...');
+  const duplicateCoverGroups = findDuplicateCovers(coverRefs);
+  console.log(`   Found ${duplicateCoverGroups.size} duplicate cover URLs`);
+
+  console.log('🔍 Detecting similar titles...');
+  const similarTitleGroups = findSimilarTitles(titleRefs);
+  console.log(`   Found ${similarTitleGroups.size} groups with similar titles`);
+
+  console.log('🔍 Detecting similar content...');
+  const similarContentGroups = findSimilarContent(contentRefs);
+  console.log(`   Found ${similarContentGroups.size} groups with similar content`);
+
+  // Invert duplicateCoverGroups: URL -> groupIds => groupId -> true/false
+  const groupHasDupCover = new Set<string>();
+  duplicateCoverGroups.forEach(groupIds => {
+    for (const gid of groupIds) groupHasDupCover.add(gid);
+  });
+
+  // Group posts by generationGroupId
+  const postsByGroup = new Map<string, PostDoc[]>();
+  for (const post of allPosts) {
+    if (!post.generationGroupId) continue;
+    const arr = postsByGroup.get(post.generationGroupId) ?? [];
+    arr.push(post);
+    postsByGroup.set(post.generationGroupId, arr);
+  }
+
+  const groups = new Map<string, GroupAnalysis>();
+  const stats = {
+    totalGroups: postsByGroup.size,
+    totalPosts: allPosts.length,
+    groupsWithIssues: 0,
+    missingCover: 0,
+    missingInline: 0,
+    missingCategory: 0,
+    missingMeta: 0,
+    contentTooShort: 0,
+    duplicateCovers: 0,
+    similarTitles: 0,
+    similarContent: 0,
+    contentNoImages: 0,
+  };
+
+  postsByGroup.forEach((posts, groupId) => {
+    const ga = analyzeGroup(posts, groupId, {
+      duplicateCover: groupHasDupCover.has(groupId),
+      similarTitle: similarTitleGroups.has(groupId),
+      similarContent: similarContentGroups.has(groupId),
+    });
+    groups.set(groupId, ga);
+
+    const issues = countIssues(ga);
+    if (issues > 0) stats.groupsWithIssues++;
+
+    ga.issuesByPost.forEach(postIssues => {
+      for (const issue of postIssues) {
+        if (issue === 'missing-cover-image') stats.missingCover++;
+        if (issue === 'missing-inline-images') stats.missingInline++;
+        if (issue === 'missing-category' || issue === 'invalid-category') stats.missingCategory++;
+        if (issue === 'missing-meta-description') stats.missingMeta++;
+        if (issue === 'content-too-short') stats.contentTooShort++;
+        if (issue === 'content-no-inline-images') stats.contentNoImages++;
+      }
+    });
+    if (ga.duplicateCover) stats.duplicateCovers++;
+    if (ga.similarTitle) stats.similarTitles++;
+    if (ga.similarContent) stats.similarContent++;
+  });
+
+  let totalIssues = 0;
+  groups.forEach(a => { totalIssues += countIssues(a); });
+
+  return {
+    groups,
+    duplicateCoverGroups,
+    similarTitleGroups,
+    similarContentGroups,
+    totalIssues,
+    stats,
+  };
+}
+
+function printReport(analysis: AnalysisResult) {
+  const s = analysis.stats;
+  console.log('\n┌──────────────────────────────────────────┐');
+  console.log('│            ANALYSIS REPORT               │');
+  console.log('├──────────────────────────────────────────┤');
+  console.log(`│ Total groups:          ${String(s.totalGroups).padStart(6)} │`);
+  console.log(`│ Total posts:           ${String(s.totalPosts).padStart(6)} │`);
+  console.log(`│ Groups with issues:    ${String(s.groupsWithIssues).padStart(6)} │`);
+  console.log('├──────────────────────────────────────────┤');
+  console.log(`│ Missing cover image:   ${String(s.missingCover).padStart(6)} posts │`);
+  console.log(`│ Missing inline images: ${String(s.missingInline).padStart(6)} posts │`);
+  console.log(`│ No images in content:  ${String(s.contentNoImages).padStart(6)} posts │`);
+  console.log(`│ Missing category:      ${String(s.missingCategory).padStart(6)} posts │`);
+  console.log(`│ Missing meta desc:     ${String(s.missingMeta).padStart(6)} posts │`);
+  console.log(`│ Content too short:     ${String(s.contentTooShort).padStart(6)} posts │`);
+  console.log('├──────────────────────────────────────────┤');
+  console.log(`│ Duplicate covers:      ${String(s.duplicateCovers).padStart(6)} groups │`);
+  console.log(`│ Similar titles:        ${String(s.similarTitles).padStart(6)} groups │`);
+  console.log(`│ Similar content:       ${String(s.similarContent).padStart(6)} groups │`);
+  console.log('└──────────────────────────────────────────┘');
+
+  if (s.duplicateCovers > 0) {
+    console.log('\n📋 Duplicate cover image groups:');
+    analysis.duplicateCoverGroups.forEach((groupIds, url) => {
+      console.log(`   URL: ${url.slice(0, 80)}...`);
+      console.log(`   Shared by ${groupIds.length} groups: ${groupIds.slice(0, 3).join(', ')}${groupIds.length > 3 ? '...' : ''}`);
+    });
+  }
+
+  if (s.similarTitles > 0) {
+    console.log('\n📋 Groups with similar titles:');
+    analysis.similarTitleGroups.forEach((siblings, groupId) => {
+      const group = analysis.groups.get(groupId);
+      const title = group?.enPost?.title ?? '(unknown)';
+      console.log(`   "${title}" ↔ ${siblings.length} similar group(s)`);
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2 & 3: Fix Strategy + Execute
+// ---------------------------------------------------------------------------
+
+async function fixGroups(analysis: AnalysisResult) {
+  console.log('\n═══════════════════════════════════════════════════');
+  console.log(`  PHASE 2-3: FIX & EXECUTE ${DRY_RUN ? '(DRY RUN)' : ''}`);
+  console.log('═══════════════════════════════════════════════════\n');
+
+  // Collect all existing cover URLs to avoid when fetching fresh ones
+  const allCoverUrls = new Set<string>();
+  analysis.groups.forEach(group => {
+    for (const post of group.posts) {
+      const coverUrl = (post.coverImage as ICoverImage | undefined)?.url;
+      if (coverUrl) allCoverUrls.add(coverUrl);
+    }
+  });
+
+  // Collect titles for "avoid" hints when fixing similar titles
+  const titlesByGroup = new Map<string, string>();
+  analysis.groups.forEach((group, gid) => {
+    if (group.enPost?.title) titlesByGroup.set(gid, group.enPost.title);
+  });
+
+  let processed = 0;
+  let skipped = 0;
+  let fixed = 0;
+
+  const sortedGroups: Array<[string, GroupAnalysis]> = [];
+  analysis.groups.forEach((group, groupId) => { sortedGroups.push([groupId, group]); });
+  sortedGroups.sort((a, b) => countIssues(b[1]) - countIssues(a[1]));
+
+  for (const [groupId, group] of sortedGroups) {
+    const issues = countIssues(group);
+
+    if (RESUME && issues === 0) {
+      skipped++;
+      continue;
+    }
+
+    if (!FORCE && issues === 0) {
+      skipped++;
+      continue;
+    }
+
+    const enPost = group.enPost;
+    if (!enPost) {
+      console.log(`⚠️  Group ${groupId}: no EN post, skipping`);
+      skipped++;
+      continue;
+    }
+
+    processed++;
+    console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`📝 [${processed}/${sortedGroups.length - skipped}] "${enPost.title}"`);
+    console.log(`   Group: ${groupId}  |  Issues: ${issues}`);
+
+    const flags: string[] = [];
+    if (group.duplicateCover) flags.push('DUP_COVER');
+    if (group.similarTitle) flags.push('SIM_TITLE');
+    if (group.similarContent) flags.push('SIM_CONTENT');
+    if (group.needsClassification) flags.push('CLASSIFY');
+    if (group.needsCover) flags.push('COVER');
+    if (group.needsInlineImages) flags.push('INLINE_IMG');
+    if (group.needsMeta) flags.push('META');
+    if (group.needsContentRewrite) flags.push('REWRITE');
+    if (group.hasContentWithoutImages) flags.push('INJECT_IMG');
+    console.log(`   Actions: [${flags.join(', ')}]`);
+
+    if (DRY_RUN) {
+      group.issuesByPost.forEach((postIssues, postId) => {
+        if (postIssues.length > 0) {
+          const post = group.posts.find(p => String(p._id) === String(postId));
+          console.log(`   ${(post?.locale ?? '??').toUpperCase()}: ${postIssues.join(', ')}`);
+        }
+      });
+      continue;
+    }
+
+    // --- Step 1: Classify if needed ---
+    let topic: TopicInfo;
+    if (group.needsClassification) {
+      console.log('   🔍 Classifying topic...');
+      topic = await classifyPost(enPost.title!);
+      console.log(`   → ${topic.category} / ${topic.postFormat} / "${topic.primaryKeyword}"`);
+    } else {
+      topic = {
+        title: enPost.title!,
+        category: enPost.category!,
+        pillarName: PILLAR_NAMES[enPost.category!] ?? 'Software Development',
+        postFormat: enPost.postFormat as PostFormat,
+        primaryKeyword: enPost.primaryKeyword!,
+        secondaryKeywords: enPost.secondaryKeywords ?? [],
+      };
+    }
+
+    // --- Step 2: Fix cover image ---
+    let coverImage: ICoverImage | null = (enPost.coverImage as ICoverImage | undefined)?.url
+      ? (enPost.coverImage as ICoverImage)
+      : null;
+
+    if (group.needsCover) {
+      console.log(`   🖼️  Fetching ${group.duplicateCover ? 'fresh (dedup)' : 'missing'} cover image...`);
+      const newCover = await fetchFreshCover(
+        topic.title,
+        topic.primaryKeyword,
+        enPost.slug!,
+        group.duplicateCover ? allCoverUrls : new Set(),
+      );
+      if (newCover) {
+        coverImage = newCover;
+        allCoverUrls.add(newCover.url);
+        console.log(`   🖼️  Got cover: "${newCover.keyword}"`);
+      } else {
+        console.log('   ⚠️  Could not fetch cover image');
+      }
+    }
+
+    // --- Step 3: Fix inline images ---
+    let contentImages: ICoverImage[] = (enPost as PostDoc).contentImages?.filter(
+      (img): img is ICoverImage => !!(img as ICoverImage).url,
+    ) ?? [];
+
+    const existingImageUrls = new Set(contentImages.map(i => i.url));
+    if (coverImage) existingImageUrls.add(coverImage.url);
+
+    const wordCount = (enPost.content ?? '').split(/\s+/).length;
+    const targetInlineCount = wordCount >= 2000 ? 3 : 1;
+    const inlineShortfall = Math.max(0, targetInlineCount - contentImages.length);
+
+    if (group.needsInlineImages && inlineShortfall > 0) {
+      console.log(`   🖼️  Fetching ${inlineShortfall} inline image(s)...`);
+      const newInline = await fetchInlineImages(
+        topic.title,
+        topic.primaryKeyword,
+        topic.secondaryKeywords,
+        existingImageUrls,
+        inlineShortfall,
+      );
+      contentImages = [...contentImages, ...newInline];
+      console.log(`   🖼️  Total inline images: ${contentImages.length}`);
+    }
+
+    const allContentImages = [
+      ...(coverImage ? [coverImage] : []),
+      ...contentImages.filter(img => img.url !== coverImage?.url),
+    ];
+    const inlineImages = contentImages.filter(img => img.url !== coverImage?.url);
+
+    // --- Step 4: Meta description ---
+    let metaDesc: string | null = null;
+    if (group.needsMeta || group.needsContentRewrite || group.similarTitle) {
+      console.log('   📋 Generating meta description...');
+      const metaPrompt = `Write a 150-160 character meta description for a blog post titled "${topic.title}". Include the keyword "${topic.primaryKeyword}". Make it compelling. Return ONLY the meta description.`;
+      metaDesc = (await generate(metaPrompt, 'meta-en', 200))?.trim().replace(/^"|"$/g, '') ?? null;
+    }
+
+    // --- Step 5: Content & title per locale ---
+    const avoidTitles: string[] = [];
+    if (group.similarTitle) {
+      const siblingGroupIds = analysis.similarTitleGroups.get(groupId) ?? [];
+      for (const sibGid of siblingGroupIds) {
+        const t = titlesByGroup.get(sibGid);
+        if (t) avoidTitles.push(t);
+      }
+    }
+
+    const needsContentRegen = group.needsContentRewrite || group.similarContent || group.similarTitle;
+
+    for (const post of group.posts) {
+      const locale = post.locale as string;
+      const postIssues = group.issuesByPost.get(String(post._id)) ?? [];
+      const updateFields: Record<string, unknown> = {};
+      let contentChanged = false;
+
+      // Classification fields always applied if was missing
+      if (group.needsClassification) {
+        updateFields.category = topic.category;
+        updateFields.postFormat = topic.postFormat;
+        updateFields.primaryKeyword = topic.primaryKeyword;
+        updateFields.secondaryKeywords = topic.secondaryKeywords;
+      }
+
+      // Cover image
+      if (coverImage && (postIssues.includes('missing-cover-image') || group.duplicateCover)) {
+        updateFields.coverImage = coverImage;
+      }
+
+      // Content images array
+      if (group.needsInlineImages || group.needsCover || group.duplicateCover) {
+        updateFields.contentImages = allContentImages;
+      }
+
+      // Content regeneration (similar/short/dup)
+      if (needsContentRegen || postIssues.includes('content-too-short')) {
+        console.log(`   🌐 Regenerating ${locale.toUpperCase()} content...`);
+        const prompt = buildPrompt(topic, locale, inlineImages, {
+          avoidTitles: locale === 'en' ? avoidTitles : undefined,
+          uniqueness: group.similarContent || group.similarTitle,
+        });
+        const content = await generate(prompt, `content-${locale}`);
+
+        if (content && content.split(/\s+/).length >= 300) {
+          let finalContent = content;
+          if (inlineImages.length > 0 && !/!\[.*?\]\(https?:\/\/.*?\)/.test(finalContent)) {
+            finalContent = injectInlineImages(finalContent, inlineImages, topic.primaryKeyword);
+          }
+          updateFields.content = finalContent;
+          contentChanged = true;
+          console.log(`   ✅ ${locale}: ${content.split(/\s+/).length} words`);
+        } else {
+          console.log(`   ⚠️  ${locale}: content generation failed/too short, keeping existing`);
+        }
+
+        // Regenerate title for similar-title groups
+        if (group.similarTitle) {
+          let localizedTitle = topic.title;
+          if (locale === 'en') {
+            const titlePrompt = `Generate a unique, compelling blog post title about "${topic.primaryKeyword}" in the "${topic.postFormat}" format. It should be different from:\n${avoidTitles.map(t => `- "${t}"`).join('\n')}\nReturn ONLY the title.`;
+            const newTitle = await generate(titlePrompt, 'unique-title-en', 100);
+            if (newTitle) localizedTitle = newTitle.trim().replace(/^"|"$/g, '');
+          } else {
+            const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${topic.title}". Only return the translated title, nothing else.`;
+            const translated = await generate(titlePrompt, `title-${locale}`, 100);
+            if (translated) localizedTitle = translated.trim().replace(/^"|"$/g, '');
+          }
+          updateFields.title = localizedTitle;
+        }
+      } else if (!contentChanged && group.hasContentWithoutImages && postIssues.includes('content-no-inline-images')) {
+        // Just inject images into existing content
+        if (inlineImages.length > 0 && post.content) {
+          const injected = injectInlineImages(post.content, inlineImages, topic.primaryKeyword);
+          if (injected !== post.content) {
+            updateFields.content = injected;
+            console.log(`   💉 ${locale}: injected inline images into existing content`);
+          }
+        }
+      }
+
+      // Meta description
+      if (metaDesc && (postIssues.includes('missing-meta-description') || needsContentRegen)) {
+        if (locale === 'en') {
+          updateFields.metaDescription = metaDesc;
+        } else {
+          const metaTranslatePrompt = `Translate this meta description into ${locale === 'ru' ? 'Russian' : 'Uzbek'}. Keep it under 160 characters. Return ONLY the translation.\n\n"${metaDesc}"`;
+          const translatedMeta = await generate(metaTranslatePrompt, `meta-${locale}`, 200);
+          updateFields.metaDescription = translatedMeta
+            ? translatedMeta.trim().replace(/^"|"$/g, '')
+            : metaDesc;
+        }
+      }
+
+      // Apply updates
+      if (Object.keys(updateFields).length > 0) {
+        await BlogPost.updateOne({ _id: post._id }, { $set: updateFields });
+        const changedKeys = Object.keys(updateFields).join(', ');
+        console.log(`   💾 ${locale}: updated [${changedKeys}]`);
+        fixed++;
+      }
+    }
+
+    console.log(`   ✅ Group complete`);
+  }
+
+  return { processed, skipped, fixed };
 }
 
 // ---------------------------------------------------------------------------
@@ -389,121 +904,39 @@ async function fetchImagesForTopic(title: string, primaryKeyword: string): Promi
 // ---------------------------------------------------------------------------
 
 async function main() {
-  console.log('🔌 Connecting to MongoDB...');
+  console.log('╔═══════════════════════════════════════════════════╗');
+  console.log('║  BLOG POST FIXER - Structure, Fill & Deduplicate ║');
+  console.log('╚═══════════════════════════════════════════════════╝');
+  console.log(`  Flags: ${[DRY_RUN && 'dry-run', ANALYZE_ONLY && 'analyze-only', RESUME && 'resume', FORCE && 'force'].filter(Boolean).join(', ') || 'default (fix)'}`);
+
+  console.log('\n🔌 Connecting to MongoDB...');
   await mongoose.connect(MONGODB_URI!);
-  console.log('✅ Connected\n');
+  console.log('✅ Connected');
 
-  // Get all distinct generationGroupIds
-  const groups: string[] = await BlogPost.distinct('generationGroupId');
-  console.log(`📦 Found ${groups.length} generation groups (${groups.length * 3} posts)\n`);
+  const analysis = await runAnalysis();
+  printReport(analysis);
 
-  let processed = 0;
-  let skipped = 0;
-
-  for (const groupId of groups) {
-    const posts = await BlogPost.find({ generationGroupId: groupId }).sort({ locale: 1 });
-    const enPost = posts.find((p: any) => p.locale === 'en');
-
-    if (!enPost) {
-      console.log(`⚠️  Group ${groupId}: no EN post found, skipping`);
-      skipped++;
-      continue;
-    }
-
-    if (SKIP_ALREADY_DONE && enPost.postFormat && enPost.category) {
-      console.log(`⏭️  Group ${groupId}: already has postFormat, skipping (--resume)`);
-      skipped++;
-      continue;
-    }
-
-    console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-    console.log(`📝 [${processed + 1}/${groups.length - skipped}] "${enPost.title}"`);
-    console.log(`   Group: ${groupId}`);
-    console.log(`   Posts in group: ${posts.length}`);
-
-    // 1. Classify topic from English title
-    console.log('   🔍 Classifying topic...');
-    const topic = await classifyPost(enPost.title);
-    console.log(`   → ${topic.category} / ${topic.postFormat} / "${topic.primaryKeyword}"`);
-
-    // 2. Fetch images (or keep existing if present)
-    let coverImage: ICoverImage | null = enPost.coverImage?.url ? enPost.coverImage : null;
-    let allContentImages: ICoverImage[] = enPost.contentImages ?? [];
-    let inlineImages: ICoverImage[];
-
-    if (allContentImages.length > 0) {
-      inlineImages = coverImage ? allContentImages.filter((img: ICoverImage) => img.url !== coverImage!.url) : allContentImages;
-      console.log(`   🖼️  Using ${allContentImages.length} existing images`);
-    } else {
-      console.log('   🖼️  Fetching images from Unsplash...');
-      const images = await fetchImagesForTopic(topic.title, topic.primaryKeyword);
-      coverImage = images.cover;
-      inlineImages = images.inline;
-      allContentImages = images.all;
-      console.log(`   🖼️  Got ${allContentImages.length} images`);
-    }
-
-    // 3. Generate EN meta description
-    console.log('   📋 Generating meta description...');
-    const metaPrompt = `Write a 150-160 character meta description for a blog post titled "${topic.title}". Include the keyword "${topic.primaryKeyword}". Make it compelling. Return ONLY the meta description.`;
-    const metaDesc = (await generate(metaPrompt, 'meta-en', 200))?.trim().replace(/^"|"$/g, '') ?? `${topic.title} — Expert insights from Softwhere.uz`;
-
-    // 4. Regenerate each locale
-    for (const post of posts) {
-      const locale = post.locale as string;
-      console.log(`   🌐 Generating ${locale.toUpperCase()} content...`);
-
-      // Generate content
-      const prompt = buildPrompt(topic, locale, inlineImages);
-      const content = await generate(prompt, `content-${locale}`);
-
-      if (!content || content.split(/\s+/).length < 300) {
-        console.log(`   ⚠️  ${locale}: content too short or failed, skipping this locale`);
-        continue;
-      }
-
-      console.log(`   ✅ ${locale}: ${content.split(/\s+/).length} words`);
-
-      // Translate title for non-EN
-      let localizedTitle = topic.title;
-      if (locale !== 'en') {
-        const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${topic.title}". Only return the translated title, nothing else.`;
-        const translated = await generate(titlePrompt, `title-${locale}`, 100);
-        if (translated) localizedTitle = translated.trim().replace(/^"|"$/g, '');
-      }
-
-      // Translate meta for non-EN
-      let localizedMeta = metaDesc;
-      if (locale !== 'en') {
-        const metaTranslatePrompt = `Translate this meta description into ${locale === 'ru' ? 'Russian' : 'Uzbek'}. Keep it under 160 characters. Return ONLY the translation.\n\n"${metaDesc}"`;
-        const translatedMeta = await generate(metaTranslatePrompt, `meta-${locale}`, 200);
-        if (translatedMeta) localizedMeta = translatedMeta.trim().replace(/^"|"$/g, '');
-      }
-
-      // Update the post with ALL new-structure fields
-      const updateFields: Record<string, unknown> = {
-        title: localizedTitle,
-        content,
-        category: topic.category,
-        postFormat: topic.postFormat,
-        primaryKeyword: topic.primaryKeyword,
-        secondaryKeywords: topic.secondaryKeywords,
-        metaDescription: localizedMeta,
-        contentImages: allContentImages,
-      };
-      if (coverImage) updateFields.coverImage = coverImage;
-
-      await BlogPost.updateOne({ _id: post._id }, { $set: updateFields });
-
-      console.log(`   💾 ${locale}: saved "${localizedTitle}"`);
-    }
-
-    processed++;
-    console.log(`   ✅ Group complete (${processed}/${groups.length})`);
+  if (ANALYZE_ONLY) {
+    console.log('\n📊 Analyze-only mode, exiting.');
+    await mongoose.disconnect();
+    process.exit(0);
   }
 
-  console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-  console.log(`🏁 Done! Processed: ${processed}, Skipped: ${skipped}`);
+  if (analysis.totalIssues === 0 && !FORCE) {
+    console.log('\n🎉 All posts look healthy! Nothing to fix.');
+    await mongoose.disconnect();
+    process.exit(0);
+  }
+
+  const result = await fixGroups(analysis);
+
+  console.log('\n═══════════════════════════════════════════════════');
+  console.log(`🏁 Done!`);
+  console.log(`   Processed: ${result.processed} groups`);
+  console.log(`   Skipped:   ${result.skipped} groups (healthy)`);
+  console.log(`   Fixed:     ${result.fixed} post updates`);
+  if (DRY_RUN) console.log('   ⚠️  DRY RUN — no changes were saved');
+  console.log('═══════════════════════════════════════════════════');
 
   await mongoose.disconnect();
   process.exit(0);
