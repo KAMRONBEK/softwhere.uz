@@ -45,7 +45,7 @@ if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
 const MODEL = 'deepseek-chat';
 const TEMPERATURE = 0.9;
-const CONTENT_MAX_TOKENS = 16384;
+const CONTENT_MAX_TOKENS = 8192;
 const FREQUENCY_PENALTY = 0.4;
 const PRESENCE_PENALTY = 0.35;
 const UNSPLASH_API = 'https://api.unsplash.com';
