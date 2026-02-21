@@ -63,11 +63,28 @@ export function recordQuotaCooldown(delayMs?: number): void {
  * Returns the generated text or null when blocked/failed.
  */
 function sanitizeContent(text: string): string {
-  return text
+  let result = text
     .replace(/[\\\s]+$/g, '')
     .replace(/\n{4,}/g, '\n\n\n')
     .replace(/^(#{1,6}\s.*)\n{3,}/gm, '$1\n\n')
+    .replace(/ {3,}/g, ' ')
     .trim();
+
+  result = result
+    .split('\n')
+    .map(line => {
+      const t = line.trimEnd();
+      if (!t || t.startsWith('#') || t.startsWith('|') || t.startsWith('```') || t.startsWith('![')) return line;
+      const opens = (t.match(/\(/g) || []).length;
+      const closes = (t.match(/\)/g) || []).length;
+      if (closes > opens && /\)\s*$/.test(t)) {
+        return t.replace(/\)\s*$/, '.');
+      }
+      return line;
+    })
+    .join('\n');
+
+  return result;
 }
 
 export async function safeGenerateContent(prompt: string, label: string, maxTokens?: number): Promise<string | null> {

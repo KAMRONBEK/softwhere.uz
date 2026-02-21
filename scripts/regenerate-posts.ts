@@ -30,6 +30,7 @@ import {
   POST_FORMATS,
   type PostFormat,
 } from './lib/post-structure';
+import { sanitizeContent, assessContentQuality, QUALITY_RULES } from './lib/quality';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -104,23 +105,21 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function sanitizeContent(text: string): string {
-  return text
-    .replace(/[\\\s]+$/g, '')          // trailing backslashes and whitespace
-    .replace(/\n{4,}/g, '\n\n\n')      // collapse 4+ blank lines to 2
-    .replace(/^(#{1,6}\s.*)\n{3,}/gm, '$1\n\n') // max 1 blank line after headers
-    .trim();
-}
-
-async function generate(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
+async function generate(prompt: string, label: string, maxTokens?: number, systemMsg?: string): Promise<string | null> {
   const isContent = label.startsWith('content-');
   const isNonEnContent = isContent && !label.endsWith('-en');
   const temperature = isNonEnContent ? TEMPERATURE_OTHER : TEMPERATURE_EN;
+  const messages = systemMsg
+    ? [
+        { role: 'system' as const, content: systemMsg },
+        { role: 'user' as const, content: prompt },
+      ]
+    : [{ role: 'user' as const, content: prompt }];
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await ai.chat.completions.create({
         model: MODEL,
-        messages: [{ role: 'user', content: prompt }],
+        messages,
         temperature,
         max_tokens: maxTokens ?? (isContent ? CONTENT_MAX_TOKENS : undefined),
         frequency_penalty: isContent ? FREQUENCY_PENALTY : 0,
@@ -301,7 +300,7 @@ function buildPrompt(
   locale: string,
   inlineImages: ICoverImage[],
   opts: { avoidTitles?: string[]; uniqueness?: boolean; contentAngle?: string } = {},
-): string {
+): { system: string; user: string } {
   const bp = getBlueprint(topic.postFormat);
   const year = new Date().getFullYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -335,7 +334,7 @@ function buildPrompt(
     }
   }
 
-  const system = `You are an expert content writer and SEO specialist for Softwhere.uz, a software development company in Uzbekistan. ${
+  const system = `You are an expert content writer and SEO specialist for Softwhere.uz, a software development company in Uzbekistan. You produce impeccably formatted markdown articles. ${
     locale === 'ru' ? 'Вы пишете на русском языке.' : locale === 'uz' ? "Siz o'zbek tilida yozasiz." : ''
   }`;
 
@@ -373,10 +372,11 @@ ${uniquenessBlock}
 CREDIBILITY:
 - Include 2-4 statistics from credible sources (Statista, Gartner, McKinsey, etc.)
 - Use recent data (${year - 2}–${year})
+${QUALITY_RULES}
 
 Write a unique, valuable post. Every paragraph should teach something or persuade.`;
 
-  return `${system}\n\n---\n\n${user}`;
+  return { system, user };
 }
 
 // ---------------------------------------------------------------------------
@@ -913,12 +913,25 @@ async function fixGroups(analysis: AnalysisResult) {
       // Content regeneration (similar/short/dup)
       if (needsContentRegen || postIssues.includes('content-too-short')) {
         console.log(`   🌐 Regenerating ${locale.toUpperCase()} content...`);
-        const prompt = buildPrompt(topic, locale, inlineImages, {
+        const { system: sysMsg, user: userMsg } = buildPrompt(topic, locale, inlineImages, {
           avoidTitles: locale === 'en' ? avoidTitles : undefined,
           uniqueness: group.similarContent || group.similarTitle,
           contentAngle,
         });
-        const content = await generate(prompt, `content-${locale}`);
+        let content = await generate(userMsg, `content-${locale}`, undefined, sysMsg);
+
+        if (content && content.split(/\s+/).length >= 300) {
+          const quality = assessContentQuality(content, 300);
+          if (!quality.pass) {
+            console.log(`   ⚠️  Quality issues: ${quality.issues.join('; ')}`);
+            console.log(`   🔄 Retrying generation...`);
+            const retry = await generate(userMsg, `content-${locale}`, undefined, sysMsg);
+            if (retry && retry.split(/\s+/).length >= 300) {
+              const retryQ = assessContentQuality(retry, 300);
+              if (retryQ.score > quality.score) content = retry;
+            }
+          }
+        }
 
         if (content && content.split(/\s+/).length >= 300) {
           let finalContent = content;
