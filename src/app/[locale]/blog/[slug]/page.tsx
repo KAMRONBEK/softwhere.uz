@@ -243,6 +243,16 @@ function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
     },
   ];
 
+  schemas.push({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${baseUrl}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${baseUrl}/${locale}/blog` },
+      { '@type': 'ListItem', position: 3, name: post.title },
+    ],
+  });
+
   // FAQ schema for faq-format posts
   if (post.postFormat === 'faq' || post.postFormat === 'myth-buster') {
     const faqPairs = parseFAQPairs(post.content);
