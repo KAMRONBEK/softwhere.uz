@@ -12,7 +12,9 @@ export type PostFormat =
   | 'trend-report'
   | 'roi-analysis'
   | 'beginner-guide'
-  | 'deep-dive';
+  | 'deep-dive'
+  | 'glossary'
+  | 'troubleshooting-guide';
 
 export interface SEOTopic {
   id: string;
@@ -96,7 +98,7 @@ export const SERVICE_PILLARS: ServicePillar[] = [
         primaryKeyword: 'mobile app security best practices',
         secondaryKeywords: ['app security guide', 'mobile app data protection'],
         searchIntent: 'informational',
-        postFormat: 'beginner-guide',
+        postFormat: 'troubleshooting-guide',
         targetQueries: ['how to secure mobile app', 'mobile app security checklist', 'app security for business'],
         imageHints: ['cybersecurity', 'mobile security lock'],
       },
@@ -169,11 +171,11 @@ export const SERVICE_PILLARS: ServicePillar[] = [
       },
       {
         id: 'mvp-techstack',
-        title: 'Startup Tech Stack Checklist: What You Actually Need',
+        title: 'Startup Tech Stack Glossary: Every Term You Need to Know',
         primaryKeyword: 'startup tech stack',
         secondaryKeywords: ['tech stack for startups', 'mvp technology choices'],
         searchIntent: 'commercial',
-        postFormat: 'checklist',
+        postFormat: 'glossary',
         targetQueries: ['best tech stack for startup', 'what tech stack for mvp', 'startup technology choices'],
         imageHints: ['technology stack', 'developer tools'],
       },
@@ -273,11 +275,11 @@ export const SERVICE_PILLARS: ServicePillar[] = [
       },
       {
         id: 'web-pwa',
-        title: 'Progressive Web Apps: The Best of Web and Mobile Combined',
+        title: 'Progressive Web Apps: The Complete Glossary for Business Owners',
         primaryKeyword: 'progressive web app benefits',
         secondaryKeywords: ['PWA development', 'progressive web app guide'],
         searchIntent: 'informational',
-        postFormat: 'beginner-guide',
+        postFormat: 'glossary',
         targetQueries: ['what is a progressive web app', 'PWA benefits', 'should I build a PWA'],
         imageHints: ['mobile web app', 'responsive interface'],
       },

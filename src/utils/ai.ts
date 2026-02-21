@@ -3,9 +3,11 @@ import { logger } from './logger';
 
 const CONTEXT = 'AI';
 const DEFAULT_COOLDOWN_MS = 60_000;
-const MAX_RETRIES = 2;
+const MAX_RETRIES = 3;
 const MODEL = 'deepseek-chat';
-const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_TEMPERATURE = 0.9;
+const CONTENT_FREQUENCY_PENALTY = 0.4;
+const CONTENT_PRESENCE_PENALTY = 0.35;
 
 let quotaBlockedUntil = 0;
 let _client: OpenAI | null = null;
@@ -73,6 +75,8 @@ export async function safeGenerateContent(prompt: string, label: string, maxToke
     return null;
   }
 
+  const isContent = label.startsWith('blog-');
+
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     aiStats.callAttempts++;
     try {
@@ -80,7 +84,9 @@ export async function safeGenerateContent(prompt: string, label: string, maxToke
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: DEFAULT_TEMPERATURE,
-        ...(maxTokens && { max_tokens: maxTokens }),
+        max_tokens: maxTokens ?? (isContent ? 16384 : undefined),
+        frequency_penalty: isContent ? CONTENT_FREQUENCY_PENALTY : 0,
+        presence_penalty: isContent ? CONTENT_PRESENCE_PENALTY : 0,
       });
       return completion.choices[0]?.message?.content ?? null;
     } catch (error) {

@@ -41,7 +41,7 @@ export function jaccardSimilarity(a: string[], b: string[]): number {
 // Title similarity
 // ---------------------------------------------------------------------------
 
-const TITLE_SIMILARITY_THRESHOLD = 0.85;
+const TITLE_SIMILARITY_THRESHOLD = 0.82;
 
 export function titleTokens(title: string): string[] {
   return tokenize(title);
@@ -55,8 +55,8 @@ export function areTitlesSimilar(titleA: string, titleB: string): boolean {
 // Content fingerprint & similarity
 // ---------------------------------------------------------------------------
 
-const CONTENT_WORD_SAMPLE = 200;
-const CONTENT_SIMILARITY_THRESHOLD = 0.90;
+const CONTENT_WORD_SAMPLE = 400;
+const CONTENT_SIMILARITY_THRESHOLD = 0.88;
 
 function stripMarkdownHeaders(content: string): string {
   return content.replace(/^#{1,6}\s+.*$/gm, '').trim();
@@ -67,10 +67,24 @@ export function contentWords(content: string): string[] {
   return tokenize(stripped).slice(0, CONTENT_WORD_SAMPLE);
 }
 
+function contentMiddleWords(content: string): string[] {
+  const stripped = stripMarkdownHeaders(content);
+  const all = tokenize(stripped);
+  const midStart = Math.min(200, Math.floor(all.length / 3));
+  return all.slice(midStart, midStart + 200);
+}
+
 export function areContentsSimilar(contentA: string, contentB: string): boolean {
-  const wordsA = contentWords(contentA);
-  const wordsB = contentWords(contentB);
-  return jaccardSimilarity(wordsA, wordsB) >= CONTENT_SIMILARITY_THRESHOLD;
+  const headA = contentWords(contentA);
+  const headB = contentWords(contentB);
+  const headSim = jaccardSimilarity(headA, headB);
+  if (headSim >= CONTENT_SIMILARITY_THRESHOLD) return true;
+
+  const midA = contentMiddleWords(contentA);
+  const midB = contentMiddleWords(contentB);
+  if (midA.length < 50 || midB.length < 50) return false;
+  const midSim = jaccardSimilarity(midA, midB);
+  return (headSim + midSim) / 2 >= CONTENT_SIMILARITY_THRESHOLD;
 }
 
 // ---------------------------------------------------------------------------

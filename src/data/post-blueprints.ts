@@ -15,7 +15,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'cost-guide': {
     id: 'cost-guide',
     name: 'Cost / Pricing Guide',
-    wordRange: [2000, 2500],
+    wordRange: [3500, 5000],
     tone: 'transparent, helpful, and direct — like a consultant giving honest advice',
     openingInstruction:
       'Start with "The short answer is $X–$Y. But the real answer depends on..." Give a quick range upfront, then explain why it varies.',
@@ -36,7 +36,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   comparison: {
     id: 'comparison',
     name: 'X vs Y Comparison',
-    wordRange: [2500, 3000],
+    wordRange: [3500, 5000],
     tone: 'analytical and fair — present both sides honestly before giving a recommendation',
     openingInstruction:
       'Open with the core dilemma: "You need X, but should you go with A or B?" Frame it as a business decision, not a technical one.',
@@ -56,7 +56,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'how-to': {
     id: 'how-to',
     name: 'Step-by-Step How-To',
-    wordRange: [2500, 3500],
+    wordRange: [4000, 6000],
     tone: 'instructional, confident, and encouraging — like a mentor walking you through a process',
     openingInstruction:
       'Start with the end result: "By the end of this guide, you will have..." Then briefly mention what you need before starting.',
@@ -77,7 +77,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   listicle: {
     id: 'listicle',
     name: 'Numbered Listicle',
-    wordRange: [1800, 2500],
+    wordRange: [3000, 4500],
     tone: "engaging, punchy, and scannable — respect the reader's time while delivering value",
     openingInstruction:
       'Open with a bold hook: the number itself. "There are exactly N reasons..." or "We analyzed 50+ projects and found N patterns..."',
@@ -97,7 +97,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   faq: {
     id: 'faq',
     name: 'FAQ Article',
-    wordRange: [1500, 2000],
+    wordRange: [3000, 4000],
     tone: 'conversational and helpful — like answering questions from a smart friend',
     openingInstruction:
       'Start with: "If you\'re reading this, you probably have questions about [topic]. Here are the answers to the most common ones."',
@@ -115,7 +115,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'case-study': {
     id: 'case-study',
     name: 'Case Study',
-    wordRange: [2000, 3000],
+    wordRange: [3500, 5000],
     tone: "storytelling and results-focused — show, don't just tell",
     openingInstruction:
       'Open with the client\'s situation: "A [industry] company came to us with a problem: [specific pain point]." Make it relatable to the reader.',
@@ -135,7 +135,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'myth-buster': {
     id: 'myth-buster',
     name: 'Myth-Busting Article',
-    wordRange: [1800, 2500],
+    wordRange: [3000, 4500],
     tone: 'confident and slightly provocative — challenge assumptions with evidence',
     openingInstruction:
       'Open with a widely believed myth stated as fact, then immediately flip it: "Everyone says X. They\'re wrong. Here\'s why."',
@@ -156,7 +156,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   checklist: {
     id: 'checklist',
     name: 'Checklist / Readiness Guide',
-    wordRange: [1500, 2000],
+    wordRange: [2500, 3500],
     tone: 'practical and actionable — every sentence should help the reader DO something',
     openingInstruction:
       'Open with "Before you [action], make sure you can check off every item on this list." Create urgency around being prepared.',
@@ -175,7 +175,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'trend-report': {
     id: 'trend-report',
     name: 'Trends & Predictions',
-    wordRange: [2500, 3500],
+    wordRange: [4000, 6000],
     tone: 'forward-thinking and authoritative — position the company as industry insiders',
     openingInstruction:
       'Open with a striking statistic or market shift: "In the last 12 months, [dramatic change]. Here\'s what it means for your business."',
@@ -197,7 +197,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'roi-analysis': {
     id: 'roi-analysis',
     name: 'ROI / Business Case Analysis',
-    wordRange: [2000, 3000],
+    wordRange: [3500, 5000],
     tone: 'data-driven and persuasive — speak the language of business owners and decision-makers',
     openingInstruction: 'Open with the skeptic\'s question: "Is [investment] really worth it? Let\'s look at the actual numbers."',
     structurePrompt: `
@@ -218,7 +218,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'beginner-guide': {
     id: 'beginner-guide',
     name: 'Beginner-Friendly Explainer',
-    wordRange: [2000, 3000],
+    wordRange: [3500, 5000],
     tone: 'friendly, patient, and jargon-free — explain like talking to a smart non-technical person',
     openingInstruction:
       "Start with empathy: \"If you've heard about [topic] but aren't sure what it means for your business, you're in the right place.\"",
@@ -239,7 +239,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'deep-dive': {
     id: 'deep-dive',
     name: 'Technical Deep Dive',
-    wordRange: [3000, 4000],
+    wordRange: [5000, 7000],
     tone: 'expert and technical — for CTOs, tech leads, and developers evaluating solutions',
     openingInstruction:
       'Open with a technical challenge: "When building [system], the architecture decisions you make in week one determine your scaling costs for years."',
@@ -257,6 +257,48 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
     formattingRules:
       'Use code blocks for technical examples. Include architecture descriptions in text (no actual diagrams). Use tables for technology comparisons. Use H3 liberally for sub-topics. Bold key technical terms.',
     seoHint: 'Target "[topic] architecture", "[topic] best practices", "how to build [topic]" technical keywords.',
+  },
+
+  glossary: {
+    id: 'glossary',
+    name: 'Glossary / Term Reference',
+    wordRange: [3000, 4500],
+    tone: 'reference-style, clear, and authoritative — like an industry encyclopedia written for business people',
+    openingInstruction:
+      'Start with: "The world of [topic] comes with its own vocabulary. Here\'s your no-nonsense reference guide to the terms that matter."',
+    structurePrompt: `
+1. Brief intro explaining why understanding these terms matters for business decisions
+2. 10–15 key terms, each as an H2:
+   - Term name in bold
+   - Plain-language definition (1-2 sentences)
+   - Why it matters for your business (1-2 sentences)
+   - Real-world example or analogy
+3. Quick-reference summary table (Term | One-line definition)
+4. Call-to-action: "Need help navigating [topic]? We speak your language"`,
+    formattingRules:
+      'Each H2 is a term. Bold the term in the definition. Include a summary table at the end. Keep definitions jargon-free. Use analogies where possible.',
+    seoHint: 'Target "[topic] glossary", "[topic] terms explained", "what is [term]" keywords. Structure for rich snippets.',
+  },
+
+  'troubleshooting-guide': {
+    id: 'troubleshooting-guide',
+    name: 'Troubleshooting Guide',
+    wordRange: [3500, 5000],
+    tone: 'diagnostic and solution-focused — like a senior engineer walking you through fixes',
+    openingInstruction: 'Start with: "Something\'s not working right. Let\'s diagnose the problem and fix it — step by step."',
+    structurePrompt: `
+1. Brief intro: common scenarios where things go wrong
+2. 6–10 problems, each as an H2:
+   - H3 "Symptom": what you're seeing
+   - H3 "Cause": why it happens
+   - H3 "Fix": step-by-step resolution
+   - H3 "Prevention": how to avoid it next time
+3. Quick-reference table (Problem | Most likely cause | Quick fix)
+4. When to call in experts
+5. Call-to-action: "Stuck on a problem we didn't cover? Let's troubleshoot together"`,
+    formattingRules:
+      'Each problem is an H2. Use H3 for Symptom/Cause/Fix/Prevention. Include a diagnostic table at the end. Bold key symptoms and fixes. Use numbered steps in Fix sections.',
+    seoHint: 'Target "[topic] troubleshooting", "[topic] common problems", "how to fix [topic]" keywords.',
   },
 };
 
