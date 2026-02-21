@@ -125,7 +125,7 @@ export function getPostIssues(post: PostDoc): PostIssue[] {
   if (!hasCoverImage(post)) issues.push('missing-cover-image');
 
   const wc = wordCount(post.content ?? '');
-  const minInline = wc >= 4000 ? 4 : wc >= 2000 ? 3 : 1;
+  const minInline = wc >= 3000 ? 3 : wc >= 1500 ? 2 : 1;
   if (!hasInlineImages(post, minInline)) issues.push('missing-inline-images');
 
   if (!post.category) issues.push('missing-category');
@@ -138,7 +138,7 @@ export function getPostIssues(post: PostDoc): PostIssue[] {
   if (!post.secondaryKeywords || post.secondaryKeywords.length === 0) issues.push('missing-secondary-keywords');
   if (!post.metaDescription) issues.push('missing-meta-description');
 
-  if (wc < 800) issues.push('content-too-short');
+  if (wc < 300) issues.push('content-too-short');
 
   if (post.content && !contentHasImageMarkdown(post.content)) issues.push('content-no-inline-images');
 

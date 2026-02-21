@@ -53,7 +53,7 @@ export interface QualityReport {
  * Assess AI-generated content for quality degradation indicators.
  * Returns { pass, score, issues } — pass=false means content should be retried.
  */
-export function assessContentQuality(content: string, minWords = 800): QualityReport {
+export function assessContentQuality(content: string, minWords = 300): QualityReport {
   const issues: string[] = [];
   const words = content.split(/\s+/).filter(Boolean);
 

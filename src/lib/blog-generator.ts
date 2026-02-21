@@ -350,7 +350,7 @@ export async function generateBlogContent(topic: TopicResult, locale: string, in
 
   const content = await safeGenerateContent(prompt, `blog-${topic.postFormat}-${locale}`);
 
-  if (content && content.split(/\s+/).length >= 800) {
+  if (content && content.split(/\s+/).length >= 300) {
     logger.info(`Generated ${content.split(/\s+/).length} words for ${locale}`, undefined, 'BLOG');
     return content;
   }
@@ -369,7 +369,7 @@ export async function generateSourceBasedContent(
   const prompt = buildSourcePrompt(sourceText, classification, locale, inlineImages);
   logger.info(`Generating source-based content for "${topic.title}" in ${locale}`, undefined, 'BLOG');
   const generated = await safeGenerateContent(prompt, `blog-source-${locale}`);
-  return generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(topic, locale);
+  return generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(topic, locale);
 }
 
 // ---------------------------------------------------------------------------

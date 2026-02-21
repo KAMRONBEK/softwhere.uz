@@ -3,12 +3,9 @@ import { logger } from './logger';
 
 const CONTEXT = 'AI';
 const DEFAULT_COOLDOWN_MS = 60_000;
-const MAX_RETRIES = 3;
+const MAX_RETRIES = 2;
 const MODEL = 'deepseek-chat';
-const TEMPERATURE_EN = 0.9;
-const TEMPERATURE_OTHER = 0.75;
-const CONTENT_FREQUENCY_PENALTY = 0.4;
-const CONTENT_PRESENCE_PENALTY = 0.35;
+const DEFAULT_TEMPERATURE = 0.7;
 
 let quotaBlockedUntil = 0;
 let _client: OpenAI | null = null;
@@ -102,8 +99,6 @@ export async function safeGenerateContent(prompt: string, label: string, maxToke
   }
 
   const isContent = label.startsWith('blog-');
-  const isNonEn = isContent && !label.endsWith('-en');
-  const temperature = isNonEn ? TEMPERATURE_OTHER : TEMPERATURE_EN;
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     aiStats.callAttempts++;
@@ -111,10 +106,8 @@ export async function safeGenerateContent(prompt: string, label: string, maxToke
       const completion = await client.chat.completions.create({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
-        temperature,
-        max_tokens: maxTokens ?? (isContent ? 8192 : undefined),
-        frequency_penalty: isContent ? CONTENT_FREQUENCY_PENALTY : 0,
-        presence_penalty: isContent ? CONTENT_PRESENCE_PENALTY : 0,
+        temperature: DEFAULT_TEMPERATURE,
+        ...(maxTokens && { max_tokens: maxTokens }),
       });
       const raw = completion.choices[0]?.message?.content ?? null;
       return raw && isContent ? sanitizeContent(raw) : raw;
@@ -159,7 +152,7 @@ export async function safeGenerateJSON(prompt: string, label: string, maxTokens?
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         response_format: { type: 'json_object' },
-        temperature: TEMPERATURE_EN,
+        temperature: DEFAULT_TEMPERATURE,
         ...(maxTokens && { max_tokens: maxTokens }),
       });
       return completion.choices[0]?.message?.content ?? null;
