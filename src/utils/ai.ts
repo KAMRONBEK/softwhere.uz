@@ -84,7 +84,7 @@ export async function safeGenerateContent(prompt: string, label: string, maxToke
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: DEFAULT_TEMPERATURE,
-        max_tokens: maxTokens ?? (isContent ? 16384 : undefined),
+        max_tokens: maxTokens ?? (isContent ? 8192 : undefined),
         frequency_penalty: isContent ? CONTENT_FREQUENCY_PENALTY : 0,
         presence_penalty: isContent ? CONTENT_PRESENCE_PENALTY : 0,
       });
