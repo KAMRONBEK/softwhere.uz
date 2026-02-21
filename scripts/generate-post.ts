@@ -19,6 +19,7 @@ import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '../src/data/seo-topics';
 import { getBlueprintForFormat } from '../src/data/post-blueprints';
+import { sanitizeContent, assessContentQuality, QUALITY_RULES } from './lib/quality';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -86,23 +87,21 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function sanitizeContent(text: string): string {
-  return text
-    .replace(/[\\\s]+$/g, '')
-    .replace(/\n{4,}/g, '\n\n\n')
-    .replace(/^(#{1,6}\s.*)\n{3,}/gm, '$1\n\n')
-    .trim();
-}
-
-async function generate(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
+async function generate(prompt: string, label: string, maxTokens?: number, systemMsg?: string): Promise<string | null> {
   const isContent = label.startsWith('content-') || label.startsWith('blog-');
   const isNonEnContent = isContent && !label.endsWith('-en');
   const temperature = isNonEnContent ? TEMPERATURE_OTHER : TEMPERATURE_EN;
+  const messages = systemMsg
+    ? [
+        { role: 'system' as const, content: systemMsg },
+        { role: 'user' as const, content: prompt },
+      ]
+    : [{ role: 'user' as const, content: prompt }];
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await ai.chat.completions.create({
         model: MODEL,
-        messages: [{ role: 'user', content: prompt }],
+        messages,
         temperature,
         max_tokens: maxTokens ?? (isContent ? CONTENT_MAX_TOKENS : undefined),
         frequency_penalty: isContent ? FREQUENCY_PENALTY : 0,
@@ -464,7 +463,7 @@ async function smartSelectTopic(): Promise<TopicResult> {
 // Prompt builders
 // ---------------------------------------------------------------------------
 
-function buildTopicPrompt(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): string {
+function buildTopicPrompt(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): { system: string; user: string } {
   const bp = getBlueprintForFormat(topic.postFormat as PostFormat);
   const year = new Date().getFullYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -483,7 +482,7 @@ function buildTopicPrompt(topic: TopicResult, locale: string, inlineImages: ICov
     imageInstruction = `\nINLINE IMAGES — Insert these naturally between sections:\n${imgMd}`;
   }
 
-  const system = `You are an expert content writer and SEO specialist for Softwhere.uz, a software development company in Uzbekistan. ${
+  const system = `You are an expert content writer and SEO specialist for Softwhere.uz, a software development company in Uzbekistan. You produce impeccably formatted markdown articles. ${
     locale === 'ru' ? 'Вы пишете на русском языке.' : locale === 'uz' ? "Siz o'zbek tilida yozasiz." : ''
   }`;
 
@@ -521,13 +520,19 @@ ${imageInstruction}
 CREDIBILITY:
 - Include 2-4 statistics from credible sources (Statista, Gartner, McKinsey, etc.)
 - Use recent data (${year - 2}–${year})
+${QUALITY_RULES}
 
 Write a unique, valuable post. Every paragraph should teach something or persuade.`;
 
-  return `${system}\n\n---\n\n${user}`;
+  return { system, user };
 }
 
-function buildSourcePrompt(sourceText: string, classification: SourceClassification, locale: string, inlineImages: ICoverImage[]): string {
+function buildSourcePrompt(
+  sourceText: string,
+  classification: SourceClassification,
+  locale: string,
+  inlineImages: ICoverImage[]
+): { system: string; user: string } {
   const year = new Date().getFullYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const bp = getBlueprintForFormat(classification.postFormat);
@@ -548,11 +553,9 @@ function buildSourcePrompt(sourceText: string, classification: SourceClassificat
     imageInstruction = `\nINLINE IMAGES — Insert these images naturally between sections:\n${imgMd}`;
   }
 
-  return `You are an expert content writer for Softwhere.uz, a software development company in Uzbekistan. You've been given source material to use as inspiration. Write a completely ORIGINAL blog post — do NOT copy the source.
+  const system = `You are an expert content writer for Softwhere.uz, a software development company in Uzbekistan. You produce impeccably formatted markdown articles. You've been given source material to use as inspiration. Write a completely ORIGINAL blog post — do NOT copy the source.`;
 
----
-
-${langInstruction}
+  const user = `${langInstruction}
 
 LANGUAGE: Write the ENTIRE post in ${langName}. Do not mix languages.
 
@@ -592,8 +595,11 @@ CONTEXT:
 - Target audience: business owners in Uzbekistan and Central Asia
 - Company: Softwhere.uz — ${pillarName} specialists
 ${imageInstruction}
+${QUALITY_RULES}
 
 Write a unique, valuable post. Every paragraph should teach something or persuade.`;
+
+  return { system, user };
 }
 
 // ---------------------------------------------------------------------------
@@ -813,16 +819,29 @@ async function main() {
   for (const locale of opts.locales) {
     console.log(`\n🌐 Generating ${locale.toUpperCase()} content...`);
 
-    let content: string;
-    if (resolvedSource && sourceClassification) {
-      const prompt = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
-      const generated = await generate(prompt, `content-source-${locale}`);
-      content = generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
-    } else {
-      const prompt = buildTopicPrompt(selectedTopic, locale, inlineImages);
-      const generated = await generate(prompt, `content-${locale}`);
-      content = generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
+    const label = resolvedSource ? `content-source-${locale}` : `content-${locale}`;
+    const { system: sysMsg, user: userMsg } =
+      resolvedSource && sourceClassification
+        ? buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages)
+        : buildTopicPrompt(selectedTopic, locale, inlineImages);
+
+    let generated = await generate(userMsg, label, undefined, sysMsg);
+
+    if (generated && generated.split(/\s+/).length >= 800) {
+      const quality = assessContentQuality(generated);
+      if (!quality.pass) {
+        console.log(`   ⚠️  Quality issues: ${quality.issues.join('; ')}`);
+        console.log(`   🔄 Retrying generation...`);
+        const retry = await generate(userMsg, label, undefined, sysMsg);
+        if (retry && retry.split(/\s+/).length >= 800) {
+          const retryQ = assessContentQuality(retry);
+          if (retryQ.score > quality.score) generated = retry;
+        }
+      }
     }
+
+    const content =
+      generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
 
     console.log(`   ✅ ${content.split(/\s+/).length} words`);
 
