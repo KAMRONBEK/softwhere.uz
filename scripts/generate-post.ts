@@ -33,7 +33,8 @@ if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
 const MODEL = 'deepseek-chat';
-const TEMPERATURE = 0.9;
+const TEMPERATURE_EN = 0.9;
+const TEMPERATURE_OTHER = 0.75;
 const CONTENT_MAX_TOKENS = 8192;
 const FREQUENCY_PENALTY = 0.4;
 const PRESENCE_PENALTY = 0.35;
@@ -85,19 +86,30 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function sanitizeContent(text: string): string {
+  return text
+    .replace(/[\\\s]+$/g, '')
+    .replace(/\n{4,}/g, '\n\n\n')
+    .replace(/^(#{1,6}\s.*)\n{3,}/gm, '$1\n\n')
+    .trim();
+}
+
 async function generate(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
   const isContent = label.startsWith('content-') || label.startsWith('blog-');
+  const isNonEnContent = isContent && !label.endsWith('-en');
+  const temperature = isNonEnContent ? TEMPERATURE_OTHER : TEMPERATURE_EN;
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await ai.chat.completions.create({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
-        temperature: TEMPERATURE,
+        temperature,
         max_tokens: maxTokens ?? (isContent ? CONTENT_MAX_TOKENS : undefined),
         frequency_penalty: isContent ? FREQUENCY_PENALTY : 0,
         presence_penalty: isContent ? PRESENCE_PENALTY : 0,
       });
-      return res.choices[0]?.message?.content ?? null;
+      const raw = res.choices[0]?.message?.content ?? null;
+      return raw && isContent ? sanitizeContent(raw) : raw;
     } catch (err: unknown) {
       const status = (err as Record<string, unknown>).status;
       if (status === 429) {
