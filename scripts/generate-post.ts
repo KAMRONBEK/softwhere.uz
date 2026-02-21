@@ -33,7 +33,10 @@ if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
 const MODEL = 'deepseek-chat';
-const TEMPERATURE = 0.7;
+const TEMPERATURE = 0.9;
+const CONTENT_MAX_TOKENS = 16384;
+const FREQUENCY_PENALTY = 0.4;
+const PRESENCE_PENALTY = 0.35;
 const UNSPLASH_API = 'https://api.unsplash.com';
 const MAX_SOURCE_TEXT_LENGTH = 5000;
 const MAX_EXTRACTED_TEXT_LENGTH = 4000;
@@ -83,13 +86,16 @@ function sleep(ms: number) {
 }
 
 async function generate(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  const isContent = label.startsWith('content-') || label.startsWith('blog-');
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await ai.chat.completions.create({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: TEMPERATURE,
-        ...(maxTokens && { max_tokens: maxTokens }),
+        max_tokens: maxTokens ?? (isContent ? CONTENT_MAX_TOKENS : undefined),
+        frequency_penalty: isContent ? FREQUENCY_PENALTY : 0,
+        presence_penalty: isContent ? PRESENCE_PENALTY : 0,
       });
       return res.choices[0]?.message?.content ?? null;
     } catch (err: unknown) {
@@ -99,8 +105,8 @@ async function generate(prompt: string, label: string, maxTokens?: number): Prom
         await sleep(60_000);
         continue;
       }
-      console.error(`  ❌ AI error (${attempt}/2) ${label}:`, (err as Error).message);
-      if (attempt === 2) return null;
+      console.error(`  ❌ AI error (${attempt}/3) ${label}:`, (err as Error).message);
+      if (attempt === 3) return null;
     }
   }
   return null;
@@ -198,6 +204,8 @@ const POST_FORMATS: PostFormat[] = [
   'roi-analysis',
   'beginner-guide',
   'deep-dive',
+  'glossary',
+  'troubleshooting-guide',
 ];
 
 async function classifySourceContent(sourceText: string): Promise<SourceClassification> {
@@ -323,11 +331,11 @@ function extractFallbackKeyword(title: string): string {
   return words.slice(0, 3).join(' ') || 'technology';
 }
 
-async function searchUnsplash(keyword: string): Promise<ICoverImage | null> {
+async function searchUnsplash(keyword: string, page = 1): Promise<ICoverImage | null> {
   if (!UNSPLASH_ACCESS_KEY) return null;
 
   try {
-    const params = new URLSearchParams({ query: keyword, per_page: '1', orientation: 'landscape' });
+    const params = new URLSearchParams({ query: keyword, per_page: '1', page: String(page), orientation: 'landscape' });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
 
@@ -366,13 +374,27 @@ async function fetchImages(
 
   const coverKeyword = imageHints[0] || extractFallbackKeyword(title);
   const cover = await searchUnsplash(coverKeyword);
+  const usedUrls = new Set(cover ? [cover.url] : []);
 
-  const inlineKeyword = imageHints[1] || extractFallbackKeyword(title);
-  const inlineImg = inlineKeyword !== coverKeyword ? await searchUnsplash(inlineKeyword) : null;
+  const inlineKeywords = [
+    imageHints[1] || extractFallbackKeyword(title),
+    imageHints[2] || `${extractFallbackKeyword(title)} technology`,
+    imageHints[0] ? `${imageHints[0]} business` : 'software development',
+  ];
 
-  const inline = inlineImg ? [inlineImg] : [];
+  const inline: ICoverImage[] = [];
+  for (const kw of inlineKeywords) {
+    if (inline.length >= 3) break;
+    for (let page = 1; page <= 2 && inline.length < 3; page++) {
+      const img = await searchUnsplash(kw, page);
+      if (img && !usedUrls.has(img.url)) {
+        inline.push(img);
+        usedUrls.add(img.url);
+      }
+    }
+  }
+
   const all = [...(cover ? [cover] : []), ...inline];
-
   return { cover, inline, all };
 }
 
@@ -783,11 +805,11 @@ async function main() {
     if (resolvedSource && sourceClassification) {
       const prompt = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
       const generated = await generate(prompt, `content-source-${locale}`);
-      content = generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
+      content = generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
     } else {
       const prompt = buildTopicPrompt(selectedTopic, locale, inlineImages);
       const generated = await generate(prompt, `content-${locale}`);
-      content = generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
+      content = generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
     }
 
     console.log(`   ✅ ${content.split(/\s+/).length} words`);
