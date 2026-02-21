@@ -44,13 +44,23 @@ if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
 const MODEL = 'deepseek-chat';
-const TEMPERATURE = 0.7;
+const TEMPERATURE = 0.9;
+const CONTENT_MAX_TOKENS = 16384;
+const FREQUENCY_PENALTY = 0.4;
+const PRESENCE_PENALTY = 0.35;
 const UNSPLASH_API = 'https://api.unsplash.com';
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const ANALYZE_ONLY = process.argv.includes('--analyze-only');
 const RESUME = process.argv.includes('--resume');
 const FORCE = process.argv.includes('--force');
+
+const MAX_ITERATIONS = (() => {
+  const idx = process.argv.indexOf('--iterations');
+  if (idx === -1 || idx + 1 >= process.argv.length) return 1;
+  const n = parseInt(process.argv[idx + 1], 10);
+  return Number.isNaN(n) ? 1 : Math.min(Math.max(n, 1), 3);
+})();
 
 // ---------------------------------------------------------------------------
 // Mongoose model (inline to avoid @/ alias issues)
@@ -94,13 +104,16 @@ function sleep(ms: number) {
 }
 
 async function generate(prompt: string, label: string, maxTokens?: number): Promise<string | null> {
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  const isContent = label.startsWith('content-');
+  for (let attempt = 1; attempt <= 3; attempt++) {
     try {
       const res = await ai.chat.completions.create({
         model: MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: TEMPERATURE,
-        ...(maxTokens && { max_tokens: maxTokens }),
+        max_tokens: maxTokens ?? (isContent ? CONTENT_MAX_TOKENS : undefined),
+        frequency_penalty: isContent ? FREQUENCY_PENALTY : 0,
+        presence_penalty: isContent ? PRESENCE_PENALTY : 0,
       });
       return res.choices[0]?.message?.content ?? null;
     } catch (err: unknown) {
@@ -110,8 +123,8 @@ async function generate(prompt: string, label: string, maxTokens?: number): Prom
         await sleep(60_000);
         continue;
       }
-      console.error(`  ❌ AI error (${attempt}/2) ${label}:`, (err as Error).message);
-      if (attempt === 2) return null;
+      console.error(`  ❌ AI error (${attempt}/3) ${label}:`, (err as Error).message);
+      if (attempt === 3) return null;
     }
   }
   return null;
@@ -203,22 +216,68 @@ interface Blueprint {
 }
 
 const BLUEPRINTS: Record<string, Blueprint> = {
-  'cost-guide': { name: 'Cost / Pricing Guide', wordRange: [2000, 2500], tone: 'transparent, helpful, and direct — like a consultant giving honest advice', openingInstruction: 'Start with "The short answer is $X–$Y. But the real answer depends on..." Give a quick range upfront, then explain why it varies.', structurePrompt: '1. Quick answer with price range upfront\n2. Factors that affect cost (with a markdown table showing Low/Mid/High tiers)\n3. Detailed breakdown by project phase\n4. Hidden costs most people forget\n5. How to reduce costs without sacrificing quality\n6. Real pricing examples\n7. When to invest more vs when to save\n8. Call-to-action', formattingRules: 'Use markdown tables for pricing tiers. Use bold for dollar amounts. Use blockquotes for "pro tips" on saving money.', seoHint: 'Include long-tail cost keywords naturally. Answer "how much does X cost" directly.' },
-  comparison: { name: 'X vs Y Comparison', wordRange: [2500, 3000], tone: 'analytical and fair — present both sides honestly before giving a recommendation', openingInstruction: 'Open with the core dilemma: "You need X, but should you go with A or B?"', structurePrompt: '1. Why this comparison matters\n2. Option A deep dive\n3. Option B deep dive\n4. Side-by-side comparison table\n5. Decision framework: "Choose A if... Choose B if..."\n6. Our recommendation\n7. Call-to-action', formattingRules: 'Must include at least one comparison table. Use pros/cons lists. End with a clear verdict.', seoHint: 'Target "X vs Y" keywords. Include "which is better" variations.' },
-  'how-to': { name: 'Step-by-Step How-To', wordRange: [2500, 3500], tone: 'instructional, confident, and encouraging', openingInstruction: 'Start with the end result: "By the end of this guide, you will have..."', structurePrompt: '1. What you\'ll achieve\n2. Prerequisites\n3. Steps 1-8 (each as H2)\n4. Each step includes: what, why, common mistakes\n5. Timeline expectations\n6. Troubleshooting\n7. Next steps\n8. Call-to-action', formattingRules: 'Number all major steps as H2. Use H3 for sub-steps. Include time estimates.', seoHint: 'Target "how to" keywords. Structure for HowTo rich snippets.' },
-  listicle: { name: 'Numbered Listicle', wordRange: [1800, 2500], tone: 'engaging, punchy, and scannable', openingInstruction: 'Open with a bold hook: the number itself.', structurePrompt: '1. Bold hook with count\n2. Items 1-N as H2 with explanation and takeaway\n3. Summary bullet list\n4. Call-to-action', formattingRules: 'Each item as H2 with number. Bold one-liner start. Short paragraphs.', seoHint: 'Use the number in the title. Include "top", "best" variations.' },
-  faq: { name: 'FAQ Article', wordRange: [1500, 2000], tone: 'conversational and helpful', openingInstruction: 'Start with: "If you\'re reading this, you probably have questions about [topic]."', structurePrompt: '1. Brief intro\n2. 8-12 questions as H2\n3. Direct answers with elaboration\n4. "Still have questions?" call-to-action', formattingRules: 'Every H2 must be a question. Start with direct one-sentence answer.', seoHint: 'Questions should match "People Also Ask" queries. Format for FAQ rich snippets.' },
-  'case-study': { name: 'Case Study', wordRange: [2000, 3000], tone: 'storytelling and results-focused', openingInstruction: 'Open with the client\'s situation and pain point.', structurePrompt: '1. The Client\n2. The Challenge\n3. Our Approach\n4. Implementation\n5. Results (metrics table)\n6. Key Takeaways\n7. Call-to-action', formattingRules: 'Blockquotes for client quotes. Results table with before/after. Bold numbers.', seoHint: 'Target "[service] case study" and "[industry] success story" queries.' },
-  'myth-buster': { name: 'Myth-Busting Article', wordRange: [1800, 2500], tone: 'confident and slightly provocative', openingInstruction: 'Open with a widely believed myth, then flip it.', structurePrompt: '1. Hook myth\n2. 5-7 myths with H2 "Myth:" and H3 "Reality:"\n3. Summary of truths\n4. Call-to-action', formattingRules: 'H2 for myths, H3 for realities. Blockquotes for myth statements. Bold reality.', seoHint: 'Target "[topic] myths" and "misconceptions" keywords.' },
-  checklist: { name: 'Checklist / Readiness Guide', wordRange: [1500, 2000], tone: 'practical and actionable', openingInstruction: 'Open with "Before you [action], make sure you can check off every item."', structurePrompt: '1. Why this checklist matters\n2. 10-15 items in 3-4 categories\n3. Scoring guide\n4. What to do if not ready\n5. Call-to-action', formattingRules: 'Checkbox-style items. Group under H2 categories. Keep short.', seoHint: 'Target "[topic] checklist" and "readiness assessment" keywords.' },
-  'trend-report': { name: 'Trends & Predictions', wordRange: [2500, 3500], tone: 'forward-thinking and authoritative', openingInstruction: 'Open with a striking statistic or market shift.', structurePrompt: '1. Market landscape\n2. Trends 1-7 as H2\n3. Predictions\n4. Central Asia context\n5. Action items\n6. Call-to-action', formattingRules: 'Statistics with source links. Bold numbers. Blockquotes for predictions.', seoHint: 'Target "[topic] trends [year]" and "future of [topic]" keywords.' },
-  'roi-analysis': { name: 'ROI / Business Case Analysis', wordRange: [2000, 3000], tone: 'data-driven and persuasive', openingInstruction: 'Open with the skeptic\'s question: "Is [investment] really worth it?"', structurePrompt: '1. Investment question\n2. Costs breakdown\n3. Returns with data\n4. ROI calculation\n5. Payback timeline\n6. Risks\n7. Case example\n8. Cost of inaction\n9. Call-to-action', formattingRules: 'Tables for cost/benefit. Bold dollar amounts. Blockquote for key ROI.', seoHint: 'Target "ROI of [topic]" and "is [topic] worth it" keywords.' },
-  'beginner-guide': { name: 'Beginner-Friendly Explainer', wordRange: [2000, 3000], tone: 'friendly, patient, and jargon-free', openingInstruction: 'Start with empathy about not understanding the topic.', structurePrompt: '1. What is [topic]?\n2. Why care?\n3. How does it work?\n4. Use cases\n5. Glossary\n6. Misconceptions\n7. Getting started\n8. Call-to-action', formattingRules: 'Use analogies. Define terms in bold. Short paragraphs. H2 as questions.', seoHint: 'Target "what is [topic]" and "[topic] explained" keywords.' },
-  'deep-dive': { name: 'Technical Deep Dive', wordRange: [3000, 4000], tone: 'expert and technical', openingInstruction: 'Open with a technical challenge about architecture decisions.', structurePrompt: '1. Technical context\n2. Architecture overview\n3. Technology trade-offs\n4. Implementation patterns\n5. Performance\n6. Security & scalability\n7. Anti-patterns\n8. Code examples\n9. Monitoring & testing\n10. Call-to-action', formattingRules: 'Code blocks for examples. Tables for tech comparisons. Bold key terms.', seoHint: 'Target "[topic] architecture" and "[topic] best practices" keywords.' },
+  'cost-guide': { name: 'Cost / Pricing Guide', wordRange: [3500, 5000], tone: 'transparent, helpful, and direct — like a consultant giving honest advice', openingInstruction: 'Start with "The short answer is $X–$Y. But the real answer depends on..." Give a quick range upfront, then explain why it varies.', structurePrompt: '1. Quick answer with price range upfront\n2. Factors that affect cost (with a markdown table showing Low/Mid/High tiers)\n3. Detailed breakdown by project phase\n4. Hidden costs most people forget\n5. How to reduce costs without sacrificing quality\n6. Real pricing examples with anonymized case studies\n7. Cost comparison by region (US, Europe, Central Asia)\n8. When to invest more vs when to save\n9. Negotiation tips and budget planning advice\n10. Call-to-action', formattingRules: 'Use markdown tables for pricing tiers. Use bold for dollar amounts. Use blockquotes for "pro tips" on saving money.', seoHint: 'Include long-tail cost keywords naturally. Answer "how much does X cost" directly.' },
+  comparison: { name: 'X vs Y Comparison', wordRange: [3500, 5000], tone: 'analytical and fair — present both sides honestly before giving a recommendation', openingInstruction: 'Open with the core dilemma: "You need X, but should you go with A or B?"', structurePrompt: '1. Why this comparison matters for your business\n2. Option A deep dive with real-world use cases\n3. Option B deep dive with real-world use cases\n4. Side-by-side comparison table (features, cost, timeline, scalability, maintenance)\n5. Performance benchmarks and data\n6. Decision framework: "Choose A if... Choose B if..."\n7. Migration paths between options\n8. Our recommendation with reasoning\n9. Call-to-action', formattingRules: 'Must include at least two comparison tables. Use pros/cons lists. End with a clear verdict.', seoHint: 'Target "X vs Y" keywords. Include "which is better" variations.' },
+  'how-to': { name: 'Step-by-Step How-To', wordRange: [4000, 6000], tone: 'instructional, confident, and encouraging', openingInstruction: 'Start with the end result: "By the end of this guide, you will have..."', structurePrompt: '1. What you\'ll achieve (outcome-first hook)\n2. Prerequisites and preparation\n3. Steps 1-10 (each as H2 with detailed sub-steps)\n4. Each step includes: what to do, why it matters, common mistakes, time estimate\n5. Real-world examples at each major step\n6. Timeline expectations\n7. Troubleshooting common problems\n8. Advanced tips and optimization\n9. Next steps and further resources\n10. Call-to-action', formattingRules: 'Number all major steps as H2. Use H3 for sub-steps. Include time estimates. Use blockquotes for warnings.', seoHint: 'Target "how to" keywords. Structure for HowTo rich snippets.' },
+  listicle: { name: 'Numbered Listicle', wordRange: [3000, 4500], tone: 'engaging, punchy, and scannable', openingInstruction: 'Open with a bold hook backed by data: "We analyzed 50+ projects and found N patterns..."', structurePrompt: '1. Bold hook with count and why it matters\n2. Items 1-N as H2, each with:\n   - A compelling one-line summary in bold\n   - 3-4 paragraphs of explanation with real examples\n   - Data or statistics supporting the point\n   - Actionable takeaway\n3. Summary section with quick-reference list\n4. Call-to-action', formattingRules: 'Each item as H2 with number. Bold one-liner start. Include data. End each with actionable italic takeaway.', seoHint: 'Use the number in the title. Include "top", "best" variations.' },
+  faq: { name: 'FAQ Article', wordRange: [3000, 4000], tone: 'conversational and helpful — like answering questions from a smart friend', openingInstruction: 'Start with: "These are the real questions we hear from business owners every week."', structurePrompt: '1. Brief intro establishing expertise\n2. 12-18 questions as H2 (mix basic and advanced)\n3. Each answer: 3-5 paragraphs with data, examples, and concrete advice\n4. Cross-references between related questions\n5. "Questions we wish more people asked" section\n6. "Still have questions?" call-to-action', formattingRules: 'Every H2 must be a question. Start with direct one-sentence answer, then elaborate with depth. Use bold for key terms.', seoHint: 'Questions should match "People Also Ask" queries. Format for FAQ rich snippets.' },
+  'case-study': { name: 'Case Study', wordRange: [3500, 5000], tone: 'storytelling and results-focused — show, don\'t just tell', openingInstruction: 'Open with a specific pain point: "A [industry] company was losing $X/month because..."', structurePrompt: '1. The Client: industry, size, context, and initial situation\n2. The Challenge: specific problems with measurable pain\n3. Why Previous Solutions Failed\n4. Our Approach: methodology, team, and technology choices\n5. Implementation: detailed timeline with milestones and obstacles\n6. Results: metrics table with before/after data\n7. Long-term Impact (6-12 months later)\n8. Key Takeaways for similar businesses\n9. Call-to-action', formattingRules: 'Blockquotes for client perspective. Results table with before/after metrics. Bold all numbers and percentages. Timeline as numbered list.', seoHint: 'Target "[service] case study" and "[industry] success story" queries.' },
+  'myth-buster': { name: 'Myth-Busting Article', wordRange: [3000, 4500], tone: 'confident and slightly provocative — challenge assumptions with evidence', openingInstruction: 'Open with the most dangerous myth stated as fact, then demolish it with data.', structurePrompt: '1. Hook: state the most harmful myth as truth, then flip it\n2. 7-10 myths, each with:\n   - H2: "Myth: [the myth]"\n   - H3: "Reality: [the truth]"\n   - Data and evidence\n   - Why this myth persists\n   - What to do instead\n3. "The biggest myth we didn\'t cover" teaser\n4. Summary of truths\n5. Call-to-action', formattingRules: 'H2 for myths, H3 for realities. Blockquotes for myth statements. Bold reality. Include data sources.', seoHint: 'Target "[topic] myths" and "misconceptions" keywords.' },
+  checklist: { name: 'Checklist / Readiness Guide', wordRange: [2500, 3500], tone: 'practical and actionable — every sentence helps the reader DO something', openingInstruction: 'Open with "Before you [action], make sure you can check off every item. Missing even one can cost you thousands."', structurePrompt: '1. Why this checklist matters (with cost-of-failure data)\n2. The Checklist: 15-20 items grouped into 4-5 categories\n3. Each item: checkbox, one-line description, 2-3 sentences on why it matters, red-flag warnings\n4. Priority ranking within each category\n5. Scoring guide with clear thresholds\n6. "What to do if you\'re not ready" recovery plan\n7. Call-to-action', formattingRules: 'Checkbox-style items. Group under H2 categories. Include priority indicators. Bold critical items.', seoHint: 'Target "[topic] checklist" and "readiness assessment" keywords.' },
+  'trend-report': { name: 'Trends & Predictions', wordRange: [4000, 6000], tone: 'forward-thinking and authoritative — position as industry insiders', openingInstruction: 'Open with a striking statistic that shifted in the last 12 months.', structurePrompt: '1. Market landscape overview with current data and charts\n2. Trends 1-8 as H2, each with:\n   - What\'s happening (with data)\n   - Why it matters for businesses\n   - How to prepare or take advantage\n   - Timeline for adoption\n3. Bold predictions for the next 2-3 years\n4. Central Asia and Uzbekistan specific context\n5. Action items ranked by priority\n6. Call-to-action', formattingRules: 'Statistics with source links. Bold numbers and percentages. Blockquotes for key predictions. Timeline table.', seoHint: 'Target "[topic] trends [year]" and "future of [topic]" keywords.' },
+  'roi-analysis': { name: 'ROI / Business Case Analysis', wordRange: [3500, 5000], tone: 'data-driven and persuasive — speak the language of CFOs', openingInstruction: 'Open with: "Is [investment] really worth it? We ran the numbers on 20+ projects. Here\'s what we found."', structurePrompt: '1. The investment question framed as a business decision\n2. Comprehensive cost breakdown (direct, indirect, opportunity)\n3. Quantified returns with real data\n4. ROI calculation with step-by-step formula\n5. Payback timeline with monthly projections\n6. Risk factors and mitigation strategies\n7. 2-3 case examples with actual numbers\n8. Comparison: investment vs cost of inaction\n9. Decision framework for different budgets\n10. Call-to-action', formattingRules: 'Tables for cost/benefit. Bold all dollar amounts. Blockquote for key ROI figure. Include a calculation the reader can follow.', seoHint: 'Target "ROI of [topic]" and "is [topic] worth it" keywords.' },
+  'beginner-guide': { name: 'Beginner-Friendly Explainer', wordRange: [3500, 5000], tone: 'friendly, patient, and jargon-free — like talking to a smart non-technical person', openingInstruction: 'Start with empathy and a relatable scenario from business life.', structurePrompt: '1. What is [topic]? (plain language with a real-world analogy)\n2. Why should you care? (business impact with numbers)\n3. How does it work? (simplified explanation with step-by-step)\n4. Common use cases (5-7 examples relevant to the reader)\n5. Complete glossary of key terms\n6. Common misconceptions debunked\n7. How to evaluate if you need it\n8. How to get started (concrete next steps)\n9. What to expect in the first 30/60/90 days\n10. Call-to-action', formattingRules: 'Use analogies and real-world examples. Define technical terms in bold on first use. Short paragraphs. H2 as questions.', seoHint: 'Target "what is [topic]" and "[topic] explained" keywords.' },
+  'deep-dive': { name: 'Technical Deep Dive', wordRange: [5000, 7000], tone: 'expert and technical — for CTOs, tech leads, and senior developers', openingInstruction: 'Open with a real architectural dilemma that costs companies money when done wrong.', structurePrompt: '1. Technical context and problem statement\n2. Architecture overview with system design description\n3. Technology choices and detailed trade-off analysis\n4. Implementation patterns with code snippets\n5. Performance benchmarks and optimization strategies\n6. Security considerations and threat modeling\n7. Scalability analysis (horizontal vs vertical)\n8. Common anti-patterns with real failure stories\n9. Testing strategy and quality assurance\n10. Monitoring, alerting, and observability\n11. Migration and upgrade paths\n12. Call-to-action', formattingRules: 'Code blocks for technical examples. Multiple comparison tables. Bold key technical terms. Include architecture decision records.', seoHint: 'Target "[topic] architecture" and "[topic] best practices" keywords.' },
+  'glossary': { name: 'Glossary / Term Reference', wordRange: [3000, 4500], tone: 'reference-style, clear, and authoritative — like an industry encyclopedia for business people', openingInstruction: 'Start with: "The world of [topic] comes with its own vocabulary. Misunderstanding even one term can lead to costly decisions."', structurePrompt: '1. Brief intro on why understanding these terms saves money\n2. 15-25 key terms as H2, each with:\n   - Bold term name\n   - Plain-language definition (2-3 sentences)\n   - Why it matters for your business decisions\n   - Real-world example or analogy\n   - Common misunderstanding about this term\n3. Quick-reference summary table (Term | Definition | Business Impact)\n4. "Terms you\'ll hear next" — emerging vocabulary\n5. Call-to-action', formattingRules: 'Each H2 is a term. Bold the term in definition. Include comprehensive summary table. Use analogies. Cross-reference related terms.', seoHint: 'Target "[topic] glossary", "[topic] terms explained", "what is [term]" keywords.' },
+  'troubleshooting-guide': { name: 'Troubleshooting Guide', wordRange: [3500, 5000], tone: 'diagnostic and solution-focused — like a senior engineer walking you through fixes', openingInstruction: 'Start with: "Before you panic or call an expensive consultant, let\'s systematically diagnose what\'s going wrong."', structurePrompt: '1. How to approach troubleshooting (diagnostic mindset)\n2. 8-12 problems, each as H2 with:\n   - H3 "Symptom": exactly what you\'re seeing\n   - H3 "Root Cause": why it happens (with technical explanation)\n   - H3 "Fix": step-by-step resolution with commands/actions\n   - H3 "Prevention": how to make sure it never happens again\n   - Estimated fix time and difficulty level\n3. Quick-reference diagnostic table (Symptom | Likely Cause | Quick Fix)\n4. When DIY ends and you need expert help\n5. Emergency vs non-emergency classification\n6. Call-to-action', formattingRules: 'Each problem is H2. Use H3 for Symptom/Cause/Fix/Prevention. Comprehensive diagnostic table at end. Bold symptoms and fixes. Numbered steps in Fix sections. Include difficulty ratings.', seoHint: 'Target "[topic] troubleshooting", "[topic] common problems", "how to fix [topic]" keywords.' },
 };
 
 function getBlueprint(format: string): Blueprint {
   return BLUEPRINTS[format] ?? BLUEPRINTS['beginner-guide'];
+}
+
+// ---------------------------------------------------------------------------
+// Format & theme pivots
+// ---------------------------------------------------------------------------
+
+const FORMAT_PIVOTS: Record<PostFormat, PostFormat[]> = {
+  'beginner-guide': ['how-to', 'faq', 'listicle', 'glossary'],
+  'how-to': ['beginner-guide', 'checklist', 'listicle', 'troubleshooting-guide'],
+  'listicle': ['faq', 'checklist', 'beginner-guide', 'glossary'],
+  'comparison': ['roi-analysis', 'cost-guide', 'deep-dive'],
+  'cost-guide': ['roi-analysis', 'comparison', 'faq'],
+  'faq': ['beginner-guide', 'checklist', 'listicle', 'glossary'],
+  'case-study': ['roi-analysis', 'how-to', 'deep-dive'],
+  'myth-buster': ['faq', 'beginner-guide', 'listicle'],
+  'checklist': ['troubleshooting-guide', 'faq', 'listicle', 'how-to'],
+  'trend-report': ['deep-dive', 'listicle', 'beginner-guide'],
+  'roi-analysis': ['cost-guide', 'comparison', 'case-study'],
+  'deep-dive': ['how-to', 'trend-report', 'troubleshooting-guide'],
+  'glossary': ['beginner-guide', 'faq', 'checklist'],
+  'troubleshooting-guide': ['how-to', 'checklist', 'faq'],
+};
+
+const CONTENT_ANGLES = [
+  'cost and budget perspective for business owners',
+  'technical implementation focus for CTOs and developers',
+  'ROI and measurable business value',
+  'Central Asia and Uzbekistan market context',
+  'step-by-step practical walkthrough with examples',
+  'myths, misconceptions, and reality checks',
+  'decision-making framework for executives',
+  'security and risk management angle',
+] as const;
+
+function pickPivotFormat(current: PostFormat, avoidFormats: PostFormat[] = []): PostFormat {
+  const candidates = (FORMAT_PIVOTS[current] ?? []).filter(f => !avoidFormats.includes(f));
+  if (candidates.length === 0) return current;
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function pickContentAngle(avoidIndex?: number): string {
+  let idx = Math.floor(Math.random() * CONTENT_ANGLES.length);
+  if (idx === avoidIndex) idx = (idx + 1) % CONTENT_ANGLES.length;
+  return CONTENT_ANGLES[idx];
 }
 
 // ---------------------------------------------------------------------------
@@ -229,7 +288,7 @@ function buildPrompt(
   topic: TopicInfo,
   locale: string,
   inlineImages: ICoverImage[],
-  opts: { avoidTitles?: string[]; uniqueness?: boolean } = {},
+  opts: { avoidTitles?: string[]; uniqueness?: boolean; contentAngle?: string } = {},
 ): string {
   const bp = getBlueprint(topic.postFormat);
   const year = new Date().getFullYear();
@@ -253,7 +312,12 @@ function buildPrompt(
   if (opts.uniqueness || (opts.avoidTitles && opts.avoidTitles.length > 0)) {
     uniquenessBlock = `\nUNIQUENESS REQUIREMENT:
 - This blog MUST be completely unique in structure, opening, and phrasing.
-- Do NOT use generic blog-post openings. Start with a fresh, original angle.`;
+- Do NOT use generic blog-post openings like "In today's digital landscape..." or "In the ever-evolving world of...".
+- Use a completely different section order and fresh examples compared to typical articles on this topic.
+- Start with a fresh, original angle that surprises the reader.`;
+    if (opts.contentAngle) {
+      uniquenessBlock += `\n- CONTENT ANGLE: Write this article specifically from a "${opts.contentAngle}" perspective. Let this angle shape the structure, examples, and recommendations.`;
+    }
     if (opts.avoidTitles && opts.avoidTitles.length > 0) {
       uniquenessBlock += `\n- AVOID similarity to these existing titles:\n${opts.avoidTitles.map(t => `  • "${t}"`).join('\n')}`;
     }
@@ -438,8 +502,8 @@ function injectInlineImages(content: string, images: ICoverImage[], primaryKeywo
   if (h2Indices.length < 2) return content;
 
   const insertPoints: number[] = [];
-  if (h2Indices.length >= 2) insertPoints.push(h2Indices[2] ?? h2Indices[h2Indices.length - 1]);
-  if (h2Indices.length >= 4 && images.length >= 2) insertPoints.push(h2Indices[4] ?? h2Indices[h2Indices.length - 1]);
+  if (h2Indices.length >= 2) insertPoints.push(h2Indices[1] + 1);
+  if (h2Indices.length >= 4 && images.length >= 2) insertPoints.push(h2Indices[3] + 1);
 
   let offset = 0;
   for (let i = 0; i < Math.min(insertPoints.length, images.length); i++) {
@@ -759,7 +823,7 @@ async function fixGroups(analysis: AnalysisResult) {
     if (coverImage) existingImageUrls.add(coverImage.url);
 
     const wordCount = (enPost.content ?? '').split(/\s+/).length;
-    const targetInlineCount = wordCount >= 2000 ? 3 : 1;
+    const targetInlineCount = wordCount >= 4000 ? 4 : wordCount >= 2000 ? 3 : 1;
     const inlineShortfall = Math.max(0, targetInlineCount - contentImages.length);
 
     if (group.needsInlineImages && inlineShortfall > 0) {
@@ -801,14 +865,23 @@ async function fixGroups(analysis: AnalysisResult) {
 
     const needsContentRegen = group.needsContentRewrite || group.similarContent || group.similarTitle;
 
+    // --- Step 5a: Format & angle pivot for uniqueness ---
+    let contentAngle: string | undefined;
+    if (group.similarContent || group.similarTitle) {
+      const originalFormat = topic.postFormat;
+      topic.postFormat = pickPivotFormat(originalFormat);
+      contentAngle = pickContentAngle();
+      console.log(`   🔄 Pivot: ${originalFormat} → ${topic.postFormat} | angle: "${contentAngle}"`);
+    }
+
     for (const post of group.posts) {
       const locale = post.locale as string;
       const postIssues = group.issuesByPost.get(String(post._id)) ?? [];
       const updateFields: Record<string, unknown> = {};
       let contentChanged = false;
 
-      // Classification fields always applied if was missing
-      if (group.needsClassification) {
+      // Classification fields always applied if was missing or pivoted
+      if (group.needsClassification || group.similarContent || group.similarTitle) {
         updateFields.category = topic.category;
         updateFields.postFormat = topic.postFormat;
         updateFields.primaryKeyword = topic.primaryKeyword;
@@ -831,6 +904,7 @@ async function fixGroups(analysis: AnalysisResult) {
         const prompt = buildPrompt(topic, locale, inlineImages, {
           avoidTitles: locale === 'en' ? avoidTitles : undefined,
           uniqueness: group.similarContent || group.similarTitle,
+          contentAngle,
         });
         const content = await generate(prompt, `content-${locale}`);
 
@@ -907,34 +981,56 @@ async function main() {
   console.log('╔═══════════════════════════════════════════════════╗');
   console.log('║  BLOG POST FIXER - Structure, Fill & Deduplicate ║');
   console.log('╚═══════════════════════════════════════════════════╝');
-  console.log(`  Flags: ${[DRY_RUN && 'dry-run', ANALYZE_ONLY && 'analyze-only', RESUME && 'resume', FORCE && 'force'].filter(Boolean).join(', ') || 'default (fix)'}`);
+  console.log(`  Flags: ${[DRY_RUN && 'dry-run', ANALYZE_ONLY && 'analyze-only', RESUME && 'resume', FORCE && 'force', MAX_ITERATIONS > 1 && `iterations=${MAX_ITERATIONS}`].filter(Boolean).join(', ') || 'default (fix)'}`);
 
   console.log('\n🔌 Connecting to MongoDB...');
   await mongoose.connect(MONGODB_URI!);
   console.log('✅ Connected');
 
-  const analysis = await runAnalysis();
-  printReport(analysis);
+  let totalFixed = 0;
 
-  if (ANALYZE_ONLY) {
-    console.log('\n📊 Analyze-only mode, exiting.');
-    await mongoose.disconnect();
-    process.exit(0);
+  for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
+    if (MAX_ITERATIONS > 1) {
+      console.log(`\n╔═══════════════════════════════════════════════════╗`);
+      console.log(`║  ITERATION ${iteration} of ${MAX_ITERATIONS}${' '.repeat(37 - String(iteration).length - String(MAX_ITERATIONS).length)}║`);
+      console.log(`╚═══════════════════════════════════════════════════╝`);
+    }
+
+    const analysis = await runAnalysis();
+    printReport(analysis);
+
+    if (ANALYZE_ONLY) {
+      console.log('\n📊 Analyze-only mode, exiting.');
+      await mongoose.disconnect();
+      process.exit(0);
+    }
+
+    if (analysis.totalIssues === 0 && !FORCE) {
+      console.log('\n🎉 All posts look healthy! Nothing to fix.');
+      break;
+    }
+
+    const result = await fixGroups(analysis);
+    totalFixed += result.fixed;
+
+    console.log(`\n── Iteration ${iteration} summary ──`);
+    console.log(`   Processed: ${result.processed} groups`);
+    console.log(`   Skipped:   ${result.skipped} groups (healthy)`);
+    console.log(`   Fixed:     ${result.fixed} post updates`);
+
+    if (DRY_RUN) {
+      console.log('   ⚠️  DRY RUN — no changes were saved');
+      break;
+    }
+
+    if (result.fixed === 0) {
+      console.log('   No fixes applied this iteration, stopping.');
+      break;
+    }
   }
-
-  if (analysis.totalIssues === 0 && !FORCE) {
-    console.log('\n🎉 All posts look healthy! Nothing to fix.');
-    await mongoose.disconnect();
-    process.exit(0);
-  }
-
-  const result = await fixGroups(analysis);
 
   console.log('\n═══════════════════════════════════════════════════');
-  console.log(`🏁 Done!`);
-  console.log(`   Processed: ${result.processed} groups`);
-  console.log(`   Skipped:   ${result.skipped} groups (healthy)`);
-  console.log(`   Fixed:     ${result.fixed} post updates`);
+  console.log(`🏁 Done! Total post updates: ${totalFixed}`);
   if (DRY_RUN) console.log('   ⚠️  DRY RUN — no changes were saved');
   console.log('═══════════════════════════════════════════════════');
 
