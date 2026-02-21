@@ -34,11 +34,7 @@ if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
 const MODEL = 'deepseek-chat';
-const TEMPERATURE_EN = 0.9;
-const TEMPERATURE_OTHER = 0.75;
-const CONTENT_MAX_TOKENS = 8192;
-const FREQUENCY_PENALTY = 0.4;
-const PRESENCE_PENALTY = 0.35;
+const TEMPERATURE = 0.7;
 const UNSPLASH_API = 'https://api.unsplash.com';
 const MAX_SOURCE_TEXT_LENGTH = 5000;
 const MAX_EXTRACTED_TEXT_LENGTH = 4000;
@@ -89,8 +85,6 @@ function sleep(ms: number) {
 
 async function generate(prompt: string, label: string, maxTokens?: number, systemMsg?: string): Promise<string | null> {
   const isContent = label.startsWith('content-') || label.startsWith('blog-');
-  const isNonEnContent = isContent && !label.endsWith('-en');
-  const temperature = isNonEnContent ? TEMPERATURE_OTHER : TEMPERATURE_EN;
   const messages = systemMsg
     ? [
         { role: 'system' as const, content: systemMsg },
@@ -102,10 +96,8 @@ async function generate(prompt: string, label: string, maxTokens?: number, syste
       const res = await ai.chat.completions.create({
         model: MODEL,
         messages,
-        temperature,
-        max_tokens: maxTokens ?? (isContent ? CONTENT_MAX_TOKENS : undefined),
-        frequency_penalty: isContent ? FREQUENCY_PENALTY : 0,
-        presence_penalty: isContent ? PRESENCE_PENALTY : 0,
+        temperature: TEMPERATURE,
+        ...(maxTokens && { max_tokens: maxTokens }),
       });
       const raw = res.choices[0]?.message?.content ?? null;
       return raw && isContent ? sanitizeContent(raw) : raw;
@@ -827,13 +819,13 @@ async function main() {
 
     let generated = await generate(userMsg, label, undefined, sysMsg);
 
-    if (generated && generated.split(/\s+/).length >= 800) {
+    if (generated && generated.split(/\s+/).length >= 300) {
       const quality = assessContentQuality(generated);
       if (!quality.pass) {
         console.log(`   ⚠️  Quality issues: ${quality.issues.join('; ')}`);
         console.log(`   🔄 Retrying generation...`);
         const retry = await generate(userMsg, label, undefined, sysMsg);
-        if (retry && retry.split(/\s+/).length >= 800) {
+        if (retry && retry.split(/\s+/).length >= 300) {
           const retryQ = assessContentQuality(retry);
           if (retryQ.score > quality.score) generated = retry;
         }
@@ -841,7 +833,7 @@ async function main() {
     }
 
     const content =
-      generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
+      generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
 
     console.log(`   ✅ ${content.split(/\s+/).length} words`);
 

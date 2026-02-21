@@ -5,7 +5,7 @@ import { logger } from './logger';
 const UNSPLASH_API = 'https://api.unsplash.com';
 const FETCH_TIMEOUT_MS = 5000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_UNSPLASH_CALLS = 50;
+const MAX_UNSPLASH_CALLS = 20;
 
 class RateLimiter {
   private timestamps: number[] = [];
