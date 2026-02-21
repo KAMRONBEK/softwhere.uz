@@ -209,7 +209,7 @@ export async function POST(request: NextRequest) {
           const prompt = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
           logger.info(`Generating source-based content for "${selectedTopic.title}" in ${locale}`, undefined, 'BLOG');
           const generated = await safeGenerateContent(prompt, `blog-source-${locale}`);
-          content = generated && generated.split(/\s+/).length >= 800 ? generated : generateFallbackContent(selectedTopic, locale);
+          content = generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
         } else {
           content = await generateBlogContent(selectedTopic, locale, inlineImages);
         }

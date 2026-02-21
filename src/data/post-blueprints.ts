@@ -15,7 +15,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'cost-guide': {
     id: 'cost-guide',
     name: 'Cost / Pricing Guide',
-    wordRange: [3500, 5000],
+    wordRange: [2000, 2500],
     tone: 'transparent, helpful, and direct — like a consultant giving honest advice',
     openingInstruction:
       'Start with "The short answer is $X–$Y. But the real answer depends on..." Give a quick range upfront, then explain why it varies.',
@@ -36,7 +36,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   comparison: {
     id: 'comparison',
     name: 'X vs Y Comparison',
-    wordRange: [3500, 5000],
+    wordRange: [2500, 3000],
     tone: 'analytical and fair — present both sides honestly before giving a recommendation',
     openingInstruction:
       'Open with the core dilemma: "You need X, but should you go with A or B?" Frame it as a business decision, not a technical one.',
@@ -56,7 +56,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'how-to': {
     id: 'how-to',
     name: 'Step-by-Step How-To',
-    wordRange: [4000, 6000],
+    wordRange: [2500, 3500],
     tone: 'instructional, confident, and encouraging — like a mentor walking you through a process',
     openingInstruction:
       'Start with the end result: "By the end of this guide, you will have..." Then briefly mention what you need before starting.',
@@ -77,7 +77,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   listicle: {
     id: 'listicle',
     name: 'Numbered Listicle',
-    wordRange: [3000, 4500],
+    wordRange: [1800, 2500],
     tone: "engaging, punchy, and scannable — respect the reader's time while delivering value",
     openingInstruction:
       'Open with a bold hook: the number itself. "There are exactly N reasons..." or "We analyzed 50+ projects and found N patterns..."',
@@ -97,7 +97,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   faq: {
     id: 'faq',
     name: 'FAQ Article',
-    wordRange: [3000, 4000],
+    wordRange: [1500, 2000],
     tone: 'conversational and helpful — like answering questions from a smart friend',
     openingInstruction:
       'Start with: "If you\'re reading this, you probably have questions about [topic]. Here are the answers to the most common ones."',
@@ -115,7 +115,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'case-study': {
     id: 'case-study',
     name: 'Case Study',
-    wordRange: [3500, 5000],
+    wordRange: [2000, 3000],
     tone: "storytelling and results-focused — show, don't just tell",
     openingInstruction:
       'Open with the client\'s situation: "A [industry] company came to us with a problem: [specific pain point]." Make it relatable to the reader.',
@@ -135,7 +135,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'myth-buster': {
     id: 'myth-buster',
     name: 'Myth-Busting Article',
-    wordRange: [3000, 4500],
+    wordRange: [1800, 2500],
     tone: 'confident and slightly provocative — challenge assumptions with evidence',
     openingInstruction:
       'Open with a widely believed myth stated as fact, then immediately flip it: "Everyone says X. They\'re wrong. Here\'s why."',
@@ -156,7 +156,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   checklist: {
     id: 'checklist',
     name: 'Checklist / Readiness Guide',
-    wordRange: [2500, 3500],
+    wordRange: [1500, 2000],
     tone: 'practical and actionable — every sentence should help the reader DO something',
     openingInstruction:
       'Open with "Before you [action], make sure you can check off every item on this list." Create urgency around being prepared.',
@@ -175,7 +175,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'trend-report': {
     id: 'trend-report',
     name: 'Trends & Predictions',
-    wordRange: [4000, 6000],
+    wordRange: [2500, 3500],
     tone: 'forward-thinking and authoritative — position the company as industry insiders',
     openingInstruction:
       'Open with a striking statistic or market shift: "In the last 12 months, [dramatic change]. Here\'s what it means for your business."',
@@ -197,7 +197,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'roi-analysis': {
     id: 'roi-analysis',
     name: 'ROI / Business Case Analysis',
-    wordRange: [3500, 5000],
+    wordRange: [2000, 3000],
     tone: 'data-driven and persuasive — speak the language of business owners and decision-makers',
     openingInstruction: 'Open with the skeptic\'s question: "Is [investment] really worth it? Let\'s look at the actual numbers."',
     structurePrompt: `
@@ -218,7 +218,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'beginner-guide': {
     id: 'beginner-guide',
     name: 'Beginner-Friendly Explainer',
-    wordRange: [3500, 5000],
+    wordRange: [2000, 3000],
     tone: 'friendly, patient, and jargon-free — explain like talking to a smart non-technical person',
     openingInstruction:
       "Start with empathy: \"If you've heard about [topic] but aren't sure what it means for your business, you're in the right place.\"",
@@ -239,7 +239,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'deep-dive': {
     id: 'deep-dive',
     name: 'Technical Deep Dive',
-    wordRange: [5000, 7000],
+    wordRange: [3000, 4000],
     tone: 'expert and technical — for CTOs, tech leads, and developers evaluating solutions',
     openingInstruction:
       'Open with a technical challenge: "When building [system], the architecture decisions you make in week one determine your scaling costs for years."',
@@ -262,7 +262,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   glossary: {
     id: 'glossary',
     name: 'Glossary / Term Reference',
-    wordRange: [3000, 4500],
+    wordRange: [1500, 2500],
     tone: 'reference-style, clear, and authoritative — like an industry encyclopedia written for business people',
     openingInstruction:
       'Start with: "The world of [topic] comes with its own vocabulary. Here\'s your no-nonsense reference guide to the terms that matter."',
@@ -283,7 +283,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'troubleshooting-guide': {
     id: 'troubleshooting-guide',
     name: 'Troubleshooting Guide',
-    wordRange: [3500, 5000],
+    wordRange: [2000, 3000],
     tone: 'diagnostic and solution-focused — like a senior engineer walking you through fixes',
     openingInstruction: 'Start with: "Something\'s not working right. Let\'s diagnose the problem and fix it — step by step."',
     structurePrompt: `
