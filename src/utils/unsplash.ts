@@ -5,7 +5,7 @@ import { logger } from './logger';
 const UNSPLASH_API = 'https://api.unsplash.com';
 const FETCH_TIMEOUT_MS = 5000;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_UNSPLASH_CALLS = 20;
+const MAX_UNSPLASH_CALLS = 50;
 
 class RateLimiter {
   private timestamps: number[] = [];
@@ -216,16 +216,22 @@ export async function getCoverImageForTopic(title: string, keywordHint?: string)
  */
 export async function getImagesForPost(imageHints: string[], fallbackTitle: string): Promise<ICoverImage[]> {
   const images: ICoverImage[] = [];
-  const hints = imageHints.length > 0 ? imageHints : [extractFallbackKeyword(fallbackTitle)];
+  const usedUrls = new Set<string>();
+  const hints =
+    imageHints.length > 0
+      ? [...imageHints, `${extractFallbackKeyword(fallbackTitle)} technology`]
+      : [extractFallbackKeyword(fallbackTitle), `${extractFallbackKeyword(fallbackTitle)} business`];
 
-  for (const hint of hints.slice(0, 2)) {
+  for (const hint of hints.slice(0, 4)) {
+    if (images.length >= 3) break;
     try {
       const keyword = sanitizeKeyword(hint);
       if (!keyword) continue;
 
       const image = await searchUnsplashImage(keyword);
-      if (image) {
+      if (image && !usedUrls.has(image.url)) {
         images.push({ ...image, keyword });
+        usedUrls.add(image.url);
       }
     } catch (error) {
       logger.error(`Failed to fetch inline image for "${hint}"`, error, 'UNSPLASH');
