@@ -16,8 +16,8 @@ export default function PlatformStep({ selectedPlatforms, onTogglePlatform }: Pl
         {platforms.map(platform => (
           <div
             key={platform.id}
-            className={`border rounded-lg p-4 flex flex-col items-center cursor-pointer transition-all hover:shadow-md ${
-              selectedPlatforms.includes(platform.id) ? 'border-orange-500 bg-orange-50' : ''
+            className={`border dark:border-gray-700 rounded-lg p-4 flex flex-col items-center cursor-pointer transition-all hover:shadow-md ${
+              selectedPlatforms.includes(platform.id) ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' : 'bg-white dark:bg-gray-800'
             }`}
             onClick={() => onTogglePlatform(platform.id as 'ios' | 'android')}
           >
@@ -29,7 +29,7 @@ export default function PlatformStep({ selectedPlatforms, onTogglePlatform }: Pl
           </div>
         ))}
       </div>
-      <p className='mt-4 text-sm text-gray-500'>Click to select multiple platforms if needed</p>
+      <p className='mt-4 text-sm text-gray-500 dark:text-gray-400'>Click to select multiple platforms if needed</p>
     </div>
   );
 }

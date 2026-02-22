@@ -10,13 +10,13 @@ interface AdminSelectProps {
 
 export const AdminSelect: React.FC<AdminSelectProps> = ({ label, value, onChange, options, className = '' }) => (
   <div className={`flex flex-col gap-2 ${className}`}>
-    {label && <label className='text-gray-500 text-sm font-medium leading-4 tracking-tight'>{label}</label>}
+    {label && <label className='text-gray-500 dark:text-gray-400 text-sm font-medium leading-4 tracking-tight'>{label}</label>}
     <select
       value={value}
       onChange={onChange}
       className='
-        outline-none border-b border-gray-300 
-        text-gray-900 text-lg font-normal leading-6 tracking-tight
+        outline-none border-b border-gray-300 dark:border-gray-600
+        text-gray-900 dark:text-gray-100 text-lg font-normal leading-6 tracking-tight
         py-2 px-0 bg-transparent
         focus:border-[#fe4502] transition-colors duration-300
       '

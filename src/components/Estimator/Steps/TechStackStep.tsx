@@ -35,8 +35,8 @@ export default function TechStackStep({ projectType, subtype, selectedTech, onTo
             {options.map(tech => (
               <div
                 key={tech.id}
-                className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
-                  selectedTech.includes(tech.id) ? 'border-orange-500 bg-orange-50' : ''
+                className={`border dark:border-gray-700 rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
+                  selectedTech.includes(tech.id) ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' : 'bg-white dark:bg-gray-800'
                 }`}
                 onClick={() => onToggleTech(tech.id)}
               >

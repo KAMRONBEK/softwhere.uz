@@ -38,8 +38,10 @@ export default function ScopeStep({
             <button
               key={c.id}
               type='button'
-              className={`px-4 py-2 rounded-lg border transition-all ${
-                selectedComplexity === c.id ? 'border-orange-500 bg-orange-50' : 'hover:border-orange-300'
+              className={`px-4 py-2 rounded-lg border dark:border-gray-700 transition-all ${
+                selectedComplexity === c.id
+                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'
+                  : 'hover:border-orange-300 bg-white dark:bg-gray-800'
               }`}
               onClick={() => onComplexityChange(c.id)}
             >
@@ -57,8 +59,10 @@ export default function ScopeStep({
               <button
                 key={s.id}
                 type='button'
-                className={`px-4 py-2 rounded-lg border transition-all ${
-                  selectedSubtype === s.id ? 'border-orange-500 bg-orange-50' : 'hover:border-orange-300'
+                className={`px-4 py-2 rounded-lg border dark:border-gray-700 transition-all ${
+                  selectedSubtype === s.id
+                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'
+                    : 'hover:border-orange-300 bg-white dark:bg-gray-800'
                 }`}
                 onClick={() => onSubtypeChange(s.id)}
               >

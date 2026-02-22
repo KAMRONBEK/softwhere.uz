@@ -3,6 +3,7 @@
   width: 100%;
   background-color: var(--gray-100);
   padding-bottom: 100px;
+  overflow: hidden;
 }
 
 .backImage {
@@ -26,66 +27,54 @@
   letter-spacing: -0.24px;
   width: 600px;
   margin-top: 24px;
-  margin-bottom: 64px;
+  margin-bottom: 48px;
 }
 
-.formBox {
-  width: 676px;
-  border-radius: 12px;
-  box-shadow:
-    0px 0px 24px 0px rgba(0, 0, 0, 0.16),
-    0px 0px 2px 0px rgba(0, 0, 0, 0.08);
-  background: rgb(255, 255, 255);
-  padding: 24px;
-}
-
-.formBox b {
-  color: var(--gray-900);
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 24px;
-  letter-spacing: 0.38px;
-}
-
-.formBox form {
+.actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 34px;
+  gap: 16px;
 }
 
-.formInput {
-  display: flex;
-  flex-direction: column;
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  background-color: var(--accent);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(254, 69, 2, 0.3);
 }
 
-.formInput label {
-  color: var(--gray-500);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 16px;
-  letter-spacing: -0.08px;
+.ctaPrimary:hover {
+  background-color: var(--light-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(254, 69, 2, 0.4);
 }
 
-.phoneInput {
-  border-bottom: 0.7px solid var(--gray-300);
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: 1.5px solid var(--gray-300);
+  color: var(--gray-900);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  transition: all 0.3s ease;
+  background: transparent;
 }
 
-.formInput input {
-  outline: none;
-  border-bottom: 0.7px solid var(--gray-300);
-  color: var(--gray-900) !important;
-  font-size: 17px !important;
-  font-weight: 400 !important;
-  line-height: 22px !important;
-  letter-spacing: -0.41px !important;
-  padding: 8px 0 !important;
-}
-
-.input {
-  border: none !important;
-  padding: 8px !important;
+.ctaSecondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 1025px) {
@@ -106,7 +95,7 @@
   .content .description {
     font-size: 13px;
     margin-top: 18px;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
   }
 }
 
@@ -115,25 +104,8 @@
     display: none;
   }
 
-  .formBox {
-    max-width: 600px;
-    padding: 18px;
-  }
-
-  .formBox form {
-    margin-top: 25px;
-  }
-
-  .formBox b {
-    font-size: 16px;
-  }
-
-  .formBox input {
-    font-size: 14px;
-  }
-
-  .formBox .input {
-    font-size: 14px !important;
+  .content .description {
+    width: auto;
   }
 }
 
@@ -147,25 +119,24 @@
     width: 100%;
     filter: blur(8px);
   }
+
   .content {
     padding-top: 80px;
   }
 
-  .description {
-    width: auto !important;
-  }
-
-  .formBox {
+  .content .description {
     width: auto;
   }
 
-  .formBox form {
-    width: 100%;
+  .actions {
     flex-direction: column;
-    gap: 10px;
+    align-items: stretch;
   }
 
-  .formInput {
-    width: 100%;
+  .ctaPrimary,
+  .ctaSecondary {
+    justify-content: center;
+    font-size: 14px;
+    padding: 12px 20px;
   }
 }

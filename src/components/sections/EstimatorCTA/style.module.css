@@ -7,7 +7,7 @@
 }
 
 .ctaButton {
-  background-color: white !important;
+  background-color: rgb(255, 255, 255) !important;
   color: var(--accent) !important;
   padding: 16px 32px;
   font-size: 18px;

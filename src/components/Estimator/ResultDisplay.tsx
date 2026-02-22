@@ -25,7 +25,7 @@ export default function ResultDisplay({ result, source, loading, error, aiReason
   };
 
   return (
-    <div className='mt-10 border-t pt-6'>
+    <div className='mt-10 border-t dark:border-gray-700 pt-6'>
       <div className='flex flex-wrap items-center justify-between gap-4 mb-4'>
         <h2 className='text-xl font-semibold'>
           {source === 'ai' ? `🤖 ${t('aiEstimate')}` : source === 'formula' ? `🔢 ${t('formulaEstimate')}` : `⚡ ${t('livePreview')}`}
@@ -47,28 +47,28 @@ export default function ResultDisplay({ result, source, loading, error, aiReason
           )}
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
-            <div className='p-4 border rounded-lg hover:shadow-sm transition-shadow'>
-              <p className='text-sm text-gray-500'>{t('devCost')}</p>
+            <div className='p-4 border dark:border-gray-700 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-800'>
+              <p className='text-sm text-gray-500 dark:text-gray-400'>{t('devCost')}</p>
               <p className='text-2xl font-bold'>{formatCost(result?.developmentCost)}</p>
             </div>
 
-            <div className='p-4 border rounded-lg hover:shadow-sm transition-shadow'>
-              <p className='text-sm text-gray-500'>{t('timeframe')}</p>
+            <div className='p-4 border dark:border-gray-700 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-800'>
+              <p className='text-sm text-gray-500 dark:text-gray-400'>{t('timeframe')}</p>
               <p className='text-2xl font-bold'>
                 {result?.deadlineWeeks ?? 0} {t('weeks')}
               </p>
             </div>
 
-            <div className='p-4 border rounded-lg hover:shadow-sm transition-shadow'>
-              <p className='text-sm text-gray-500'>{t('supportCost')}</p>
+            <div className='p-4 border dark:border-gray-700 rounded-lg hover:shadow-sm transition-shadow bg-white dark:bg-gray-800'>
+              <p className='text-sm text-gray-500 dark:text-gray-400'>{t('supportCost')}</p>
               <p className='text-2xl font-bold'>{formatCost(result?.supportCost)}</p>
             </div>
           </div>
 
           {source === 'ai' && aiReasoning && (
-            <div className='mt-6 p-4 bg-gray-50 rounded-lg border'>
+            <div className='mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border dark:border-gray-700'>
               <h3 className='font-medium mb-2'>AI Analysis</h3>
-              <p className='text-gray-700'>{aiReasoning}</p>
+              <p className='text-gray-700 dark:text-gray-300'>{aiReasoning}</p>
             </div>
           )}
 

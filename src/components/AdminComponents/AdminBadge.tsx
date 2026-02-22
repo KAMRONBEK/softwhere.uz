@@ -28,7 +28,7 @@ export const AdminBadge: React.FC<AdminBadgeProps> = ({ children, variant = 'def
 
     badgeClasses += ` ${localeColors[locale || 'en']}`;
   } else {
-    badgeClasses += ' bg-gray-100 text-gray-800';
+    badgeClasses += ' bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
   }
 
   return <span className={`${badgeClasses} ${className}`}>{children}</span>;
