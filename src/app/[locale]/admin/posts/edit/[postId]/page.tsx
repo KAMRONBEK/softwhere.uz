@@ -140,9 +140,9 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
     return (
       <div className='admin-layout'>
         <div className='container mx-auto px-6 py-8'>
-          <div className='bg-white rounded-lg border border-gray-200 p-8'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8'>
             <div className='flex items-center justify-center'>
-              <svg className='animate-spin h-8 w-8 text-gray-400 mr-3' fill='none' viewBox='0 0 24 24'>
+              <svg className='animate-spin h-8 w-8 text-gray-400 dark:text-gray-500 mr-3' fill='none' viewBox='0 0 24 24'>
                 <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
                 <path
                   className='opacity-75'
@@ -150,7 +150,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
                 ></path>
               </svg>
-              <span className='text-gray-600 text-lg'>Loading post...</span>
+              <span className='text-gray-600 dark:text-gray-400 text-lg'>Loading post...</span>
             </div>
           </div>
         </div>
@@ -162,7 +162,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
     return (
       <div className='admin-layout'>
         <div className='container mx-auto px-6 py-8'>
-          <div className='bg-white rounded-lg border border-gray-200 p-8 text-center'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center'>
             <svg className='mx-auto h-12 w-12 text-red-400 mb-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
                 strokeLinecap='round'
@@ -171,11 +171,11 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z'
               />
             </svg>
-            <h3 className='text-lg font-medium text-gray-900 mb-2'>Error Loading Post</h3>
+            <h3 className='text-lg font-medium text-gray-900 dark:text-gray-100 mb-2'>Error Loading Post</h3>
             <p className='text-red-600 mb-4'>{error}</p>
             <Link
               href={`/${locale}/admin/posts`}
-              className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200'
+              className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200'
             >
               <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
@@ -195,10 +195,10 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
         <div className='mb-8'>
           <div className='flex items-center justify-between mb-4'>
             <div>
-              <h1 className='text-3xl font-bold text-gray-900 mb-2'>Edit Post</h1>
-              <p className='text-gray-600'>Make changes to your blog post</p>
+              <h1 className='text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2'>Edit Post</h1>
+              <p className='text-gray-600 dark:text-gray-400'>Make changes to your blog post</p>
               {post && (
-                <div className='flex items-center mt-2 text-sm text-gray-500'>
+                <div className='flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400'>
                   <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' />
                   </svg>
@@ -211,7 +211,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 <Link
                   href={`/${locale}/blog/${post.slug}`}
                   target='_blank'
-                  className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200'
+                  className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200'
                 >
                   <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path
@@ -226,7 +226,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
               )}
               <Link
                 href={`/${locale}/admin/posts`}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200'
+                className='inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200'
               >
                 <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
@@ -276,16 +276,16 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
         )}
 
         {/* Main Form */}
-        <div className='bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden'>
-          <div className='px-6 py-4 border-b border-gray-200 bg-gray-50'>
-            <h2 className='text-lg font-semibold text-gray-900'>Post Details</h2>
-            <p className='text-sm text-gray-600 mt-1'>Update the information below to modify your post</p>
+        <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900'>
+            <h2 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>Post Details</h2>
+            <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>Update the information below to modify your post</p>
           </div>
 
           <form onSubmit={handleSubmit} className='p-6 space-y-6'>
             {/* Title Field */}
             <div>
-              <label htmlFor='title' className='block text-sm font-medium text-gray-700 mb-2'>
+              <label htmlFor='title' className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                 Title *
               </label>
               <input
@@ -293,7 +293,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 id='title'
                 value={title}
                 onChange={handleTitleChange}
-                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
+                className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
                 placeholder='Enter post title...'
                 required
               />
@@ -301,7 +301,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
 
             {/* Slug Field */}
             <div>
-              <label htmlFor='slug' className='block text-sm font-medium text-gray-700 mb-2'>
+              <label htmlFor='slug' className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                 URL Slug *
               </label>
               <div className='relative'>
@@ -310,12 +310,12 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   id='slug'
                   value={slug}
                   onChange={e => setSlug(e.target.value)}
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
+                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
                   placeholder='url-friendly-slug'
                   required
                 />
                 <div className='absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none'>
-                  <svg className='h-5 w-5 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <svg className='h-5 w-5 text-gray-400 dark:text-gray-500' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path
                       strokeLinecap='round'
                       strokeLinejoin='round'
@@ -325,20 +325,20 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   </svg>
                 </div>
               </div>
-              <p className='text-xs text-gray-500 mt-1'>This will be used in the URL for your post</p>
+              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>This will be used in the URL for your post</p>
             </div>
 
             {/* Status and Language Row */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div>
-                <label htmlFor='status' className='block text-sm font-medium text-gray-700 mb-2'>
+                <label htmlFor='status' className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                   Status
                 </label>
                 <select
                   id='status'
                   value={status}
                   onChange={e => setStatus(e.target.value as 'draft' | 'published')}
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
+                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
                 >
                   <option value='draft'>Draft</option>
                   <option value='published'>Published</option>
@@ -346,14 +346,14 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
               </div>
 
               <div>
-                <label htmlFor='locale' className='block text-sm font-medium text-gray-700 mb-2'>
+                <label htmlFor='locale' className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                   Language *
                 </label>
                 <select
                   id='locale'
                   value={postLocale}
                   onChange={e => setPostLocale(e.target.value as 'en' | 'ru' | 'uz')}
-                  className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
+                  className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200'
                 >
                   <option value='ru'>🇷🇺 Russian</option>
                   <option value='uz'>🇺🇿 Uzbek</option>
@@ -364,19 +364,19 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
 
             {/* Content Field */}
             <div>
-              <label htmlFor='content' className='block text-sm font-medium text-gray-700 mb-2'>
+              <label htmlFor='content' className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'>
                 Content (Markdown) *
               </label>
               <textarea
                 id='content'
                 value={content}
                 onChange={e => setContent(e.target.value)}
-                className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200 font-mono text-sm'
+                className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-200 font-mono text-sm'
                 rows={12}
                 placeholder='Write your post content in Markdown format...'
                 required
               />
-              <p className='text-xs text-gray-500 mt-1'>
+              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
                 You can use Markdown syntax for formatting.
                 <a
                   href='https://www.markdownguide.org/basic-syntax/'
@@ -390,12 +390,12 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
             </div>
 
             {/* Form Actions */}
-            <div className='flex items-center justify-end pt-6 border-t border-gray-200'>
+            <div className='flex items-center justify-end pt-6 border-t border-gray-200 dark:border-gray-700'>
               <div className='flex space-x-3'>
                 <button
                   type='button'
                   onClick={() => router.push(`/${locale}/admin/posts`)}
-                  className='px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200'
+                  className='px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200'
                 >
                   Cancel
                 </button>

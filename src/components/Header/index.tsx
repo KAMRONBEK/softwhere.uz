@@ -5,10 +5,9 @@ import { useBlogContext } from '@/contexts/BlogContext';
 import { api } from '@/core/api';
 import { logger } from '@/core/logger';
 import { trackEvent } from '@/utils/analytics';
-import { getCookie } from 'cookies-next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import RuFlag from '../../../public/icons/Russia (RU).svg';
@@ -17,17 +16,14 @@ import UzbFlag from '../../../public/icons/Uzbekistan (UZ).svg';
 import Logo from '../../../public/icons/logo.svg';
 import EmailIcon from '../../../public/icons/mail-outline.svg';
 import SmartphoneIcon from '../../../public/icons/smartphone-icon.svg';
+import ThemeToggle from '../ThemeToggle';
 import css from './style.module.css';
 
 function Header() {
   const t = useTranslations('header');
+  const params = useParams();
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [lang, setLang] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return (getCookie('NEXT_LOCALE') as string) || 'uz';
-    }
-    return 'uz';
-  });
+  const [lang, setLang] = useState<string>((params?.locale as string) || 'uz');
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
   const [lastScrollY, setLastScrollY] = useState<number>(0);
   const router = useRouter();
@@ -172,7 +168,7 @@ function Header() {
                 fillRule='evenodd'
                 clipRule='evenodd'
                 d='M17.7364 9.2635C17.3849 8.91203 16.8151 8.91203 16.4636 9.26351L12 13.7271L7.53639 9.2635C7.18492 8.91203 6.61507 8.91203 6.2636 9.26351C5.91213 9.61498 5.91213 10.1848 6.26361 10.5363L11.3636 15.6363C11.7151 15.9878 12.285 15.9878 12.6364 15.6363L17.7364 10.5363C18.0879 10.1848 18.0879 9.61498 17.7364 9.2635Z'
-                fill='#101828'
+                fill='currentColor'
               />
             </svg>
           </div>
@@ -207,6 +203,7 @@ function Header() {
             {CONTACT_INFO.EMAIL}
           </a>
         </div>
+        <ThemeToggle />
       </div>
 
       <div className={css.burgerMenu} onClick={toggleMenu}>
@@ -240,6 +237,10 @@ function Header() {
             <Link href={`/${lang}#faq`}>{t('faq')}</Link>
           </li>
 
+          <li>
+            <ThemeToggle />
+          </li>
+
           <li className={css.dropdown}>
             <div className={`flex items-center cursor-pointer ${css.lang}`}>
               <p>{t('lang')}</p>
@@ -248,7 +249,7 @@ function Header() {
                   fillRule='evenodd'
                   clipRule='evenodd'
                   d='M17.7364 9.2635C17.3849 8.91203 16.8151 8.91203 16.4636 9.26351L12 13.7271L7.53639 9.2635C7.18492 8.91203 6.61507 8.91203 6.2636 9.26351C5.91213 9.61498 5.91213 10.1848 6.26361 10.5363L11.3636 15.6363C11.7151 15.9878 12.285 15.9878 12.6364 15.6363L17.7364 10.5363C18.0879 10.1848 18.0879 9.61498 17.7364 9.2635Z'
-                  fill='#101828'
+                  fill='currentColor'
                 />
               </svg>
             </div>

@@ -292,13 +292,13 @@ async function RelatedPosts({ category, currentId, locale }: { category?: string
 
   return (
     <section className='mt-12'>
-      <h2 className='text-2xl font-bold text-gray-900 mb-6'>{t('relatedArticles')}</h2>
+      <h2 className='text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6'>{t('relatedArticles')}</h2>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {relatedPosts.map(rp => (
           <Link
             key={rp.slug}
             href={`/${locale}/blog/${rp.slug}`}
-            className='bg-white rounded-lg shadow border border-gray-100 overflow-hidden hover:shadow-md transition-shadow'
+            className='bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow'
           >
             {rp.coverImage?.thumbUrl ? (
               <div className='relative h-40'>
@@ -310,7 +310,7 @@ async function RelatedPosts({ category, currentId, locale }: { category?: string
               </div>
             )}
             <div className='p-4'>
-              <h3 className='font-semibold text-gray-900 line-clamp-2'>{rp.title}</h3>
+              <h3 className='font-semibold text-gray-900 dark:text-gray-100 line-clamp-2'>{rp.title}</h3>
             </div>
           </Link>
         ))}
@@ -341,9 +341,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
       <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--gray-100)' }}>
         {/* Breadcrumbs */}
-        <nav className='bg-white border-b border-gray-200' aria-label='Breadcrumb'>
+        <nav className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700' aria-label='Breadcrumb'>
           <div className='container py-4'>
-            <ol className='flex items-center space-x-2 text-sm text-gray-500'>
+            <ol className='flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400'>
               <li>
                 <Link href={`/${locale}`} className='hover:text-[#fe4502] transition-colors'>
                   Home
@@ -356,17 +356,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                 </Link>
               </li>
               <li>›</li>
-              <li className='text-gray-900 truncate max-w-xs'>{post.title}</li>
+              <li className='text-gray-900 dark:text-gray-100 truncate max-w-xs'>{post.title}</li>
             </ol>
           </div>
         </nav>
 
         {/* Header with navigation */}
-        <header className='bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm'>
+        <header className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm'>
           <div className='container py-4'>
             <Link
               href={`/${locale}/blog`}
-              className='inline-flex items-center text-gray-600 hover:text-[#fe4502] transition-colors duration-300 font-medium'
+              className='inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-[#fe4502] transition-colors duration-300 font-medium'
             >
               <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>
@@ -413,12 +413,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
         {/* Main content */}
         <main className='container py-12'>
-          <div className='bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden'>
+          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden'>
             <article className='p-8 md:p-12'>
               {/* Article header */}
               <header className='mb-12 text-center'>
-                <h1 className='text-4xl md:text-5xl font-bold text-gray-900 mb-8 leading-tight tracking-wide'>{post.title}</h1>
-                <div className='flex items-center justify-center flex-wrap gap-4 text-gray-500 text-sm font-medium'>
+                <h1 className='text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-8 leading-tight tracking-wide'>
+                  {post.title}
+                </h1>
+                <div className='flex items-center justify-center flex-wrap gap-4 text-gray-500 dark:text-gray-400 text-sm font-medium'>
                   <time dateTime={post.createdAt} className='flex items-center'>
                     <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path
@@ -443,7 +445,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                   </span>
                   <span className='px-3 py-1 bg-[#fe4502] text-white text-xs font-semibold rounded-full'>{post.locale.toUpperCase()}</span>
                   {post.category && PILLAR_LABELS[post.category] && (
-                    <span className='px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full'>
+                    <span className='px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full'>
                       {PILLAR_LABELS[post.category]}
                     </span>
                   )}
@@ -451,33 +453,47 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
               </header>
 
               {/* Article content */}
-              <div className='prose prose-lg prose-gray max-w-none'>
+              <div className='prose prose-lg prose-gray dark:prose-invert max-w-none'>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
                   components={{
                     h1: ({ children }) => (
-                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mt-12 mb-6 leading-tight'>{children}</h1>
+                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mt-12 mb-6 leading-tight'>
+                        {children}
+                      </h1>
                     ),
                     h2: ({ children }) => (
-                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 mt-10 mb-5 leading-tight'>{children}</h2>
+                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-10 mb-5 leading-tight'>
+                        {children}
+                      </h2>
                     ),
                     h3: ({ children }) => (
-                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 mt-8 mb-4 leading-tight'>{children}</h3>
+                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 leading-tight'>{children}</h3>
                     ),
-                    p: ({ children }) => <p className='text-lg text-gray-700 leading-relaxed mb-6 font-light'>{children}</p>,
-                    ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700'>{children}</ul>,
-                    ol: ({ children }) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700'>{children}</ol>,
+                    p: ({ children }) => (
+                      <p className='text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6 font-light'>{children}</p>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700 dark:text-gray-300'>{children}</ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700 dark:text-gray-300'>{children}</ol>
+                    ),
                     li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
                     blockquote: ({ children }) => (
-                      <blockquote className='border-l-4 border-blue-500 pl-6 py-2 my-8 bg-gray-50 italic text-lg text-gray-700 rounded-r-lg'>
+                      <blockquote className='border-l-4 border-blue-500 pl-6 py-2 my-8 bg-gray-50 dark:bg-gray-900 italic text-lg text-gray-700 dark:text-gray-300 rounded-r-lg'>
                         {children}
                       </blockquote>
                     ),
                     code: ({ children }) => (
-                      <code className='bg-gray-100 px-2 py-1 rounded text-sm font-mono text-gray-800'>{children}</code>
+                      <code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm font-mono text-gray-800 dark:text-gray-200'>
+                        {children}
+                      </code>
                     ),
-                    pre: ({ children }) => <pre className='bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>{children}</pre>,
+                    pre: ({ children }) => (
+                      <pre className='bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>{children}</pre>
+                    ),
                     a: ({ href, children }) => (
                       <a
                         href={href}
@@ -492,18 +508,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                       <figure className='my-8'>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={src} alt={alt || ''} loading='lazy' className='rounded-lg w-full object-cover max-h-[500px]' />
-                        {alt && <figcaption className='text-center text-sm text-gray-500 mt-2'>{alt}</figcaption>}
+                        {alt && <figcaption className='text-center text-sm text-gray-500 dark:text-gray-400 mt-2'>{alt}</figcaption>}
                       </figure>
                     ),
                     table: ({ children }) => (
                       <div className='overflow-x-auto my-6'>
-                        <table className='min-w-full border-collapse border border-gray-200 text-base'>{children}</table>
+                        <table className='min-w-full border-collapse border border-gray-200 dark:border-gray-700 text-base'>
+                          {children}
+                        </table>
                       </div>
                     ),
                     th: ({ children }) => (
-                      <th className='border border-gray-200 bg-gray-50 px-4 py-2 text-left font-semibold text-gray-900'>{children}</th>
+                      <th className='border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-2 text-left font-semibold text-gray-900 dark:text-gray-100'>
+                        {children}
+                      </th>
                     ),
-                    td: ({ children }) => <td className='border border-gray-200 px-4 py-2 text-gray-700'>{children}</td>,
+                    td: ({ children }) => (
+                      <td className='border border-gray-200 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300'>{children}</td>
+                    ),
                   }}
                 >
                   {post.content}

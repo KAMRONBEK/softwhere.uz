@@ -1,5 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
+import { useTheme } from 'next-themes';
 import { use, useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -18,6 +19,7 @@ const FAQ = dynamic(() => import('@/components/sections/FAQ'));
 function Home({ params }: { params: Promise<{ locale: string }> }) {
   const router = useRouter();
   const { locale } = use(params);
+  const { resolvedTheme } = useTheme();
   const [clickCount, setClickCount] = useState(0);
   const [showAdminButton, setShowAdminButton] = useState(false);
 
@@ -74,7 +76,7 @@ function Home({ params }: { params: Promise<{ locale: string }> }) {
       <Projects />
       <Contact />
       <FAQ />
-      <ToastContainer autoClose={3000} closeOnClick />
+      <ToastContainer autoClose={3000} closeOnClick theme={resolvedTheme === 'dark' ? 'dark' : 'light'} />
     </main>
   );
 }

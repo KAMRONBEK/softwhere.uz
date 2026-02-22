@@ -1,5 +1,5 @@
 .footer {
-  background-color: #383838;
+  background-color: var(--bg-footer);
   padding: 24px;
   border-radius: 12px;
 }
@@ -18,13 +18,13 @@
   font-size: 17px;
   line-height: 129%;
   letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--text-on-footer);
 }
 
 .copyright {
   margin-top: 40px;
   text-align: center;
-  color: white;
+  color: var(--text-on-footer);
 }
 
 @media (max-width: 1025px) {
