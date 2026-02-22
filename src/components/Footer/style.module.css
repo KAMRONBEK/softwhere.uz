@@ -27,6 +27,17 @@
   color: var(--text-on-footer);
 }
 
+.copyright + .copyright {
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.copyright a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 @media (max-width: 1025px) {
   .logo {
     margin-bottom: 30px;

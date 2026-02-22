@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { ENV } from '@/constants';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/api/', '/_next/'],
     },
-    sitemap: 'https://softwhere.uz/sitemap.xml',
+    sitemap: `${ENV.BASE_URL}/sitemap.xml`,
   };
 }
