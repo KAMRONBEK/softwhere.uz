@@ -1,89 +1,66 @@
-import { ESTIMATOR, TechnologyKey } from '@/constants/estimator';
+'use client';
+
+import { getTechForService } from '@/data/estimator-options';
+import type { ProjectType } from '@/types/estimator';
+import { useTranslations } from 'next-intl';
 
 type TechStackStepProps = {
-  selectedTech: TechnologyKey[];
-  onToggleTech: (tech: TechnologyKey) => void;
+  projectType: ProjectType;
+  subtype?: string;
+  selectedTech: string[];
+  onToggleTech: (tech: string) => void;
 };
 
-export default function TechStackStep({ selectedTech, onToggleTech }: TechStackStepProps) {
-  const technologies = Object.keys(ESTIMATOR.TECH_STACK_ADJUSTMENT) as TechnologyKey[];
+export default function TechStackStep({ projectType, subtype, selectedTech, onToggleTech }: TechStackStepProps) {
+  const t = useTranslations('estimator');
+  const groups = getTechForService(projectType, subtype);
 
-  // Tech stack impact descriptions
-  const techImpact: Record<string, { icon: string; impact: string; description: string }> = {
-    ios_native: {
-      icon: '🍎',
-      impact: '+15%',
-      description: 'High-quality native iOS experience',
-    },
-    android_native: {
-      icon: '🤖',
-      impact: '+15%',
-      description: 'High-quality native Android experience',
-    },
-    flutter: {
-      icon: '🦋',
-      impact: '-5%',
-      description: 'Cross-platform, slightly faster development',
-    },
-    react_native: {
-      icon: '⚛️',
-      impact: '±0%',
-      description: 'Cross-platform standard',
-    },
-    nextjs: {
-      icon: '▲',
-      impact: '±0%',
-      description: 'Modern React framework',
-    },
-    nestjs: {
-      icon: '🐱',
-      impact: '+10%',
-      description: 'Enterprise-grade Node.js framework',
-    },
-  };
-
-  const formatTechName = (tech: string): string => {
-    return tech
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  };
+  if (groups.length === 0) {
+    return (
+      <div className='text-gray-500'>
+        <p>Tech stack selection is not applicable for this service type.</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <label className='block mb-2'>Advanced Options (Tech Stack)</label>
-      <p className='text-sm text-gray-500 mb-4'>
-        Select technologies that align with your specific requirements and preferences. Your choices may impact the final cost and timeline.
+    <div className='space-y-6'>
+      <p className='text-sm text-gray-500'>
+        Select technologies that align with your requirements. Your choices may impact the final cost.
       </p>
-
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-        {technologies.map(tech => (
-          <div
-            key={tech}
-            className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
-              selectedTech.includes(tech) ? 'border-orange-500 bg-orange-50' : ''
-            }`}
-            onClick={() => onToggleTech(tech)}
-          >
-            <div className='text-2xl mr-3'>{techImpact[tech]?.icon || '⚙️'}</div>
-            <div className='flex-1'>
-              <div className='font-medium'>{formatTechName(tech)}</div>
-              <div className='text-xs text-gray-600'>{techImpact[tech]?.description}</div>
-            </div>
-            <div
-              className={`text-sm font-medium ${
-                techImpact[tech]?.impact.includes('+')
-                  ? 'text-red-500'
-                  : techImpact[tech]?.impact.includes('-')
-                    ? 'text-green-500'
-                    : 'text-gray-500'
-              }`}
-            >
-              {techImpact[tech]?.impact || '±0%'}
-            </div>
+      {groups.map(({ group, labelKey, options }) => (
+        <div key={group}>
+          <label className='block mb-2 font-medium'>{(t as (k: string) => string)(labelKey)}</label>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+            {options.map(tech => (
+              <div
+                key={tech.id}
+                className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
+                  selectedTech.includes(tech.id) ? 'border-orange-500 bg-orange-50' : ''
+                }`}
+                onClick={() => onToggleTech(tech.id)}
+              >
+                <div className='flex-1'>
+                  <div className='font-medium'>{(t as (k: string) => string)(tech.labelKey)}</div>
+                </div>
+                {tech.impactFactor != null && (
+                  <div
+                    className={`text-sm font-medium ${
+                      tech.impactFactor > 1 ? 'text-red-500' : tech.impactFactor < 1 ? 'text-green-500' : 'text-gray-500'
+                    }`}
+                  >
+                    {tech.impactFactor > 1
+                      ? `+${Math.round((tech.impactFactor - 1) * 100)}%`
+                      : tech.impactFactor < 1
+                        ? `-${Math.round((1 - tech.impactFactor) * 100)}%`
+                        : '±0%'}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
