@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/Button';
@@ -17,9 +17,9 @@ interface PostData {
   updatedAt: string;
 }
 
-export default function EditPostPage({ params }: { params: { locale: string; postId: string } }) {
+export default function EditPostPage({ params }: { params: Promise<{ locale: string; postId: string }> }) {
   const router = useRouter();
-  const { locale, postId } = params;
+  const { locale, postId } = use(params);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

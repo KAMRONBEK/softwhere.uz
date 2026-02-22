@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { Metadata } from 'next';
+import { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -116,8 +117,8 @@ async function getRelatedPosts(
 // Metadata
 // ---------------------------------------------------------------------------
 
-export async function generateMetadata({ params }: { params: { locale: string; slug: string } }): Promise<Metadata> {
-  const { locale, slug } = params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = (await params) as { locale: Locale; slug: string };
   const post = await getBlogPost(slug, locale);
 
   if (!post) {
@@ -282,8 +283,8 @@ function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
 // Page component
 // ---------------------------------------------------------------------------
 
-export default async function BlogPostPage({ params }: { params: { locale: string; slug: string } }) {
-  const { locale, slug } = params;
+export default async function BlogPostPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = (await params) as { locale: Locale; slug: string };
   const post = await getBlogPost(slug, locale);
   const t = await getTranslations('blog');
 

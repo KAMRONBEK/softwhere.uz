@@ -1,14 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/Button';
 import { adminFetch } from '@/utils/adminFetch';
 
-export default function NewPostPage({ params }: { params: { locale: string } }) {
+export default function NewPostPage({ params }: { params: Promise<{ locale: string }> }) {
   const router = useRouter();
-  const { locale } = params;
+  const { locale } = use(params);
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);

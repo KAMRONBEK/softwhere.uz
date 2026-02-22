@@ -6,7 +6,7 @@ const nextIntlMiddleware = createMiddleware({
   defaultLocale: 'uz',
 });
 
-export default function middleware(req: NextRequest): NextResponse {
+export default function proxy(req: NextRequest): NextResponse {
   return nextIntlMiddleware(req);
 }
 

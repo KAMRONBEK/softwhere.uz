@@ -4,11 +4,11 @@ import { verifyApiSecret } from '@/utils/auth';
 import mongoose from 'mongoose';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authError = verifyApiSecret(request);
   if (authError) return authError;
 
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
@@ -35,11 +35,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT handler to update a single post
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authError = verifyApiSecret(request);
   if (authError) return authError;
 
-  const { id } = params;
+  const { id } = await params;
 
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
@@ -119,12 +119,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 const PATCH_ALLOWED_FIELDS = ['status', 'title', 'content', 'slug', 'locale'] as const;
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authError = verifyApiSecret(request);
   if (authError) return authError;
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
@@ -171,12 +171,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authError = verifyApiSecret(request);
   if (authError) return authError;
 
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
