@@ -91,7 +91,7 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
         </div>
       ) : (
         <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'>
-          {filteredPosts.map(post => (
+          {filteredPosts.map((post, index) => (
             <div
               key={post.slug}
               className='bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100'
@@ -105,6 +105,7 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                       fill
                       className='object-cover transition-transform duration-300 hover:scale-105'
                       sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
+                      priority={index === 0}
                     />
                     <span className='absolute bottom-2 right-2 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded'>
                       Photo by{' '}

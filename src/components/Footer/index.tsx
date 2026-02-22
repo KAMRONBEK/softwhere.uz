@@ -2,15 +2,16 @@
 
 import { trackEvent } from '@/utils/analytics';
 import Image from 'next/image';
+import Link from 'next/link';
 import Logo from '../../../public/icons/logo.svg';
 import css from './style.module.css';
 
 function Footer() {
   return (
     <footer className={`${css.footer} container`}>
-      <a href='/'>
+      <Link href='/'>
         <Image className={css.logo} src={Logo} alt='' />
-      </a>
+      </Link>
       <div className='grid lg:grid-cols-4 sm:grid-cols-2 sm:gap-2 lg:gap-0'>
         <div className={css.footerItem}>
           <div className='flex items-center gap-2 md:mb-2'>

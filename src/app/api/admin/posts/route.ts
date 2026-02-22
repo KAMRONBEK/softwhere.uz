@@ -24,8 +24,8 @@ export async function GET(request: NextRequest) {
       // Fetch all posts, sorted by creation date (newest first)
       const posts = await BlogPost.find({})
         .sort({ createdAt: -1 })
-        .select('_id title slug content status locale generationGroupId coverImage createdAt updatedAt')
-        .lean(); // Use .lean() for plain JS objects
+        .select('_id title slug status locale generationGroupId coverImage category createdAt updatedAt')
+        .lean();
 
       logger.info(`Fetched ${posts.length} posts for admin`, undefined, 'API');
 
