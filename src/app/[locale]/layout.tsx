@@ -3,8 +3,8 @@ import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
 import { BlogProvider } from '@/contexts/BlogContext';
 import type { Metadata } from 'next';
-import { NextIntlClientProvider, useMessages } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
+import { Locale, NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import React from 'react';
 
@@ -12,7 +12,8 @@ const inter = Inter({ subsets: ['latin'] });
 
 const BASE_URL = 'https://softwhere.uz';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = (await params) as { locale: Locale };
   const t = await getTranslations({ locale, namespace: 'metadata' });
   const title = t('title');
   const description = t('description');
@@ -86,13 +87,14 @@ function StructuredData({ locale }: { locale: string }) {
 
 type Props = {
   children: React.ReactNode;
-  params: {
-    locale: 'en' | 'uz' | 'ru';
-  };
+  params: Promise<{
+    locale: string;
+  }>;
 };
 
-const RootLayout: React.FC<Props> = ({ children, params: { locale } }) => {
-  const messages = useMessages();
+export default async function RootLayout({ children, params }: Props) {
+  const { locale } = (await params) as { locale: Locale };
+  const messages = await getMessages();
 
   return (
     <html lang={locale}>
@@ -109,6 +111,4 @@ const RootLayout: React.FC<Props> = ({ children, params: { locale } }) => {
       </body>
     </html>
   );
-};
-
-export default RootLayout;
+}

@@ -2,7 +2,7 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
@@ -16,9 +16,9 @@ import Service from '@/components/sections/Service';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-function Home({ params }: { params: { locale: string } }) {
+function Home({ params }: { params: Promise<{ locale: string }> }) {
   const router = useRouter();
-  const { locale } = params;
+  const { locale } = use(params);
   const [clickCount, setClickCount] = useState(0);
   const [showAdminButton, setShowAdminButton] = useState(false);
 

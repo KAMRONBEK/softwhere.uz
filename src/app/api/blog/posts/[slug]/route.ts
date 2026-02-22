@@ -3,8 +3,8 @@ import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { validateLocale } from '@/utils/auth';
 
-export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
-  const { slug } = params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const startTime = Date.now();
 
   const locale = validateLocale(request.nextUrl.searchParams.get('locale'), 'en');
