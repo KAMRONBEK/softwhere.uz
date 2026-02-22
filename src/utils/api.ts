@@ -153,6 +153,25 @@ export const api = {
     send: (data: any) => apiClient.post('/api/contact', data),
   },
 
+  // Currency API
+  currency: {
+    getRates: async (): Promise<ApiResponse<{ base: string; rates: Record<string, number> }>> => {
+      try {
+        const res = await fetch('/api/currency/rates');
+        const data = await res.json();
+
+        if (!res.ok) return { success: false, error: data.error ?? 'Failed to fetch rates' };
+
+        return { success: true, data: { base: data.base ?? 'USD', rates: data.rates ?? {} } };
+      } catch (error) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        };
+      }
+    },
+  },
+
   // Estimator API
   estimator: {
     getEstimate: async (input: EstimatorInput): Promise<ApiResponse<EstimateResult & { source: 'ai' | 'formula'; reasoning?: string }>> => {

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 
 import Contact from '@/components/sections/Contact';
 import Discuss from '@/components/sections/Discuss';
+import EstimatorCTA from '@/components/sections/EstimatorCTA';
 import FAQ from '@/components/sections/FAQ';
 import Hero from '@/components/sections/Hero';
 import Projects from '@/components/sections/Projects';
@@ -70,6 +71,7 @@ function Home({ params }: { params: { locale: string } }) {
       <div onClick={handleLogoClick} className='fixed top-0 left-0 w-20 h-20 z-40 cursor-pointer opacity-0' title='Secret admin access' />
 
       <Hero />
+      <EstimatorCTA />
       <Service />
       <Discuss />
       <Projects />

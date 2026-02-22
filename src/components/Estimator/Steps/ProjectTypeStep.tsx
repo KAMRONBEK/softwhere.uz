@@ -1,33 +1,40 @@
-import { ProjectType } from '@/types/estimator';
+'use client';
+
+import { SERVICE_TYPES } from '@/data/estimator-options';
+import type { ProjectType } from '@/types/estimator';
+import { useTranslations } from 'next-intl';
 
 type ProjectTypeStepProps = {
   selectedType: ProjectType;
   onSelect: (type: ProjectType) => void;
 };
 
+const ICONS: Record<ProjectType, string> = {
+  mobile: '📱',
+  web: '🖥️',
+  telegram: '✈️',
+  ai: '🤖',
+  desktop: '💻',
+  other: '🔧',
+};
+
 export default function ProjectTypeStep({ selectedType, onSelect }: ProjectTypeStepProps) {
-  const projectTypes: { type: ProjectType; icon: string; label: string }[] = [
-    { type: 'mobile', icon: '📱', label: 'Mobile App' },
-    { type: 'web', icon: '🖥️', label: 'Web App' },
-    { type: 'telegram', icon: '✈️', label: 'Telegram Bot' },
-    { type: 'desktop', icon: '💻', label: 'Desktop App' },
-    { type: 'other', icon: '🔧', label: 'Other' },
-  ];
+  const t = useTranslations('estimator');
 
   return (
     <div>
-      <label className='block mb-2'>Select Project Type</label>
+      <label className='block mb-2'>{t('stepProjectType')}</label>
       <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
-        {projectTypes.map(project => (
+        {SERVICE_TYPES.map(service => (
           <div
-            key={project.type}
+            key={service.id}
             className={`border rounded-lg p-4 flex flex-col items-center cursor-pointer transition-all hover:shadow-md ${
-              selectedType === project.type ? 'border-orange-500 bg-orange-50' : ''
+              selectedType === service.id ? 'border-orange-500 bg-orange-50' : ''
             }`}
-            onClick={() => onSelect(project.type)}
+            onClick={() => onSelect(service.id)}
           >
-            <div className='text-3xl mb-2'>{project.icon}</div>
-            <div className='font-medium'>{project.label}</div>
+            <div className='text-3xl mb-2'>{ICONS[service.id] ?? '✨'}</div>
+            <div className='font-medium'>{(t as (k: string) => string)(service.labelKey)}</div>
           </div>
         ))}
       </div>

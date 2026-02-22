@@ -156,6 +156,9 @@ function Header() {
           <a href={`/${lang}/blog`}>{t('blog')}</a>
         </li>
         <li>
+          <a href={`/${lang}/estimator`}>{t('estimate')}</a>
+        </li>
+        <li>
           <a href={`/${lang}#contact`}>{t('contact')}</a>
         </li>
         <li>
@@ -225,6 +228,9 @@ function Header() {
           </li>
           <li onClick={toggleMenu}>
             <a href={`/${lang}/blog`}>{t('blog')}</a>
+          </li>
+          <li onClick={toggleMenu}>
+            <a href={`/${lang}/estimator`}>{t('estimate')}</a>
           </li>
           <li onClick={toggleMenu}>
             <a href={`/${lang}#contact`}>{t('contact')}</a>
