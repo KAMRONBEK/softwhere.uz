@@ -9,7 +9,7 @@ interface BlogPost {
   _id: string;
   title: string;
   slug: string;
-  content: string;
+  content?: string;
   status: 'draft' | 'published';
   locale: 'en' | 'ru' | 'uz';
   generationGroupId?: string;
@@ -73,6 +73,7 @@ export default function AdminPostsPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
   const [genMode, setGenMode] = useState<'topic' | 'source'>('topic');
@@ -83,6 +84,25 @@ export default function AdminPostsPage() {
     sourceText: '',
     locales: ['en', 'ru', 'uz'],
   });
+
+  const openPreview = async (post: BlogPost) => {
+    if (post.content) {
+      setSelectedPost(post);
+      return;
+    }
+    setPreviewLoading(true);
+    try {
+      const res = await adminFetch(`/api/admin/posts/${post._id}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedPost({ ...post, content: data.post.content });
+      }
+    } catch {
+      setSelectedPost(post);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
   const groupPosts = useCallback(() => {
     const grouped = new Map<string, BlogPost[]>();
@@ -651,8 +671,9 @@ export default function AdminPostsPage() {
 
                         <div className='flex space-x-2'>
                           <button
-                            onClick={() => setSelectedPost(post)}
-                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'
+                            onClick={() => openPreview(post)}
+                            disabled={previewLoading}
+                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -745,12 +766,16 @@ export default function AdminPostsPage() {
                   </div>
                 )}
                 <article className='prose prose-lg max-w-none p-8'>
-                  <div
-                    className='text-gray-800 leading-relaxed'
-                    dangerouslySetInnerHTML={{
-                      __html: markdownToHtml(selectedPost.content),
-                    }}
-                  />
+                  {selectedPost.content ? (
+                    <div
+                      className='text-gray-800 leading-relaxed'
+                      dangerouslySetInnerHTML={{
+                        __html: markdownToHtml(selectedPost.content),
+                      }}
+                    />
+                  ) : (
+                    <p className='text-gray-400 italic'>Content not available in preview.</p>
+                  )}
                 </article>
               </div>
 

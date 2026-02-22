@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export type CurrencyCode = 'USD' | 'UZS' | 'EUR' | 'RUB';
 
@@ -9,13 +9,14 @@ const CURRENCIES: CurrencyCode[] = ['USD', 'UZS', 'EUR', 'RUB'];
 const STORAGE_KEY = 'estimator-currency';
 
 export function useCurrency() {
-  const [currency, setCurrencyState] = useState<CurrencyCode>('USD');
+  const [currency, setCurrencyState] = useState<CurrencyCode>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
+      if (stored && CURRENCIES.includes(stored)) return stored;
+    }
+    return 'USD';
+  });
   const [rates, setRates] = useState<Record<string, number>>({ USD: 1 });
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
-    if (stored && CURRENCIES.includes(stored)) setCurrencyState(stored);
-  }, []);
 
   useEffect(() => {
     const fetchRates = async () => {

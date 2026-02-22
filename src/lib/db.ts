@@ -4,7 +4,7 @@ import _mongoose, { Mongoose } from 'mongoose';
 
 declare global {
   // allow global `var` declarations
-  // eslint-disable-next-line no-var
+
   var _mongoose: {
     conn: Mongoose | null;
     promise: Promise<Mongoose> | null;
