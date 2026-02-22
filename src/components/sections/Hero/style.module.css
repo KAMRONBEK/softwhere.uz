@@ -42,19 +42,21 @@
   gap: 8px;
   padding: 14px 28px;
   border-radius: 10px;
-  background-color: var(--accent);
-  color: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  color: var(--accent);
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.2px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(254, 69, 2, 0.3);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
 .ctaPrimary:hover {
-  background-color: var(--light-accent);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(254, 69, 2, 0.4);
+  box-shadow: var(--glass-shadow), var(--glass-highlight), 0 0 0 1px var(--glass-border);
 }
 
 .ctaSecondary {
@@ -62,19 +64,22 @@
   align-items: center;
   padding: 14px 28px;
   border-radius: 10px;
-  border: 1.5px solid var(--gray-300);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   color: var(--gray-900);
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.2px;
   transition: all 0.3s ease;
-  background: transparent;
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
 .ctaSecondary:hover {
-  border-color: var(--accent);
   color: var(--accent);
   transform: translateY(-2px);
+  box-shadow: var(--glass-shadow), var(--glass-highlight), 0 0 0 1px var(--glass-border);
 }
 
 @media (max-width: 1025px) {
