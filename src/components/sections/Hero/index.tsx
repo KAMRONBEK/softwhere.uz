@@ -1,52 +1,18 @@
 'use client';
-import { FormEvent, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
 import { TypeAnimation } from 'react-type-animation';
 import css from './style.module.css';
 
-import Button from '@/components/Button';
 import SectionText from '@/components/SectionTitle';
-import { sender } from '@/core/send';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import 'react-international-phone/style.css';
-import { toast } from 'react-toastify';
 import BackImage from '../../../../public/images/app-background.png';
 
 function Hero() {
   const t = useTranslations('hero');
-  const tM = useTranslations('toastMessage');
-  const [name, setName] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const validateForm = () => {
-    if (phone.length < 13) {
-      toast.error(tM('phoneNumber'));
-
-      return false;
-    }
-    if (name.trim() === '') {
-      toast.error(tM('name'));
-
-      return false;
-    }
-
-    return true;
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (validateForm()) {
-      const id = toast.loading(tM('loading'));
-
-      await sender(String(id), name, phone, '', 'consultation');
-      setName('');
-      setPhone('');
-    }
-  };
+  const tHeader = useTranslations('header');
 
   return (
-    <section className={`${css.section}`}>
+    <section className={css.section}>
       <div className='container 2xl:relative'>
         <Image className={css.backImage} src={BackImage} alt='' priority />
         <div className={css.content}>
@@ -58,34 +24,25 @@ function Hero() {
             {t('description')}
           </SectionText>
 
-          <div className={css.formBox}>
-            <b>{t('description')}</b>
-            <form onSubmit={handleSubmit}>
-              <div className={css.formInput}>
-                <label htmlFor='phone-input'>{t('phoneNumber')}</label>
-                <PhoneInput
-                  defaultCountry='uz'
-                  value={phone}
-                  onChange={phone => setPhone(phone)}
-                  className={css.phoneInput}
-                  inputClassName={css.input}
-                  defaultMask='.. ...-..-..'
-                  inputProps={{ id: 'phone-input' }}
-                  countrySelectorStyleProps={{
-                    buttonStyle: {
-                      border: 'none',
-                    },
-                  }}
-                />
-              </div>
-              <div className={css.formInput}>
-                <label htmlFor='name'>{t('name')}</label>
-                <input value={name} onChange={e => setName(e.target.value)} type='text' placeholder={t('name')} id='name' />
-              </div>
-              <Button type='submit' className='ml-auto md:ml-0'>
-                {t('btn')}
-              </Button>
-            </form>
+          <div className={css.actions}>
+            <a href='#contact' className={css.ctaPrimary}>
+              {t('btn')}
+              <svg
+                width='20'
+                height='20'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              >
+                <path d='M5 12h14M12 5l7 7-7 7' />
+              </svg>
+            </a>
+            <a href='#services' className={css.ctaSecondary}>
+              {tHeader('services')}
+            </a>
           </div>
         </div>
       </div>

@@ -36,8 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // The lang attribute will be handled by the [locale] layout
-    <html>
+    <html suppressHydrationWarning>
       <body className={inter.className}>
         {children}
         <SpeedInsights />

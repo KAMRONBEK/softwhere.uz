@@ -8,7 +8,7 @@ import 'slick-carousel/slick/slick.css';
 import css from './style.module.css';
 
 import { projects } from '@/data/projects';
-import { getCookie } from 'cookies-next';
+import { useParams } from 'next/navigation';
 import AppStoreIcon from '../../../../../../public/icons/ios.svg';
 import LinkToIcon from '../../../../../../public/icons/link.svg';
 import LocationIcon from '../../../../../../public/icons/place_outline_24.svg';
@@ -18,13 +18,9 @@ import ProjectImage from '../../../../../../public/images/i-teka.png';
 
 function ProjectSlider() {
   const sliderRef = useRef<Slider | null>(null);
+  const params = useParams();
   const [activeSlide, setActiveSlide] = useState<number>(1);
-  const [lang, setLang] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return (getCookie('NEXT_LOCALE') as string) || 'uz';
-    }
-    return 'uz';
-  });
+  const lang = (params?.locale as string) || 'uz';
 
   const settings = {
     dots: false,

@@ -21,7 +21,7 @@ export const AdminButton: React.FC<AdminButtonProps> = ({
 
   const variantClasses = {
     primary: 'bg-[#fe4502] text-white hover:bg-[#ff5f24] active:bg-[#fe4502aa]',
-    secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300',
+    secondary: 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 active:bg-gray-300',
     danger: 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700',
     success: 'bg-green-500 text-white hover:bg-green-600 active:bg-green-700',
   };

@@ -68,8 +68,10 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
       <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
       <div className='container py-20'>
         <header className='mb-12 text-center'>
-          <h1 className='text-4xl font-bold text-gray-900 leading-tight tracking-wide mb-6'>{t('title')}</h1>
-          <p className='text-gray-900 text-base font-medium leading-5 tracking-tight max-w-2xl mx-auto'>{t('description')}</p>
+          <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight tracking-wide mb-6'>{t('title')}</h1>
+          <p className='text-gray-900 dark:text-gray-300 text-base font-medium leading-5 tracking-tight max-w-2xl mx-auto'>
+            {t('description')}
+          </p>
         </header>
         <BlogListClient posts={posts} locale={locale} />
       </div>
