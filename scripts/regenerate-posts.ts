@@ -31,6 +31,7 @@ import {
   type PostFormat,
 } from './lib/post-structure';
 import { sanitizeContent, assessContentQuality, QUALITY_RULES } from './lib/quality';
+import { CATEGORY_IMAGE_KEYWORDS, GENERIC_FALLBACK_KEYWORDS } from './lib/image-keywords';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -441,9 +442,11 @@ async function fetchFreshCover(
   primaryKeyword: string,
   slug: string,
   avoidUrls: Set<string>,
+  category?: string,
 ): Promise<ICoverImage | null> {
   const keyword = extractFallbackKeyword(title);
-  const pageOffset = (simpleHash(slug) % 10) + 1;
+  const hash = simpleHash(slug);
+  const pageOffset = (hash % 10) + 1;
 
   for (let attempt = 0; attempt < 3; attempt++) {
     const img = await searchUnsplash(keyword, pageOffset + attempt);
@@ -456,7 +459,19 @@ async function fetchFreshCover(
     if (img && !avoidUrls.has(img.url)) return img;
   }
 
-  return await searchUnsplash(keyword);
+  const fallbackPage1 = await searchUnsplash(keyword);
+  if (fallbackPage1 && !avoidUrls.has(fallbackPage1.url)) return fallbackPage1;
+
+  const categoryKeywords = (category && CATEGORY_IMAGE_KEYWORDS[category]) || [];
+  const catStart = hash % Math.max(categoryKeywords.length, 1);
+  for (let i = 0; i < categoryKeywords.length; i++) {
+    const catKw = categoryKeywords[(catStart + i) % categoryKeywords.length];
+    const img = await searchUnsplash(catKw, (hash % 5) + 1);
+    if (img && !avoidUrls.has(img.url)) return img;
+  }
+
+  const genericKw = GENERIC_FALLBACK_KEYWORDS[hash % GENERIC_FALLBACK_KEYWORDS.length];
+  return await searchUnsplash(genericKw, (hash % 8) + 1);
 }
 
 async function fetchInlineImages(
@@ -808,6 +823,7 @@ async function fixGroups(analysis: AnalysisResult) {
         topic.primaryKeyword,
         enPost.slug!,
         group.duplicateCover ? allCoverUrls : new Set(),
+        topic.category,
       );
       if (newCover) {
         coverImage = newCover;
