@@ -48,7 +48,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       icon: [
         { url: '/favicon-256.png', sizes: '256x256', type: 'image/png' },
         { url: '/favicon.svg', type: 'image/svg+xml' },
-        { url: '/icons/logo.svg', type: 'image/svg+xml' },
       ],
       shortcut: '/favicon-256.png',
       apple: '/favicon-256.png',
