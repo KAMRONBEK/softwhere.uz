@@ -21,10 +21,11 @@
   z-index: 10;
   width: 100%;
   border-radius: 12px;
-  box-shadow:
-    0px 0px 24px 0px rgba(0, 0, 0, 0.16),
-    0px 0px 2px 0px rgba(0, 0, 0, 0.08);
-  background: var(--white);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
   padding: 24px;
 }
 
@@ -35,7 +36,7 @@
 }
 
 .formInput label {
-  color: var(--gray-500);
+  color: var(--gray-700);
   font-size: 13px;
   font-weight: 500;
   line-height: 16px;
@@ -43,12 +44,12 @@
 }
 
 .phoneInput {
-  border-bottom: 0.7px solid var(--gray-300);
+  border-bottom: 0.7px solid var(--gray-500);
 }
 
 .formInput input {
   outline: none;
-  border-bottom: 0.7px solid var(--gray-300);
+  border-bottom: 0.7px solid var(--gray-500);
   background: transparent;
   color: var(--gray-900) !important;
   font-size: 17px !important;
@@ -66,7 +67,7 @@
 
 .textarea {
   outline: none;
-  border-bottom: 0.7px solid var(--gray-300);
+  border-bottom: 0.7px solid var(--gray-500);
   background: transparent;
   color: var(--gray-900) !important;
   font-size: 17px !important;
