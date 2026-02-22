@@ -1,4 +1,8 @@
-type Messages = typeof import("./src/messages/uz.json");
-type RuMessages = typeof import("./src/messages/ru.json");
+import uz from './src/messages/uz.json';
 
-declare interface IntlMessages extends Messages, RuMessages {}
+declare module 'next-intl' {
+  interface AppConfig {
+    Messages: typeof uz;
+    Locale: 'en' | 'uz' | 'ru';
+  }
+}

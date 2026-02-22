@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import BlogListClient, { BlogPostSummary } from '@/components/BlogListClient';
 import dbConnect from '@/lib/db';
@@ -7,8 +8,8 @@ import { validateLocale } from '@/utils/auth';
 
 const BASE_URL = 'https://softwhere.uz';
 
-export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
-  const { locale } = params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = (await params) as { locale: Locale };
   const t = await getTranslations({ locale, namespace: 'blog' });
 
   const title = `${t('title')} | SoftWhere.uz`;
@@ -46,8 +47,8 @@ async function getPublishedPosts(locale: string): Promise<BlogPostSummary[]> {
   }
 }
 
-export default async function BlogPage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = (await params) as { locale: Locale };
   const t = await getTranslations({ locale, namespace: 'blog' });
   const posts = await getPublishedPosts(locale);
 
