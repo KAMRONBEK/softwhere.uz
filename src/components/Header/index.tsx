@@ -7,6 +7,7 @@ import { logger } from '@/core/logger';
 import { trackEvent } from '@/utils/analytics';
 import { getCookie } from 'cookies-next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
@@ -21,17 +22,16 @@ import css from './style.module.css';
 function Header() {
   const t = useTranslations('header');
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [lang, setLang] = useState<string>('uz');
+  const [lang, setLang] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return (getCookie('NEXT_LOCALE') as string) || 'uz';
+    }
+    return 'uz';
+  });
   const [isHeaderVisible, setIsHeaderVisible] = useState<boolean>(true);
   const [lastScrollY, setLastScrollY] = useState<number>(0);
   const router = useRouter();
   const { currentPost } = useBlogContext();
-
-  useEffect(() => {
-    const currentLang = getCookie('NEXT_LOCALE') || 'uz';
-
-    setLang(currentLang);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -139,30 +139,30 @@ function Header() {
 
   return (
     <header className={`${css.header} container ${!isHeaderVisible ? css.headerHidden : ''}`}>
-      <a href='/'>
+      <Link href='/'>
         <Image src={Logo} alt='' />
-      </a>
+      </Link>
       <ul className={css.links}>
         <li>
-          <a href='/'>{t('home')}</a>
+          <Link href='/'>{t('home')}</Link>
         </li>
         <li>
-          <a href={`/${lang}#services`}>{t('services')}</a>
+          <Link href={`/${lang}#services`}>{t('services')}</Link>
         </li>
         <li>
-          <a href={`/${lang}#portfolio`}>{t('portfolio')}</a>
+          <Link href={`/${lang}#portfolio`}>{t('portfolio')}</Link>
         </li>
         <li>
-          <a href={`/${lang}/blog`}>{t('blog')}</a>
+          <Link href={`/${lang}/blog`}>{t('blog')}</Link>
         </li>
         <li>
-          <a href={`/${lang}/estimator`}>{t('estimate')}</a>
+          <Link href={`/${lang}/estimator`}>{t('estimate')}</Link>
         </li>
         <li>
-          <a href={`/${lang}#contact`}>{t('contact')}</a>
+          <Link href={`/${lang}#contact`}>{t('contact')}</Link>
         </li>
         <li>
-          <a href={`/${lang}#faq`}>{t('faq')}</a>
+          <Link href={`/${lang}#faq`}>{t('faq')}</Link>
         </li>
         <li className={css.dropdown}>
           <div className={`flex items-center cursor-pointer ${css.lang}`}>
@@ -218,26 +218,26 @@ function Header() {
       <nav className={`${css.navMobile} ${isOpen ? css.navOpen : ''}`}>
         <ul className={css.mobileLinks}>
           <li onClick={toggleMenu}>
-            <a href='/'>{t('home')}</a>
+            <Link href='/'>{t('home')}</Link>
           </li>
           <li onClick={toggleMenu}>
-            <a href={`/${lang}#services`}>{t('services')}</a>
+            <Link href={`/${lang}#services`}>{t('services')}</Link>
           </li>
           <li onClick={toggleMenu}>
-            <a href={`/${lang}#portfolio`}>{t('portfolio')}</a>
+            <Link href={`/${lang}#portfolio`}>{t('portfolio')}</Link>
           </li>
           <li onClick={toggleMenu}>
-            <a href={`/${lang}/blog`}>{t('blog')}</a>
+            <Link href={`/${lang}/blog`}>{t('blog')}</Link>
           </li>
           <li onClick={toggleMenu}>
-            <a href={`/${lang}/estimator`}>{t('estimate')}</a>
+            <Link href={`/${lang}/estimator`}>{t('estimate')}</Link>
           </li>
           <li onClick={toggleMenu}>
-            <a href={`/${lang}#contact`}>{t('contact')}</a>
+            <Link href={`/${lang}#contact`}>{t('contact')}</Link>
           </li>
 
           <li onClick={toggleMenu}>
-            <a href={`/${lang}#faq`}>{t('faq')}</a>
+            <Link href={`/${lang}#faq`}>{t('faq')}</Link>
           </li>
 
           <li className={css.dropdown}>

@@ -1,20 +1,19 @@
 'use client';
-import AOS from 'aos';
-import 'aos/dist/aos.css';
-import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import { use, useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
-import Contact from '@/components/sections/Contact';
-import Discuss from '@/components/sections/Discuss';
-import EstimatorCTA from '@/components/sections/EstimatorCTA';
-import FAQ from '@/components/sections/FAQ';
 import Hero from '@/components/sections/Hero';
-import Projects from '@/components/sections/Projects';
-import Service from '@/components/sections/Service';
 
 import 'react-toastify/dist/ReactToastify.css';
+
+const EstimatorCTA = dynamic(() => import('@/components/sections/EstimatorCTA'));
+const Service = dynamic(() => import('@/components/sections/Service'));
+const Discuss = dynamic(() => import('@/components/sections/Discuss'));
+const Projects = dynamic(() => import('@/components/sections/Projects'));
+const Contact = dynamic(() => import('@/components/sections/Contact'));
+const FAQ = dynamic(() => import('@/components/sections/FAQ'));
 
 function Home({ params }: { params: Promise<{ locale: string }> }) {
   const router = useRouter();
@@ -23,7 +22,9 @@ function Home({ params }: { params: Promise<{ locale: string }> }) {
   const [showAdminButton, setShowAdminButton] = useState(false);
 
   useEffect(() => {
-    AOS.init();
+    // @ts-expect-error -- CSS module import has no type declarations
+    import('aos/dist/aos.css');
+    import('aos').then(AOS => AOS.init());
   }, []);
 
   // Secret click sequence on logo (5 clicks within 3 seconds)
@@ -50,10 +51,6 @@ function Home({ params }: { params: Promise<{ locale: string }> }) {
 
   return (
     <main>
-      <Head>
-        <link rel='shortcut icon' href='/static/logo.svg' />
-      </Head>
-
       {/* Secret Admin Button */}
       {showAdminButton && (
         <div className='fixed top-4 right-4 z-50 animate-pulse' style={{ zIndex: 9999 }}>
