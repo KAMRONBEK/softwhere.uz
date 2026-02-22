@@ -86,8 +86,9 @@ const BlogPostSchema = new Schema<IBlogPost>(
   }
 );
 
-// Add compound index for locale + slug uniqueness
 BlogPostSchema.index({ locale: 1, slug: 1 }, { unique: true });
+BlogPostSchema.index({ status: 1, locale: 1, createdAt: -1 });
+BlogPostSchema.index({ category: 1, locale: 1, status: 1, createdAt: -1 });
 
 // Prevent model recompilation in Next.js dev environment
 // Check if the model already exists before defining it

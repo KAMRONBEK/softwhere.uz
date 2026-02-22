@@ -48,7 +48,7 @@ function Hero() {
   return (
     <section className={`${css.section}`}>
       <div className='container 2xl:relative'>
-        <Image className={css.backImage} src={BackImage} alt='' />
+        <Image className={css.backImage} src={BackImage} alt='' priority />
         <div className={css.content}>
           <SectionText className='lg:w-1/2'>
             <TypeAnimation sequence={[t('title'), 1000]} wrapper='p' speed={50} repeat={Infinity} />

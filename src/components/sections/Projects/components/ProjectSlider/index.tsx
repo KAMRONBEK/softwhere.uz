@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Slider from 'react-slick';
 
 import Image from 'next/image';
@@ -19,7 +19,12 @@ import ProjectImage from '../../../../../../public/images/i-teka.png';
 function ProjectSlider() {
   const sliderRef = useRef<Slider | null>(null);
   const [activeSlide, setActiveSlide] = useState<number>(1);
-  const [lang, setLang] = useState<string>('uz');
+  const [lang, setLang] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return (getCookie('NEXT_LOCALE') as string) || 'uz';
+    }
+    return 'uz';
+  });
 
   const settings = {
     dots: false,
@@ -33,12 +38,6 @@ function ProjectSlider() {
       setActiveSlide(next + 1);
     },
   };
-
-  useEffect(() => {
-    const currentLang = getCookie('NEXT_LOCALE') || 'uz';
-
-    setLang(currentLang);
-  }, []);
 
   const handleChangeSlide = (i: number) => {
     setActiveSlide(i + 1);

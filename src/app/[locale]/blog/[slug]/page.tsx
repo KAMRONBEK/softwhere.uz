@@ -1,3 +1,4 @@
+import { cache, Suspense } from 'react';
 import { format } from 'date-fns';
 import { Metadata } from 'next';
 import { Locale } from 'next-intl';
@@ -73,7 +74,7 @@ const PILLAR_LABELS: Record<string, string> = {
   cybersecurity: 'Cybersecurity',
 };
 
-async function getBlogPost(rawSlug: string, locale: string): Promise<BlogPost | null> {
+const getBlogPost = cache(async (rawSlug: string, locale: string): Promise<BlogPost | null> => {
   try {
     await dbConnect();
     const slug = decodeURIComponent(rawSlug);
@@ -87,7 +88,7 @@ async function getBlogPost(rawSlug: string, locale: string): Promise<BlogPost | 
   } catch {
     return null;
   }
-}
+});
 
 async function getRelatedPosts(
   category: string | undefined,
@@ -280,6 +281,45 @@ function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
 }
 
 // ---------------------------------------------------------------------------
+// Related posts (streamed via Suspense)
+// ---------------------------------------------------------------------------
+
+async function RelatedPosts({ category, currentId, locale }: { category?: string; currentId: string; locale: string }) {
+  const relatedPosts = await getRelatedPosts(category, currentId, locale);
+  if (relatedPosts.length === 0) return null;
+
+  const t = await getTranslations('blog');
+
+  return (
+    <section className='mt-12'>
+      <h2 className='text-2xl font-bold text-gray-900 mb-6'>{t('relatedArticles')}</h2>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+        {relatedPosts.map(rp => (
+          <Link
+            key={rp.slug}
+            href={`/${locale}/blog/${rp.slug}`}
+            className='bg-white rounded-lg shadow border border-gray-100 overflow-hidden hover:shadow-md transition-shadow'
+          >
+            {rp.coverImage?.thumbUrl ? (
+              <div className='relative h-40'>
+                <Image src={rp.coverImage.thumbUrl} alt={rp.title} fill className='object-cover' sizes='(max-width: 768px) 100vw, 33vw' />
+              </div>
+            ) : (
+              <div className='h-40 bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
+                <span className='text-white text-4xl font-bold'>{rp.title.charAt(0)}</span>
+              </div>
+            )}
+            <div className='p-4'>
+              <h3 className='font-semibold text-gray-900 line-clamp-2'>{rp.title}</h3>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page component
 // ---------------------------------------------------------------------------
 
@@ -294,7 +334,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
   const formattedDate = format(new Date(post.createdAt), 'MMMM dd, yyyy');
   const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
-  const relatedPosts = await getRelatedPosts(post.category, post._id, locale);
 
   return (
     <BlogPostClient post={post} category={post.category}>
@@ -340,7 +379,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
         {/* Hero cover image */}
         {post.coverImage?.url && (
           <div className='relative w-full h-64 md:h-96'>
-            <Image src={post.coverImage.url} alt={post.title} fill priority className='object-cover' sizes='100vw' />
+            <Image
+              src={post.coverImage.url}
+              alt={post.title}
+              fill
+              priority
+              className='object-cover'
+              sizes='(max-width: 768px) 100vw, 1280px'
+            />
             <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent' />
             <span className='absolute bottom-3 right-4 text-xs text-white/80 bg-black/30 px-2 py-1 rounded'>
               Photo by{' '}
@@ -495,40 +541,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
             </article>
           </div>
 
-          {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <section className='mt-12'>
-              <h2 className='text-2xl font-bold text-gray-900 mb-6'>{t('relatedArticles')}</h2>
-              <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-                {relatedPosts.map(rp => (
-                  <Link
-                    key={rp.slug}
-                    href={`/${locale}/blog/${rp.slug}`}
-                    className='bg-white rounded-lg shadow border border-gray-100 overflow-hidden hover:shadow-md transition-shadow'
-                  >
-                    {rp.coverImage?.thumbUrl ? (
-                      <div className='relative h-40'>
-                        <Image
-                          src={rp.coverImage.thumbUrl}
-                          alt={rp.title}
-                          fill
-                          className='object-cover'
-                          sizes='(max-width: 768px) 100vw, 33vw'
-                        />
-                      </div>
-                    ) : (
-                      <div className='h-40 bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
-                        <span className='text-white text-4xl font-bold'>{rp.title.charAt(0)}</span>
-                      </div>
-                    )}
-                    <div className='p-4'>
-                      <h3 className='font-semibold text-gray-900 line-clamp-2'>{rp.title}</h3>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+          {/* Related Posts (streamed independently) */}
+          <Suspense>
+            <RelatedPosts category={post.category} currentId={post._id} locale={locale} />
+          </Suspense>
 
           {/* Back to blog link */}
           <div className='text-center mt-12'>
