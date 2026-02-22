@@ -89,7 +89,13 @@ function Footer() {
         </div>
       </div>
 
-      <p className={css.copyright}>&copy; 2024 Softwhere | All Rights Reserved. Privacy Policy</p>
+      <p className={css.copyright}>&copy; 2026 Softwhere | All Rights Reserved. Privacy Policy</p>
+      <p className={css.copyright}>
+        Developed by{' '}
+        <a href='https://kamuran.dev' target='_blank' rel='noopener noreferrer'>
+          kamuran.dev
+        </a>
+      </p>
     </footer>
   );
 }

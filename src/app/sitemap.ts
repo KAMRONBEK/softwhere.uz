@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
+import { ENV } from '@/constants';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://softwhere.uz';
+  const baseUrl = ENV.BASE_URL;
   const locales = ['uz', 'ru', 'en'];
 
   const staticPages = ['', '/blog', '/estimator'];

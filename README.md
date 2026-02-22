@@ -303,7 +303,7 @@ yarn dev
 
 ## 📄 License
 
-This project is private and proprietary. All rights reserved.
+This project is private and proprietary. © 2026 All rights reserved.
 
 ## 📞 Contact
 

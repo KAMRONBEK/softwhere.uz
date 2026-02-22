@@ -15,6 +15,7 @@ import dbConnect from '@/lib/db';
 import BlogPostModel from '@/models/BlogPost';
 import { CoverImage } from '@/types';
 import { validateLocale } from '@/utils/auth';
+import { ENV, BLOG_CONFIG } from '@/constants';
 
 interface BlogPost {
   _id: string;
@@ -131,7 +132,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   const description = extractDescription(post.content, post.metaDescription);
   const keywords = getKeywords(post);
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz';
+  const baseUrl = ENV.BASE_URL;
 
   return {
     title: `${post.title} | SoftWhere.uz Blog`,
@@ -172,6 +173,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     alternates: {
       canonical: `${baseUrl}/${locale}/blog/${slug}`,
       languages: {
+        'x-default': `${baseUrl}/${BLOG_CONFIG.DEFAULT_LOCALE}/blog/${slug}`,
         uz: `${baseUrl}/uz/blog/${slug}`,
         ru: `${baseUrl}/ru/blog/${slug}`,
         en: `${baseUrl}/en/blog/${slug}`,
@@ -213,7 +215,7 @@ function parseFAQPairs(content: string): Array<{ q: string; a: string }> {
 }
 
 function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz';
+  const baseUrl = ENV.BASE_URL;
   const description = extractDescription(post.content, post.metaDescription);
   const keywords = getKeywords(post);
   const articleSection = post.category ? (PILLAR_LABELS[post.category] ?? 'Technology') : 'Technology';

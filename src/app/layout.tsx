@@ -1,14 +1,15 @@
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google'; // Example font
+import { Inter } from 'next/font/google';
+import { ENV } from '@/constants';
 import './globals.css';
 
 // Initialize font (adjust as needed)
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://softwhere.uz'),
+  metadataBase: new URL(ENV.BASE_URL),
   icons: {
     icon: [
       {
