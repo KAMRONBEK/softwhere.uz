@@ -322,21 +322,21 @@ export default function AdminPostsPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
+      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
         <AdminLoading message='Loading posts...' />
       </div>
     );
   }
 
   return (
-    <div className='page-layout min-h-screen bg-gray-50'>
+    <div className='page-layout min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}
-      <div className='bg-white border-b border-gray-200 sticky top-0 z-40'>
+      <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center py-6'>
             <div>
-              <h1 className='text-3xl font-bold text-gray-900'>Content Management</h1>
-              <p className='mt-1 text-sm text-gray-500'>Manage and generate blog posts for your website</p>
+              <h1 className='text-3xl font-bold text-gray-900 dark:text-gray-100'>Content Management</h1>
+              <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>Manage and generate blog posts for your website</p>
             </div>
             <div className='flex space-x-3'>
               <AdminButton
@@ -358,9 +358,9 @@ export default function AdminPostsPage() {
         {/* Post Generator */}
         {showGenerator && (
           <div className='mb-8'>
-            <div className='bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden'>
-              <div className='bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200'>
-                <h3 className='text-lg font-semibold text-gray-900 flex items-center'>
+            <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+              <div className='bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 px-6 py-4 border-b border-gray-200 dark:border-gray-700'>
+                <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center'>
                   <svg className='w-5 h-5 mr-2 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path
                       strokeLinecap='round'
@@ -371,21 +371,21 @@ export default function AdminPostsPage() {
                   </svg>
                   AI Content Generator
                 </h3>
-                <p className='text-sm text-gray-600 mt-1'>Generate high-quality blog posts using AI</p>
+                <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>Generate high-quality blog posts using AI</p>
               </div>
 
               <div className='p-6'>
                 {/* Mode tabs */}
-                <div className='flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1'>
+                <div className='flex space-x-1 mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-1'>
                   <button
                     onClick={() => setGenMode('topic')}
-                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'topic' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'topic' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                   >
                     Topic / Category
                   </button>
                   <button
                     onClick={() => setGenMode('source')}
-                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'source' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'source' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                   >
                     From Source
                   </button>
@@ -440,7 +440,7 @@ export default function AdminPostsPage() {
                         />
 
                         <div>
-                          <label className='block text-sm font-medium text-gray-700 mb-1'>Or Paste Content</label>
+                          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Or Paste Content</label>
                           <textarea
                             value={generationForm.sourceText}
                             onChange={e =>
@@ -454,7 +454,7 @@ export default function AdminPostsPage() {
                             rows={5}
                             maxLength={5000}
                             disabled={!!generationForm.sourceUrl}
-                            className='w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:text-gray-400'
+                            className='w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400'
                           />
                           <p className='mt-1 text-xs text-gray-400'>
                             {generationForm.sourceText?.length ?? 0}/5000 chars. AI will write an original post using this as context.
@@ -466,12 +466,12 @@ export default function AdminPostsPage() {
 
                   <div className='space-y-4'>
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 mb-3'>Target Languages</label>
+                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>Target Languages</label>
                       <div className='grid grid-cols-3 gap-3'>
                         {['en', 'ru', 'uz'].map(locale => (
                           <label
                             key={locale}
-                            className='flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'
+                            className='flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
                           >
                             <input
                               type='checkbox'
@@ -491,7 +491,7 @@ export default function AdminPostsPage() {
                               }}
                               className='mr-3 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
                             />
-                            <span className='text-sm font-medium text-gray-900'>{locale.toUpperCase()}</span>
+                            <span className='text-sm font-medium text-gray-900 dark:text-gray-100'>{locale.toUpperCase()}</span>
                           </label>
                         ))}
                       </div>
@@ -536,8 +536,8 @@ export default function AdminPostsPage() {
         )}
 
         {/* Posts Overview */}
-        <div className='bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden'>
-          <div className='px-6 py-4 border-b border-gray-200 bg-gray-50'>
+        <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
+          <div className='px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900'>
             <div className='flex justify-between items-center'>
               <div className='flex items-center space-x-4'>
                 {postGroups.length > 0 && (
@@ -549,10 +549,10 @@ export default function AdminPostsPage() {
                   />
                 )}
                 <div>
-                  <h3 className='text-lg font-semibold text-gray-900'>
+                  <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
                     {selectedGroups.size > 0 ? `${selectedGroups.size} of ${postGroups.length} groups selected` : 'All Posts'}
                   </h3>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-sm text-gray-600 dark:text-gray-400'>
                     {posts.length} total posts in {postGroups.length} groups
                   </p>
                 </div>
@@ -578,11 +578,11 @@ export default function AdminPostsPage() {
                   d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
                 ></path>
               </svg>
-              <h3 className='mt-4 text-lg font-medium text-gray-900'>No posts yet</h3>
-              <p className='mt-2 text-gray-500'>Get started by generating your first blog post.</p>
+              <h3 className='mt-4 text-lg font-medium text-gray-900 dark:text-gray-100'>No posts yet</h3>
+              <p className='mt-2 text-gray-500 dark:text-gray-400'>Get started by generating your first blog post.</p>
             </div>
           ) : (
-            <div className='divide-y divide-gray-200'>
+            <div className='divide-y divide-gray-200 dark:divide-gray-700'>
               {postGroups.map((group, _groupIndex) => (
                 <div key={group.generationGroupId} className='p-6'>
                   {/* Group Header */}
@@ -595,7 +595,7 @@ export default function AdminPostsPage() {
                         className='w-4 h-4 mr-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer flex-shrink-0'
                       />
                       <div className='flex items-center space-x-3'>
-                        <h4 className='text-sm font-medium text-gray-900'>
+                        <h4 className='text-sm font-medium text-gray-900 dark:text-gray-100'>
                           {group.posts.length > 1 ? `Post Group (${group.posts.length} languages)` : 'Individual Post'}
                         </h4>
                         <AdminBadge variant='status' status={group.status}>
@@ -654,15 +654,15 @@ export default function AdminPostsPage() {
                   {/* Posts in Group */}
                   <div className='space-y-3'>
                     {group.posts.map(post => (
-                      <div key={post._id} className='flex items-center justify-between p-4 bg-gray-50 rounded-lg'>
+                      <div key={post._id} className='flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg'>
                         <div className='flex-1 min-w-0'>
                           <div className='flex items-center space-x-3'>
                             <AdminBadge variant='locale' locale={post.locale as 'en' | 'ru' | 'uz'}>
                               {post.locale.toUpperCase()}
                             </AdminBadge>
                             <div className='flex-1 min-w-0'>
-                              <p className='text-sm font-medium text-gray-900 truncate'>{post.title}</p>
-                              <p className='text-xs text-gray-500 truncate'>
+                              <p className='text-sm font-medium text-gray-900 dark:text-gray-100 truncate'>{post.title}</p>
+                              <p className='text-xs text-gray-500 dark:text-gray-400 truncate'>
                                 /{post.locale}/blog/{post.slug}
                               </p>
                             </div>
@@ -673,7 +673,7 @@ export default function AdminPostsPage() {
                           <button
                             onClick={() => openPreview(post)}
                             disabled={previewLoading}
-                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50'
+                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -695,7 +695,7 @@ export default function AdminPostsPage() {
                             href={`/${post.locale}/blog/${post.slug}`}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'
+                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -720,12 +720,12 @@ export default function AdminPostsPage() {
         {/* Enhanced Post Preview Modal */}
         {selectedPost && (
           <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
-            <div className='bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl'>
+            <div className='bg-white dark:bg-gray-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl'>
               {/* Modal Header */}
-              <div className='flex justify-between items-start p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100'>
+              <div className='flex justify-between items-start p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900'>
                 <div className='flex-1 min-w-0'>
-                  <h3 className='text-xl font-bold text-gray-900 truncate'>{selectedPost.title}</h3>
-                  <div className='mt-2 flex items-center space-x-4 text-sm text-gray-500'>
+                  <h3 className='text-xl font-bold text-gray-900 dark:text-gray-100 truncate'>{selectedPost.title}</h3>
+                  <div className='mt-2 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400'>
                     <span className='flex items-center'>
                       <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path
@@ -756,7 +756,7 @@ export default function AdminPostsPage() {
               </div>
 
               {/* Modal Content */}
-              <div className='overflow-y-auto max-h-[60vh] bg-white'>
+              <div className='overflow-y-auto max-h-[60vh] bg-white dark:bg-gray-800'>
                 {selectedPost.coverImage?.url && (
                   <div className='relative w-full h-48 md:h-64 bg-gray-100'>
                     <img src={selectedPost.coverImage.url} alt={selectedPost.title} className='w-full h-full object-cover' />
@@ -780,8 +780,8 @@ export default function AdminPostsPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className='p-6 border-t border-gray-200 bg-gray-50 flex justify-between items-center'>
-                <div className='text-sm text-gray-500'>
+              <div className='p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center'>
+                <div className='text-sm text-gray-500 dark:text-gray-400'>
                   URL: /{selectedPost.locale}/blog/{selectedPost.slug}
                 </div>
                 <div className='flex space-x-3'>
@@ -809,9 +809,9 @@ export default function AdminPostsPage() {
       </div>
 
       {selectedGroups.size > 0 && (
-        <div className='fixed bottom-0 inset-x-0 z-50 bg-white border-t border-gray-200 shadow-lg'>
+        <div className='fixed bottom-0 inset-x-0 z-50 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg'>
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between'>
-            <span className='text-sm font-medium text-gray-700'>
+            <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
               {selectedGroups.size} group(s) selected ({getSelectedGroups().flatMap(g => g.posts).length} posts)
             </span>
             <div className='flex items-center space-x-3'>

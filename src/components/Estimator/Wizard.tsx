@@ -189,7 +189,7 @@ export default function Wizard() {
         <p>
           Step {step + 1} of {maxSteps}: <strong>{(t as (k: string) => string)(STEP_LABELS[currentStepId] ?? currentStepId)}</strong>
         </p>
-        <div className='border rounded p-6 mt-4'>{renderCurrentStep()}</div>
+        <div className='border dark:border-gray-700 rounded p-6 mt-4 bg-white dark:bg-gray-800'>{renderCurrentStep()}</div>
       </div>
 
       <div className='flex gap-4'>

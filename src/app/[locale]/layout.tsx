@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
+import ThemeProvider from '@/components/ThemeProvider';
 import { BlogProvider } from '@/contexts/BlogContext';
 import type { Metadata } from 'next';
 import { Locale, NextIntlClientProvider } from 'next-intl';
@@ -97,17 +98,19 @@ export default async function RootLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body className={inter.className}>
-        <StructuredData locale={locale} />
-        <NextIntlClientProvider messages={messages}>
-          <BlogProvider>
-            <Header />
-            {children}
-            <ScrollToTop />
-            <Footer />
-          </BlogProvider>
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <StructuredData locale={locale} />
+          <NextIntlClientProvider messages={messages}>
+            <BlogProvider>
+              <Header />
+              {children}
+              <ScrollToTop />
+              <Footer />
+            </BlogProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

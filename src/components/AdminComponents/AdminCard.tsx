@@ -9,8 +9,8 @@ interface AdminCardProps {
 export const AdminCard: React.FC<AdminCardProps> = ({ children, className = '', hover = false }) => (
   <div
     className={`
-    bg-white rounded-xl p-6 
-    shadow-lg border border-gray-100
+    bg-white dark:bg-gray-800 rounded-xl p-6 
+    shadow-lg border border-gray-100 dark:border-gray-700
     ${hover ? 'hover:shadow-xl hover:-translate-y-1 transition-all duration-300' : ''}
     ${className}
   `}

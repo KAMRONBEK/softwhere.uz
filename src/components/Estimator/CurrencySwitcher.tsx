@@ -9,16 +9,15 @@ const CURRENCIES: CurrencyCode[] = ['USD', 'UZS', 'EUR', 'RUB'];
 const STORAGE_KEY = 'estimator-currency';
 
 export function useCurrency() {
-  const [currency, setCurrencyState] = useState<CurrencyCode>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
-      if (stored && CURRENCIES.includes(stored)) return stored;
-    }
-    return 'USD';
-  });
+  const [currency, setCurrencyState] = useState<CurrencyCode>('USD');
   const [rates, setRates] = useState<Record<string, number>>({ USD: 1 });
 
   useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY) as CurrencyCode | null;
+    if (stored && CURRENCIES.includes(stored)) {
+      queueMicrotask(() => setCurrencyState(stored));
+    }
+
     const fetchRates = async () => {
       try {
         const res = await fetch('/api/currency/rates');
@@ -68,11 +67,11 @@ export default function CurrencySwitcher({ currency, onCurrencyChange }: Currenc
 
   return (
     <div className='flex items-center gap-2'>
-      <span className='text-sm text-gray-500'>Currency:</span>
+      <span className='text-sm text-gray-500 dark:text-gray-400'>Currency:</span>
       <select
         value={currency}
         onChange={e => onCurrencyChange(e.target.value as CurrencyCode)}
-        className='border rounded px-2 py-1 text-sm'
+        className='border dark:border-gray-700 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 dark:text-gray-100'
       >
         <option value='USD'>{t('currency.usd')}</option>
         <option value='UZS'>{t('currency.uzs')}</option>

@@ -7,7 +7,6 @@
 }
 
 :root {
-  /* Original color variables */
   --gray-900: rgb(16, 24, 40);
   --gray-800: rgb(29, 41, 57);
   --gray-700: rgb(52, 64, 84);
@@ -18,12 +17,36 @@
   --accent-opacity: #fe4502aa;
   --light-accent: #ff5f24aa;
   --white: rgb(255, 255, 255);
+
+  --bg-footer: #383838;
+  --text-on-footer: #fff;
+  --admin-bg: rgb(249, 250, 251);
+}
+
+html.dark {
+  --gray-900: rgb(243, 244, 246);
+  --gray-800: rgb(209, 213, 219);
+  --gray-700: rgb(156, 163, 175);
+  --gray-500: rgb(156, 163, 175);
+  --gray-300: rgb(55, 65, 81);
+  --gray-100: rgb(17, 24, 39);
+  --accent: #ff6b35;
+  --accent-opacity: #ff6b35aa;
+  --light-accent: #ff8855aa;
+  --white: rgb(30, 41, 59);
+
+  --bg-footer: rgb(15, 23, 42);
+  --text-on-footer: rgb(209, 213, 219);
+  --admin-bg: rgb(17, 24, 39);
 }
 
 body {
   position: relative;
   max-width: 100vw;
   overflow-x: hidden;
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .hide {
@@ -41,19 +64,24 @@ body {
 .admin-layout {
   padding-top: 120px;
   min-height: 100vh;
-  background-color: rgb(249, 250, 251);
-  /* bg-gray-50 */
+  background-color: var(--admin-bg);
 }
 
-/* Re-added original dark mode (prefers-color-scheme) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-    /* You might need to adjust dark mode colors if needed, 
-           but reverting to the original state */
-  }
+
+/* Phone input dark mode overrides */
+html.dark .react-international-phone-input-container .react-international-phone-input {
+  background: transparent !important;
+  color: var(--gray-900) !important;
+}
+
+html.dark .react-international-phone-country-selector-button {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+html.dark .react-international-phone-country-selector-dropdown {
+  background: var(--white) !important;
+  border-color: var(--gray-300) !important;
 }
 
 .container {

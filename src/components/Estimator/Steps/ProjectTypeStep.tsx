@@ -28,8 +28,8 @@ export default function ProjectTypeStep({ selectedType, onSelect }: ProjectTypeS
         {SERVICE_TYPES.map(service => (
           <div
             key={service.id}
-            className={`border rounded-lg p-4 flex flex-col items-center cursor-pointer transition-all hover:shadow-md ${
-              selectedType === service.id ? 'border-orange-500 bg-orange-50' : ''
+            className={`border dark:border-gray-700 rounded-lg p-4 flex flex-col items-center cursor-pointer transition-all hover:shadow-md ${
+              selectedType === service.id ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' : 'bg-white dark:bg-gray-800'
             }`}
             onClick={() => onSelect(service.id)}
           >

@@ -1,21 +1,20 @@
 .accordion {
   padding: 28px 0;
-  border-bottom: 0.5px solid #d0d5dd;
+  border-bottom: 0.5px solid var(--gray-300);
 }
 
 .accordionText {
-  font-family: var(--gray-900);
   font-weight: 600;
   font-size: 20px;
   line-height: 120%;
   letter-spacing: 0.02em;
-  color: #101828;
+  color: var(--gray-900);
   text-align: left;
 }
 
 .open {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
-  background: #fff;
+  background: var(--white);
   border-radius: 100px;
   padding: 12px;
   width: 60px;
