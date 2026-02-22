@@ -21,6 +21,12 @@
   --bg-footer: #383838;
   --text-on-footer: #fff;
   --admin-bg: rgb(249, 250, 251);
+
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.7), inset 0 0 16px 0 rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(40px) saturate(180%);
 }
 
 html.dark {
@@ -38,6 +44,12 @@ html.dark {
   --bg-footer: rgb(15, 23, 42);
   --text-on-footer: rgb(209, 213, 219);
   --admin-bg: rgb(17, 24, 39);
+
+  --glass-bg: rgba(30, 41, 59, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), inset 0 0 16px 0 rgba(255, 255, 255, 0.04);
+  --glass-blur: blur(40px) saturate(180%);
 }
 
 body {
@@ -82,6 +94,14 @@ html.dark .react-international-phone-country-selector-button {
 html.dark .react-international-phone-country-selector-dropdown {
   background: var(--white) !important;
   border-color: var(--gray-300) !important;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
 .container {

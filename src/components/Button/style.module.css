@@ -1,20 +1,25 @@
 .button {
   padding: 11px 24px;
   border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
+  color: var(--accent);
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: -0.15px;
-  border: none;
   cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .button:active {
-  background-color: var(--accent-opacity);
+  transform: scale(0.97);
 }
 
 .button:hover {
-  background-color: var(--light-accent);
+  box-shadow: var(--glass-shadow), var(--glass-highlight), 0 0 0 1px var(--glass-border);
+  transform: translateY(-1px);
 }
