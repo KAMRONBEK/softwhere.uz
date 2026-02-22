@@ -65,10 +65,8 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
         <div className='flex flex-wrap justify-center gap-2 mb-12'>
           <button
             onClick={() => handleCategoryChange('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === 'all'
-                ? 'bg-[#fe4502] text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              activeCategory === 'all' ? 'bg-[#fe4502] text-white' : 'glass text-gray-600 dark:text-gray-300 hover:-translate-y-0.5'
             }`}
           >
             {t('allCategories')}
@@ -77,10 +75,8 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
             <button
               key={cat}
               onClick={() => handleCategoryChange(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === cat
-                  ? 'bg-[#fe4502] text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                activeCategory === cat ? 'bg-[#fe4502] text-white' : 'glass text-gray-600 dark:text-gray-300 hover:-translate-y-0.5'
               }`}
             >
               {CATEGORY_LABELS[cat] ?? cat}
@@ -98,7 +94,7 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
           {filteredPosts.map((post, index) => (
             <div
               key={post.slug}
-              className='bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border border-gray-100 dark:border-gray-700'
+              className='glass rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300'
             >
               <Link href={`/${locale}/blog/${post.slug}`} className='block relative h-48 overflow-hidden'>
                 {post.coverImage?.thumbUrl ? (

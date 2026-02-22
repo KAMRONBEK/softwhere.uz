@@ -7,9 +7,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--white);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
   padding: 16px 24px;
   transition: transform 0.3s ease-in-out;
 }
@@ -66,11 +69,14 @@
   padding: 5px;
   top: 25px;
   left: -20px;
-  background: var(--white);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   width: 120px;
   z-index: 1;
   border-radius: 5px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
 .triangle {
@@ -92,9 +98,9 @@
   width: 15px;
   transform: rotate(45deg) translateY(0px) translatex(10px);
   height: 15px;
-  background: var(--white);
+  background: var(--glass-bg);
   border-radius: 2px 0px 0px 0px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--glass-shadow);
 }
 
 .content img {
@@ -161,7 +167,9 @@
   z-index: 1000;
   height: 100vh;
   width: 100vw;
-  background-color: var(--white);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   clip-path: circle(0px at 0 0px);
   transition: 0.5s ease all;
 }

@@ -13,8 +13,11 @@
 }
 
 .open {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.08);
-  background: var(--white);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
   border-radius: 100px;
   padding: 12px;
   width: 60px;

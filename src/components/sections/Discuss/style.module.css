@@ -16,18 +16,21 @@
   margin-top: 32px;
   padding: 14px 32px;
   border-radius: 10px;
-  background-color: white;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   color: var(--accent);
   font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.2px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
 .ctaButton:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--glass-shadow), var(--glass-highlight), 0 0 0 1px var(--glass-border);
 }
 
 @media (max-width: 770px) {
