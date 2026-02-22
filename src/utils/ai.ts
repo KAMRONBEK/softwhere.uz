@@ -171,3 +171,51 @@ export async function safeGenerateJSON(prompt: string, label: string, maxTokens?
   }
   return null;
 }
+
+/**
+ * JSON generation with configurable timeout and no retries.
+ * Used by estimator to ensure 60s cap. Falls back to null on timeout/failure.
+ */
+export async function safeGenerateJSONWithTimeout(
+  prompt: string,
+  label: string,
+  options?: { timeout?: number; maxRetries?: number; maxTokens?: number }
+): Promise<string | null> {
+  const client = getClient();
+  if (!client) {
+    aiStats.fallbackUsed++;
+    return null;
+  }
+
+  if (isQuotaBlocked()) {
+    logger.info(`Quota blocked, skipping: ${label}`, undefined, CONTEXT);
+    aiStats.quotaBlocked++;
+    aiStats.fallbackUsed++;
+    return null;
+  }
+
+  const timeout = options?.timeout ?? 60_000;
+  const maxRetries = options?.maxRetries ?? 0;
+
+  aiStats.callAttempts++;
+  try {
+    const completion = await client.chat.completions.create(
+      {
+        model: MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+        temperature: DEFAULT_TEMPERATURE,
+        ...(options?.maxTokens && { max_tokens: options.maxTokens }),
+      },
+      { timeout, maxRetries }
+    );
+    return completion.choices[0]?.message?.content ?? null;
+  } catch (error) {
+    if (isQuotaError(error)) {
+      recordQuotaCooldown(extractRetryMs(error));
+    }
+    logger.error(`JSON call failed (timeout): ${label}`, error, CONTEXT);
+    aiStats.fallbackUsed++;
+    return null;
+  }
+}

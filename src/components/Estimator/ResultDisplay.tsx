@@ -1,6 +1,9 @@
+'use client';
+
 import Button from '@/components/Button';
+import CurrencySwitcher, { useCurrency, type CurrencyCode } from './CurrencySwitcher';
 import type { EstimateResult } from '@/types/estimator';
-import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 type ResultDisplayProps = {
   result: EstimateResult | null;
@@ -12,28 +15,28 @@ type ResultDisplayProps = {
 };
 
 export default function ResultDisplay({ result, source, loading, error, aiReasoning, onReset }: ResultDisplayProps) {
-  // Debug the incoming props
-  useEffect(() => {
-    console.log('ResultDisplay received result:', result);
-  }, [result]);
+  const t = useTranslations('estimator');
+  const { currency, setCurrency, format } = useCurrency();
 
-  // Format the cost values for display
-  const formatCurrency = (value: number | undefined): string => {
-    if (value === undefined) return '0';
+  const formatCost = (value: number | undefined): string => {
+    if (value === undefined) return format(0);
 
-    return value.toLocaleString();
+    return format(value);
   };
 
   return (
     <div className='mt-10 border-t pt-6'>
-      <h2 className='text-xl font-semibold mb-2'>
-        {source === 'ai' ? '🤖 AI-Powered Estimate' : source === 'formula' ? '🔢 Formula-Based Estimate' : '⚡ Live Preview'}
-      </h2>
+      <div className='flex flex-wrap items-center justify-between gap-4 mb-4'>
+        <h2 className='text-xl font-semibold'>
+          {source === 'ai' ? `🤖 ${t('aiEstimate')}` : source === 'formula' ? `🔢 ${t('formulaEstimate')}` : `⚡ ${t('livePreview')}`}
+        </h2>
+        <CurrencySwitcher currency={currency} onCurrencyChange={(c: CurrencyCode) => setCurrency(c)} />
+      </div>
 
       {loading ? (
         <div className='flex flex-col items-center py-8'>
           <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mb-4'></div>
-          <p>Generating your estimate...</p>
+          <p>{t('calculating')}</p>
         </div>
       ) : (
         <div>
@@ -45,18 +48,20 @@ export default function ResultDisplay({ result, source, loading, error, aiReason
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
             <div className='p-4 border rounded-lg hover:shadow-sm transition-shadow'>
-              <p className='text-sm text-gray-500'>Development Cost</p>
-              <p className='text-2xl font-bold'>${formatCurrency(result?.developmentCost)}</p>
+              <p className='text-sm text-gray-500'>{t('devCost')}</p>
+              <p className='text-2xl font-bold'>{formatCost(result?.developmentCost)}</p>
             </div>
 
             <div className='p-4 border rounded-lg hover:shadow-sm transition-shadow'>
-              <p className='text-sm text-gray-500'>Timeframe</p>
-              <p className='text-2xl font-bold'>{result?.deadlineWeeks || 0} weeks</p>
+              <p className='text-sm text-gray-500'>{t('timeframe')}</p>
+              <p className='text-2xl font-bold'>
+                {result?.deadlineWeeks ?? 0} {t('weeks')}
+              </p>
             </div>
 
             <div className='p-4 border rounded-lg hover:shadow-sm transition-shadow'>
-              <p className='text-sm text-gray-500'>Support (Year 1)</p>
-              <p className='text-2xl font-bold'>${formatCurrency(result?.supportCost)}</p>
+              <p className='text-sm text-gray-500'>{t('supportCost')}</p>
+              <p className='text-2xl font-bold'>{formatCost(result?.supportCost)}</p>
             </div>
           </div>
 
@@ -68,8 +73,10 @@ export default function ResultDisplay({ result, source, loading, error, aiReason
           )}
 
           <div className='mt-6 flex flex-wrap gap-3'>
-            <Button onClick={onReset}>Start Over</Button>
-            <Button className='bg-green-600'>Contact Us</Button>
+            <Button onClick={onReset}>{t('startOver')}</Button>
+            <Button className='bg-green-600' onClick={() => window.location.assign('#contact')}>
+              {t('contactUs')}
+            </Button>
             {source === 'ai' && (
               <Button className='bg-gray-700'>
                 <span className='flex items-center'>
@@ -81,7 +88,7 @@ export default function ResultDisplay({ result, source, loading, error, aiReason
                       d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'
                     />
                   </svg>
-                  Export PDF
+                  {t('exportPdf')}
                 </span>
               </Button>
             )}

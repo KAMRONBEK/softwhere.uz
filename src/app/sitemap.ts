@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://softwhere.uz';
   const locales = ['uz', 'ru', 'en'];
 
-  const staticPages = ['', '/blog'];
+  const staticPages = ['', '/blog', '/estimator'];
 
   const staticUrls = locales.flatMap(locale =>
     staticPages.map(page => ({

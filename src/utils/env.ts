@@ -5,11 +5,12 @@ interface EnvConfig {
   DEEPSEEK_API_KEY?: string;
   API_SECRET?: string;
   UNSPLASH_ACCESS_KEY?: string;
+  EXCHANGERATE_API_KEY?: string;
   NODE_ENV: string;
 }
 
 const requiredEnvVars = ['MONGODB_URI'] as const;
-const optionalEnvVars = ['DEEPSEEK_API_KEY', 'API_SECRET', 'UNSPLASH_ACCESS_KEY'] as const;
+const optionalEnvVars = ['DEEPSEEK_API_KEY', 'API_SECRET', 'UNSPLASH_ACCESS_KEY', 'EXCHANGERATE_API_KEY'] as const;
 
 export function validateEnvironment(): EnvConfig {
   const env: Partial<EnvConfig> = {
@@ -17,6 +18,7 @@ export function validateEnvironment(): EnvConfig {
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
     API_SECRET: process.env.API_SECRET,
     UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY,
+    EXCHANGERATE_API_KEY: process.env.EXCHANGERATE_API_KEY,
     NODE_ENV: process.env.NODE_ENV || 'development',
   };
 

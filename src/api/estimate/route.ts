@@ -2,7 +2,7 @@
  * @deprecated Use src/app/api/estimate/route.ts instead.
  * This file is outside the App Router directory and is not reachable as an API route.
  */
-import { ESTIMATOR } from '@/constants/estimator';
+import { ESTIMATOR, HOURLY_RATE } from '@/constants/estimator';
 import { logger } from '@/core/logger';
 import { EstimatorInput } from '@/types/estimator';
 import { calculateEstimate } from '@/utils/estimator';
@@ -91,14 +91,13 @@ export async function POST(request: NextRequest) {
           ...aiEstimate,
           source: 'ai',
           breakdown: {
-            baseCost: ESTIMATOR.BASE_COST[input.projectType],
+            baseCost: (ESTIMATOR.BASE_HOURS[input.projectType] ?? ESTIMATOR.BASE_HOURS.other) * HOURLY_RATE,
             complexityMultiplier: ESTIMATOR.COMPLEXITY_MULTIPLIER[input.complexity],
-            featuresCost: input.features.reduce(
-              (sum, feature) => sum + (ESTIMATOR.FEATURE_PRICES[feature as keyof typeof ESTIMATOR.FEATURE_PRICES] || 0),
-              0
-            ),
-            pagesCost: input.pages * ESTIMATOR.PAGE_PRICE,
+            featuresCost: (input.features ?? []).reduce((sum, feature) => sum + (ESTIMATOR.FEATURE_HOURS[feature] ?? 0) * HOURLY_RATE, 0),
+            pagesCost: input.pages * ESTIMATOR.PAGE_HOURS * HOURLY_RATE,
             techAdjustmentFactor: 1.0,
+            totalHours: 0,
+            hourlyRate: HOURLY_RATE,
           },
         },
       });

@@ -1,16 +1,17 @@
-import type { FeatureKey, TechnologyKey } from '@/constants/estimator';
-
-export type ProjectType = 'mobile' | 'web' | 'telegram' | 'desktop' | 'other';
+export type ProjectType = 'mobile' | 'web' | 'telegram' | 'ai' | 'desktop' | 'other';
 export type Complexity = 'mvp' | 'standard' | 'enterprise';
 
 export interface EstimatorInput {
   projectType: ProjectType;
-  // Applicable when projectType === 'mobile'
+  /** Subtype e.g. web: landing|corporate|ecommerce, mobile: ios|android|both */
+  subtype?: string;
   platforms?: ('ios' | 'android')[];
   complexity: Complexity;
-  features: FeatureKey[];
-  pages: number; // Number of distinct screens / pages
-  techStack?: TechnologyKey[]; // optional advanced selection
+  features: string[];
+  pages: number;
+  techStack?: string[];
+  languages?: string[];
+  integrations?: string[];
 }
 
 export interface EstimateBreakdown {
@@ -19,6 +20,8 @@ export interface EstimateBreakdown {
   featuresCost: number;
   pagesCost: number;
   techAdjustmentFactor: number;
+  totalHours?: number;
+  hourlyRate?: number;
 }
 
 export interface EstimateResult {

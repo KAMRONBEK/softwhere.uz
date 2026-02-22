@@ -3,4 +3,5 @@ export { default as FeaturesStep } from './FeaturesStep';
 export { default as PagesStep } from './PagesStep';
 export { default as PlatformStep } from './PlatformStep';
 export { default as ProjectTypeStep } from './ProjectTypeStep';
+export { default as ScopeStep } from './ScopeStep';
 export { default as TechStackStep } from './TechStackStep';
