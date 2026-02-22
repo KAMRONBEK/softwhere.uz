@@ -20,6 +20,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '../src/data/seo-topics';
 import { getBlueprintForFormat } from '../src/data/post-blueprints';
 import { sanitizeContent, assessContentQuality, QUALITY_RULES } from './lib/quality';
+import { CATEGORY_IMAGE_KEYWORDS, GENERIC_FALLBACK_KEYWORDS } from './lib/image-keywords';
 
 // ---------------------------------------------------------------------------
 // Config
@@ -270,61 +271,11 @@ Pick the category that best matches how Softwhere.uz would cover this topic.`;
 
 function extractFallbackKeyword(title: string): string {
   const stopWords = new Set([
-    'the',
-    'a',
-    'an',
-    'and',
-    'or',
-    'but',
-    'in',
-    'on',
-    'at',
-    'to',
-    'for',
-    'of',
-    'with',
-    'by',
-    'vs',
-    'versus',
-    'what',
-    'how',
-    'why',
-    'when',
-    'where',
-    'which',
-    'that',
-    'this',
-    'it',
-    'is',
-    'are',
-    'was',
-    'were',
-    'be',
-    'been',
-    'being',
-    'have',
-    'has',
-    'had',
-    'do',
-    'does',
-    'did',
-    'will',
-    'would',
-    'could',
-    'should',
-    'may',
-    'might',
-    'must',
-    'can',
-    'need',
-    'complete',
-    'guide',
-    'ultimate',
-    'best',
-    'top',
-    'new',
-    'your',
-    'our',
+    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+    'vs', 'versus', 'what', 'how', 'why', 'when', 'where', 'which', 'that', 'this', 'it', 'is',
+    'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+    'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'need', 'complete',
+    'guide', 'ultimate', 'best', 'top', 'new', 'your', 'our',
   ]);
   const words = title
     .toLowerCase()
@@ -366,9 +317,44 @@ async function searchUnsplash(keyword: string, page = 1): Promise<ICoverImage | 
   }
 }
 
+function simpleHash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+async function fetchCoverWithFallback(
+  keyword: string,
+  category: string,
+  imageHints: string[],
+  title: string,
+): Promise<ICoverImage | null> {
+  const hash = simpleHash(title);
+
+  const img = await searchUnsplash(keyword, (hash % 5) + 1);
+  if (img) return img;
+
+  for (const hint of imageHints.slice(1)) {
+    const hintImg = await searchUnsplash(hint);
+    if (hintImg) return hintImg;
+  }
+
+  const categoryKeywords = CATEGORY_IMAGE_KEYWORDS[category] || [];
+  const catStart = hash % Math.max(categoryKeywords.length, 1);
+  for (let i = 0; i < categoryKeywords.length; i++) {
+    const catKw = categoryKeywords[(catStart + i) % categoryKeywords.length];
+    const catImg = await searchUnsplash(catKw, (hash % 5) + 1);
+    if (catImg) return catImg;
+  }
+
+  const genericKw = GENERIC_FALLBACK_KEYWORDS[hash % GENERIC_FALLBACK_KEYWORDS.length];
+  return await searchUnsplash(genericKw, (hash % 8) + 1);
+}
+
 async function fetchImages(
   title: string,
-  imageHints: string[]
+  imageHints: string[],
+  category?: string,
 ): Promise<{ cover: ICoverImage | null; inline: ICoverImage[]; all: ICoverImage[] }> {
   if (!UNSPLASH_ACCESS_KEY) {
     console.log('   ⚠️  UNSPLASH_ACCESS_KEY not set, skipping images');
@@ -376,7 +362,7 @@ async function fetchImages(
   }
 
   const coverKeyword = imageHints[0] || extractFallbackKeyword(title);
-  const cover = await searchUnsplash(coverKeyword);
+  const cover = await fetchCoverWithFallback(coverKeyword, category || '', imageHints, title);
   const usedUrls = new Set(cover ? [cover.url] : []);
 
   const inlineKeywords = [
@@ -793,7 +779,7 @@ async function main() {
     cover: coverImage,
     inline: inlineImages,
     all: allContentImages,
-  } = await fetchImages(selectedTopic.title, selectedTopic.imageHints);
+  } = await fetchImages(selectedTopic.title, selectedTopic.imageHints, selectedTopic.servicePillar);
   console.log(`   Got ${allContentImages.length} image(s)`);
 
   // --- Generate meta description ------------------------------------------
