@@ -8,10 +8,9 @@ import { Locale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import React from 'react';
+import { ENV, BLOG_CONFIG } from '@/constants';
 
 const inter = Inter({ subsets: ['latin'] });
-
-const BASE_URL = 'https://softwhere.uz';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -25,11 +24,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     openGraph: {
       title,
       description,
-      url: `${BASE_URL}/${locale}`,
+      url: `${ENV.BASE_URL}/${locale}`,
       siteName: 'SoftWhere.uz',
       locale,
       type: 'website',
-      images: [{ url: `${BASE_URL}/api/og?title=${encodeURIComponent(title)}&locale=${locale}`, width: 1200, height: 630 }],
+      images: [{ url: `${ENV.BASE_URL}/api/og?title=${encodeURIComponent(title)}&locale=${locale}`, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -37,8 +36,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
     },
     alternates: {
-      canonical: `${BASE_URL}/${locale}`,
-      languages: { uz: `${BASE_URL}/uz`, ru: `${BASE_URL}/ru`, en: `${BASE_URL}/en` },
+      canonical: `${ENV.BASE_URL}/${locale}`,
+      languages: {
+        'x-default': `${ENV.BASE_URL}/${BLOG_CONFIG.DEFAULT_LOCALE}`,
+        uz: `${ENV.BASE_URL}/uz`,
+        ru: `${ENV.BASE_URL}/ru`,
+        en: `${ENV.BASE_URL}/en`,
+      },
     },
     icons: {
       icon: [
@@ -58,8 +62,8 @@ function StructuredData({ locale }: { locale: string }) {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'SoftWhere.uz',
-      url: BASE_URL,
-      logo: `${BASE_URL}/icons/logo.svg`,
+      url: ENV.BASE_URL,
+      logo: `${ENV.BASE_URL}/icons/logo.svg`,
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: '+998332499111',
@@ -71,7 +75,7 @@ function StructuredData({ locale }: { locale: string }) {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'SoftWhere.uz',
-      url: BASE_URL,
+      url: ENV.BASE_URL,
       inLanguage: [locale, 'uz', 'ru', 'en'],
       publisher: { '@type': 'Organization', name: 'SoftWhere.uz' },
     },

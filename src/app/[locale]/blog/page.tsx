@@ -5,8 +5,7 @@ import BlogListClient, { BlogPostSummary } from '@/components/BlogListClient';
 import dbConnect from '@/lib/db';
 import BlogPostModel from '@/models/BlogPost';
 import { validateLocale } from '@/utils/auth';
-
-const BASE_URL = 'https://softwhere.uz';
+import { ENV, BLOG_CONFIG } from '@/constants';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -21,14 +20,19 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     openGraph: {
       title,
       description,
-      url: `${BASE_URL}/${locale}/blog`,
+      url: `${ENV.BASE_URL}/${locale}/blog`,
       siteName: 'SoftWhere.uz',
       locale,
       type: 'website',
     },
     alternates: {
-      canonical: `${BASE_URL}/${locale}/blog`,
-      languages: { uz: `${BASE_URL}/uz/blog`, ru: `${BASE_URL}/ru/blog`, en: `${BASE_URL}/en/blog` },
+      canonical: `${ENV.BASE_URL}/${locale}/blog`,
+      languages: {
+        'x-default': `${ENV.BASE_URL}/${BLOG_CONFIG.DEFAULT_LOCALE}/blog`,
+        uz: `${ENV.BASE_URL}/uz/blog`,
+        ru: `${ENV.BASE_URL}/ru/blog`,
+        en: `${ENV.BASE_URL}/en/blog`,
+      },
     },
   };
 }
@@ -57,9 +61,9 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
     '@type': 'CollectionPage',
     name: `${t('title')} | SoftWhere.uz`,
     description: t('description'),
-    url: `${BASE_URL}/${locale}/blog`,
-    isPartOf: { '@type': 'WebSite', name: 'SoftWhere.uz', url: BASE_URL },
-    publisher: { '@type': 'Organization', name: 'SoftWhere.uz', url: BASE_URL },
+    url: `${ENV.BASE_URL}/${locale}/blog`,
+    isPartOf: { '@type': 'WebSite', name: 'SoftWhere.uz', url: ENV.BASE_URL },
+    publisher: { '@type': 'Organization', name: 'SoftWhere.uz', url: ENV.BASE_URL },
     inLanguage: locale,
   };
 
