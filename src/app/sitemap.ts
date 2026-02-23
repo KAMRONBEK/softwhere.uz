@@ -15,6 +15,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly' as const,
       priority: page === '' ? 1 : 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          locales.map(l => [l, `${baseUrl}/${l}${page}`]),
+        ),
+      },
     }))
   );
 

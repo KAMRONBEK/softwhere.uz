@@ -116,6 +116,28 @@ async function getRelatedPosts(
 }
 
 // ---------------------------------------------------------------------------
+// Hreflang: resolve correct slugs per locale via generationGroupId
+// ---------------------------------------------------------------------------
+
+async function getSiblingSlugs(
+  generationGroupId: string | undefined,
+): Promise<Array<{ slug: string; locale: string }>> {
+  if (!generationGroupId) return [];
+  try {
+    await dbConnect();
+    const siblings = await BlogPostModel.find({
+      generationGroupId,
+      status: 'published',
+    })
+      .select('slug locale')
+      .lean();
+    return JSON.parse(JSON.stringify(siblings));
+  } catch {
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Metadata
 // ---------------------------------------------------------------------------
 
@@ -133,6 +155,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const description = extractDescription(post.content, post.metaDescription);
   const keywords = getKeywords(post);
   const baseUrl = ENV.BASE_URL;
+
+  const siblings = await getSiblingSlugs(post.generationGroupId);
+  const languages: Record<string, string> = {};
+  for (const s of siblings) {
+    languages[s.locale] = `${baseUrl}/${s.locale}/blog/${s.slug}`;
+  }
+  if (Object.keys(languages).length === 0) {
+    languages[locale] = `${baseUrl}/${locale}/blog/${slug}`;
+  }
+  languages['x-default'] = languages[BLOG_CONFIG.DEFAULT_LOCALE]
+    ?? `${baseUrl}/${locale}/blog/${slug}`;
 
   return {
     title: `${post.title} | SoftWhere.uz Blog`,
@@ -172,12 +205,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     alternates: {
       canonical: `${baseUrl}/${locale}/blog/${slug}`,
-      languages: {
-        'x-default': `${baseUrl}/${BLOG_CONFIG.DEFAULT_LOCALE}/blog/${slug}`,
-        uz: `${baseUrl}/uz/blog/${slug}`,
-        ru: `${baseUrl}/ru/blog/${slug}`,
-        en: `${baseUrl}/en/blog/${slug}`,
-      },
+      languages,
     },
   };
 }
