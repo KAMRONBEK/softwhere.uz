@@ -15,6 +15,7 @@ import dbConnect from '@/lib/db';
 import BlogPostModel from '@/models/BlogPost';
 import { CoverImage } from '@/types';
 import { validateLocale } from '@/utils/auth';
+import { getSlugRoot } from '@/utils/slug';
 import { ENV, BLOG_CONFIG } from '@/constants';
 
 interface BlogPost {
@@ -34,6 +35,15 @@ interface BlogPost {
   contentImages?: CoverImage[];
   createdAt: string;
   updatedAt: string;
+}
+
+interface PostLocaleSlug {
+  slug: string;
+  locale: 'en' | 'ru' | 'uz';
+}
+
+function escapeRegex(input: string): string {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function extractDescription(content: string, storedMeta?: string): string {
@@ -91,6 +101,38 @@ const getBlogPost = cache(async (rawSlug: string, locale: string): Promise<BlogP
   }
 });
 
+const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Promise<PostLocaleSlug | null> => {
+  try {
+    await dbConnect();
+    const normalizedLocale = validateLocale(locale, 'en');
+    const slugRoot = getSlugRoot(slug);
+    const slugPattern = new RegExp(`^${escapeRegex(slugRoot)}(?:-\\d{10,})?$`);
+    const canonicalPost = await BlogPostModel.findOne({
+      locale: normalizedLocale,
+      status: 'published',
+      slug: slugPattern,
+    })
+      .sort({ createdAt: 1 })
+      .select('slug locale')
+      .lean();
+
+    if (!canonicalPost) return null;
+    return JSON.parse(JSON.stringify(canonicalPost));
+  } catch {
+    return null;
+  }
+});
+
+const getGroupSiblings = cache(async (generationGroupId: string): Promise<PostLocaleSlug[]> => {
+  try {
+    await dbConnect();
+    const siblings = await BlogPostModel.find({ generationGroupId, status: 'published' }).select('slug locale').lean();
+    return JSON.parse(JSON.stringify(siblings));
+  } catch {
+    return [];
+  }
+});
+
 async function getRelatedPosts(
   category: string | undefined,
   currentId: string,
@@ -116,28 +158,6 @@ async function getRelatedPosts(
 }
 
 // ---------------------------------------------------------------------------
-// Hreflang: resolve correct slugs per locale via generationGroupId
-// ---------------------------------------------------------------------------
-
-async function getSiblingSlugs(
-  generationGroupId: string | undefined,
-): Promise<Array<{ slug: string; locale: string }>> {
-  if (!generationGroupId) return [];
-  try {
-    await dbConnect();
-    const siblings = await BlogPostModel.find({
-      generationGroupId,
-      status: 'published',
-    })
-      .select('slug locale')
-      .lean();
-    return JSON.parse(JSON.stringify(siblings));
-  } catch {
-    return [];
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Metadata
 // ---------------------------------------------------------------------------
 
@@ -155,17 +175,25 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const description = extractDescription(post.content, post.metaDescription);
   const keywords = getKeywords(post);
   const baseUrl = ENV.BASE_URL;
+  const canonicalPost = await getCanonicalPostForLocale(post.locale, post.slug);
+  const canonicalSlug = canonicalPost?.slug ?? post.slug;
+  const encodedCanonicalSlug = encodeURIComponent(canonicalSlug);
+  const canonicalUrl = `${baseUrl}/${post.locale}/blog/${encodedCanonicalSlug}`;
+  const isCanonicalVariant = canonicalSlug === post.slug;
 
-  const siblings = await getSiblingSlugs(post.generationGroupId);
-  const languages: Record<string, string> = {};
-  for (const s of siblings) {
-    languages[s.locale] = `${baseUrl}/${s.locale}/blog/${s.slug}`;
+  const languageAlternates: Record<string, string> = {
+    [post.locale]: canonicalUrl,
+  };
+
+  if (post.generationGroupId) {
+    const siblings = await getGroupSiblings(post.generationGroupId);
+    for (const sibling of siblings) {
+      const siblingCanonical = await getCanonicalPostForLocale(sibling.locale, sibling.slug);
+      const siblingSlug = siblingCanonical?.slug ?? sibling.slug;
+      languageAlternates[sibling.locale] = `${baseUrl}/${sibling.locale}/blog/${encodeURIComponent(siblingSlug)}`;
+    }
   }
-  if (Object.keys(languages).length === 0) {
-    languages[locale] = `${baseUrl}/${locale}/blog/${slug}`;
-  }
-  languages['x-default'] = languages[BLOG_CONFIG.DEFAULT_LOCALE]
-    ?? `${baseUrl}/${locale}/blog/${slug}`;
+  languageAlternates['x-default'] = languageAlternates[BLOG_CONFIG.DEFAULT_LOCALE] || canonicalUrl;
 
   return {
     title: `${post.title} | SoftWhere.uz Blog`,
@@ -179,14 +207,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       publishedTime: post.createdAt,
       modifiedTime: post.updatedAt,
       authors: ['SoftWhere.uz'],
-      url: `${baseUrl}/${locale}/blog/${slug}`,
+      url: canonicalUrl,
       siteName: 'SoftWhere.uz',
-      locale,
+      locale: post.locale,
       images: [
         {
           url: post.coverImage?.url
-            ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}&image=${encodeURIComponent(post.coverImage.url)}`
-            : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
+            ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}&image=${encodeURIComponent(post.coverImage.url)}`
+            : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}`,
           width: 1200,
           height: 630,
           alt: post.title,
@@ -199,13 +227,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
       images: [
         post.coverImage?.url
-          ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}&image=${encodeURIComponent(post.coverImage.url)}`
-          : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
+          ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}&image=${encodeURIComponent(post.coverImage.url)}`
+          : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}`,
       ],
     },
+    robots: isCanonicalVariant ? { index: true, follow: true } : { index: false, follow: true },
     alternates: {
-      canonical: `${baseUrl}/${locale}/blog/${slug}`,
-      languages,
+      canonical: canonicalUrl,
+      languages: languageAlternates,
     },
   };
 }

@@ -3,6 +3,7 @@ import BlogPost, { IBlogPost, ICoverImage } from '@/models/BlogPost';
 import { verifyApiSecret } from '@/utils/auth';
 import { safeGenerateContent, aiStats } from '@/utils/ai';
 import { logger } from '@/utils/logger';
+import { createSlug } from '@/utils/slug';
 import { getCoverImageForTopic, getImagesForPost } from '@/utils/unsplash';
 import { SERVICE_PILLARS, getAllTopics, type PostFormat } from '@/data/seo-topics';
 import {
@@ -13,7 +14,6 @@ import {
   generateBlogContent,
   generateFallbackContent,
   generateMetaDescription,
-  createSlug,
   MAX_SOURCE_TEXT_LENGTH,
   MAX_CUSTOM_TOPIC_LENGTH,
   ALLOWED_LOCALES,
@@ -33,6 +33,18 @@ if (!process.env.MONGODB_URI) {
 }
 
 const VALID_CATEGORIES = SERVICE_PILLARS.map(p => p.id);
+
+async function resolveUniqueSlug(baseSlug: string, locale: string): Promise<string> {
+  let candidate = baseSlug;
+  let suffix = 1;
+
+  while (await BlogPost.exists({ slug: candidate, locale })) {
+    candidate = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return candidate;
+}
 
 export async function POST(request: NextRequest) {
   const authError = verifyApiSecret(request);
@@ -200,6 +212,7 @@ export async function POST(request: NextRequest) {
     // --- Generate per locale -------------------------------------------------
 
     const createdPosts = [];
+    const generatedSlugBase = createSlug(selectedTopic.title) || `post-${generationGroupId.slice(0, 8)}`;
 
     for (const locale of locales) {
       try {
@@ -234,7 +247,7 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        const slug = `${createSlug(selectedTopic.title)}-${Date.now()}`;
+        const slug = await resolveUniqueSlug(generatedSlugBase, locale);
 
         const blogPost = new BlogPost({
           title: localizedTitle,
