@@ -57,5 +57,5 @@ export const ENV = {
   API_SECRET: process.env.API_SECRET || '',
   UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY || '',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz',
+  BASE_URL: (process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz').trim().replace(/\/+$/, ''),
 } as const;

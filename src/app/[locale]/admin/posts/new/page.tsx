@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/Button';
 import { adminFetch } from '@/utils/adminFetch';
+import { createSlug } from '@/utils/slug';
 
 export default function NewPostPage({ params }: { params: Promise<{ locale: string }> }) {
   const router = useRouter();
@@ -60,27 +61,15 @@ export default function NewPostPage({ params }: { params: Promise<{ locale: stri
   // Auto-generate slug from title
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
+    const currentGeneratedSlug = createSlug(title);
 
     setTitle(newTitle);
 
     // Only auto-generate slug if user hasn't manually edited it
-    if (!slug || slug === slugify(title)) {
-      setSlug(slugify(newTitle));
+    if (!slug || slug === currentGeneratedSlug) {
+      setSlug(createSlug(newTitle));
     }
   };
-
-  // Simple slugify function
-  function slugify(text: string) {
-    return text
-      .toString()
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/[^\w\-]+/g, '') // Remove non-word chars
-      .replace(/\-\-+/g, '-') // Replace multiple hyphens with single
-      .replace(/^-+/, '') // Trim hyphens from start
-      .replace(/-+$/, ''); // Trim hyphens from end
-  }
 
   return (
     <div className='admin-layout'>
