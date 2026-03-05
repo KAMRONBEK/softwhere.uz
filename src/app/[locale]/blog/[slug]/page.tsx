@@ -5,7 +5,7 @@ import { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import TrackedCTALink from '@/components/TrackedCTALink';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -179,6 +179,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const canonicalSlug = canonicalPost?.slug ?? post.slug;
   const encodedCanonicalSlug = encodeURIComponent(canonicalSlug);
   const canonicalUrl = `${baseUrl}/${post.locale}/blog/${encodedCanonicalSlug}`;
+  const localeMismatch = post.locale !== locale;
   const isCanonicalVariant = canonicalSlug === post.slug;
 
   const languageAlternates: Record<string, string> = {
@@ -231,7 +232,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
           : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}`,
       ],
     },
-    robots: isCanonicalVariant ? { index: true, follow: true } : { index: false, follow: true },
+    robots: isCanonicalVariant && !localeMismatch ? { index: true, follow: true } : { index: false, follow: true },
     alternates: {
       canonical: canonicalUrl,
       languages: languageAlternates,
@@ -271,10 +272,11 @@ function parseFAQPairs(content: string): Array<{ q: string; a: string }> {
   return pairs.slice(0, 10);
 }
 
-function BlogPostSchema({ post, locale }: { post: BlogPost; locale: string }) {
+function BlogPostSchema({ post }: { post: BlogPost }) {
   const baseUrl = ENV.BASE_URL;
   const description = extractDescription(post.content, post.metaDescription);
   const keywords = getKeywords(post);
+  const locale = post.locale;
   const articleSection = post.category ? (PILLAR_LABELS[post.category] ?? 'Technology') : 'Technology';
 
   const schemas: object[] = [
@@ -391,12 +393,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     notFound();
   }
 
+  if (post.locale !== locale) {
+    permanentRedirect(`/${post.locale}/blog/${encodeURIComponent(post.slug)}`);
+  }
+
   const formattedDate = format(new Date(post.createdAt), 'MMMM dd, yyyy');
   const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
 
   return (
     <BlogPostClient post={post} category={post.category}>
-      <BlogPostSchema post={post} locale={locale} />
+      <BlogPostSchema post={post} />
 
       <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--gray-100)' }}>
         {/* Breadcrumbs */}
@@ -624,7 +630,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
           {/* Related Posts (streamed independently) */}
           <Suspense>
-            <RelatedPosts category={post.category} currentId={post._id} locale={locale} />
+            <RelatedPosts category={post.category} currentId={post._id} locale={post.locale} />
           </Suspense>
 
           {/* Back to blog link */}
