@@ -24,20 +24,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const operationPromise = async () => {
       await dbConnect();
 
-      // First, try to find the published post with this slug and the requested locale
-      let post = await BlogPost.findOne({
+      const post = await BlogPost.findOne({
         slug,
         locale,
         status: 'published',
       }).lean();
-
-      // If not found in the requested locale, try to find it in any locale
-      if (!post) {
-        post = await BlogPost.findOne({
-          slug,
-          status: 'published',
-        }).lean();
-      }
 
       return post;
     };
