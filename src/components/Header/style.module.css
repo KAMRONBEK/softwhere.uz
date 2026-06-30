@@ -266,6 +266,10 @@
   .contact a {
     font-size: 12px;
   }
+
+  .burgerMenu {
+    display: flex;
+  }
 }
 
 @media (max-width: 770px) {
@@ -275,15 +279,5 @@
 
   .links {
     display: none;
-  }
-}
-
-@media (max-width: 450px) {
-  .links {
-    display: none;
-  }
-
-  .burgerMenu {
-    display: flex;
   }
 }

@@ -66,18 +66,18 @@ export default function Wizard() {
         setEstimateSource(response.data.source);
         if (response.data.reasoning) setAiReasoning(response.data.reasoning);
         if (response.data.source === 'formula') {
-          setError('Using formula calculation (AI estimate was not available).');
+          setError(t('errorFormulaFallback'));
         }
       } else {
         setEstimate(calculateEstimate(input));
         setEstimateSource('formula');
-        setError('Could not get estimate from API. Using local calculation.');
+        setError(t('errorApiFallback'));
       }
     } catch (err) {
       logger.error('Estimate API failed', err, 'ESTIMATOR');
       setEstimate(calculateEstimate(input));
       setEstimateSource('formula');
-      setError('Error calculating estimate. Using local calculation.');
+      setError(t('errorCalcFallback'));
     } finally {
       setLoading(false);
     }
@@ -187,7 +187,8 @@ export default function Wizard() {
 
       <div className='mb-6'>
         <p>
-          Step {step + 1} of {maxSteps}: <strong>{(t as (k: string) => string)(STEP_LABELS[currentStepId] ?? currentStepId)}</strong>
+          {t('stepProgress', { current: step + 1, total: maxSteps })}:{' '}
+          <strong>{(t as (k: string) => string)(STEP_LABELS[currentStepId] ?? currentStepId)}</strong>
         </p>
         <div className='glass rounded-lg p-6 mt-4'>{renderCurrentStep()}</div>
       </div>

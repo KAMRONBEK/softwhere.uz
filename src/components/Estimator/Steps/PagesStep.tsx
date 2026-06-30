@@ -1,16 +1,20 @@
+import { useTranslations } from 'next-intl';
+
 type PagesStepProps = {
   pageCount: number;
   onPageCountChange: (count: number) => void;
 };
 
 export default function PagesStep({ pageCount, onPageCountChange }: PagesStepProps) {
+  const t = useTranslations('estimator');
+
   // Helper function to determine the complexity label based on page count
   const getComplexityLabel = () => {
-    if (pageCount <= 5) return 'Simple';
-    if (pageCount <= 20) return 'Medium';
-    if (pageCount <= 50) return 'Complex';
+    if (pageCount <= 5) return t('pagesComplexity.simple');
+    if (pageCount <= 20) return t('pagesComplexity.medium');
+    if (pageCount <= 50) return t('pagesComplexity.complex');
 
-    return 'Very Complex';
+    return t('pagesComplexity.veryComplex');
   };
 
   // Get corresponding color for complexity
@@ -25,12 +29,12 @@ export default function PagesStep({ pageCount, onPageCountChange }: PagesStepPro
   return (
     <div>
       <label htmlFor='pages' className='block mb-2'>
-        Number of Pages/Screens
+        {t('pagesLabel')}
       </label>
 
       <div className='mb-6'>
         <div className='flex justify-between mb-2'>
-          <span className='text-sm text-gray-500 dark:text-gray-400'>How many screens do you need?</span>
+          <span className='text-sm text-gray-500 dark:text-gray-400'>{t('pagesQuestion')}</span>
           <span className={`font-bold ${getComplexityColor()}`}>{getComplexityLabel()}</span>
         </div>
 
@@ -52,11 +56,8 @@ export default function PagesStep({ pageCount, onPageCountChange }: PagesStepPro
       </div>
 
       <div className='p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border dark:border-gray-700 mt-4'>
-        <h4 className='font-medium mb-2'>What counts as a screen?</h4>
-        <p className='text-sm text-gray-600 dark:text-gray-400'>
-          Each unique view in your application counts as a screen. For example, a login page, dashboard, profile page, and settings page
-          would count as 4 screens.
-        </p>
+        <h4 className='font-medium mb-2'>{t('pagesScreenTitle')}</h4>
+        <p className='text-sm text-gray-600 dark:text-gray-400'>{t('pagesScreenDesc')}</p>
       </div>
     </div>
   );

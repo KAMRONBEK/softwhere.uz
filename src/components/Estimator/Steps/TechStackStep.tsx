@@ -18,16 +18,14 @@ export default function TechStackStep({ projectType, subtype, selectedTech, onTo
   if (groups.length === 0) {
     return (
       <div className='text-gray-500'>
-        <p>Tech stack selection is not applicable for this service type.</p>
+        <p>{t('techNotApplicable')}</p>
       </div>
     );
   }
 
   return (
     <div className='space-y-6'>
-      <p className='text-sm text-gray-500'>
-        Select technologies that align with your requirements. Your choices may impact the final cost.
-      </p>
+      <p className='text-sm text-gray-500'>{t('techHint')}</p>
       {groups.map(({ group, labelKey, options }) => (
         <div key={group}>
           <label className='block mb-2 font-medium'>{(t as (k: string) => string)(labelKey)}</label>

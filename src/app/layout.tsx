@@ -6,7 +6,7 @@ import { ENV } from '@/constants';
 import './globals.css';
 
 // Initialize font (adjust as needed)
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(ENV.BASE_URL),

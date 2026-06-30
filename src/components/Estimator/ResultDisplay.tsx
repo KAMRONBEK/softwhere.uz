@@ -3,7 +3,7 @@
 import Button from '@/components/Button';
 import CurrencySwitcher, { useCurrency, type CurrencyCode } from './CurrencySwitcher';
 import type { EstimateResult } from '@/types/estimator';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 
 type ResultDisplayProps = {
   result: EstimateResult | null;
@@ -16,6 +16,7 @@ type ResultDisplayProps = {
 
 export default function ResultDisplay({ result, source, loading, error, aiReasoning, onReset }: ResultDisplayProps) {
   const t = useTranslations('estimator');
+  const locale = useLocale();
   const { currency, setCurrency, format } = useCurrency();
 
   const formatCost = (value: number | undefined): string => {
@@ -67,31 +68,16 @@ export default function ResultDisplay({ result, source, loading, error, aiReason
 
           {source === 'ai' && aiReasoning && (
             <div className='glass mt-6 p-4 rounded-lg'>
-              <h3 className='font-medium mb-2'>AI Analysis</h3>
+              <h3 className='font-medium mb-2'>{t('aiAnalysis')}</h3>
               <p className='text-gray-700 dark:text-gray-300'>{aiReasoning}</p>
             </div>
           )}
 
           <div className='mt-6 flex flex-wrap gap-3'>
             <Button onClick={onReset}>{t('startOver')}</Button>
-            <Button className='bg-green-600' onClick={() => window.location.assign('#contact')}>
+            <Button className='bg-green-600' onClick={() => window.location.assign(`/${locale}/#contact`)}>
               {t('contactUs')}
             </Button>
-            {source === 'ai' && (
-              <Button className='bg-gray-700'>
-                <span className='flex items-center'>
-                  <svg xmlns='http://www.w3.org/2000/svg' className='h-4 w-4 mr-1' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={2}
-                      d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'
-                    />
-                  </svg>
-                  {t('exportPdf')}
-                </span>
-              </Button>
-            )}
           </div>
         </div>
       )}

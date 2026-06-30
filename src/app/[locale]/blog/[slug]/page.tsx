@@ -1,5 +1,7 @@
 import { cache, Suspense } from 'react';
 import { format } from 'date-fns';
+import type { Locale as DateFnsLocale } from 'date-fns';
+import { ru, uz } from 'date-fns/locale';
 import { Metadata } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
@@ -86,6 +88,8 @@ const PILLAR_LABELS: Record<string, string> = {
   'maintenance-support': 'Maintenance & Support',
   cybersecurity: 'Cybersecurity',
 };
+
+const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
 
 const getBlogPost = cache(async (rawSlug: string, locale: string): Promise<BlogPost | null> => {
   try {
@@ -390,6 +394,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const { locale, slug } = (await params) as { locale: Locale; slug: string };
   const post = await getBlogPost(slug, locale);
   const t = await getTranslations('blog');
+  const tCat = await getTranslations('blog.categories');
 
   if (!post) {
     notFound();
@@ -399,7 +404,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     permanentRedirect(`/${post.locale}/blog/${encodeURIComponent(post.slug)}`);
   }
 
-  const formattedDate = format(new Date(post.createdAt), 'MMMM dd, yyyy');
+  const formattedDate = format(new Date(post.createdAt), 'MMMM dd, yyyy', { locale: DATE_LOCALES[locale] });
   const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
 
   return (
@@ -513,7 +518,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                   <span className='px-3 py-1 bg-[#fe4502] text-white text-xs font-semibold rounded-full'>{post.locale.toUpperCase()}</span>
                   {post.category && PILLAR_LABELS[post.category] && (
                     <span className='px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full'>
-                      {PILLAR_LABELS[post.category]}
+                      {(tCat as (k: string) => string)(post.category)}
                     </span>
                   )}
                 </div>

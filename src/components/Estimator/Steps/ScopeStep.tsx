@@ -32,7 +32,7 @@ export default function ScopeStep({
   return (
     <div className='space-y-6'>
       <div>
-        <label className='block mb-2'>Complexity</label>
+        <label className='block mb-2'>{t('scopeComplexity')}</label>
         <div className='flex flex-wrap gap-3'>
           {COMPLEXITIES.map(c => (
             <button
@@ -53,7 +53,7 @@ export default function ScopeStep({
 
       {subtypes.length > 0 && onSubtypeChange && (
         <div>
-          <label className='block mb-2'>Subtype</label>
+          <label className='block mb-2'>{t('scopeSubtype')}</label>
           <div className='flex flex-wrap gap-3'>
             {subtypes.map(s => (
               <button

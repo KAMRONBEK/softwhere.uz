@@ -10,10 +10,19 @@
 
 .footerItem p {
   font-size: 14px;
-  color: var(--gray-500);
+  color: #98a2b3;
 }
 
 .footerItem a {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 129%;
+  letter-spacing: -0.02em;
+  color: var(--text-on-footer);
+}
+
+.address {
+  font-style: normal;
   font-weight: 600;
   font-size: 17px;
   line-height: 129%;
@@ -42,7 +51,8 @@
   .logo {
     margin-bottom: 30px;
   }
-  .footerItem a {
+  .footerItem a,
+  .address {
     font-size: 14px;
   }
   .copyright {
@@ -57,7 +67,8 @@
     position: relative;
   }
 
-  .footerItem a {
+  .footerItem a,
+  .address {
     position: absolute;
     right: 0;
     top: 50%;

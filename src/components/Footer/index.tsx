@@ -1,12 +1,15 @@
 'use client';
 
 import { trackEvent } from '@/utils/analytics';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import Logo from '../../../public/icons/logo.svg';
 import css from './style.module.css';
 
 function Footer() {
+  const t = useTranslations('footer');
+
   return (
     <footer className={`${css.footer} container`}>
       <Link href='/'>
@@ -23,7 +26,7 @@ function Footer() {
                 fill='#98A2B3'
               />
             </svg>
-            <p>Contact nums</p>
+            <p>{t('phoneLabel')}</p>
           </div>
           <a
             href='tel:+998332499111'
@@ -43,7 +46,7 @@ function Footer() {
                 fill='#98A2B3'
               />
             </svg>
-            <p>Post</p>
+            <p>{t('emailLabel')}</p>
           </div>
           <a
             href='mailto:kamuranbek98@gmail.com'
@@ -69,9 +72,9 @@ function Footer() {
                 fill='#98A2B3'
               />
             </svg>
-            <p>Address</p>
+            <p>{t('addressLabel')}</p>
           </div>
-          <a href=''>Tashkent city, Uzbekistan</a>
+          <address className={css.address}>{t('addressValue')}</address>
         </div>
         <div className={css.footerItem}>
           <div className='flex items-center gap-2 md:mb-2'>
@@ -83,15 +86,17 @@ function Footer() {
                 fill='#98A2B3'
               />
             </svg>
-            <p>Leave a request</p>
+            <p>{t('requestLabel')}</p>
           </div>
-          <a href='#contact'>Leave a request</a>
+          <a href='#contact'>{t('requestLabel')}</a>
         </div>
       </div>
 
-      <p className={css.copyright}>&copy; 2026 Softwhere | All Rights Reserved. Privacy Policy</p>
       <p className={css.copyright}>
-        Developed by{' '}
+        {t('rights')} {t('privacyPolicy')}
+      </p>
+      <p className={css.copyright}>
+        {t('developedBy')}{' '}
         <a href='https://kamuran.dev' target='_blank' rel='noopener noreferrer'>
           kamuran.dev
         </a>

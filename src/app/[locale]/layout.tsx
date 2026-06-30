@@ -11,7 +11,7 @@ import React from 'react';
 import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/constants';
 import { safeJsonLd } from '@/utils/security';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };

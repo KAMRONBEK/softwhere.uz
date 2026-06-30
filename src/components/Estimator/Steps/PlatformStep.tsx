@@ -1,9 +1,12 @@
+import { useTranslations } from 'next-intl';
+
 type PlatformStepProps = {
   selectedPlatforms: string[];
   onTogglePlatform: (platform: 'ios' | 'android') => void;
 };
 
 export default function PlatformStep({ selectedPlatforms, onTogglePlatform }: PlatformStepProps) {
+  const t = useTranslations('estimator');
   const platforms = [
     { id: 'ios', icon: '🍎', label: 'iOS' },
     { id: 'android', icon: '🤖', label: 'Android' },
@@ -11,7 +14,7 @@ export default function PlatformStep({ selectedPlatforms, onTogglePlatform }: Pl
 
   return (
     <div>
-      <label className='block mb-2'>Choose Platform(s)</label>
+      <label className='block mb-2'>{t('platformChoose')}</label>
       <div className='grid grid-cols-2 gap-4'>
         {platforms.map(platform => (
           <div
@@ -24,12 +27,12 @@ export default function PlatformStep({ selectedPlatforms, onTogglePlatform }: Pl
             <div className='text-3xl mb-2'>{platform.icon}</div>
             <div className='font-medium'>{platform.label}</div>
             {selectedPlatforms.includes(platform.id) && (
-              <div className='mt-2 bg-orange-500 text-white rounded-full px-2 py-1 text-xs'>Selected</div>
+              <div className='mt-2 bg-orange-500 text-white rounded-full px-2 py-1 text-xs'>{t('selected')}</div>
             )}
           </div>
         ))}
       </div>
-      <p className='mt-4 text-sm text-gray-500 dark:text-gray-400'>Click to select multiple platforms if needed</p>
+      <p className='mt-4 text-sm text-gray-500 dark:text-gray-400'>{t('platformHint')}</p>
     </div>
   );
 }

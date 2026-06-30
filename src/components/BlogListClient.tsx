@@ -3,6 +3,8 @@
 import { CoverImage } from '@/types';
 import { trackEvent } from '@/utils/analytics';
 import { format } from 'date-fns';
+import type { Locale as DateFnsLocale } from 'date-fns';
+import { ru, uz } from 'date-fns/locale';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,36 +19,39 @@ export interface BlogPostSummary {
   category?: string;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  'mobile-app-development': 'Mobile Apps',
-  'mvp-startup': 'MVP & Startups',
-  'ai-solutions': 'AI & RAG',
-  'web-app-development': 'Web Apps',
-  'telegram-bot-development': 'Telegram Bots',
-  'crm-development': 'CRM',
-  'business-automation': 'Automation',
-  'saas-development': 'SaaS',
-  outsourcing: 'Outsourcing',
-  'project-rescue': 'Project Rescue',
-  ecommerce: 'E-commerce',
-  'ui-ux-design': 'UI/UX Design',
-  'maintenance-support': 'Maintenance',
-  cybersecurity: 'Security',
-};
+const CATEGORY_ORDER = [
+  'mobile-app-development',
+  'mvp-startup',
+  'ai-solutions',
+  'web-app-development',
+  'telegram-bot-development',
+  'crm-development',
+  'business-automation',
+  'saas-development',
+  'outsourcing',
+  'project-rescue',
+  'ecommerce',
+  'ui-ux-design',
+  'maintenance-support',
+  'cybersecurity',
+];
+
+const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
 
 export default function BlogListClient({ posts, locale }: { posts: BlogPostSummary[]; locale: string }) {
   const t = useTranslations('blog');
+  const tCat = useTranslations('blog.categories');
   const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  const dateLocale = DATE_LOCALES[locale];
+  const categoryLabel = (cat: string) => (CATEGORY_ORDER.includes(cat) ? (tCat as (k: string) => string)(cat) : cat);
 
   const availableCategories = useMemo(() => {
     const cats = new Set<string>();
     posts.forEach(p => {
       if (p.category) cats.add(p.category);
     });
-    return Array.from(cats).sort((a, b) => {
-      const order = Object.keys(CATEGORY_LABELS);
-      return order.indexOf(a) - order.indexOf(b);
-    });
+    return Array.from(cats).sort((a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b));
   }, [posts]);
 
   const handleCategoryChange = (category: string) => {
@@ -79,7 +84,7 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                 activeCategory === cat ? 'bg-[#fe4502] text-white' : 'glass text-gray-600 dark:text-gray-300 hover:-translate-y-0.5'
               }`}
             >
-              {CATEGORY_LABELS[cat] ?? cat}
+              {categoryLabel(cat)}
             </button>
           ))}
         </div>
@@ -131,9 +136,9 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                 )}
               </div>
               <div className='p-6'>
-                {post.category && CATEGORY_LABELS[post.category] && (
+                {post.category && CATEGORY_ORDER.includes(post.category) && (
                   <span className='inline-block px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded mb-2'>
-                    {CATEGORY_LABELS[post.category]}
+                    {categoryLabel(post.category)}
                   </span>
                 )}
                 <h2 className='text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 leading-tight'>
@@ -142,12 +147,12 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                   </Link>
                 </h2>
                 <div className='text-sm text-gray-500 dark:text-gray-400 mb-4 font-medium'>
-                  {format(new Date(post.createdAt), 'MMMM dd, yyyy')}
+                  {format(new Date(post.createdAt), 'MMMM dd, yyyy', { locale: dateLocale })}
                 </div>
                 <div className='mt-4'>
                   <Link
                     href={`/${locale}/blog/${post.slug}`}
-                    className='inline-flex items-center text-[#fe4502] hover:text-[#ff5f24] font-semibold text-sm transition-colors duration-300'
+                    className='inline-flex items-center text-[var(--accent-text)] hover:text-[#ff5f24] font-semibold text-sm transition-colors duration-300'
                   >
                     {t('readMore')}
                     <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

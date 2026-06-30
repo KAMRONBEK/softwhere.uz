@@ -16,16 +16,26 @@ function Contact() {
   const [name, setName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [phoneError, setPhoneError] = useState<boolean>(false);
+  const [nameError, setNameError] = useState<boolean>(false);
   const t = useTranslations('contact');
   const tM = useTranslations('toastMessage');
 
   const validateForm = () => {
-    if (phone.length < 13) {
+    const phoneDigits = phone.replace(/\D/g, '');
+    const phoneInvalid = phoneDigits.length < 9;
+    const nameInvalid = name.trim() === '';
+
+    setPhoneError(phoneInvalid);
+    setNameError(nameInvalid);
+
+    if (phoneInvalid) {
       toast.error(tM('phoneNumber'));
 
       return false;
     }
-    if (name.trim() === '') {
+    if (nameInvalid) {
       toast.error(tM('name'));
 
       return false;
@@ -43,13 +53,22 @@ function Contact() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    if (submitting) return;
+
     if (validateForm()) {
+      setSubmitting(true);
       const id = toast.loading(tM('loading'));
 
-      await sender(String(id), name, phone, message, '');
-      setName('');
-      setPhone('');
-      setMessage('');
+      try {
+        await sender(String(id), name, phone, message, '');
+        setName('');
+        setPhone('');
+        setMessage('');
+        setPhoneError(false);
+        setNameError(false);
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -123,21 +142,49 @@ function Contact() {
               <PhoneInput
                 defaultCountry='uz'
                 value={phone}
-                onChange={phone => setPhone(phone)}
+                onChange={phone => {
+                  setPhone(phone);
+                  if (phoneError) setPhoneError(false);
+                }}
                 className={css.phoneInput}
                 inputClassName={css.input}
                 defaultMask='.. ...-..-..'
-                inputProps={{ id: 'phone-input' }}
+                inputProps={{
+                  id: 'phone-input',
+                  'aria-invalid': phoneError,
+                  'aria-describedby': phoneError ? 'phone-error' : undefined,
+                }}
                 countrySelectorStyleProps={{
                   buttonStyle: {
                     border: 'none',
                   },
                 }}
               />
+              {phoneError && (
+                <span id='phone-error' role='alert' className={css.errorText}>
+                  {tM('phoneNumber')}
+                </span>
+              )}
             </div>
             <div className={css.formInput}>
               <label htmlFor='name'>{t('name')}</label>
-              <input value={name} onChange={event => setName(event.target.value)} type='text' placeholder={t('name')} id='name' />
+              <input
+                value={name}
+                onChange={event => {
+                  setName(event.target.value);
+                  if (nameError) setNameError(false);
+                }}
+                type='text'
+                placeholder={t('name')}
+                id='name'
+                aria-invalid={nameError}
+                aria-describedby={nameError ? 'name-error' : undefined}
+              />
+              {nameError && (
+                <span id='name-error' role='alert' className={css.errorText}>
+                  {tM('name')}
+                </span>
+              )}
             </div>
           </div>
 
@@ -152,7 +199,7 @@ function Contact() {
               className={css.textarea}
             ></textarea>
           </div>
-          <Button className='block mt-6 ml-auto' type='submit'>
+          <Button className='block mt-6 ml-auto' type='submit' disabled={submitting}>
             {t('btn')}
           </Button>
         </form>

@@ -16,8 +16,8 @@ function Hero() {
       <div className='container 2xl:relative'>
         <Image className={css.backImage} src={BackImage} alt='' priority />
         <div className={css.content}>
-          <SectionText className='lg:w-1/2'>
-            <TypeAnimation sequence={[t('title'), 1000]} wrapper='p' speed={50} repeat={Infinity} />
+          <SectionText as='h1' className='lg:w-1/2'>
+            <TypeAnimation sequence={[t('title')]} wrapper='span' speed={50} />
           </SectionText>
 
           <SectionText type={'desc'} className={css.description}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 
 export type CurrencyCode = 'USD' | 'UZS' | 'EUR' | 'RUB';
@@ -8,7 +8,11 @@ export type CurrencyCode = 'USD' | 'UZS' | 'EUR' | 'RUB';
 const CURRENCIES: CurrencyCode[] = ['USD', 'UZS', 'EUR', 'RUB'];
 const STORAGE_KEY = 'estimator-currency';
 
+const INTL_LOCALES: Record<string, string> = { ru: 'ru-RU', uz: 'uz-UZ', en: 'en-US' };
+
 export function useCurrency() {
+  const locale = useLocale();
+  const intlLocale = INTL_LOCALES[locale] ?? 'en-US';
   const [currency, setCurrencyState] = useState<CurrencyCode>('USD');
   const [rates, setRates] = useState<Record<string, number>>({ USD: 1 });
 
@@ -46,7 +50,7 @@ export function useCurrency() {
   const format = (amountUsd: number): string => {
     const value = convert(amountUsd);
 
-    return new Intl.NumberFormat(undefined, {
+    return new Intl.NumberFormat(intlLocale, {
       style: 'currency',
       currency,
       minimumFractionDigits: 0,
@@ -67,7 +71,7 @@ export default function CurrencySwitcher({ currency, onCurrencyChange }: Currenc
 
   return (
     <div className='flex items-center gap-2'>
-      <span className='text-sm text-gray-500 dark:text-gray-400'>Currency:</span>
+      <span className='text-sm text-gray-500 dark:text-gray-400'>{t('currencyLabel')}:</span>
       <select
         value={currency}
         onChange={e => onCurrencyChange(e.target.value as CurrencyCode)}

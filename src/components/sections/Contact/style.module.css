@@ -75,3 +75,27 @@
   letter-spacing: -0.41px !important;
   padding: 8px 0 !important;
 }
+
+.formInput input:focus-visible,
+.textarea:focus-visible,
+.phoneInput:focus-within {
+  border-bottom-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.errorText {
+  color: #dc2626;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.formBox button:focus-visible {
+  outline: 2px solid var(--white);
+  outline-offset: 2px;
+}
+
+.formBox button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
