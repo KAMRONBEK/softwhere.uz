@@ -7,10 +7,10 @@ import MobileImage from '../../../../../public/images/mobile.png';
 import StartupsImage from '../../../../../public/images/startups.webp';
 import css from './style.module.css';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
-function Service() {
-  const t = useTranslations('services');
+async function Service() {
+  const t = await getTranslations('services');
   const services = [
     {
       id: 0,

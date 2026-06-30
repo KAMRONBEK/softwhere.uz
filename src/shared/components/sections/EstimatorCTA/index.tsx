@@ -1,16 +1,12 @@
-'use client';
-
 import Button from '@/shared/components/Button';
 import SectionText from '@/shared/components/SectionTitle';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { getLocale, getTranslations } from 'next-intl/server';
 import css from './style.module.css';
 
-function EstimatorCTA() {
-  const params = useParams();
-  const locale = (params?.locale as string) || 'uz';
-  const t = useTranslations('estimatorCTA');
+async function EstimatorCTA() {
+  const locale = await getLocale();
+  const t = await getTranslations('estimatorCTA');
 
   return (
     <section className={css.section} id='estimator-cta'>
