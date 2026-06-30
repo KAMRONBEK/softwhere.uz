@@ -28,22 +28,27 @@ class Logger {
   private log(level: LogLevel, message: string, data?: any, context?: string): void {
     const formattedMessage = this.formatMessage(level, message, context);
 
-    // In production, you might want to send logs to a service
-    if (this.isDevelopment) {
-      switch (level) {
-        case LogLevel._ERROR:
-          console.error(formattedMessage, data || '');
-          break;
-        case LogLevel._WARN:
-          console.warn(formattedMessage, data || '');
-          break;
-        case LogLevel._INFO:
-          console.info(formattedMessage, data || '');
-          break;
-        case LogLevel._DEBUG:
-          console.debug(formattedMessage, data || '');
-          break;
-      }
+    switch (level) {
+      // Warnings and errors are ALWAYS emitted — including in production —
+      // so incidents are diagnosable in the Vercel logs. (eslint-disable
+      // no-console: the logger is the sanctioned console boundary.)
+      case LogLevel._ERROR:
+        // eslint-disable-next-line no-console
+        console.error(formattedMessage, data || '');
+        break;
+      case LogLevel._WARN:
+        // eslint-disable-next-line no-console
+        console.warn(formattedMessage, data || '');
+        break;
+      // Info/debug are noise in production — keep them dev-only.
+      case LogLevel._INFO:
+        // eslint-disable-next-line no-console
+        if (this.isDevelopment) console.info(formattedMessage, data || '');
+        break;
+      case LogLevel._DEBUG:
+        // eslint-disable-next-line no-console
+        if (this.isDevelopment) console.debug(formattedMessage, data || '');
+        break;
     }
   }
 

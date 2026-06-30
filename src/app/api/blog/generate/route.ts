@@ -95,6 +95,9 @@ export async function POST(request: NextRequest) {
     // --- Continuation mode: reuse topic/images from a previous call ----------
 
     if (body.generationGroupId) {
+      if (typeof body.generationGroupId !== 'string') {
+        return NextResponse.json({ error: 'generationGroupId must be a string' }, { status: 400 });
+      }
       const existingPost = await BlogPost.findOne({ generationGroupId: body.generationGroupId }).lean<IBlogPost>();
 
       if (!existingPost) {

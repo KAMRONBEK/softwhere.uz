@@ -9,6 +9,7 @@ import { getMessages, getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import React from 'react';
 import { ENV, BLOG_CONFIG } from '@/constants';
+import { safeJsonLd } from '@/utils/security';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -83,7 +84,7 @@ function StructuredData({ locale }: { locale: string }) {
   return (
     <>
       {schemas.map((s, i) => (
-        <script key={i} type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
+        <script key={i} type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(s) }} />
       ))}
     </>
   );

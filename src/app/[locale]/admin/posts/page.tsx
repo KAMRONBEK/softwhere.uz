@@ -2,6 +2,7 @@
 
 import { AdminBadge, AdminButton, AdminInput, AdminLoading, AdminSelect } from '@/components/AdminComponents/index';
 import { adminFetch } from '@/utils/adminFetch';
+import { escapeHtml } from '@/utils/security';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 
@@ -52,9 +53,13 @@ const BLOG_CATEGORIES = {
   cybersecurity: 'Cybersecurity',
 };
 
-// Markdown to HTML converter (simple version)
+// Markdown to HTML converter (simple version).
+// IMPORTANT: escape the raw content FIRST so any HTML in the post (e.g. an
+// AI-generated `<img onerror=...>`) is rendered inert text. The markdown tags
+// below are added after escaping, so formatting still works. Without this the
+// preview modal is a stored-XSS sink in the admin's authenticated session.
 const markdownToHtml = (markdown: string) => {
-  return markdown
+  return escapeHtml(markdown)
     .replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">$1</h3>')
     .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h2>')
     .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold text-gray-900 mt-8 mb-6">$1</h1>')

@@ -13,10 +13,6 @@ declare global {
 
 const MONGODB_URI: string = ENV.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env or .env.local');
-}
-
 /**
  * Global is used here to maintain a cached connection across hot reloads
  * in development. This prevents connections growing exponentially
@@ -29,6 +25,13 @@ if (!cached) {
 }
 
 async function dbConnect(): Promise<Mongoose> {
+  // Validate the env at call time (not module-eval time) so importing this
+  // module is side-effect-free — otherwise `next build` fails collecting page
+  // data for any route that imports it, even though the build needs no DB.
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable inside .env or .env.local');
+  }
+
   if (cached.conn) {
     logger.debug('Using cached MongoDB connection', undefined, 'DB');
 

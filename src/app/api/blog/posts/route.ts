@@ -56,12 +56,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid locale. Allowed: en, ru, uz' }, { status: 400 });
     }
 
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch posts',
-        details: error.message || String(error),
-      },
-      { status: 500 }
-    );
+    // Don't leak internal/Mongo error strings to unauthenticated clients;
+    // the details are already logged server-side above.
+    return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
   }
 }

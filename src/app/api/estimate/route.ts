@@ -3,12 +3,16 @@ import { logger } from '@/core/logger';
 import { EstimatorInput } from '@/types/estimator';
 import { calculateEstimate } from '@/utils/estimator';
 import { safeGenerateJSONWithTimeout } from '@/utils/ai';
+import { getClientIp, rateLimit } from '@/utils/rateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 const VALID_PROJECT_TYPES = ['mobile', 'web', 'telegram', 'ai', 'desktop', 'other'];
 const VALID_COMPLEXITIES = ['mvp', 'standard', 'enterprise'];
 const MAX_PAGES = 500;
 const MAX_FEATURES = 50;
+const MAX_BODY_BYTES = 32 * 1024; // 32 KB — the form never needs more
+const MAX_ITEM_LENGTH = 80; // per free-text array element / subtype
+const MAX_LIST_ITEMS = 50;
 
 function extractNumber(value: unknown): number {
   if (typeof value === 'number' && !isNaN(value)) return value;
@@ -19,9 +23,49 @@ function extractNumber(value: unknown): number {
   return 0;
 }
 
+/** Clamp a user-supplied string list so it can't inflate prompt size / cost. */
+function sanitizeList(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((v): v is string => typeof v === 'string')
+    .slice(0, MAX_LIST_ITEMS)
+    .map(v => v.slice(0, MAX_ITEM_LENGTH));
+}
+
+function sanitizeStr(value: unknown): string | undefined {
+  return typeof value === 'string' ? value.slice(0, MAX_ITEM_LENGTH) : undefined;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Unauthenticated endpoint that triggers a paid LLM call — throttle per IP
+    // to prevent cost-abuse / DoS via concurrent requests.
+    const { allowed, retryAfter } = rateLimit(`estimate:${getClientIp(request)}`, 10, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please try again shortly.' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
+
+    // Reject oversized bodies before parsing — attackers could otherwise stuff
+    // multi-MB strings into free-text fields to inflate token cost per call.
+    const contentLength = Number(request.headers.get('content-length') || 0);
+    if (contentLength > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: 'Request body too large' }, { status: 413 });
+    }
+
+    const rawBody = await request.text();
+    if (rawBody.length > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: 'Request body too large' }, { status: 413 });
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
     const input = body as EstimatorInput;
 
     if (!input.projectType || !input.complexity || input.pages === undefined) {
@@ -44,20 +88,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `features must be an array of up to ${MAX_FEATURES} items` }, { status: 400 });
     }
 
+    // Bound every free-text field/list that gets interpolated into the prompt.
+    const subtype = sanitizeStr(input.subtype);
+    const platforms = sanitizeList(input.platforms);
+    const features = sanitizeList(input.features);
+    const techStack = sanitizeList(input.techStack);
+    const languages = sanitizeList(input.languages);
+    const integrations = sanitizeList(input.integrations);
+
     const formulaEstimate = calculateEstimate(input);
 
     const prompt = `
 As an expert software development cost estimator, provide a json estimate for the following project:
 
 Project Type: ${input.projectType}
-${input.subtype ? `Subtype: ${input.subtype}` : ''}
-${input.projectType === 'mobile' && input.platforms?.length ? `Platforms: ${input.platforms.join(', ')}` : ''}
+${subtype ? `Subtype: ${subtype}` : ''}
+${input.projectType === 'mobile' && platforms.length ? `Platforms: ${platforms.join(', ')}` : ''}
 Complexity Level: ${input.complexity}
-Features: ${input.features.join(', ') || 'None selected'}
+Features: ${features.join(', ') || 'None selected'}
 Number of Pages/Screens: ${input.pages}
-${input.techStack?.length ? `Tech Stack: ${input.techStack.join(', ')}` : ''}
-${input.languages?.length ? `Languages: ${input.languages.join(', ')}` : ''}
-${input.integrations?.length ? `Integrations: ${input.integrations.join(', ')}` : ''}
+${techStack.length ? `Tech Stack: ${techStack.join(', ')}` : ''}
+${languages.length ? `Languages: ${languages.join(', ')}` : ''}
+${integrations.length ? `Integrations: ${integrations.join(', ')}` : ''}
 
 Please return only a valid JSON object with the following fields:
 - developmentCost (in USD as a number, not a string)
@@ -109,7 +161,7 @@ Important: All monetary values must be numbers, not strings with currency symbol
               breakdown: {
                 baseCost: (ESTIMATOR.BASE_HOURS[input.projectType] ?? ESTIMATOR.BASE_HOURS.other) * HOURLY_RATE,
                 complexityMultiplier: ESTIMATOR.COMPLEXITY_MULTIPLIER[input.complexity],
-                featuresCost: input.features.reduce((sum, feature) => sum + (ESTIMATOR.FEATURE_HOURS[feature] ?? 0) * HOURLY_RATE, 0),
+                featuresCost: features.reduce((sum, feature) => sum + (ESTIMATOR.FEATURE_HOURS[feature] ?? 0) * HOURLY_RATE, 0),
                 pagesCost: input.pages * ESTIMATOR.PAGE_HOURS * HOURLY_RATE,
                 techAdjustmentFactor: 1.0,
                 totalHours: 0,

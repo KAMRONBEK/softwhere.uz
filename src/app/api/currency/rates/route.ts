@@ -27,13 +27,17 @@ export async function GET() {
 
     const data = (await res.json()) as Record<string, unknown>;
 
-    if (data.result !== 'success' && !data.rates) {
-      logger.error('Currency API returned invalid data', data, 'CURRENCY');
+    // The free open.er-api.com endpoint returns `rates`; the paid
+    // v6.exchangerate-api.com endpoint returns `conversion_rates`. Accept both.
+    const rates = ((data.conversion_rates ?? data.rates) as Record<string, number>) ?? {};
+    const base = ((data.base_code ?? data.base) as string) ?? 'USD';
+
+    if (data.result === 'error' || Object.keys(rates).length === 0) {
+      // Do NOT cache an empty rate set — that would silently quote USD-only
+      // (1:1) prices for 24h. Fail soft so the client keeps its USD default.
+      logger.error('Currency API returned no usable rates', data, 'CURRENCY');
       return NextResponse.json({ error: 'Invalid response' }, { status: 502 });
     }
-
-    const rates = (data.rates as Record<string, number>) ?? {};
-    const base = (data.base_code as string) ?? 'USD';
 
     cachedRates = { base, rates, timestamp: Date.now() };
 

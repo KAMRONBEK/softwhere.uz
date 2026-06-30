@@ -5,6 +5,7 @@ import BlogListClient, { BlogPostSummary } from '@/components/BlogListClient';
 import dbConnect from '@/lib/db';
 import BlogPostModel from '@/models/BlogPost';
 import { validateLocale } from '@/utils/auth';
+import { safeJsonLd } from '@/utils/security';
 import { ENV, BLOG_CONFIG } from '@/constants';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -69,7 +70,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
 
   return (
     <div className='page-layout' style={{ backgroundColor: 'var(--gray-100)' }}>
-      <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
+      <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(blogSchema) }} />
       <div className='container py-20'>
         <header className='mb-12 text-center'>
           <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight tracking-wide mb-6'>{t('title')}</h1>

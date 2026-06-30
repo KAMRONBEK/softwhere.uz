@@ -8,7 +8,23 @@ export async function GET(request: Request) {
     const title = url.searchParams.get('title') || 'SoftWhere.uz - Mobile App & Web Development';
     const localeParam = url.searchParams.get('locale');
     const locale = localeParam && ['en', 'ru', 'uz'].includes(localeParam) ? localeParam : 'en';
-    const imageUrl = url.searchParams.get('image');
+
+    // Only allow background images from hosts we control / trust. The param is
+    // fetched server-side by Satori, so an arbitrary URL would turn this into an
+    // open proxy / SSRF vector. Anything else falls back to the gradient.
+    const ALLOWED_IMAGE_HOSTS = ['images.unsplash.com'];
+    const rawImage = url.searchParams.get('image');
+    let imageUrl: string | null = null;
+    if (rawImage) {
+      try {
+        const parsed = new URL(rawImage);
+        if (parsed.protocol === 'https:' && ALLOWED_IMAGE_HOSTS.includes(parsed.hostname)) {
+          imageUrl = parsed.toString();
+        }
+      } catch {
+        imageUrl = null;
+      }
+    }
 
     const localizedSubtitle = {
       en: 'Mobile Apps • Web Development • Telegram Bots',

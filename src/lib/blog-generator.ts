@@ -2,6 +2,7 @@ import BlogPost, { ICoverImage } from '@/models/BlogPost';
 import { safeGenerateContent } from '@/utils/ai';
 import { logger } from '@/utils/logger';
 import { createSlug } from '@/utils/slug';
+import { assertFetchableUrl } from '@/utils/security';
 import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '@/data/seo-topics';
 import { getBlueprintForFormat } from '@/data/post-blueprints';
 
@@ -44,12 +45,17 @@ export interface SourceClassification {
 // ---------------------------------------------------------------------------
 
 export async function extractTextFromUrl(url: string): Promise<string> {
+  // SSRF guard: reject non-http(s) schemes and private/loopback/metadata hosts
+  // before issuing the server-side fetch. Throws on a blocked URL.
+  const safeUrl = assertFetchableUrl(url);
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
 
   try {
-    const res = await fetch(url, {
+    const res = await fetch(safeUrl, {
       signal: controller.signal,
+      redirect: 'error', // don't follow redirects that could bounce to an internal host
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SoftwherBot/1.0)' },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -16,6 +16,7 @@ import BlogPostModel from '@/models/BlogPost';
 import { CoverImage } from '@/types';
 import { validateLocale } from '@/utils/auth';
 import { getSlugRoot } from '@/utils/slug';
+import { safeJsonLd } from '@/utils/security';
 import { ENV, BLOG_CONFIG } from '@/constants';
 
 interface BlogPost {
@@ -48,15 +49,16 @@ function escapeRegex(input: string): string {
 
 function extractDescription(content: string, storedMeta?: string): string {
   if (storedMeta) return storedMeta;
-  return (
-    `${content
-      .replace(/#{1,6}\s/g, '')
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .split('\n')
-      .find(line => line.trim().length > 50)
-      ?.substring(0, 160)}...` || 'Expert insights on software development from Softwhere.uz.'
-  );
+  const line = content
+    .replace(/#{1,6}\s/g, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .split('\n')
+    .find(l => l.trim().length > 50);
+  // Without this guard, an unmatched find() interpolated as `undefined...`
+  // (a truthy string) so the fallback below never fired.
+  if (!line) return 'Expert insights on software development from Softwhere.uz.';
+  return `${line.substring(0, 160)}...`;
 }
 
 function getKeywords(post: BlogPost): string[] {
@@ -335,7 +337,7 @@ function BlogPostSchema({ post }: { post: BlogPost }) {
   return (
     <>
       {schemas.map((s, i) => (
-        <script key={i} type='application/ld+json' dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
+        <script key={i} type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(s) }} />
       ))}
     </>
   );
