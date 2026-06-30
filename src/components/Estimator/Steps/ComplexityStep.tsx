@@ -35,8 +35,10 @@ export default function ComplexityStep({ selectedComplexity, onSelect }: Complex
       <label className='block mb-2'>Project Complexity</label>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
         {complexityOptions.map(option => (
-          <div
+          <button
             key={option.type}
+            type='button'
+            aria-pressed={selectedComplexity === option.type}
             className={`border rounded-lg p-4 flex flex-col items-center cursor-pointer transition-all hover:shadow-md ${
               selectedComplexity === option.type ? 'border-orange-500 bg-orange-50' : ''
             }`}
@@ -46,7 +48,7 @@ export default function ComplexityStep({ selectedComplexity, onSelect }: Complex
             <div className='font-medium'>{option.label}</div>
             <div className='text-center mt-2 text-sm text-gray-600'>{option.description}</div>
             <div className='mt-1 text-xs text-gray-500'>{option.subtext}</div>
-          </div>
+          </button>
         ))}
       </div>
     </div>

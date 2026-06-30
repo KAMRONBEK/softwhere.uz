@@ -9,6 +9,7 @@ import css from './style.module.css';
 
 import { projects } from '@/data/projects';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import AppStoreIcon from '../../../../../../public/icons/ios.svg';
 import LinkToIcon from '../../../../../../public/icons/link.svg';
 import LocationIcon from '../../../../../../public/icons/place_outline_24.svg';
@@ -19,6 +20,7 @@ import ProjectImage from '../../../../../../public/images/i-teka.png';
 function ProjectSlider() {
   const sliderRef = useRef<Slider | null>(null);
   const params = useParams();
+  const t = useTranslations('projects');
   const [activeSlide, setActiveSlide] = useState<number>(1);
   const lang = (params?.locale as string) || 'uz';
 
@@ -30,6 +32,8 @@ function ProjectSlider() {
     autoplay: true,
     autoplaySpeed: 2500,
     arrows: false,
+    pauseOnHover: true,
+    pauseOnFocus: true,
     beforeChange: (current: number, next: number) => {
       setActiveSlide(next + 1);
     },
@@ -44,17 +48,20 @@ function ProjectSlider() {
 
   return (
     <div className='mt-10'>
-      <ul className='hidden lg:flex'>
+      <div className='hidden lg:flex'>
         {projects.map((item, _index) => (
-          <li
+          <button
+            type='button'
             className={`lg:p-4 md:p-2  cursor-pointer ${css.slide}  ${activeSlide === item.id ? css.active : ''}`}
             key={item.id}
+            aria-label={t('viewProject', { name: item.name })}
+            aria-current={activeSlide === item.id}
             onClick={() => handleChangeSlide(item.id - 1)}
           >
             <p>{item.name}</p>
-          </li>
+          </button>
         ))}
-      </ul>
+      </div>
 
       <Slider ref={sliderRef} {...settings}>
         {projects.map(item => (

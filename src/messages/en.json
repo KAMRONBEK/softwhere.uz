@@ -7,7 +7,9 @@
     "faq": "FAQ",
     "lang": "Language",
     "blog": "Blog",
-    "estimate": "Estimate"
+    "estimate": "Estimate",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "estimatorCTA": {
     "title": "Want to estimate how much your project will cost?",
@@ -210,7 +212,8 @@
   },
   "projects": {
     "title": "Our pride - projects",
-    "description": "Our software development company is proud of our wonderful clients. We are very pleased with long-term cooperation."
+    "description": "Our software development company is proud of our wonderful clients. We are very pleased with long-term cooperation.",
+    "viewProject": "View {name}"
   },
   "contact": {
     "title": "Contact Us",

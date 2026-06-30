@@ -7,7 +7,9 @@
     "faq": "FAQ",
     "lang": "Til",
     "blog": "Blog",
-    "estimate": "Kalkulyator"
+    "estimate": "Kalkulyator",
+    "openMenu": "Menyuni ochish",
+    "closeMenu": "Menyuni yopish"
   },
   "estimatorCTA": {
     "title": "Loyihangiz qancha turadiganini bilmoqchimisiz?",
@@ -210,7 +212,8 @@
   },
   "projects": {
     "title": "Biz faxrlanadigan loyihalar",
-    "description": "Bizning dasturiy ta'minot ishlab chiqish kompaniyamiz biz ishlagan ajoyib mijozlar bilan chinakam faxrlanadi. Biz uzoq muddatli hamkorlikdan mamnunmiz."
+    "description": "Bizning dasturiy ta'minot ishlab chiqish kompaniyamiz biz ishlagan ajoyib mijozlar bilan chinakam faxrlanadi. Biz uzoq muddatli hamkorlikdan mamnunmiz.",
+    "viewProject": "{name} loyihasini ko'rish"
   },
   "contact": {
     "title": "Biz bilan bog'lanish",

@@ -31,14 +31,16 @@ export default function TechStackStep({ projectType, subtype, selectedTech, onTo
           <label className='block mb-2 font-medium'>{(t as (k: string) => string)(labelKey)}</label>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
             {options.map(tech => (
-              <div
+              <button
                 key={tech.id}
+                type='button'
+                aria-pressed={selectedTech.includes(tech.id)}
                 className={`border dark:border-gray-700 rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
                   selectedTech.includes(tech.id) ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' : 'bg-white dark:bg-gray-800'
                 }`}
                 onClick={() => onToggleTech(tech.id)}
               >
-                <div className='flex-1'>
+                <div className='flex-1 text-left'>
                   <div className='font-medium'>{(t as (k: string) => string)(tech.labelKey)}</div>
                 </div>
                 {tech.impactFactor != null && (
@@ -54,7 +56,7 @@ export default function TechStackStep({ projectType, subtype, selectedTech, onTo
                         : '±0%'}
                   </div>
                 )}
-              </div>
+              </button>
             ))}
           </div>
         </div>

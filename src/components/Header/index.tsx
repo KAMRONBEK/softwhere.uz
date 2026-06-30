@@ -8,7 +8,7 @@ import { trackEvent } from '@/utils/analytics';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import RuFlag from '../../../public/icons/Russia (RU).svg';
 import EngFlag from '../../../public/icons/United Kingdom (GB).svg';
@@ -18,6 +18,87 @@ import EmailIcon from '../../../public/icons/mail-outline.svg';
 import SmartphoneIcon from '../../../public/icons/smartphone-icon.svg';
 import ThemeToggle from '../ThemeToggle';
 import css from './style.module.css';
+
+type LanguageSwitcherProps = {
+  lang: string;
+  label: string;
+  menuId: string;
+  onChange: (locale: string) => void;
+};
+
+function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherProps) {
+  const [open, setOpen] = useState<boolean>(false);
+  const ref = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
+  const handleSelect = (locale: string) => {
+    setOpen(false);
+    onChange(locale);
+  };
+
+  const options: { id: string; flag: typeof EngFlag; label: string }[] = [
+    { id: 'en', flag: EngFlag, label: 'En' },
+    { id: 'ru', flag: RuFlag, label: 'Ru' },
+    { id: 'uz', flag: UzbFlag, label: 'Uz' },
+  ];
+
+  return (
+    <li className={css.dropdown} ref={ref}>
+      <button
+        type='button'
+        className={`flex items-center cursor-pointer ${css.lang}`}
+        aria-haspopup='true'
+        aria-expanded={open}
+        aria-controls={menuId}
+        onClick={() => setOpen(prev => !prev)}
+      >
+        <p>{label}</p>
+        <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+          <path
+            fillRule='evenodd'
+            clipRule='evenodd'
+            d='M17.7364 9.2635C17.3849 8.91203 16.8151 8.91203 16.4636 9.26351L12 13.7271L7.53639 9.2635C7.18492 8.91203 6.61507 8.91203 6.2636 9.26351C5.91213 9.61498 5.91213 10.1848 6.26361 10.5363L11.3636 15.6363C11.7151 15.9878 12.285 15.9878 12.6364 15.6363L17.7364 10.5363C18.0879 10.1848 18.0879 9.61498 17.7364 9.2635Z'
+            fill='currentColor'
+          />
+        </svg>
+      </button>
+      <div className={css.triangle}></div>
+      <ul id={menuId} className={`${css.content} ${open ? css.contentOpen : ''}`}>
+        {options.map(option => (
+          <li key={option.id}>
+            <button
+              type='button'
+              className={`${css.langOption} ${lang === option.id ? css.activeLang : ''}`}
+              aria-current={lang === option.id}
+              onClick={() => handleSelect(option.id)}
+            >
+              <Image src={option.flag} alt={''} />
+              <p>{option.label}</p>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
+}
 
 function Header() {
   const t = useTranslations('header');
@@ -160,34 +241,7 @@ function Header() {
         <li>
           <Link href={`/${lang}#faq`}>{t('faq')}</Link>
         </li>
-        <li className={css.dropdown}>
-          <div className={`flex items-center cursor-pointer ${css.lang}`}>
-            <p>{t('lang')}</p>
-            <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-              <path
-                fillRule='evenodd'
-                clipRule='evenodd'
-                d='M17.7364 9.2635C17.3849 8.91203 16.8151 8.91203 16.4636 9.26351L12 13.7271L7.53639 9.2635C7.18492 8.91203 6.61507 8.91203 6.2636 9.26351C5.91213 9.61498 5.91213 10.1848 6.26361 10.5363L11.3636 15.6363C11.7151 15.9878 12.285 15.9878 12.6364 15.6363L17.7364 10.5363C18.0879 10.1848 18.0879 9.61498 17.7364 9.2635Z'
-                fill='currentColor'
-              />
-            </svg>
-          </div>
-          <div className={css.triangle}></div>
-          <ul className={css.content}>
-            <li className={lang === 'en' ? css.activeLang : ''} onClick={() => changeLanguage('en')}>
-              <Image src={EngFlag} alt={''} />
-              <p>En</p>
-            </li>
-            <li className={lang === 'ru' ? css.activeLang : ''} onClick={() => changeLanguage('ru')}>
-              <Image src={RuFlag} alt={''} />
-              <p>Ru</p>
-            </li>
-            <li className={lang === 'uz' ? css.activeLang : ''} onClick={() => changeLanguage('uz')}>
-              <Image src={UzbFlag} alt={''} />
-              <p>Uz</p>
-            </li>
-          </ul>
-        </li>
+        <LanguageSwitcher lang={lang} label={t('lang')} menuId='desktop-lang-menu' onChange={changeLanguage} />
       </ul>
 
       <div className={css.contacts}>
@@ -206,69 +260,63 @@ function Header() {
         <ThemeToggle />
       </div>
 
-      <div className={css.burgerMenu} onClick={toggleMenu}>
+      <button
+        type='button'
+        className={css.burgerMenu}
+        onClick={toggleMenu}
+        aria-label={isOpen ? t('closeMenu') : t('openMenu')}
+        aria-expanded={isOpen}
+        aria-controls='mobile-nav'
+      >
         <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
         <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
         <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
-      </div>
+      </button>
 
-      <nav className={`${css.navMobile} ${isOpen ? css.navOpen : ''}`}>
+      <nav id='mobile-nav' className={`${css.navMobile} ${isOpen ? css.navOpen : ''}`} inert={!isOpen}>
         <ul className={css.mobileLinks}>
-          <li onClick={toggleMenu}>
-            <Link href='/'>{t('home')}</Link>
+          <li>
+            <Link href='/' onClick={toggleMenu}>
+              {t('home')}
+            </Link>
           </li>
-          <li onClick={toggleMenu}>
-            <Link href={`/${lang}#services`}>{t('services')}</Link>
+          <li>
+            <Link href={`/${lang}#services`} onClick={toggleMenu}>
+              {t('services')}
+            </Link>
           </li>
-          <li onClick={toggleMenu}>
-            <Link href={`/${lang}#portfolio`}>{t('portfolio')}</Link>
+          <li>
+            <Link href={`/${lang}#portfolio`} onClick={toggleMenu}>
+              {t('portfolio')}
+            </Link>
           </li>
-          <li onClick={toggleMenu}>
-            <Link href={`/${lang}/blog`}>{t('blog')}</Link>
+          <li>
+            <Link href={`/${lang}/blog`} onClick={toggleMenu}>
+              {t('blog')}
+            </Link>
           </li>
-          <li onClick={toggleMenu}>
-            <Link href={`/${lang}/estimator`}>{t('estimate')}</Link>
+          <li>
+            <Link href={`/${lang}/estimator`} onClick={toggleMenu}>
+              {t('estimate')}
+            </Link>
           </li>
-          <li onClick={toggleMenu}>
-            <Link href={`/${lang}#contact`}>{t('contact')}</Link>
+          <li>
+            <Link href={`/${lang}#contact`} onClick={toggleMenu}>
+              {t('contact')}
+            </Link>
           </li>
 
-          <li onClick={toggleMenu}>
-            <Link href={`/${lang}#faq`}>{t('faq')}</Link>
+          <li>
+            <Link href={`/${lang}#faq`} onClick={toggleMenu}>
+              {t('faq')}
+            </Link>
           </li>
 
           <li>
             <ThemeToggle />
           </li>
 
-          <li className={css.dropdown}>
-            <div className={`flex items-center cursor-pointer ${css.lang}`}>
-              <p>{t('lang')}</p>
-              <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path
-                  fillRule='evenodd'
-                  clipRule='evenodd'
-                  d='M17.7364 9.2635C17.3849 8.91203 16.8151 8.91203 16.4636 9.26351L12 13.7271L7.53639 9.2635C7.18492 8.91203 6.61507 8.91203 6.2636 9.26351C5.91213 9.61498 5.91213 10.1848 6.26361 10.5363L11.3636 15.6363C11.7151 15.9878 12.285 15.9878 12.6364 15.6363L17.7364 10.5363C18.0879 10.1848 18.0879 9.61498 17.7364 9.2635Z'
-                  fill='currentColor'
-                />
-              </svg>
-            </div>
-            <div className={css.triangle}></div>
-            <ul className={css.content}>
-              <li className={lang === 'en' ? css.activeLang : ''} onClick={() => changeLanguage('en')}>
-                <Image src={EngFlag} alt={''} />
-                <p>En</p>
-              </li>
-              <li className={lang === 'ru' ? css.activeLang : ''} onClick={() => changeLanguage('ru')}>
-                <Image src={RuFlag} alt={''} />
-                <p>Ru</p>
-              </li>
-              <li className={lang === 'uz' ? css.activeLang : ''} onClick={() => changeLanguage('uz')}>
-                <Image src={UzbFlag} alt={''} />
-                <p>Uz</p>
-              </li>
-            </ul>
-          </li>
+          <LanguageSwitcher lang={lang} label={t('lang')} menuId='mobile-lang-menu' onChange={changeLanguage} />
         </ul>
       </nav>
     </header>

@@ -2,7 +2,7 @@
 
 import { trackEvent } from '@/utils/analytics';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import css from './style.module.css';
 import PlusIcon from '../../../public/icons/plus.svg';
 import CloseIcon from '../../../public/icons/close.svg';
@@ -15,10 +15,17 @@ interface IProps {
 
 function Accordion({ title, answer, index }: IProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const reactId = useId();
+  const panelId = `${reactId}-panel`;
+  const buttonId = `${reactId}-button`;
 
   return (
     <div className={css.accordion} data-aos='fade-up' data-aos-delay={index * 100}>
       <button
+        id={buttonId}
+        type='button'
+        aria-expanded={open}
+        aria-controls={panelId}
         onClick={() => {
           if (!open) trackEvent('faq_toggle', { question: title });
           setOpen(!open);
@@ -37,6 +44,11 @@ function Accordion({ title, answer, index }: IProps) {
         )}
       </button>
       <div
+        id={panelId}
+        role='region'
+        aria-labelledby={buttonId}
+        aria-hidden={!open}
+        inert={!open}
         className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
           open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
         }`}

@@ -38,6 +38,7 @@ export default function ScopeStep({
             <button
               key={c.id}
               type='button'
+              aria-pressed={selectedComplexity === c.id}
               className={`px-4 py-2 rounded-lg border dark:border-gray-700 transition-all ${
                 selectedComplexity === c.id
                   ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'
@@ -59,6 +60,7 @@ export default function ScopeStep({
               <button
                 key={s.id}
                 type='button'
+                aria-pressed={selectedSubtype === s.id}
                 className={`px-4 py-2 rounded-lg border dark:border-gray-700 transition-all ${
                   selectedSubtype === s.id
                     ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'

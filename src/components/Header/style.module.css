@@ -79,6 +79,10 @@
   box-shadow: var(--glass-shadow), var(--glass-highlight);
 }
 
+.contentOpen {
+  display: flex;
+}
+
 .triangle {
   display: none;
   position: absolute;
@@ -109,6 +113,10 @@
 
 .content li {
   width: 100%;
+}
+
+.langOption {
+  width: 100%;
   display: flex;
   gap: 8px;
   padding: 5px;
@@ -116,7 +124,7 @@
   transition: all 0.2s ease;
 }
 
-.content li:hover {
+.langOption:hover {
   cursor: pointer;
   background-color: var(--accent-opacity);
   color: white;
