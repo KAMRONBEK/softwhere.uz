@@ -1,7 +1,7 @@
 import SectionText from '@/components/SectionTitle';
 import ProjectSlider from './components/ProjectSlider';
 import css from './style.module.css';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 
 function Projects() {
   const t = useTranslations('projects');

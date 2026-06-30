@@ -12,20 +12,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = ['', '/blog', '/estimator'];
 
   const staticUrls: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
-      alternates: {
-        languages: {
-          'x-default': `${baseUrl}/${BLOG_CONFIG.DEFAULT_LOCALE}`,
-          uz: `${baseUrl}/uz`,
-          ru: `${baseUrl}/ru`,
-          en: `${baseUrl}/en`,
-        },
-      },
-    },
+    // No bare-root (`baseUrl`) entry: it 308-redirects to `/uz`, so listing it
+    // would put a redirecting URL in the sitemap. The localized `/uz` `/ru` `/en`
+    // roots below are the canonical, non-redirecting home URLs.
     ...locales.flatMap(locale =>
       staticPages.map(page => {
         const languages: Record<string, string> = {

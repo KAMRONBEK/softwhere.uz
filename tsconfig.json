@@ -26,14 +26,13 @@
         "./src/*"
       ]
     },
-    "target": "ES2017"
+    "target": "ES2022"
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "next-i18next.config.js",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [

@@ -2,25 +2,19 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: 'class',
-  content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
-  ],
-  prefix: "",
+  // All source lives under src/; the legacy ./pages, ./components and ./app
+  // globs pointed at directories that don't exist.
+  content: ['./src/**/*.{ts,tsx}'],
+  prefix: '',
   theme: {
-    // Removed container and extend blocks
     extend: {
-      // Kept original backgroundImage extensions just in case
       backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
-    }
+    },
   },
-  plugins: [], // Removed tailwindcss-animate
+  plugins: [],
 };
 
 export default config;

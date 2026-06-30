@@ -1,6 +1,6 @@
 import Accordion from '@/components/Accordion';
 import SectionText from '@/components/SectionTitle';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 import css from './style.module.css';
 
 function FAQ() {
@@ -32,7 +32,7 @@ function FAQ() {
     <section className={css.section} id='faq'>
       <div className='container'>
         <SectionText>{t('title')}</SectionText>
-        <SectionText className='lg:w-1/2' type={'desc'}>
+        <SectionText className='lg:w-1/2 whitespace-pre-line' type={'desc'}>
           {t('description')}
         </SectionText>
         <div className=''>

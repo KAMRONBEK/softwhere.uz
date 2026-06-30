@@ -81,17 +81,37 @@ function ProjectSlider() {
               </div>
               <div className='flex items-center justify-center md:justify-start gap-4'>
                 {item.appStore && (
-                  <a target='_blank' data-aos='flip-up' href={item.appStore}>
+                  <a
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    data-aos='flip-up'
+                    href={item.appStore}
+                    aria-label={`${item.name} on the App Store`}
+                  >
                     <Image src={AppStoreIcon} alt='' />
                   </a>
                 )}
                 {item.playMarket && (
-                  <a data-aos='flip-up' data-aos-delay='100' href={item.playMarket} target='_blank'>
+                  <a
+                    data-aos='flip-up'
+                    data-aos-delay='100'
+                    href={item.playMarket}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    aria-label={`${item.name} on Google Play`}
+                  >
                     <Image src={PlayMarketIcon} alt='' />
                   </a>
                 )}
                 {item.website && (
-                  <a data-aos='flip-up' data-aos-delay='200' target='_blank' href={item.website}>
+                  <a
+                    data-aos='flip-up'
+                    data-aos-delay='200'
+                    target='_blank'
+                    rel='noopener noreferrer'
+                    href={item.website}
+                    aria-label={`${item.name} website`}
+                  >
                     <Image src={LinkToIcon} alt='' />
                   </a>
                 )}

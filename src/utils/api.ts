@@ -196,11 +196,6 @@ export const api = {
         };
       }
     },
-    saveQuote: async (
-      input: EstimatorInput & { email?: string; name?: string; phone?: string }
-    ): Promise<ApiResponse<{ quoteId: string }>> => {
-      return apiClient.post('/api/estimate/save', input);
-    },
   },
 };
 

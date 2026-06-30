@@ -9,16 +9,15 @@ const intlMiddleware = createMiddleware({
 export default function middleware(req: NextRequest): NextResponse {
   const host = req.headers.get('host') || '';
   const { pathname } = req.nextUrl;
+  const isWww = host.startsWith('www.');
+  const isRoot = pathname === '/';
 
-  if (host.startsWith('www.')) {
+  // Collapse www-stripping and root->/uz into a SINGLE 308 so that
+  // www.softwhere.uz/ doesn't redirect twice (www->apex, then /->/uz).
+  if (isWww || isRoot) {
     const newUrl = new URL(req.url);
-    newUrl.host = host.replace(/^www\./, '');
-    return NextResponse.redirect(newUrl, 308);
-  }
-
-  if (pathname === '/') {
-    const newUrl = req.nextUrl.clone();
-    newUrl.pathname = '/uz';
+    if (isWww) newUrl.host = host.replace(/^www\./, '');
+    if (isRoot) newUrl.pathname = '/uz';
     return NextResponse.redirect(newUrl, 308);
   }
 

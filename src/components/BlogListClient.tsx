@@ -96,9 +96,12 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
               key={post.slug}
               className='glass rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300'
             >
-              <Link href={`/${locale}/blog/${post.slug}`} className='block relative h-48 overflow-hidden'>
-                {post.coverImage?.thumbUrl ? (
-                  <>
+              {/* The image is a link; the Unsplash attribution is a SIBLING
+                  (not nested) anchor to keep the HTML valid / avoid hydration
+                  mismatch. */}
+              <div className='relative h-48 overflow-hidden'>
+                <Link href={`/${locale}/blog/${post.slug}`} className='absolute inset-0 z-0'>
+                  {post.coverImage?.thumbUrl ? (
                     <Image
                       src={post.coverImage.thumbUrl}
                       alt={post.title}
@@ -107,25 +110,26 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                       sizes='(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw'
                       priority={index === 0}
                     />
-                    <span className='absolute bottom-2 right-2 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded'>
-                      Photo by{' '}
-                      <a
-                        href={`${post.coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`}
-                        target='_blank'
-                        rel='noopener noreferrer'
-                        className='underline'
-                        onClick={e => e.stopPropagation()}
-                      >
-                        {post.coverImage.authorName}
-                      </a>
-                    </span>
-                  </>
-                ) : (
-                  <div className='w-full h-full bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
-                    <span className='text-white/80 text-4xl font-bold'>{post.title.charAt(0)}</span>
-                  </div>
+                  ) : (
+                    <div className='w-full h-full bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
+                      <span className='text-white/80 text-4xl font-bold'>{post.title.charAt(0)}</span>
+                    </div>
+                  )}
+                </Link>
+                {post.coverImage?.thumbUrl && (
+                  <span className='absolute bottom-2 right-2 z-10 text-[10px] text-white/70 bg-black/30 px-1.5 py-0.5 rounded'>
+                    Photo by{' '}
+                    <a
+                      href={`${post.coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='underline'
+                    >
+                      {post.coverImage.authorName}
+                    </a>
+                  </span>
                 )}
-              </Link>
+              </div>
               <div className='p-6'>
                 {post.category && CATEGORY_LABELS[post.category] && (
                   <span className='inline-block px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded mb-2'>

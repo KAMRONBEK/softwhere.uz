@@ -366,19 +366,6 @@ export async function generateBlogContent(topic: TopicResult, locale: string, in
   return generateFallbackContent(topic, locale);
 }
 
-export async function generateSourceBasedContent(
-  sourceText: string,
-  classification: SourceClassification,
-  topic: TopicResult,
-  locale: string,
-  inlineImages: ICoverImage[]
-): Promise<string> {
-  const prompt = buildSourcePrompt(sourceText, classification, locale, inlineImages);
-  logger.info(`Generating source-based content for "${topic.title}" in ${locale}`, undefined, 'BLOG');
-  const generated = await safeGenerateContent(prompt, `blog-source-${locale}`);
-  return generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(topic, locale);
-}
-
 // ---------------------------------------------------------------------------
 // Fallback content
 // ---------------------------------------------------------------------------

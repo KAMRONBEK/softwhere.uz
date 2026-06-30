@@ -125,6 +125,9 @@ export async function GET(request: Request) {
       {
         width: 1200,
         height: 630,
+        headers: {
+          'Cache-Control': 'public, immutable, no-transform, max-age=31536000',
+        },
       }
     );
   } catch (error) {

@@ -10,7 +10,7 @@ import Button from '@/components/Button';
 import { trackEvent } from '@/utils/analytics';
 import { sender } from '@/utils/send';
 import { toast } from 'react-toastify';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 
 function Contact() {
   const [name, setName] = useState<string>('');

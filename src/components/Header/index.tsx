@@ -9,7 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 import RuFlag from '../../../public/icons/Russia (RU).svg';
 import EngFlag from '../../../public/icons/United Kingdom (GB).svg';
 import UzbFlag from '../../../public/icons/Uzbekistan (UZ).svg';

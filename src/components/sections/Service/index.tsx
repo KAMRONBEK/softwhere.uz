@@ -7,7 +7,7 @@ import MobileImage from '../../../../public/images/mobile.png';
 import StartupsImage from '../../../../public/images/startups.webp';
 import css from './style.module.css';
 import Image from 'next/image';
-import { useTranslations } from 'use-intl';
+import { useTranslations } from 'next-intl';
 
 function Service() {
   const t = useTranslations('services');

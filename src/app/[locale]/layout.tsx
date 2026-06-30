@@ -8,7 +8,7 @@ import { Locale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { Inter } from 'next/font/google';
 import React from 'react';
-import { ENV, BLOG_CONFIG } from '@/constants';
+import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/constants';
 import { safeJsonLd } from '@/utils/security';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -64,6 +64,7 @@ function StructuredData({ locale }: { locale: string }) {
       name: 'SoftWhere.uz',
       url: ENV.BASE_URL,
       logo: `${ENV.BASE_URL}/icons/logo.svg`,
+      sameAs: [SOCIAL_LINKS.TELEGRAM, SOCIAL_LINKS.INSTAGRAM],
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: '+998332499111',
