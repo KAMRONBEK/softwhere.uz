@@ -1,6 +1,7 @@
 import dbConnect from '@/core/db';
 import BlogPost, { IBlogPost } from '@/modules/blog/model/BlogPost';
 import { isValidLocale } from '@/core/auth';
+import { logger } from '@/core/logger';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -44,13 +45,13 @@ export async function GET(request: NextRequest) {
 
     const duration = Date.now() - startTime;
 
-    console.log(`Blog posts fetch completed in ${duration}ms`);
+    logger.performance('Blog posts fetch', duration, 'BLOG');
 
     return NextResponse.json({ posts });
   } catch (error: any) {
     const duration = Date.now() - startTime;
 
-    console.error(`Error fetching published blog posts after ${duration}ms:`, error);
+    logger.error(`Error fetching published blog posts after ${duration}ms`, error, 'BLOG');
 
     if (error.message === 'INVALID_LOCALE') {
       return NextResponse.json({ error: 'Invalid locale. Allowed: en, ru, uz' }, { status: 400 });

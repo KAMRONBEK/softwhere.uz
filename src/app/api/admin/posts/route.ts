@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error('Error creating new post:', error);
+    logger.error('Error creating new post', error, 'API');
 
     // Handle potential validation errors from Mongoose
     if (error.name === 'ValidationError') {

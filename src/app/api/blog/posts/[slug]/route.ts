@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/core/db';
 import BlogPost from '@/modules/blog/model/BlogPost';
 import { validateLocale } from '@/core/auth';
+import { logger } from '@/core/logger';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -41,14 +42,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const duration = Date.now() - startTime;
 
-    console.log(`Blog post fetch completed in ${duration}ms`);
+    logger.performance('Blog post fetch', duration, 'BLOG');
 
     // Return the post
     return NextResponse.json({ post });
   } catch (error) {
     const duration = Date.now() - startTime;
 
-    console.error(`Error fetching post with slug '${slug}' after ${duration}ms:`, error);
+    logger.error(`Error fetching post with slug '${slug}' after ${duration}ms`, error, 'BLOG');
 
     return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
   }

@@ -1,6 +1,7 @@
 import dbConnect from '@/core/db';
 import BlogPost from '@/modules/blog/model/BlogPost';
 import { verifyApiSecret } from '@/core/auth';
+import { logger } from '@/core/logger';
 import mongoose from 'mongoose';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +15,7 @@ function invalidateBlogCache(): void {
     revalidateTag('blog-posts', 'max');
     revalidatePath('/[locale]/blog/[slug]', 'page');
   } catch (e) {
-    console.error('Failed to revalidate blog caches:', e);
+    logger.error('Failed to revalidate blog caches', e, 'API');
   }
 }
 
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       post,
     });
   } catch (error: any) {
-    console.error('Error fetching post:', error);
+    logger.error('Error fetching post', error, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -113,7 +114,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Post not found after update attempt' }, { status: 404 });
     }
 
-    console.log(`Post ${id} updated successfully.`);
+    logger.info(`Post ${id} updated successfully`, undefined, 'API');
 
     invalidateBlogCache();
 
@@ -123,7 +124,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       post: updatedPost,
     });
   } catch (error: any) {
-    console.error('Error updating post:', error);
+    logger.error('Error updating post', error, 'API');
     // Handle potential validation errors from Mongoose
     if (error.name === 'ValidationError') {
       return NextResponse.json({ error: 'Validation failed', details: error.message }, { status: 400 });
@@ -183,7 +184,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       post: updatedPost,
     });
   } catch (error) {
-    console.error('Error updating post:', error);
+    logger.error('Error updating post', error, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -215,7 +216,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       message: 'Post deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting post:', error);
+    logger.error('Error deleting post', error, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
