@@ -17,8 +17,20 @@ import 'dotenv/config';
 import mongoose from 'mongoose';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
-import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '../src/modules/blog/data/seo-topics';
+import { SERVICE_PILLARS, getAllTopics, type PostFormat } from '../src/modules/blog/data/seo-topics';
 import { getBlueprintForFormat } from '../src/modules/blog/data/post-blueprints';
+// Shared logic consolidated from the blog library. tsx resolves these (and the
+// library's transitive @/ imports) via tsconfig `paths`, so relative imports work.
+import {
+  MAX_SOURCE_TEXT_LENGTH,
+  MAX_EXTRACTED_TEXT_LENGTH,
+  POST_FORMATS,
+  smartSelectTopic,
+  type TopicResult,
+  type SourceClassification,
+} from '../src/modules/blog/api/generator';
+import { createSlug } from '../src/shared/utils/slug';
+import type { ICoverImage } from '../src/modules/blog/model/BlogPost';
 import { sanitizeContent, assessContentQuality, QUALITY_RULES } from './lib/quality';
 import { CATEGORY_IMAGE_KEYWORDS, GENERIC_FALLBACK_KEYWORDS } from './lib/image-keywords';
 
@@ -37,22 +49,14 @@ const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_AP
 const MODEL = 'deepseek-chat';
 const TEMPERATURE = 0.7;
 const UNSPLASH_API = 'https://api.unsplash.com';
-const MAX_SOURCE_TEXT_LENGTH = 5000;
-const MAX_EXTRACTED_TEXT_LENGTH = 4000;
 
-type TopicResult = SEOTopic & { servicePillar: string; pillarName: string };
+// MAX_SOURCE_TEXT_LENGTH, MAX_EXTRACTED_TEXT_LENGTH, TopicResult and ICoverImage
+// are imported from the blog library (single source of truth).
 
 // ---------------------------------------------------------------------------
-// Mongoose model (inline to avoid @/ alias issues outside Next.js)
+// Mongoose model (inline schema; resolves to the shared BlogPost model when the
+// library is loaded, otherwise registers an equivalent one)
 // ---------------------------------------------------------------------------
-
-interface ICoverImage {
-  url: string;
-  thumbUrl: string;
-  authorName: string;
-  authorUrl: string;
-  keyword: string;
-}
 
 const BlogPostSchema = new mongoose.Schema(
   {
@@ -150,6 +154,11 @@ function parseArgs(): {
 // URL text extraction
 // ---------------------------------------------------------------------------
 
+// NOTE: intentionally diverges from extractTextFromUrl in
+// src/modules/blog/api/generator.ts. The library version adds an SSRF guard
+// (assertFetchableUrl) and uses `redirect: 'error'`; this CLI version follows
+// redirects and skips that guard. Kept separate to preserve current fetch
+// behavior for arbitrary source URLs passed in CI.
 async function extractTextFromUrl(url: string): Promise<string> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
@@ -186,32 +195,11 @@ async function extractTextFromUrl(url: string): Promise<string> {
 // Source classification
 // ---------------------------------------------------------------------------
 
-interface SourceClassification {
-  title: string;
-  category: string;
-  primaryKeyword: string;
-  secondaryKeywords: string[];
-  postFormat: PostFormat;
-  imageHints: string[];
-}
-
-const POST_FORMATS: PostFormat[] = [
-  'cost-guide',
-  'comparison',
-  'how-to',
-  'listicle',
-  'faq',
-  'case-study',
-  'myth-buster',
-  'checklist',
-  'trend-report',
-  'roi-analysis',
-  'beginner-guide',
-  'deep-dive',
-  'glossary',
-  'troubleshooting-guide',
-];
-
+// NOTE: intentionally diverges from classifySourceContent in
+// src/modules/blog/api/generator.ts. The prompt text differs (the library adds
+// "Security/hacking → cybersecurity ..." routing examples) and this version
+// routes through the local `generate()` helper. Kept separate so the classified
+// output is unchanged. SourceClassification/POST_FORMATS are shared imports.
 async function classifySourceContent(sourceText: string): Promise<SourceClassification> {
   const categories = SERVICE_PILLARS.map(p => p.id).join(', ');
 
@@ -271,11 +259,61 @@ Pick the category that best matches how Softwhere.uz would cover this topic.`;
 
 function extractFallbackKeyword(title: string): string {
   const stopWords = new Set([
-    'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
-    'vs', 'versus', 'what', 'how', 'why', 'when', 'where', 'which', 'that', 'this', 'it', 'is',
-    'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
-    'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'need', 'complete',
-    'guide', 'ultimate', 'best', 'top', 'new', 'your', 'our',
+    'the',
+    'a',
+    'an',
+    'and',
+    'or',
+    'but',
+    'in',
+    'on',
+    'at',
+    'to',
+    'for',
+    'of',
+    'with',
+    'by',
+    'vs',
+    'versus',
+    'what',
+    'how',
+    'why',
+    'when',
+    'where',
+    'which',
+    'that',
+    'this',
+    'it',
+    'is',
+    'are',
+    'was',
+    'were',
+    'be',
+    'been',
+    'being',
+    'have',
+    'has',
+    'had',
+    'do',
+    'does',
+    'did',
+    'will',
+    'would',
+    'could',
+    'should',
+    'may',
+    'might',
+    'must',
+    'can',
+    'need',
+    'complete',
+    'guide',
+    'ultimate',
+    'best',
+    'top',
+    'new',
+    'your',
+    'our',
   ]);
   const words = title
     .toLowerCase()
@@ -323,12 +361,7 @@ function simpleHash(s: string): number {
   return Math.abs(h);
 }
 
-async function fetchCoverWithFallback(
-  keyword: string,
-  category: string,
-  imageHints: string[],
-  title: string,
-): Promise<ICoverImage | null> {
+async function fetchCoverWithFallback(keyword: string, category: string, imageHints: string[], title: string): Promise<ICoverImage | null> {
   const hash = simpleHash(title);
 
   const img = await searchUnsplash(keyword, (hash % 5) + 1);
@@ -354,7 +387,7 @@ async function fetchCoverWithFallback(
 async function fetchImages(
   title: string,
   imageHints: string[],
-  category?: string,
+  category?: string
 ): Promise<{ cover: ICoverImage | null; inline: ICoverImage[]; all: ICoverImage[] }> {
   if (!UNSPLASH_ACCESS_KEY) {
     console.log('   ⚠️  UNSPLASH_ACCESS_KEY not set, skipping images');
@@ -387,60 +420,18 @@ async function fetchImages(
   return { cover, inline, all };
 }
 
-// ---------------------------------------------------------------------------
-// Smart topic selection (queries DB to pick the best unused topic)
-// ---------------------------------------------------------------------------
-
-async function smartSelectTopic(): Promise<TopicResult> {
-  const recentPosts = await BlogPost.find({ locale: 'en' })
-    .sort({ createdAt: -1 })
-    .limit(30)
-    .select('category postFormat primaryKeyword')
-    .lean();
-
-  const usedKeywords = new Set((recentPosts as Array<{ primaryKeyword?: string }>).map(p => p.primaryKeyword).filter(Boolean));
-  const recentFormats = (recentPosts as Array<{ postFormat?: string }>)
-    .slice(0, 4)
-    .map(p => p.postFormat)
-    .filter(Boolean);
-  const pillarUsage = new Map<string, number>();
-
-  for (const p of recentPosts as Array<{ category?: string }>) {
-    if (p.category) {
-      pillarUsage.set(p.category, (pillarUsage.get(p.category) ?? 0) + 1);
-    }
-  }
-
-  const allTopics = getAllTopics();
-
-  const scored = allTopics
-    .filter(t => !usedKeywords.has(t.primaryKeyword))
-    .map(t => {
-      const pillar = SERVICE_PILLARS.find(p => p.id === t.servicePillar);
-      const weight = pillar?.weight ?? 1;
-      const pillarCount = pillarUsage.get(t.servicePillar) ?? 0;
-      const formatPenalty = recentFormats.includes(t.postFormat) ? 10 : 0;
-      const score = pillarCount / weight + formatPenalty;
-      return { topic: t, score };
-    })
-    .sort((a, b) => a.score - b.score);
-
-  if (scored.length > 0) {
-    const pool = scored.slice(0, Math.min(3, scored.length));
-    return pool[Math.floor(Math.random() * pool.length)].topic;
-  }
-
-  const focusTopics = allTopics.filter(t => {
-    const pillar = SERVICE_PILLARS.find(p => p.id === t.servicePillar);
-    return pillar && pillar.weight >= 2;
-  });
-  return focusTopics[Math.floor(Math.random() * focusTopics.length)] ?? allTopics[0];
-}
+// Smart topic selection (smartSelectTopic) is imported from the blog library —
+// the inline copy was byte-identical (same DB query, scoring, and selection).
 
 // ---------------------------------------------------------------------------
 // Prompt builders
 // ---------------------------------------------------------------------------
 
+// NOTE: intentionally diverges from buildTopicPrompt in
+// src/modules/blog/api/generator.ts. This version returns a {system, user}
+// split (the library returns a single concatenated string), uses different
+// system-prompt wording, appends QUALITY_RULES, and omits the internal-linking
+// line. Kept separate so generated content is unchanged.
 function buildTopicPrompt(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): { system: string; user: string } {
   const bp = getBlueprintForFormat(topic.postFormat as PostFormat);
   const year = new Date().getFullYear();
@@ -505,6 +496,10 @@ Write a unique, valuable post. Every paragraph should teach something or persuad
   return { system, user };
 }
 
+// NOTE: intentionally diverges from buildSourcePrompt in
+// src/modules/blog/api/generator.ts. This version returns a {system, user}
+// split, uses different system-prompt wording, appends QUALITY_RULES, and omits
+// some guideline lines. Kept separate so generated content is unchanged.
 function buildSourcePrompt(
   sourceText: string,
   classification: SourceClassification,
@@ -584,6 +579,10 @@ Write a unique, valuable post. Every paragraph should teach something or persuad
 // Fallback content
 // ---------------------------------------------------------------------------
 
+// NOTE: intentionally diverges from generateFallbackContent in
+// src/modules/blog/api/generator.ts. This version emits fewer sections (no
+// "Market Context"/"Next Steps") and shorter body copy. Kept separate so the
+// fallback output is unchanged.
 function generateFallbackContent(topic: TopicResult, locale: string): string {
   const year = new Date().getFullYear();
   const bp = getBlueprintForFormat(topic.postFormat as PostFormat);
@@ -621,61 +620,8 @@ ${topic.secondaryKeywords.map(k => `- **${k}**: A critical factor in any ${topic
 *Published in ${year} by Softwhere.uz*`;
 }
 
-// ---------------------------------------------------------------------------
-// Slug helpers
-// ---------------------------------------------------------------------------
-
-const CYRILLIC_TO_LATIN: Record<string, string> = {
-  а: 'a',
-  б: 'b',
-  в: 'v',
-  г: 'g',
-  д: 'd',
-  е: 'e',
-  ё: 'yo',
-  ж: 'zh',
-  з: 'z',
-  и: 'i',
-  й: 'y',
-  к: 'k',
-  л: 'l',
-  м: 'm',
-  н: 'n',
-  о: 'o',
-  п: 'p',
-  р: 'r',
-  с: 's',
-  т: 't',
-  у: 'u',
-  ф: 'f',
-  х: 'kh',
-  ц: 'ts',
-  ч: 'ch',
-  ш: 'sh',
-  щ: 'shch',
-  ъ: '',
-  ы: 'y',
-  ь: '',
-  э: 'e',
-  ю: 'yu',
-  я: 'ya',
-};
-
-function transliterate(text: string): string {
-  return text
-    .split('')
-    .map(ch => CYRILLIC_TO_LATIN[ch] ?? ch)
-    .join('');
-}
-
-function createSlug(title: string): string {
-  return transliterate(title.toLowerCase())
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .trim();
-}
+// Slug generation (createSlug) is imported from src/shared/utils/slug — the
+// inline copy produced byte-identical output for every input.
 
 // ---------------------------------------------------------------------------
 // Main
@@ -818,8 +764,7 @@ async function main() {
       }
     }
 
-    const content =
-      generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
+    const content = generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
 
     console.log(`   ✅ ${content.split(/\s+/).length} words`);
 
