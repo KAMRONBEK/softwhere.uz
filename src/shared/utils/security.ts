@@ -67,8 +67,11 @@ export function assertFetchableUrl(raw: string): URL {
   if (BLOCKED_HOSTNAMES.has(host)) throw new Error('BLOCKED_HOST');
   if (host.endsWith('.local') || host.endsWith('.internal')) throw new Error('BLOCKED_HOST');
   if (isPrivateIpv4(host)) throw new Error('BLOCKED_HOST');
-  // IPv6 loopback / unique-local / link-local
-  if (host === '::1' || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80')) {
+  // IPv6 loopback / unique-local / link-local — ONLY when the host is an actual
+  // IPv6 literal (bracketed in the URL, or containing ':'). Otherwise DNS names
+  // like fda.gov / fc2.com would be wrongly blocked as if they were fc00::/7.
+  const isIpv6Literal = url.hostname.startsWith('[') || host.includes(':');
+  if (isIpv6Literal && (host === '::1' || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80'))) {
     throw new Error('BLOCKED_HOST');
   }
   return url;

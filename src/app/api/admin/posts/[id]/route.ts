@@ -2,15 +2,19 @@ import dbConnect from '@/core/db';
 import BlogPost from '@/modules/blog/model/BlogPost';
 import { verifyApiSecret } from '@/core/auth';
 import mongoose from 'mongoose';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Bust the blog ISR cache after a successful write.
+// Bust the blog ISR caches after a successful write. revalidateTag busts the
+// list page's tagged data query; revalidatePath busts the statically-rendered
+// blog detail pages (which use per-request cache(), not a tag) so an edit /
+// unpublish propagates immediately instead of after the 1h timer.
 function invalidateBlogCache(): void {
   try {
     revalidateTag('blog-posts', 'max');
+    revalidatePath('/[locale]/blog/[slug]', 'page');
   } catch (e) {
-    console.error('Failed to revalidate blog-posts tag:', e);
+    console.error('Failed to revalidate blog caches:', e);
   }
 }
 

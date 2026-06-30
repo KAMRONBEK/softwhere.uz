@@ -2,7 +2,7 @@ import { logger } from '@/core/logger';
 import dbConnect from '@/core/db';
 import BlogPost from '@/modules/blog/model/BlogPost';
 import { verifyApiSecret } from '@/core/auth';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -110,11 +110,13 @@ export async function POST(request: NextRequest) {
 
     await newPost.save();
 
-    // Bust the blog ISR cache so published changes show up.
+    // Bust the blog ISR caches so published changes show up (list via tag,
+    // detail pages via path).
     try {
       revalidateTag('blog-posts', 'max');
+      revalidatePath('/[locale]/blog/[slug]', 'page');
     } catch (e) {
-      logger.error('Failed to revalidate blog-posts tag', e, 'API');
+      logger.error('Failed to revalidate blog caches', e, 'API');
     }
 
     return NextResponse.json(
