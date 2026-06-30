@@ -6,7 +6,7 @@ const intlMiddleware = createMiddleware({
   defaultLocale: 'uz',
 });
 
-export default function middleware(req: NextRequest): NextResponse {
+export default function proxy(req: NextRequest): NextResponse {
   const host = req.headers.get('host') || '';
   const { pathname } = req.nextUrl;
   const isWww = host.startsWith('www.');
@@ -30,5 +30,5 @@ export default function middleware(req: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ['/((?!_next).*)'],
+  matcher: ['/((?!api|_next|_vercel|robots\\.txt|sitemap\\.xml|favicon|icons|images|.*\\..*).*)'],
 };

@@ -1,12 +1,16 @@
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import { Locale } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import BlogListClient, { BlogPostSummary } from '@/components/BlogListClient';
 import dbConnect from '@/lib/db';
 import BlogPostModel from '@/models/BlogPost';
 import { validateLocale } from '@/utils/auth';
 import { safeJsonLd } from '@/utils/security';
 import { ENV, BLOG_CONFIG } from '@/constants';
+
+// ISR: re-render at most once an hour; writes bust the 'blog-posts' tag.
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -38,22 +42,27 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-async function getPublishedPosts(locale: string): Promise<BlogPostSummary[]> {
-  try {
-    await dbConnect();
-    const validLocale = validateLocale(locale, 'en');
-    const posts = await BlogPostModel.find({ locale: validLocale, status: 'published' })
-      .sort({ createdAt: -1 })
-      .select('title slug createdAt locale coverImage category')
-      .lean();
-    return JSON.parse(JSON.stringify(posts));
-  } catch {
-    return [];
-  }
-}
+const getPublishedPosts = unstable_cache(
+  async (locale: string): Promise<BlogPostSummary[]> => {
+    try {
+      await dbConnect();
+      const validLocale = validateLocale(locale, 'en');
+      const posts = await BlogPostModel.find({ locale: validLocale, status: 'published' })
+        .sort({ createdAt: -1 })
+        .select('title slug createdAt locale coverImage category')
+        .lean();
+      return JSON.parse(JSON.stringify(posts));
+    } catch {
+      return [];
+    }
+  },
+  ['published-posts'],
+  { tags: ['blog-posts'], revalidate: 3600 }
+);
 
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = (await params) as { locale: Locale };
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'blog' });
   const posts = await getPublishedPosts(locale);
 

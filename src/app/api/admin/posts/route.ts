@@ -2,6 +2,7 @@ import { logger } from '@/core/logger';
 import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { verifyApiSecret } from '@/utils/auth';
+import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -108,6 +109,13 @@ export async function POST(request: NextRequest) {
     });
 
     await newPost.save();
+
+    // Bust the blog ISR cache so published changes show up.
+    try {
+      revalidateTag('blog-posts', 'max');
+    } catch (e) {
+      logger.error('Failed to revalidate blog-posts tag', e, 'API');
+    }
 
     return NextResponse.json(
       {

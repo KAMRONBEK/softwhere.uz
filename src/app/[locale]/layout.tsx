@@ -3,15 +3,26 @@ import Header from '@/components/Header';
 import ScrollToTop from '@/components/ScrollToTop';
 import ThemeProvider from '@/components/ThemeProvider';
 import { BlogProvider } from '@/contexts/BlogContext';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
-import { Locale, NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations } from 'next-intl/server';
+import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { Inter } from 'next/font/google';
+import { notFound } from 'next/navigation';
 import React from 'react';
 import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/constants';
 import { safeJsonLd } from '@/utils/security';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
+
+// Only the three known locales are valid; anything else 404s instead of
+// rendering the home page with lang="xx".
+export function generateStaticParams() {
+  return [{ locale: 'uz' }, { locale: 'ru' }, { locale: 'en' }];
+}
+
+export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -100,6 +111,14 @@ type Props = {
 
 export default async function RootLayout({ children, params }: Props) {
   const { locale } = (await params) as { locale: Locale };
+
+  if (!hasLocale(['en', 'ru', 'uz'] as const, locale)) {
+    notFound();
+  }
+
+  // Enables static rendering: without this next-intl reads headers() and the
+  // whole tree opts into dynamic rendering.
+  setRequestLocale(locale);
   const messages = await getMessages();
 
   return (
@@ -116,6 +135,8 @@ export default async function RootLayout({ children, params }: Props) {
             </BlogProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );

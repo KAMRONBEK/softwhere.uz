@@ -2,7 +2,17 @@ import dbConnect from '@/lib/db';
 import BlogPost from '@/models/BlogPost';
 import { verifyApiSecret } from '@/utils/auth';
 import mongoose from 'mongoose';
+import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+
+// Bust the blog ISR cache after a successful write.
+function invalidateBlogCache(): void {
+  try {
+    revalidateTag('blog-posts', 'max');
+  } catch (e) {
+    console.error('Failed to revalidate blog-posts tag:', e);
+  }
+}
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const authError = verifyApiSecret(request);
@@ -101,6 +111,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     console.log(`Post ${id} updated successfully.`);
 
+    invalidateBlogCache();
+
     return NextResponse.json({
       success: true,
       message: 'Post updated successfully',
@@ -160,6 +172,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
+    invalidateBlogCache();
+
     return NextResponse.json({
       success: true,
       post: updatedPost,
@@ -189,6 +203,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!deletedPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
+
+    invalidateBlogCache();
 
     return NextResponse.json({
       success: true,

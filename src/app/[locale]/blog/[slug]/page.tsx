@@ -4,7 +4,7 @@ import type { Locale as DateFnsLocale } from 'date-fns';
 import { ru, uz } from 'date-fns/locale';
 import { Metadata } from 'next';
 import { Locale } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
@@ -20,6 +20,16 @@ import { validateLocale } from '@/utils/auth';
 import { getSlugRoot } from '@/utils/slug';
 import { safeJsonLd } from '@/utils/security';
 import { ENV, BLOG_CONFIG } from '@/constants';
+
+// ISR: render posts on demand and cache for an hour. generateStaticParams
+// returns [] so nothing is prerendered at build time (no build-time DB), and
+// dynamicParams lets any slug render + cache on first request.
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+export function generateStaticParams() {
+  return [] as { slug: string }[];
+}
 
 interface BlogPost {
   _id: string;
@@ -91,20 +101,26 @@ const PILLAR_LABELS: Record<string, string> = {
 
 const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
 
+// Returns null ONLY when the query succeeds and finds no document (genuine
+// 404). A DB/infra error is rethrown so the route returns 500 instead of a
+// 404 that could deindex a real post. Wrapped in React cache() (per-request),
+// not unstable_cache, so a thrown error is never persisted.
 const getBlogPost = cache(async (rawSlug: string, locale: string): Promise<BlogPost | null> => {
+  let slug: string;
   try {
-    await dbConnect();
-    const slug = decodeURIComponent(rawSlug);
-    const validLocale = validateLocale(locale, 'en');
-    let post = await BlogPostModel.findOne({ slug, locale: validLocale, status: 'published' }).lean();
-    if (!post) {
-      post = await BlogPostModel.findOne({ slug, status: 'published' }).lean();
-    }
-    if (!post) return null;
-    return JSON.parse(JSON.stringify(post));
+    slug = decodeURIComponent(rawSlug);
   } catch {
+    // Malformed slug can never match a document -> genuine 404.
     return null;
   }
+  await dbConnect();
+  const validLocale = validateLocale(locale, 'en');
+  let post = await BlogPostModel.findOne({ slug, locale: validLocale, status: 'published' }).lean();
+  if (!post) {
+    post = await BlogPostModel.findOne({ slug, status: 'published' }).lean();
+  }
+  if (!post) return null;
+  return JSON.parse(JSON.stringify(post));
 });
 
 const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Promise<PostLocaleSlug | null> => {
@@ -169,7 +185,18 @@ async function getRelatedPosts(
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
   const { locale, slug } = (await params) as { locale: Locale; slug: string };
-  const post = await getBlogPost(slug, locale);
+
+  let post: BlogPost | null;
+  try {
+    post = await getBlogPost(slug, locale);
+  } catch {
+    // Transient DB/infra error: keep metadata resilient (the page itself will
+    // rethrow and 500). Do NOT emit a noindex/"not found" title here.
+    return {
+      title: 'SoftWhere.uz Blog',
+      description: 'Expert insights on software development from SoftWhere.uz.',
+    };
+  }
 
   if (!post) {
     return {
@@ -392,6 +419,7 @@ async function RelatedPosts({ category, currentId, locale }: { category?: string
 
 export default async function BlogPostPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = (await params) as { locale: Locale; slug: string };
+  setRequestLocale(locale);
   const post = await getBlogPost(slug, locale);
   const t = await getTranslations('blog');
   const tCat = await getTranslations('blog.categories');
@@ -408,7 +436,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
 
   return (
-    <BlogPostClient post={post} category={post.category}>
+    <BlogPostClient
+      post={{ title: post.title, slug: post.slug, locale: post.locale, generationGroupId: post.generationGroupId }}
+      category={post.category}
+      readingTime={readingTime}
+    >
       <BlogPostSchema post={post} />
 
       <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--gray-100)' }}>
@@ -578,8 +610,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                     ),
                     img: ({ src, alt }) => (
                       <figure className='my-8'>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt={alt || ''} loading='lazy' className='rounded-lg w-full object-cover max-h-[500px]' />
+                        {/* In-article markdown images come from arbitrary hosts, so a plain
+                            <img> stays safe (next/image would 400 on non-allow-listed hosts).
+                            The 16:9 wrapper reserves space to eliminate layout shift (CLS). */}
+                        <span className='relative block w-full overflow-hidden rounded-lg' style={{ aspectRatio: '16 / 9' }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={src}
+                            alt={alt || ''}
+                            loading='lazy'
+                            decoding='async'
+                            className='absolute inset-0 h-full w-full object-cover'
+                          />
+                        </span>
                         {alt && <figcaption className='text-center text-sm text-gray-500 dark:text-gray-400 mt-2'>{alt}</figcaption>}
                       </figure>
                     ),

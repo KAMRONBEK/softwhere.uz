@@ -1,12 +1,6 @@
-import { Analytics } from '@vercel/analytics/next';
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { ENV } from '@/constants';
 import './globals.css';
-
-// Initialize font (adjust as needed)
-const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(ENV.BASE_URL),
@@ -20,18 +14,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <html suppressHydrationWarning>
-      <body className={inter.className}>
-        {children}
-        <SpeedInsights />
-        <Analytics />
-      </body>
-    </html>
-  );
+// The localized layout (src/app/[locale]/layout.tsx) is the SOLE owner of the
+// <html>/<body> document, the Inter font and the ThemeProvider. This root
+// layout is a passthrough so we don't render two nested documents. Next still
+// merges the `metadata` above with the per-locale metadata.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return children;
 }

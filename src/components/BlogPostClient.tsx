@@ -5,36 +5,36 @@ import { logger } from '@/core/logger';
 import { trackEvent } from '@/utils/analytics';
 import { useEffect } from 'react';
 
-interface BlogPost {
-  _id: string;
+// Only the small fields this client component actually needs. The full post —
+// including the large markdown `content` — is NOT passed here; it is rendered
+// server-side via ReactMarkdown, so this avoids serializing the article body
+// into the client Flight payload a second time. Reading time is computed on the
+// server and passed in as a number.
+interface BlogPostSummary {
   title: string;
   slug: string;
-  content: string;
-  status: 'draft' | 'published';
   locale: 'en' | 'ru' | 'uz';
   generationGroupId?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 interface BlogPostClientProps {
-  post: BlogPost;
+  post: BlogPostSummary;
   category?: string;
+  readingTime: number;
   children: React.ReactNode;
 }
 
-export default function BlogPostClient({ post, category, children }: BlogPostClientProps) {
+export default function BlogPostClient({ post, category, readingTime, children }: BlogPostClientProps) {
   const { setCurrentPost } = useBlogContext();
 
   useEffect(() => {
-    const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
     trackEvent('blog_post_view', {
       slug: post.slug,
       category,
       locale: post.locale,
       readingTime,
     });
-  }, [post.slug, post.content, post.locale, category]);
+  }, [post.slug, post.locale, category, readingTime]);
 
   useEffect(() => {
     const postContext = {

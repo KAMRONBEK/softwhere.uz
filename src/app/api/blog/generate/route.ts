@@ -20,6 +20,7 @@ import {
   type SourceClassification,
   type TopicResult,
 } from '@/lib/blog-generator';
+import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -286,6 +287,13 @@ export async function POST(request: NextRequest) {
 
     if (createdPosts.length === 0) {
       return NextResponse.json({ error: 'Failed to generate any posts' }, { status: 500 });
+    }
+
+    // Bust the blog ISR cache so newly generated posts surface.
+    try {
+      revalidateTag('blog-posts', 'max');
+    } catch (e) {
+      logger.error('Failed to revalidate blog-posts tag', e, 'BLOG');
     }
 
     logger.info(

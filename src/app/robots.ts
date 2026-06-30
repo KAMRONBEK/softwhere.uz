@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/api/', '/_next/'],
+      // Admin URLs are locale-prefixed (/uz/admin/...), so target both shapes.
+      disallow: ['/admin/', '/*/admin/', '/api/', '/_next/'],
     },
     sitemap: `${ENV.BASE_URL}/sitemap.xml`,
   };
