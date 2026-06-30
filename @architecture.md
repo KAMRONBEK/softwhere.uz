@@ -66,10 +66,11 @@ src/
 
 Enforced by `eslint-plugin-boundaries` (`boundaries/element-types`) configured in
 `eslint.config.mjs`. The rule currently runs at **`warn`** severity so `yarn lint`
-stays at 0 errors while a handful of pre-existing cross-layer couplings are
-surfaced for follow-up (e.g. `core/http.ts` referencing `shared`/`modules` types,
-`shared/components/Header` reaching into `modules/blog`). Once those are removed
-the rule should be promoted to **`error`**.
+stays at 0 errors while one remaining cross-layer coupling is surfaced for
+follow-up: `shared/components/Header` reaches into `modules/blog` for the
+language switcher. (`core/http.ts` is now generic/dependency-free; its former
+feature calls moved to `modules/estimator/api.ts` and `modules/blog/api/posts.ts`.)
+Once the `Header` coupling is lifted the rule should be promoted to **`error`**.
 
 ---
 

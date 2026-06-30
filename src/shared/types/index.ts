@@ -38,12 +38,8 @@ export interface PostGroup {
 }
 
 // API Types
-export interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
+// `ApiResponse` and `AppError` live in `@/core/http` (the generic HTTP layer)
+// so that `core` doesn't depend on `shared`.
 
 export interface GenerationRequest {
   category: string;
@@ -131,13 +127,6 @@ export interface ContactForm {
 export interface BlogContextType {
   currentPost: BlogPost | null;
   setCurrentPost: (_post: BlogPost | null) => void;
-}
-
-// Error Types
-export interface AppError {
-  message: string;
-  code?: string;
-  status?: number;
 }
 
 // Utility Types

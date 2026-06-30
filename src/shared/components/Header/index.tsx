@@ -2,7 +2,7 @@
 
 import { CONTACT_INFO, UI_CONFIG } from '@/core/constants';
 import { useBlogContext } from '@/modules/blog/context/BlogContext';
-import { api } from '@/core/http';
+import { getRelatedPost } from '@/modules/blog/api/posts';
 import { logger } from '@/core/logger';
 import { trackEvent } from '@/shared/utils/analytics';
 import Image from 'next/image';
@@ -163,7 +163,7 @@ function Header() {
         );
 
         // Try to find the related post in the target language using API client
-        const response = await api.blog.getRelatedPost(currentPost.generationGroupId, locale);
+        const response = await getRelatedPost(currentPost.generationGroupId, locale);
 
         if (response.success && response.data) {
           // Navigate to the related post in the target language

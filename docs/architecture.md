@@ -68,16 +68,20 @@ src/
 
 #### Known violations (tracked, not yet resolved)
 
-The boundaries rule currently runs at **`warn`** severity because the present
-file placement still contains real cross-layer couplings that need a follow-up
-refactor rather than a file move:
+The boundaries rule currently runs at **`warn`** severity because one real
+cross-layer coupling remains that needs a follow-up refactor rather than a file
+move:
 
-- `core/http.ts` imports types from `shared` and from `modules/estimator`
-  (`EstimateResult`, `EstimatorInput`). Core should not know about a feature.
-- `shared/components/Header` imports `modules/blog` (`BlogContext`).
+- `shared/components/Header` imports `modules/blog` (`BlogContext` + the related-
+  post client) for the language switcher, which jumps to the same blog post in
+  another locale. The global header therefore knows about the blog feature.
 
-Resolve these (e.g. relocate the shared types into `shared`/`core`, lift
-`BlogContext` consumption out of `Header`) before promoting the rule to `error`.
+Resolved already: `core/http.ts` is now a generic, dependency-free client —
+`ApiResponse`/`AppError` live in `core/http`, and the feature-specific calls were
+moved to `modules/estimator/api.ts` and `modules/blog/api/posts.ts`. Once the
+`Header` coupling is lifted (e.g. inject the language-switch behavior from a
+blog-aware wrapper, or move `Header` composition into `app`), promote the rule to
+**`error`**.
 
 ### 1.2 Directory Conventions
 

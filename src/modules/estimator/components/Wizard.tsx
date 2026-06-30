@@ -11,7 +11,7 @@ import {
   TechStackStep,
 } from '@/modules/estimator/components';
 import { logger } from '@/core/logger';
-import { api } from '@/core/http';
+import { getEstimate } from '@/modules/estimator/api';
 import type { EstimateResult, EstimatorInput } from '@/modules/estimator/types';
 import { calculateEstimate } from '@/modules/estimator/utils/estimator';
 import { useMemo, useState } from 'react';
@@ -67,7 +67,7 @@ export default function Wizard() {
     setError('');
 
     try {
-      const response = await api.estimator.getEstimate(input);
+      const response = await getEstimate(input);
 
       if (response.success && response.data) {
         setEstimate(response.data);
