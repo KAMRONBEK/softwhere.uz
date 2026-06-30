@@ -1,8 +1,8 @@
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
-import ScrollToTop from '@/components/ScrollToTop';
-import ThemeProvider from '@/components/ThemeProvider';
-import { BlogProvider } from '@/contexts/BlogContext';
+import Footer from '@/shared/components/Footer';
+import Header from '@/shared/components/Header';
+import ScrollToTop from '@/shared/components/ScrollToTop';
+import ThemeProvider from '@/shared/components/ThemeProvider';
+import { BlogProvider } from '@/modules/blog/context/BlogContext';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
@@ -11,8 +11,8 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { Inter } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import React from 'react';
-import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/constants';
-import { safeJsonLd } from '@/utils/security';
+import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/core/constants';
+import { safeJsonLd } from '@/shared/utils/security';
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
 

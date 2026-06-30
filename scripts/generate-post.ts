@@ -17,8 +17,8 @@ import 'dotenv/config';
 import mongoose from 'mongoose';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
-import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '../src/data/seo-topics';
-import { getBlueprintForFormat } from '../src/data/post-blueprints';
+import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '../src/modules/blog/data/seo-topics';
+import { getBlueprintForFormat } from '../src/modules/blog/data/post-blueprints';
 import { sanitizeContent, assessContentQuality, QUALITY_RULES } from './lib/quality';
 import { CATEGORY_IMAGE_KEYWORDS, GENERIC_FALLBACK_KEYWORDS } from './lib/image-keywords';
 

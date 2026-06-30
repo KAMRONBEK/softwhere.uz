@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
-import { BLOG_CONFIG, ENV } from '@/constants';
-import { logger } from '@/utils/logger';
-import { getSlugRoot } from '@/utils/slug';
+import dbConnect from '@/core/db';
+import BlogPost from '@/modules/blog/model/BlogPost';
+import { BLOG_CONFIG, ENV } from '@/core/constants';
+import { logger } from '@/core/logger';
+import { getSlugRoot } from '@/shared/utils/slug';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = ENV.BASE_URL;

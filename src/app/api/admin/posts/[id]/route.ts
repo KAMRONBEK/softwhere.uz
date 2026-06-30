@@ -1,6 +1,6 @@
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
-import { verifyApiSecret } from '@/utils/auth';
+import dbConnect from '@/core/db';
+import BlogPost from '@/modules/blog/model/BlogPost';
+import { verifyApiSecret } from '@/core/auth';
 import mongoose from 'mongoose';
 import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';

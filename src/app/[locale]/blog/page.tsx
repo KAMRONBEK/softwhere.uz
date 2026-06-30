@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import BlogListClient, { BlogPostSummary } from '@/components/BlogListClient';
-import dbConnect from '@/lib/db';
-import BlogPostModel from '@/models/BlogPost';
-import { validateLocale } from '@/utils/auth';
-import { safeJsonLd } from '@/utils/security';
-import { ENV, BLOG_CONFIG } from '@/constants';
+import BlogListClient, { BlogPostSummary } from '@/modules/blog/components/BlogListClient';
+import dbConnect from '@/core/db';
+import BlogPostModel from '@/modules/blog/model/BlogPost';
+import { validateLocale } from '@/core/auth';
+import { safeJsonLd } from '@/shared/utils/security';
+import { ENV, BLOG_CONFIG } from '@/core/constants';
 
 // ISR: re-render at most once an hour; writes bust the 'blog-posts' tag.
 export const revalidate = 3600;

@@ -5,16 +5,16 @@ import { use, useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 
-import Hero from '@/components/sections/Hero';
+import Hero from '@/shared/components/sections/Hero';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-const EstimatorCTA = dynamic(() => import('@/components/sections/EstimatorCTA'));
-const Service = dynamic(() => import('@/components/sections/Service'));
-const Discuss = dynamic(() => import('@/components/sections/Discuss'));
-const Projects = dynamic(() => import('@/components/sections/Projects'));
-const Contact = dynamic(() => import('@/components/sections/Contact'));
-const FAQ = dynamic(() => import('@/components/sections/FAQ'));
+const EstimatorCTA = dynamic(() => import('@/shared/components/sections/EstimatorCTA'));
+const Service = dynamic(() => import('@/shared/components/sections/Service'));
+const Discuss = dynamic(() => import('@/shared/components/sections/Discuss'));
+const Projects = dynamic(() => import('@/shared/components/sections/Projects'));
+const Contact = dynamic(() => import('@/shared/components/sections/Contact'));
+const FAQ = dynamic(() => import('@/shared/components/sections/FAQ'));
 
 function Home({ params }: { params: Promise<{ locale: string }> }) {
   const router = useRouter();

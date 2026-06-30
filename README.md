@@ -1,12 +1,12 @@
 # Softwhere.uz
 
-[![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
 
-A modern, multilingual blog platform and portfolio website built with Next.js 14, featuring AI-powered content generation (DeepSeek), internationalization, and project cost estimator.
+A modern, multilingual blog platform and portfolio website built with Next.js 16, featuring AI-powered content generation (DeepSeek), internationalization, and project cost estimator.
 
 ---
 
@@ -184,26 +184,35 @@ softwhere.uz/
 │       ├── similarity.ts    # Duplicate detection
 │       └── post-structure.ts
 ├── src/
-│   ├── app/
+│   ├── app/                 # Next.js routes (logic-thin); may import any layer
 │   │   ├── [locale]/        # Internationalized routes
 │   │   │   ├── page.tsx     # Home
+│   │   │   ├── admin/       # Admin posts UI
 │   │   │   ├── blog/        # Blog listing & posts
 │   │   │   └── estimator/   # Cost estimator
-│   │   ├── api/             # API routes
+│   │   ├── api/             # API route handlers
 │   │   ├── sitemap.ts
 │   │   └── robots.ts
-│   ├── components/
-│   ├── constants/
-│   ├── contexts/
-│   ├── data/                # projects, seo-topics, post-blueprints
-│   ├── hooks/
-│   ├── lib/                 # db, blog-generator
-│   ├── models/
-│   ├── types/
-│   └── utils/               # api, logger, env, ai
+│   ├── core/                # Framework/app-agnostic infra (imports: core only)
+│   │   │                    #   env, logger, db, i18n, ai, http, auth, constants
+│   ├── shared/              # Reusable non-domain code (imports: core, shared)
+│   │   ├── components/      # Button, Header, Footer, sections/, …
+│   │   ├── data/            # projects
+│   │   ├── types/
+│   │   └── utils/           # slug, analytics, send, security, rateLimit
+│   ├── modules/             # Business capabilities (imports: core, shared, own module)
+│   │   ├── blog/            # components, api (generator), model, data, context, utils
+│   │   ├── estimator/       # components, data, utils, constants, types
+│   │   └── admin/           # components, utils
+│   ├── messages/            # next-intl locale bundles (en/ru/uz)
+│   └── proxy.ts             # next-intl routing proxy (middleware)
+├── eslint.config.mjs        # ESLint flat config + eslint-plugin-boundaries
 ├── tailwind.config.ts
 └── next.config.mjs
 ```
+
+> Layer import direction (`core → shared → modules → app`) is enforced by
+> `eslint-plugin-boundaries`. See [`docs/architecture.md`](docs/architecture.md).
 
 ---
 
@@ -211,7 +220,7 @@ softwhere.uz/
 
 | Layer | Technologies |
 |-------|---------------|
-| **Framework** | Next.js 14 (App Router) |
+| **Framework** | Next.js 16 (App Router) |
 | **Language** | TypeScript 5.8 |
 | **Styling** | Tailwind CSS |
 | **Database** | MongoDB + Mongoose |

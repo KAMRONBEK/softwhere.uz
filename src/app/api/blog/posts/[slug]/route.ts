@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
-import { validateLocale } from '@/utils/auth';
+import dbConnect from '@/core/db';
+import BlogPost from '@/modules/blog/model/BlogPost';
+import { validateLocale } from '@/core/auth';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

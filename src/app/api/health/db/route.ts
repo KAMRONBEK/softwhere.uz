@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
+import dbConnect from '@/core/db';
 
 export async function GET() {
   const startTime = Date.now();

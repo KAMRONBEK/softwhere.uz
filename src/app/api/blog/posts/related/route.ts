@@ -1,7 +1,7 @@
 import { logger } from '@/core/logger';
-import dbConnect from '@/lib/db';
-import BlogPost from '@/models/BlogPost';
-import { isValidLocale } from '@/utils/auth';
+import dbConnect from '@/core/db';
+import BlogPost from '@/modules/blog/model/BlogPost';
+import { isValidLocale } from '@/core/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 const MAX_GROUP_ID_LENGTH = 128;

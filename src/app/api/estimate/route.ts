@@ -1,9 +1,9 @@
-import { ESTIMATOR, HOURLY_RATE } from '@/constants/estimator';
+import { ESTIMATOR, HOURLY_RATE } from '@/modules/estimator/constants';
 import { logger } from '@/core/logger';
-import { EstimatorInput } from '@/types/estimator';
-import { calculateEstimate } from '@/utils/estimator';
-import { safeGenerateJSONWithTimeout } from '@/utils/ai';
-import { getClientIp, rateLimit } from '@/utils/rateLimit';
+import { EstimatorInput } from '@/modules/estimator/types';
+import { calculateEstimate } from '@/modules/estimator/utils/estimator';
+import { safeGenerateJSONWithTimeout } from '@/core/ai';
+import { getClientIp, rateLimit } from '@/shared/utils/rateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 const VALID_PROJECT_TYPES = ['mobile', 'web', 'telegram', 'ai', 'desktop', 'other'];

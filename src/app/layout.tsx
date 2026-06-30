@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { ENV } from '@/constants';
+import { ENV } from '@/core/constants';
 import './globals.css';
 
 export const metadata: Metadata = {

@@ -1,11 +1,11 @@
-import dbConnect from '@/lib/db';
-import BlogPost, { IBlogPost, ICoverImage } from '@/models/BlogPost';
-import { verifyApiSecret } from '@/utils/auth';
-import { safeGenerateContent, aiStats } from '@/utils/ai';
-import { logger } from '@/utils/logger';
-import { createSlug } from '@/utils/slug';
-import { getCoverImageForTopic, getImagesForPost } from '@/utils/unsplash';
-import { SERVICE_PILLARS, getAllTopics, type PostFormat } from '@/data/seo-topics';
+import dbConnect from '@/core/db';
+import BlogPost, { IBlogPost, ICoverImage } from '@/modules/blog/model/BlogPost';
+import { verifyApiSecret } from '@/core/auth';
+import { safeGenerateContent, aiStats } from '@/core/ai';
+import { logger } from '@/core/logger';
+import { createSlug } from '@/shared/utils/slug';
+import { getCoverImageForTopic, getImagesForPost } from '@/modules/blog/utils/unsplash';
+import { SERVICE_PILLARS, getAllTopics, type PostFormat } from '@/modules/blog/data/seo-topics';
 import {
   extractTextFromUrl,
   classifySourceContent,
@@ -19,7 +19,7 @@ import {
   ALLOWED_LOCALES,
   type SourceClassification,
   type TopicResult,
-} from '@/lib/blog-generator';
+} from '@/modules/blog/api/generator';
 import { revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';

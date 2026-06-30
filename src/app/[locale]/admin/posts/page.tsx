@@ -1,8 +1,8 @@
 'use client';
 
-import { AdminBadge, AdminButton, AdminInput, AdminLoading, AdminSelect } from '@/components/AdminComponents/index';
-import { adminFetch } from '@/utils/adminFetch';
-import { escapeHtml } from '@/utils/security';
+import { AdminBadge, AdminButton, AdminInput, AdminLoading, AdminSelect } from '@/modules/admin/components/index';
+import { adminFetch } from '@/modules/admin/utils/adminFetch';
+import { escapeHtml } from '@/shared/utils/security';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 

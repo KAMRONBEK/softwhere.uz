@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { logger } from '@/utils/logger';
-import { escapeHtml } from '@/utils/security';
-import { getClientIp, rateLimit } from '@/utils/rateLimit';
+import { logger } from '@/core/logger';
+import { escapeHtml } from '@/shared/utils/security';
+import { getClientIp, rateLimit } from '@/shared/utils/rateLimit';
 
 const MAX_FIELD_LENGTH = 2000;
 

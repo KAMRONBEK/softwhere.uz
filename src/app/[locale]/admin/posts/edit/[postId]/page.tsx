@@ -3,9 +3,9 @@
 import React, { use, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Button from '@/components/Button';
-import { adminFetch } from '@/utils/adminFetch';
-import { createSlug } from '@/utils/slug';
+import Button from '@/shared/components/Button';
+import { adminFetch } from '@/modules/admin/utils/adminFetch';
+import { createSlug } from '@/shared/utils/slug';
 
 interface PostData {
   _id: string;

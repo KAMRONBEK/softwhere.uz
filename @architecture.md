@@ -1,6 +1,10 @@
 # 📐 Project Architecture (@architecture.md)
 
-This file is an **authoritative snapshot** of the Softwhere.uz folder layout and the allowed import directions.  Keep it up-to-date whenever you move files or add new layers.
+This file is an **authoritative snapshot** of the Softwhere.uz folder layout and the allowed import directions. Keep it up-to-date whenever you move files or add new layers.
+
+> **Status:** Realized. The `core / shared / modules / app` layering below is the
+> actual on-disk structure, and the import-direction rules are wired up with
+> `eslint-plugin-boundaries` in `eslint.config.mjs`.
 
 ---
 
@@ -8,31 +12,43 @@ This file is an **authoritative snapshot** of the Softwhere.uz folder layout and
 
 ```text
 src/
-├─ core/          # Framework & app-agnostic utilities
-│  ├─ api/
-│  ├─ env/
-│  ├─ logger/
-│  └─ i18n/
+├─ core/           # Framework & app-agnostic infra (single-file modules)
+│  ├─ env.ts       #   environment access
+│  ├─ logger.ts    #   logging façade
+│  ├─ db.ts        #   Mongoose connection
+│  ├─ i18n.ts      #   next-intl request config
+│  ├─ ai.ts        #   LLM client (shared by blog + estimator)
+│  ├─ http.ts      #   generic API client
+│  ├─ auth.ts      #   API-secret + locale validation
+│  └─ constants.ts #   ENV, BLOG_CONFIG, SOCIAL_LINKS, …
 │
-├─ shared/        # Re-usable UI & helpers (non-domain)
-│  ├─ components/
-│  ├─ hooks/
-│  └─ utils/
+├─ shared/         # Reusable, non-domain UI & helpers
+│  ├─ components/  #   Button, Header, Footer, ThemeToggle, sections/, …
+│  ├─ utils/       #   slug, analytics, send, security, rateLimit
+│  ├─ data/        #   projects
+│  └─ types/       #   cross-cutting types
 │
-├─ modules/       # Business capabilities (a.k.a. bounded contexts)
+├─ modules/        # Business capabilities (bounded contexts)
 │  ├─ blog/
-│  │   ├─ api/
-│  │   ├─ components/
-│  │   ├─ hooks/
-│  │   ├─ model/
-│  │   └─ memory/          # Memory-Bank store/controller/selectors
-│  │
+│  │   ├─ api/        # generator
+│  │   ├─ components/ # BlogListClient, BlogPostClient
+│  │   ├─ model/      # BlogPost (Mongoose model)
+│  │   ├─ data/       # seo-topics, post-blueprints
+│  │   ├─ context/    # BlogContext
+│  │   └─ utils/      # unsplash
 │  ├─ estimator/
-│  │   └─ …
+│  │   ├─ components/ # Wizard, ResultDisplay, CurrencySwitcher, Steps/
+│  │   ├─ data/       # estimator-options
+│  │   ├─ utils/      # estimator
+│  │   ├─ constants.ts
+│  │   └─ types.ts
 │  └─ admin/
-│      └─ …
+│      ├─ components/ # AdminComponents
+│      └─ utils/      # adminFetch
 │
-└─ app/           # Next.js routes (logic-thin)
+├─ app/            # Next.js routes (logic-thin)
+├─ messages/       # next-intl locale bundles (en/ru/uz)
+└─ proxy.ts        # next-intl routing proxy (middleware)
 ```
 
 > Detailed breakdown lives in `docs/architecture.md` but the tree above is the quick reference.
@@ -43,34 +59,32 @@ src/
 
 | Layer   | Allowed Dependencies          | Forbidden |
 |---------|--------------------------------|-----------|
-| `core`  | —                              | Everyone  |
+| `core`  | `core`                         | Everyone else |
 | `shared`| `core`, `shared`               | `modules`, `app` |
 | `modules/*` | `core`, `shared`, own module | Other `modules/*` directly, `app` |
-| `app`   | All layers                     | Cannot be imported by others |
+| `app`   | All layers (`core`, `shared`, `modules`, `app`) | Cannot be imported by other layers |
 
-Enforced by `eslint-plugin-boundaries` (see `.eslintrc.js`).
+Enforced by `eslint-plugin-boundaries` (`boundaries/element-types`) configured in
+`eslint.config.mjs`. The rule currently runs at **`warn`** severity so `yarn lint`
+stays at 0 errors while a handful of pre-existing cross-layer couplings are
+surfaced for follow-up (e.g. `core/http.ts` referencing `shared`/`modules` types,
+`shared/components/Header` reaching into `modules/blog`). Once those are removed
+the rule should be promoted to **`error`**.
 
 ---
 
-## 3. Memory Bank Pattern (per module)
+## 3. Per-module state (not yet adopted)
 
-```
-modules/<feature>/memory/
-├─ store.ts        # Zustand/Redux style state holder
-├─ controller.ts   # Mutations, async flows
-└─ selectors.ts    # Pure derived-state helpers
-```
-
-Principles:
-1. Serializable state only.
-2. No React imports inside memory.
-3. Automatic cleanup on navigation when appropriate.
+There is currently **no** shared state-management convention (no Zustand/Redux
+"Memory Bank", no `memory/` folders). Module state is local React state /
+context (see `modules/blog/context`). If a formal store pattern is introduced
+later, document it here before adding it to a module.
 
 ---
 
 ## 4. Update workflow
 
-1. Change code / move folders.
+1. Change code / move folders (use `git mv` to preserve history).
 2. Update this file **and** `docs/architecture.md`.
-3. Run `yarn lint` – boundary checks must still pass.
-4. Commit. 
+3. Run `yarn type-check`, `yarn lint`, `yarn build` — all must pass.
+4. Commit.

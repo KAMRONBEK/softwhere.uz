@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Wizard } from '@/components/Estimator';
-import { ENV, BLOG_CONFIG } from '@/constants';
+import { Wizard } from '@/modules/estimator/components';
+import { ENV, BLOG_CONFIG } from '@/core/constants';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };

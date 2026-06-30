@@ -8,18 +8,18 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import TrackedCTALink from '@/components/TrackedCTALink';
+import TrackedCTALink from '@/shared/components/TrackedCTALink';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
-import BlogPostClient from '@/components/BlogPostClient';
-import dbConnect from '@/lib/db';
-import BlogPostModel from '@/models/BlogPost';
-import { CoverImage } from '@/types';
-import { validateLocale } from '@/utils/auth';
-import { getSlugRoot } from '@/utils/slug';
-import { safeJsonLd } from '@/utils/security';
-import { ENV, BLOG_CONFIG } from '@/constants';
+import BlogPostClient from '@/modules/blog/components/BlogPostClient';
+import dbConnect from '@/core/db';
+import BlogPostModel from '@/modules/blog/model/BlogPost';
+import { CoverImage } from '@/shared/types';
+import { validateLocale } from '@/core/auth';
+import { getSlugRoot } from '@/shared/utils/slug';
+import { safeJsonLd } from '@/shared/utils/security';
+import { ENV, BLOG_CONFIG } from '@/core/constants';
 
 // ISR: render posts on demand and cache for an hour. generateStaticParams
 // returns [] so nothing is prerendered at build time (no build-time DB), and

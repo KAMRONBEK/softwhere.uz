@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AdminAuthGate } from '@/components/AdminComponents';
+import { AdminAuthGate } from '@/modules/admin/components';
 
 // Server layout so it can carry noindex metadata for the whole admin section.
 // AdminAuthGate is a client component rendered from this server boundary.

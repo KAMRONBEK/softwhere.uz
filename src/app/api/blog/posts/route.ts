@@ -1,6 +1,6 @@
-import dbConnect from '@/lib/db';
-import BlogPost, { IBlogPost } from '@/models/BlogPost';
-import { isValidLocale } from '@/utils/auth';
+import dbConnect from '@/core/db';
+import BlogPost, { IBlogPost } from '@/modules/blog/model/BlogPost';
+import { isValidLocale } from '@/core/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
