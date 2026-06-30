@@ -1,76 +1,12 @@
 'use client';
 
 import { AdminBadge, AdminButton, AdminInput, AdminLoading, AdminSelect } from '@/modules/admin/components/index';
+import PostPreviewModal from '@/modules/admin/components/PostPreviewModal';
 import { adminFetch } from '@/modules/admin/utils/adminFetch';
-import { escapeHtml } from '@/shared/utils/security';
+import { BLOG_CATEGORIES } from '@/modules/admin/constants';
+import { BlogPost, GenerationRequest, PostGroup } from '@/modules/admin/types';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
-
-interface BlogPost {
-  _id: string;
-  title: string;
-  slug: string;
-  content?: string;
-  status: 'draft' | 'published';
-  locale: 'en' | 'ru' | 'uz';
-  generationGroupId?: string;
-  coverImage?: { url: string; thumbUrl: string; authorName: string; authorUrl: string; keyword: string };
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface PostGroup {
-  generationGroupId: string;
-  posts: BlogPost[];
-  createdAt: string;
-  status: 'draft' | 'published' | 'mixed';
-}
-
-interface GenerationRequest {
-  category?: string;
-  customTopic?: string;
-  sourceUrl?: string;
-  sourceText?: string;
-  locales: string[];
-}
-
-const BLOG_CATEGORIES = {
-  auto: 'Auto (Smart Selection)',
-  random: 'Random Topic (All Categories)',
-  'mobile-app-development': 'Mobile App Development',
-  'mvp-startup': 'MVP & Startup Development',
-  'ai-solutions': 'AI Solutions & RAG',
-  'web-app-development': 'Web App Development',
-  'telegram-bot-development': 'Telegram Bot Development',
-  'crm-development': 'CRM Development',
-  'business-automation': 'Business Automation',
-  'saas-development': 'SaaS Development',
-  outsourcing: 'Developer Outsourcing',
-  'project-rescue': 'Project Rescue',
-  ecommerce: 'E-commerce Development',
-  'ui-ux-design': 'UI/UX Design',
-  'maintenance-support': 'Maintenance & Support',
-  cybersecurity: 'Cybersecurity',
-};
-
-// Markdown to HTML converter (simple version).
-// IMPORTANT: escape the raw content FIRST so any HTML in the post (e.g. an
-// AI-generated `<img onerror=...>`) is rendered inert text. The markdown tags
-// below are added after escaping, so formatting still works. Without this the
-// preview modal is a stored-XSS sink in the admin's authenticated session.
-const markdownToHtml = (markdown: string) => {
-  return escapeHtml(markdown)
-    .replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold text-gray-900 mt-6 mb-3">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold text-gray-900 mt-8 mb-6">$1</h1>')
-    .replace(/\*\*(.*)\*\*/gim, '<strong class="font-semibold text-gray-900">$1</strong>')
-    .replace(/\*(.*)\*/gim, '<em class="italic">$1</em>')
-    .replace(/^\- (.*$)/gim, '<li class="ml-4 mb-1">• $1</li>')
-    .replace(/^\d+\. (.*$)/gim, '<li class="ml-4 mb-1 list-decimal">$1</li>')
-    .replace(/\n\n/gim, '</p><p class="mb-4 text-gray-700 leading-relaxed">')
-    .replace(/\n/gim, '<br>')
-    .replace(/^(.*)$/gim, '<p class="mb-4 text-gray-700 leading-relaxed">$1</p>');
-};
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -723,94 +659,7 @@ export default function AdminPostsPage() {
         </div>
 
         {/* Enhanced Post Preview Modal */}
-        {selectedPost && (
-          <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
-            <div className='bg-white dark:bg-gray-800 rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden shadow-2xl'>
-              {/* Modal Header */}
-              <div className='flex justify-between items-start p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900'>
-                <div className='flex-1 min-w-0'>
-                  <h3 className='text-xl font-bold text-gray-900 dark:text-gray-100 truncate'>{selectedPost.title}</h3>
-                  <div className='mt-2 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400'>
-                    <span className='flex items-center'>
-                      <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-                        ></path>
-                      </svg>
-                      {format(new Date(selectedPost.createdAt), 'MMM dd, yyyy')}
-                    </span>
-                    <AdminBadge variant='locale' locale={selectedPost.locale as 'en' | 'ru' | 'uz'}>
-                      {selectedPost.locale.toUpperCase()}
-                    </AdminBadge>
-                    <AdminBadge variant='status' status={selectedPost.status}>
-                      {selectedPost.status}
-                    </AdminBadge>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedPost(null)}
-                  className='ml-4 text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-200 rounded-lg'
-                >
-                  <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M6 18L18 6M6 6l12 12'></path>
-                  </svg>
-                </button>
-              </div>
-
-              {/* Modal Content */}
-              <div className='overflow-y-auto max-h-[60vh] bg-white dark:bg-gray-800'>
-                {selectedPost.coverImage?.url && (
-                  <div className='relative w-full h-48 md:h-64 bg-gray-100'>
-                    <img src={selectedPost.coverImage.url} alt={selectedPost.title} className='w-full h-full object-cover' />
-                    <span className='absolute bottom-2 right-3 text-[10px] text-white/80 bg-black/40 px-2 py-1 rounded'>
-                      Photo by {selectedPost.coverImage.authorName}
-                    </span>
-                  </div>
-                )}
-                <article className='prose prose-lg max-w-none p-8'>
-                  {selectedPost.content ? (
-                    <div
-                      className='text-gray-800 leading-relaxed'
-                      dangerouslySetInnerHTML={{
-                        __html: markdownToHtml(selectedPost.content),
-                      }}
-                    />
-                  ) : (
-                    <p className='text-gray-400 italic'>Content not available in preview.</p>
-                  )}
-                </article>
-              </div>
-
-              {/* Modal Footer */}
-              <div className='p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center'>
-                <div className='text-sm text-gray-500 dark:text-gray-400'>
-                  URL: /{selectedPost.locale}/blog/{selectedPost.slug}
-                </div>
-                <div className='flex space-x-3'>
-                  <AdminButton onClick={() => setSelectedPost(null)} variant='secondary'>
-                    Close
-                  </AdminButton>
-                  <a href={`/${selectedPost.locale}/blog/${selectedPost.slug}`} target='_blank' rel='noopener noreferrer'>
-                    <AdminButton variant='primary'>
-                      <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth='2'
-                          d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'
-                        ></path>
-                      </svg>
-                      View Live
-                    </AdminButton>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {selectedPost && <PostPreviewModal post={selectedPost} onClose={() => setSelectedPost(null)} />}
       </div>
 
       {selectedGroups.size > 0 && (

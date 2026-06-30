@@ -1,0 +1,18 @@
+export const BLOG_CATEGORIES = {
+  auto: 'Auto (Smart Selection)',
+  random: 'Random Topic (All Categories)',
+  'mobile-app-development': 'Mobile App Development',
+  'mvp-startup': 'MVP & Startup Development',
+  'ai-solutions': 'AI Solutions & RAG',
+  'web-app-development': 'Web App Development',
+  'telegram-bot-development': 'Telegram Bot Development',
+  'crm-development': 'CRM Development',
+  'business-automation': 'Business Automation',
+  'saas-development': 'SaaS Development',
+  outsourcing: 'Developer Outsourcing',
+  'project-rescue': 'Project Rescue',
+  ecommerce: 'E-commerce Development',
+  'ui-ux-design': 'UI/UX Design',
+  'maintenance-support': 'Maintenance & Support',
+  cybersecurity: 'Cybersecurity',
+};
