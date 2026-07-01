@@ -47,7 +47,7 @@ function HomeClientLayer({ locale }: { locale: string }) {
     <>
       {/* Secret Admin Button */}
       {showAdminButton && (
-        <div className='fixed top-4 right-4 z-50 animate-pulse' style={{ zIndex: 9999 }}>
+        <div className='fixed top-20 right-4 z-50 animate-pulse' style={{ zIndex: 9999 }}>
           <button
             onClick={navigateToAdmin}
             className='bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300 text-sm font-medium'
@@ -58,8 +58,14 @@ function HomeClientLayer({ locale }: { locale: string }) {
         </div>
       )}
 
-      {/* Hidden clickable area for logo clicks */}
-      <div onClick={handleLogoClick} className='fixed top-0 left-0 w-20 h-20 z-40 cursor-pointer opacity-0' title='Secret admin access' />
+      {/* Hidden clickable area (top-left corner). z-index sits ABOVE the fixed
+          header (z-999) so the secret 5-click sequence isn't swallowed by it. */}
+      <div
+        onClick={handleLogoClick}
+        className='fixed top-0 left-0 w-20 h-20 cursor-pointer opacity-0'
+        style={{ zIndex: 1000 }}
+        title='Secret admin access'
+      />
 
       <ToastContainer autoClose={3000} closeOnClick theme={resolvedTheme === 'dark' ? 'dark' : 'light'} />
     </>
