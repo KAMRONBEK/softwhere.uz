@@ -13,22 +13,22 @@ export const AdminBadge: React.FC<AdminBadgeProps> = ({ children, variant = 'def
 
   if (variant === 'status') {
     if (status === 'published') {
-      badgeClasses += ' bg-green-100 text-green-800';
+      badgeClasses += ' bg-[rgba(34,197,94,0.15)] text-green-400';
     } else if (status === 'mixed') {
-      badgeClasses += ' bg-orange-100 text-orange-800';
+      badgeClasses += ' bg-[rgba(249,115,22,0.15)] text-orange-400';
     } else {
-      badgeClasses += ' bg-yellow-100 text-yellow-800';
+      badgeClasses += ' bg-ember-surface2 text-ember-muted border border-ember-border';
     }
   } else if (variant === 'locale') {
     const localeColors = {
-      en: 'bg-blue-100 text-blue-800',
-      ru: 'bg-red-100 text-red-800',
-      uz: 'bg-green-100 text-green-800',
+      en: 'bg-[rgba(59,130,246,0.15)] text-blue-400',
+      ru: 'bg-[rgba(239,68,68,0.15)] text-red-400',
+      uz: 'bg-[rgba(34,197,94,0.15)] text-green-400',
     };
 
     badgeClasses += ` ${localeColors[locale || 'en']}`;
   } else {
-    badgeClasses += ' bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
+    badgeClasses += ' bg-ember-surface2 text-ember-muted border border-ember-border';
   }
 
   return <span className={`${badgeClasses} ${className}`}>{children}</span>;

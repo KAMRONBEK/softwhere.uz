@@ -18,13 +18,13 @@ export const AdminButton: React.FC<AdminButtonProps> = ({
   className = '',
 }) => {
   const baseClasses =
-    'glass px-6 py-3 rounded-lg font-semibold text-sm tracking-tight transition-all duration-300 cursor-pointer hover:-translate-y-0.5';
+    'px-6 py-3 rounded-lg font-semibold text-sm tracking-tight transition-all duration-300 cursor-pointer hover:-translate-y-0.5';
 
   const variantClasses = {
-    primary: 'text-[var(--accent)]',
-    secondary: 'text-gray-900 dark:text-gray-100',
-    danger: 'text-red-500',
-    success: 'text-green-600',
+    primary: 'bg-ember-accent text-[#0a0705] font-semibold hover:shadow-[0_0_20px_var(--glow)]',
+    secondary: 'bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    success: 'bg-ember-accent text-[#0a0705] font-semibold hover:shadow-[0_0_20px_var(--glow)]',
   };
 
   const disabledClasses = disabled ? 'opacity-50 cursor-not-allowed' : '';

@@ -47,17 +47,20 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
 
   if (checking) {
     return (
-      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-        <p className='text-gray-500'>Verifying access...</p>
+      <div className='min-h-screen bg-ember-bg flex items-center justify-center'>
+        <p className='text-ember-muted'>Verifying access...</p>
       </div>
     );
   }
 
   if (!authenticated) {
     return (
-      <div className='min-h-screen bg-gray-50 flex items-center justify-center'>
-        <form onSubmit={handleSubmit} className='bg-white p-8 rounded-xl shadow-sm border border-gray-200 w-full max-w-sm space-y-4'>
-          <h2 className='text-xl font-bold text-gray-900'>Admin Access</h2>
+      <div className='min-h-screen bg-ember-bg flex items-center justify-center'>
+        <form
+          onSubmit={handleSubmit}
+          className='bg-ember-surface p-8 rounded-xl shadow-sm border border-ember-border w-full max-w-sm space-y-4'
+        >
+          <h2 className='text-xl font-bold font-display text-ember-text'>Admin Access</h2>
           <AdminInput
             label='API Secret'
             type='password'
@@ -65,7 +68,7 @@ export function AdminAuthGate({ children }: { children: React.ReactNode }) {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSecret(e.target.value)}
             placeholder='Enter API secret...'
           />
-          {error && <p className='text-sm text-red-600'>{error}</p>}
+          {error && <p className='text-sm text-red-400'>{error}</p>}
           <AdminButton type='submit' variant='primary' className='w-full'>
             Sign In
           </AdminButton>

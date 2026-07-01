@@ -43,7 +43,7 @@ html {
 
   --bg-footer: #201009;
   --text-on-footer: #fbeee6;
-  --admin-bg: rgb(249, 250, 251);
+  --admin-bg: #fbf3ec;
 
   /* New Ember semantic tokens */
   --bg: #fbf3ec;
@@ -81,7 +81,7 @@ html.dark {
 
   --bg-footer: #120b07;
   --text-on-footer: #c2a693;
-  --admin-bg: rgb(17, 24, 39);
+  --admin-bg: #0a0705;
 
   /* New Ember semantic tokens */
   --bg: #0a0705;

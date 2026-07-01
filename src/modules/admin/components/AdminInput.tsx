@@ -31,7 +31,7 @@ const AdminInput: React.FC<AdminInputProps> = ({
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      {label && <label className='text-gray-500 dark:text-gray-400 text-sm font-medium leading-4 tracking-tight'>{label}</label>}
+      {label && <label className='text-ember-muted text-sm font-medium leading-4 tracking-tight'>{label}</label>}
       <input
         type={type}
         value={value}
@@ -40,10 +40,10 @@ const AdminInput: React.FC<AdminInputProps> = ({
         required={required}
         disabled={disabled}
         className='
-          outline-none border-b border-gray-300 dark:border-gray-600
-          text-gray-900 dark:text-gray-100 text-lg font-normal leading-6 tracking-tight
-          py-2 px-0 bg-transparent
-          focus:border-[#fe4502] transition-colors duration-300
+          outline-none border border-ember-border rounded-lg bg-ember-surface
+          text-ember-text placeholder:text-ember-muted text-lg font-normal leading-6 tracking-tight
+          py-2 px-3
+          focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-300
         '
       />
     </div>

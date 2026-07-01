@@ -263,21 +263,21 @@ export default function AdminPostsPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
+      <div className='min-h-screen bg-ember-surface2 flex items-center justify-center'>
         <AdminLoading message='Loading posts...' />
       </div>
     );
   }
 
   return (
-    <div className='page-layout min-h-screen bg-gray-50 dark:bg-gray-900'>
+    <div className='page-layout min-h-screen bg-ember-surface2'>
       {/* Header */}
-      <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40'>
+      <div className='bg-ember-surface border-b border-ember-border sticky top-0 z-40'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex justify-between items-center py-6'>
             <div>
-              <h1 className='text-3xl font-bold text-gray-900 dark:text-gray-100'>Content Management</h1>
-              <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>Manage and generate blog posts for your website</p>
+              <h1 className='text-3xl font-bold text-ember-text font-display'>Content Management</h1>
+              <p className='mt-1 text-sm text-ember-muted'>Manage and generate blog posts for your website</p>
             </div>
             <div className='flex space-x-3'>
               <AdminButton
@@ -299,10 +299,10 @@ export default function AdminPostsPage() {
         {/* Post Generator */}
         {showGenerator && (
           <div className='mb-8'>
-            <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
-              <div className='bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 px-6 py-4 border-b border-gray-200 dark:border-gray-700'>
-                <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center'>
-                  <svg className='w-5 h-5 mr-2 text-blue-600' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <div className='bg-ember-surface rounded-xl shadow-sm border border-ember-border overflow-hidden'>
+              <div className='bg-ember-surface2 px-6 py-4 border-b border-ember-border'>
+                <h3 className='text-lg font-semibold text-ember-text font-display flex items-center'>
+                  <svg className='w-5 h-5 mr-2 text-ember-accent' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path
                       strokeLinecap='round'
                       strokeLinejoin='round'
@@ -312,21 +312,21 @@ export default function AdminPostsPage() {
                   </svg>
                   AI Content Generator
                 </h3>
-                <p className='text-sm text-gray-600 dark:text-gray-400 mt-1'>Generate high-quality blog posts using AI</p>
+                <p className='text-sm text-ember-muted mt-1'>Generate high-quality blog posts using AI</p>
               </div>
 
               <div className='p-6'>
                 {/* Mode tabs */}
-                <div className='flex space-x-1 mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-1'>
+                <div className='flex space-x-1 mb-6 bg-ember-surface2 rounded-lg p-1'>
                   <button
                     onClick={() => setGenMode('topic')}
-                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'topic' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'topic' ? 'bg-ember-surface text-ember-text shadow-sm' : 'text-ember-muted hover:text-ember-text'}`}
                   >
                     Topic / Category
                   </button>
                   <button
                     onClick={() => setGenMode('source')}
-                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'source' ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'source' ? 'bg-ember-surface text-ember-text shadow-sm' : 'text-ember-muted hover:text-ember-text'}`}
                   >
                     From Source
                   </button>
@@ -381,7 +381,7 @@ export default function AdminPostsPage() {
                         />
 
                         <div>
-                          <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>Or Paste Content</label>
+                          <label className='block text-sm font-medium text-ember-muted mb-1'>Or Paste Content</label>
                           <textarea
                             value={generationForm.sourceText}
                             onChange={e =>
@@ -395,9 +395,9 @@ export default function AdminPostsPage() {
                             rows={5}
                             maxLength={5000}
                             disabled={!!generationForm.sourceUrl}
-                            className='w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400'
+                            className='w-full rounded-lg px-3 py-2 text-sm bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] disabled:bg-ember-surface2 disabled:text-ember-muted'
                           />
-                          <p className='mt-1 text-xs text-gray-400'>
+                          <p className='mt-1 text-xs text-ember-muted'>
                             {generationForm.sourceText?.length ?? 0}/5000 chars. AI will write an original post using this as context.
                           </p>
                         </div>
@@ -407,12 +407,12 @@ export default function AdminPostsPage() {
 
                   <div className='space-y-4'>
                     <div>
-                      <label className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3'>Target Languages</label>
+                      <label className='block text-sm font-medium text-ember-muted mb-3'>Target Languages</label>
                       <div className='grid grid-cols-3 gap-3'>
                         {['en', 'ru', 'uz'].map(locale => (
                           <label
                             key={locale}
-                            className='flex items-center p-3 border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors'
+                            className='flex items-center p-3 border border-ember-border rounded-lg cursor-pointer hover:bg-ember-surface2 transition-colors'
                           >
                             <input
                               type='checkbox'
@@ -430,9 +430,9 @@ export default function AdminPostsPage() {
                                   });
                                 }
                               }}
-                              className='mr-3 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+                              className='mr-3 w-4 h-4 text-ember-accent border-ember-border rounded focus:ring-[color:var(--accent)]'
                             />
-                            <span className='text-sm font-medium text-gray-900 dark:text-gray-100'>{locale.toUpperCase()}</span>
+                            <span className='text-sm font-medium text-ember-text'>{locale.toUpperCase()}</span>
                           </label>
                         ))}
                       </div>
@@ -477,8 +477,8 @@ export default function AdminPostsPage() {
         )}
 
         {/* Posts Overview */}
-        <div className='bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden'>
-          <div className='px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900'>
+        <div className='bg-ember-surface rounded-xl shadow-sm border border-ember-border overflow-hidden'>
+          <div className='px-6 py-4 border-b border-ember-border bg-ember-surface2'>
             <div className='flex justify-between items-center'>
               <div className='flex items-center space-x-4'>
                 {postGroups.length > 0 && (
@@ -486,23 +486,23 @@ export default function AdminPostsPage() {
                     type='checkbox'
                     checked={postGroups.length > 0 && selectedGroups.size === postGroups.length}
                     onChange={toggleAll}
-                    className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer'
+                    className='w-4 h-4 text-ember-accent border-ember-border rounded focus:ring-[color:var(--accent)] cursor-pointer'
                   />
                 )}
                 <div>
-                  <h3 className='text-lg font-semibold text-gray-900 dark:text-gray-100'>
+                  <h3 className='text-lg font-semibold text-ember-text font-display'>
                     {selectedGroups.size > 0 ? `${selectedGroups.size} of ${postGroups.length} groups selected` : 'All Posts'}
                   </h3>
-                  <p className='text-sm text-gray-600 dark:text-gray-400'>
+                  <p className='text-sm text-ember-muted'>
                     {posts.length} total posts in {postGroups.length} groups
                   </p>
                 </div>
               </div>
               <div className='flex space-x-2'>
-                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-green-400'>
                   {posts.filter(p => p.status === 'published').length} Published
                 </span>
-                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800'>
+                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ember-surface2 text-ember-muted'>
                   {posts.filter(p => p.status === 'draft').length} Drafts
                 </span>
               </div>
@@ -511,7 +511,7 @@ export default function AdminPostsPage() {
 
           {postGroups.length === 0 ? (
             <div className='py-16 text-center'>
-              <svg className='mx-auto h-12 w-12 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <svg className='mx-auto h-12 w-12 text-ember-muted' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path
                   strokeLinecap='round'
                   strokeLinejoin='round'
@@ -519,11 +519,11 @@ export default function AdminPostsPage() {
                   d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
                 ></path>
               </svg>
-              <h3 className='mt-4 text-lg font-medium text-gray-900 dark:text-gray-100'>No posts yet</h3>
-              <p className='mt-2 text-gray-500 dark:text-gray-400'>Get started by generating your first blog post.</p>
+              <h3 className='mt-4 text-lg font-medium text-ember-text font-display'>No posts yet</h3>
+              <p className='mt-2 text-ember-muted'>Get started by generating your first blog post.</p>
             </div>
           ) : (
-            <div className='divide-y divide-gray-200 dark:divide-gray-700'>
+            <div className='divide-y divide-ember-border'>
               {postGroups.map((group, _groupIndex) => (
                 <div key={group.generationGroupId} className='p-6'>
                   {/* Group Header */}
@@ -533,16 +533,16 @@ export default function AdminPostsPage() {
                         type='checkbox'
                         checked={selectedGroups.has(group.generationGroupId)}
                         onChange={() => toggleGroup(group.generationGroupId)}
-                        className='w-4 h-4 mr-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer flex-shrink-0'
+                        className='w-4 h-4 mr-4 text-ember-accent border-ember-border rounded focus:ring-[color:var(--accent)] cursor-pointer flex-shrink-0'
                       />
                       <div className='flex items-center space-x-3'>
-                        <h4 className='text-sm font-medium text-gray-900 dark:text-gray-100'>
+                        <h4 className='text-sm font-medium text-ember-text'>
                           {group.posts.length > 1 ? `Post Group (${group.posts.length} languages)` : 'Individual Post'}
                         </h4>
                         <AdminBadge variant='status' status={group.status}>
                           {group.status}
                         </AdminBadge>
-                        <span className='text-xs text-gray-500'>{format(new Date(group.createdAt), 'MMM dd, yyyy')}</span>
+                        <span className='text-xs text-ember-muted'>{format(new Date(group.createdAt), 'MMM dd, yyyy')}</span>
                       </div>
                     </div>
 
@@ -551,7 +551,7 @@ export default function AdminPostsPage() {
                       {group.status !== 'published' && (
                         <button
                           onClick={() => updateGroupStatus(group, 'published')}
-                          className='inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors'
+                          className='inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-semibold rounded-lg text-[#0a0705] bg-ember-accent hover:shadow-[0_0_20px_var(--glow)] focus:outline-none transition-colors'
                         >
                           <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M5 13l4 4L19 7'></path>
@@ -562,7 +562,7 @@ export default function AdminPostsPage() {
                       {group.status !== 'draft' && (
                         <button
                           onClick={() => updateGroupStatus(group, 'draft')}
-                          className='inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors'
+                          className='inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent focus:outline-none transition-colors'
                         >
                           <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path
@@ -595,15 +595,15 @@ export default function AdminPostsPage() {
                   {/* Posts in Group */}
                   <div className='space-y-3'>
                     {group.posts.map(post => (
-                      <div key={post._id} className='flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg'>
+                      <div key={post._id} className='flex items-center justify-between p-4 bg-ember-surface2 rounded-lg'>
                         <div className='flex-1 min-w-0'>
                           <div className='flex items-center space-x-3'>
                             <AdminBadge variant='locale' locale={post.locale as 'en' | 'ru' | 'uz'}>
                               {post.locale.toUpperCase()}
                             </AdminBadge>
                             <div className='flex-1 min-w-0'>
-                              <p className='text-sm font-medium text-gray-900 dark:text-gray-100 truncate'>{post.title}</p>
-                              <p className='text-xs text-gray-500 dark:text-gray-400 truncate'>
+                              <p className='text-sm font-medium text-ember-text truncate'>{post.title}</p>
+                              <p className='text-xs text-ember-muted truncate'>
                                 /{post.locale}/blog/{post.slug}
                               </p>
                             </div>
@@ -614,7 +614,7 @@ export default function AdminPostsPage() {
                           <button
                             onClick={() => openPreview(post)}
                             disabled={previewLoading}
-                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50'
+                            className='inline-flex items-center px-3 py-1.5 border border-ember-border shadow-sm text-xs font-medium rounded-md text-ember-text bg-ember-surface hover:border-ember-accent focus:outline-none transition-colors disabled:opacity-50'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -636,7 +636,7 @@ export default function AdminPostsPage() {
                             href={`/${post.locale}/blog/${post.slug}`}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 shadow-sm text-xs font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors'
+                            className='inline-flex items-center px-3 py-1.5 border border-ember-border shadow-sm text-xs font-medium rounded-md text-ember-text bg-ember-surface hover:border-ember-accent focus:outline-none transition-colors'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -663,21 +663,21 @@ export default function AdminPostsPage() {
       </div>
 
       {selectedGroups.size > 0 && (
-        <div className='fixed bottom-0 inset-x-0 z-50 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg'>
+        <div className='fixed bottom-0 inset-x-0 z-50 bg-ember-surface border-t border-ember-border shadow-lg'>
           <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between'>
-            <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+            <span className='text-sm font-medium text-ember-muted'>
               {selectedGroups.size} group(s) selected ({getSelectedGroups().flatMap(g => g.posts).length} posts)
             </span>
             <div className='flex items-center space-x-3'>
               <button
                 onClick={() => batchUpdateStatus('published')}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 transition-colors'
+                className='inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-[#0a0705] bg-ember-accent hover:shadow-[0_0_20px_var(--glow)] transition-colors'
               >
                 Publish Selected
               </button>
               <button
                 onClick={() => batchUpdateStatus('draft')}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 transition-colors'
+                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
               >
                 Unpublish Selected
               </button>
@@ -689,7 +689,7 @@ export default function AdminPostsPage() {
               </button>
               <button
                 onClick={() => setSelectedGroups(new Set())}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors'
+                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
               >
                 Cancel
               </button>
