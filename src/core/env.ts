@@ -1,7 +1,7 @@
 import { logger } from './logger';
 
 interface EnvConfig {
-  MONGODB_URI: string;
+  DATABASE_URL: string;
   MOONSHOT_API_KEY?: string;
   DEEPSEEK_API_KEY?: string;
   API_SECRET?: string;
@@ -10,14 +10,14 @@ interface EnvConfig {
   NODE_ENV: string;
 }
 
-const requiredEnvVars = ['MONGODB_URI'] as const;
+const requiredEnvVars = ['DATABASE_URL'] as const;
 // At least one AI key (MOONSHOT_API_KEY for Kimi, or DEEPSEEK_API_KEY) enables
 // generation; both being absent just disables AI features (graceful fallback).
 const optionalEnvVars = ['MOONSHOT_API_KEY', 'DEEPSEEK_API_KEY', 'API_SECRET', 'UNSPLASH_ACCESS_KEY', 'EXCHANGERATE_API_KEY'] as const;
 
 export function validateEnvironment(): EnvConfig {
   const env: Partial<EnvConfig> = {
-    MONGODB_URI: process.env.MONGODB_URI,
+    DATABASE_URL: process.env.DATABASE_URL,
     MOONSHOT_API_KEY: process.env.MOONSHOT_API_KEY,
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
     API_SECRET: process.env.API_SECRET,

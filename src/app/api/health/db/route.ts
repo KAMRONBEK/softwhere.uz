@@ -1,21 +1,15 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/core/db';
+import { pingDb } from '@/modules/blog/model/posts.repository';
 
 export async function GET() {
   const startTime = Date.now();
 
   try {
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('timeout')), 10000);
-    });
-
-    await Promise.race([dbConnect(), timeoutPromise]);
-
-    const duration = Date.now() - startTime;
+    await pingDb();
 
     return NextResponse.json({
       status: 'healthy',
-      duration: `${duration}ms`,
+      duration: `${Date.now() - startTime}ms`,
     });
   } catch {
     return NextResponse.json({ status: 'unhealthy' }, { status: 503 });

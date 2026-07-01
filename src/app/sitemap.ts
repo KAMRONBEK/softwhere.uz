@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next';
-import dbConnect from '@/core/db';
-import BlogPost from '@/modules/blog/model/BlogPost';
+import { listForSitemap } from '@/modules/blog/model/posts.repository';
 import { BLOG_CONFIG, ENV } from '@/core/constants';
 import { logger } from '@/core/logger';
 import { getSlugRoot } from '@/shared/utils/slug';
@@ -36,11 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    await dbConnect();
-    const posts = await BlogPost.find({ status: 'published' })
-      .select('slug locale updatedAt createdAt generationGroupId')
-      .sort({ createdAt: 1 })
-      .lean();
+    const posts = await listForSitemap();
 
     const canonicalByCluster = new Map<string, (typeof posts)[number]>();
     for (const post of posts) {

@@ -63,7 +63,7 @@ jobs:
 
       - name: Generate blog post
         env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
           INPUT_CATEGORY: ${{ github.event.inputs.category }}

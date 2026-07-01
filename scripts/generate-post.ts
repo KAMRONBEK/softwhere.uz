@@ -1,5 +1,5 @@
 /**
- * Generate a new blog post group (en/ru/uz) and save directly to MongoDB.
+ * Generate a new blog post group (en/ru/uz) and save directly to Neon Postgres.
  * Designed to run in GitHub Actions where there is no Vercel timeout.
  *
  * Usage:
@@ -14,9 +14,9 @@
  */
 
 import 'dotenv/config';
-import mongoose from 'mongoose';
 import OpenAI from 'openai';
 import { v4 as uuidv4 } from 'uuid';
+import { createPost, slugTaken } from '../src/modules/blog/model/posts.repository';
 import { SERVICE_PILLARS, getAllTopics, type PostFormat } from '../src/modules/blog/data/seo-topics';
 import { getBlueprintForFormat } from '../src/modules/blog/data/post-blueprints';
 // Shared logic consolidated from the blog library. tsx resolves these (and the
@@ -38,11 +38,11 @@ import { CATEGORY_IMAGE_KEYWORDS, GENERIC_FALLBACK_KEYWORDS } from './lib/image-
 // Config
 // ---------------------------------------------------------------------------
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const DATABASE_URL = process.env.DATABASE_URL;
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
-if (!MONGODB_URI) throw new Error('MONGODB_URI not set');
+if (!DATABASE_URL) throw new Error('DATABASE_URL not set');
 if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
@@ -54,31 +54,9 @@ const UNSPLASH_API = 'https://api.unsplash.com';
 // are imported from the blog library (single source of truth).
 
 // ---------------------------------------------------------------------------
-// Mongoose model (inline schema; resolves to the shared BlogPost model when the
-// library is loaded, otherwise registers an equivalent one)
+// Persistence goes through the shared Drizzle/Neon repository (createPost,
+// slugTaken) — the same code path the app uses, so there is no separate model.
 // ---------------------------------------------------------------------------
-
-const BlogPostSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, index: true },
-    content: { type: String, required: true },
-    status: { type: String, enum: ['draft', 'published'], default: 'draft' },
-    locale: { type: String, enum: ['en', 'ru', 'uz'], required: true, index: true },
-    generationGroupId: { type: String, index: true, sparse: true },
-    coverImage: { url: String, thumbUrl: String, authorName: String, authorUrl: String, keyword: String },
-    category: { type: String, index: true, sparse: true },
-    postFormat: String,
-    primaryKeyword: String,
-    secondaryKeywords: [String],
-    metaDescription: String,
-    contentImages: [{ url: String, thumbUrl: String, authorName: String, authorUrl: String, keyword: String }],
-  },
-  { timestamps: true }
-);
-
-BlogPostSchema.index({ locale: 1, slug: 1 }, { unique: true });
-const BlogPost = mongoose.models.BlogPost || mongoose.model('BlogPost', BlogPostSchema);
 
 // ---------------------------------------------------------------------------
 // AI helper
@@ -629,9 +607,7 @@ ${topic.secondaryKeywords.map(k => `- **${k}**: A critical factor in any ${topic
 
 async function main() {
   const opts = parseArgs();
-  console.log('🔌 Connecting to MongoDB...');
-  await mongoose.connect(MONGODB_URI!);
-  console.log('✅ Connected\n');
+  console.log('🔌 Using Neon Postgres (DATABASE_URL)\n');
 
   let selectedTopic: TopicResult;
   let sourceClassification: SourceClassification | null = null;
@@ -787,18 +763,18 @@ async function main() {
     // Localized, stable slug (no timestamp) with a per-locale collision suffix.
     const slugBase = createSlug(localizedTitle) || createSlug(selectedTopic.title) || `post-${generationGroupId.slice(0, 8)}`;
     let slug = slugBase;
-    for (let n = 1; await BlogPost.exists({ slug, locale }); n += 1) {
+    for (let n = 1; await slugTaken(slug, locale as 'en' | 'ru' | 'uz'); n += 1) {
       slug = `${slugBase}-${n}`;
     }
 
-    const blogPost = new BlogPost({
+    const savedPost = await createPost({
       title: localizedTitle,
       slug,
       content,
       status: 'draft',
-      locale,
+      locale: locale as 'en' | 'ru' | 'uz',
       generationGroupId,
-      ...(coverImage && { coverImage }),
+      coverImage: coverImage ?? null,
       category: selectedTopic.servicePillar,
       postFormat: selectedTopic.postFormat,
       primaryKeyword: selectedTopic.primaryKeyword,
@@ -806,8 +782,6 @@ async function main() {
       metaDescription: localizedMeta,
       contentImages: allContentImages,
     });
-
-    const savedPost = await blogPost.save();
     console.log(`   💾 Saved: "${localizedTitle}" (${savedPost.slug})`);
 
     createdPosts.push({
@@ -831,7 +805,6 @@ async function main() {
     console.log(`   → [${p.locale}] ${p.title}`);
   }
 
-  await mongoose.disconnect();
   process.exit(0);
 }
 

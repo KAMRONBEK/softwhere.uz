@@ -1,5 +1,4 @@
-import dbConnect from '@/core/db';
-import BlogPost, { IBlogPost } from '@/modules/blog/model/BlogPost';
+import { listPublished } from '@/modules/blog/model/posts.repository';
 import { isValidLocale } from '@/core/auth';
 import { logger } from '@/core/logger';
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,54 +9,25 @@ export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('API operation timeout after 25 seconds'));
-      }, 25000);
-    });
+    const localeParam = request.nextUrl.searchParams.get('locale');
 
-    const operationPromise = async () => {
-      await dbConnect();
-
-      const localeParam = request.nextUrl.searchParams.get('locale');
-
-      type PublishedPostSummary = Pick<IBlogPost, 'title' | 'slug' | 'createdAt' | 'locale' | 'coverImage'> & { category?: string };
-
-      const query: Record<string, string> = { status: 'published' };
-
-      if (localeParam) {
-        if (!isValidLocale(localeParam)) {
-          throw new Error('INVALID_LOCALE');
-        }
-        query.locale = localeParam;
+    let locale: 'en' | 'ru' | 'uz' | undefined;
+    if (localeParam) {
+      if (!isValidLocale(localeParam)) {
+        return NextResponse.json({ error: 'Invalid locale. Allowed: en, ru, uz' }, { status: 400 });
       }
-
-      const posts: PublishedPostSummary[] = await BlogPost.find(query)
-        .sort({ createdAt: -1 })
-        .select('title slug createdAt locale coverImage category')
-        .limit(100)
-        .lean();
-
-      return posts;
-    };
-
-    const posts = await Promise.race([operationPromise(), timeoutPromise]);
-
-    const duration = Date.now() - startTime;
-
-    logger.performance('Blog posts fetch', duration, 'BLOG');
-
-    return NextResponse.json({ posts });
-  } catch (error: any) {
-    const duration = Date.now() - startTime;
-
-    logger.error(`Error fetching published blog posts after ${duration}ms`, error, 'BLOG');
-
-    if (error.message === 'INVALID_LOCALE') {
-      return NextResponse.json({ error: 'Invalid locale. Allowed: en, ru, uz' }, { status: 400 });
+      locale = localeParam;
     }
 
-    // Don't leak internal/Mongo error strings to unauthenticated clients;
+    const posts = await listPublished(locale, 100);
+
+    logger.performance('Blog posts fetch', Date.now() - startTime, 'BLOG');
+
+    return NextResponse.json({ posts });
+  } catch (error) {
+    logger.error(`Error fetching published blog posts after ${Date.now() - startTime}ms`, error, 'BLOG');
+
+    // Don't leak internal DB error strings to unauthenticated clients;
     // the details are already logged server-side above.
     return NextResponse.json({ error: 'Failed to fetch posts' }, { status: 500 });
   }

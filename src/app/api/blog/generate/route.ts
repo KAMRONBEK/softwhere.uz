@@ -1,5 +1,5 @@
-import dbConnect from '@/core/db';
-import BlogPost, { IBlogPost, ICoverImage } from '@/modules/blog/model/BlogPost';
+import { createPost, getByGroupId, slugTaken } from '@/modules/blog/model/posts.repository';
+import type { ICoverImage } from '@/modules/blog/model/BlogPost';
 import { verifyApiSecret } from '@/core/auth';
 import { safeGenerateContent, aiStats } from '@/core/ai';
 import { logger } from '@/core/logger';
@@ -30,8 +30,8 @@ export const maxDuration = 60;
 if (!process.env.MOONSHOT_API_KEY && !process.env.DEEPSEEK_API_KEY) {
   logger.error('No AI key set (MOONSHOT_API_KEY or DEEPSEEK_API_KEY)', undefined, 'BLOG');
 }
-if (!process.env.MONGODB_URI) {
-  logger.error('MONGODB_URI environment variable not set', undefined, 'BLOG');
+if (!process.env.DATABASE_URL) {
+  logger.error('DATABASE_URL environment variable not set', undefined, 'BLOG');
 }
 
 const VALID_CATEGORIES = SERVICE_PILLARS.map(p => p.id);
@@ -40,7 +40,7 @@ async function resolveUniqueSlug(baseSlug: string, locale: string): Promise<stri
   let candidate = baseSlug;
   let suffix = 1;
 
-  while (await BlogPost.exists({ slug: candidate, locale })) {
+  while (await slugTaken(candidate, locale as 'en' | 'ru' | 'uz')) {
     candidate = `${baseSlug}-${suffix}`;
     suffix += 1;
   }
@@ -83,8 +83,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Invalid locales: ${invalidLocales.join(', ')}` }, { status: 400 });
     }
 
-    await dbConnect();
-
     let selectedTopic: TopicResult;
     let sourceClassification: SourceClassification | null = null;
     let resolvedSource: string | null = null;
@@ -100,7 +98,7 @@ export async function POST(request: NextRequest) {
       if (typeof body.generationGroupId !== 'string') {
         return NextResponse.json({ error: 'generationGroupId must be a string' }, { status: 400 });
       }
-      const existingPost = await BlogPost.findOne({ generationGroupId: body.generationGroupId }).lean<IBlogPost>();
+      const existingPost = await getByGroupId(body.generationGroupId);
 
       if (!existingPost) {
         return NextResponse.json({ error: 'No post found for the given generationGroupId' }, { status: 404 });
@@ -261,14 +259,14 @@ export async function POST(request: NextRequest) {
         const slugBase = createSlug(localizedTitle) || generatedSlugBase;
         const slug = await resolveUniqueSlug(slugBase, locale);
 
-        const blogPost = new BlogPost({
+        const savedPost = await createPost({
           title: localizedTitle,
           slug,
           content,
           status: 'draft',
-          locale,
+          locale: locale as 'en' | 'ru' | 'uz',
           generationGroupId,
-          ...(coverImage && { coverImage }),
+          coverImage: coverImage ?? null,
           category: selectedTopic.servicePillar,
           postFormat: selectedTopic.postFormat,
           primaryKeyword: localizedPrimary,
@@ -276,8 +274,6 @@ export async function POST(request: NextRequest) {
           metaDescription: localizedMeta,
           contentImages: allContentImages,
         });
-
-        const savedPost = await blogPost.save();
 
         createdPosts.push({
           id: savedPost._id,

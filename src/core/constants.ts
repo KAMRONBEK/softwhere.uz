@@ -52,7 +52,7 @@ export const SOCIAL_LINKS = {
 
 // Environment Variables (with fallbacks)
 export const ENV = {
-  MONGODB_URI: process.env.MONGODB_URI || '',
+  DATABASE_URL: process.env.DATABASE_URL || '',
   MOONSHOT_API_KEY: process.env.MOONSHOT_API_KEY || '',
   DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY || '',
   API_SECRET: process.env.API_SECRET || '',

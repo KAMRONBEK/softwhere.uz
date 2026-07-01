@@ -14,7 +14,6 @@
  */
 
 import 'dotenv/config';
-import mongoose from 'mongoose';
 import OpenAI from 'openai';
 import { findDuplicateCovers, findSimilarTitles, findSimilarContent } from './lib/similarity';
 import {
@@ -32,16 +31,17 @@ import { CATEGORY_IMAGE_KEYWORDS, GENERIC_FALLBACK_KEYWORDS } from './lib/image-
 // the blog library instead of redefining it. This keeps the script's runtime
 // fully self-contained (no library module is loaded).
 import type { ICoverImage } from '../src/modules/blog/model/BlogPost';
+import { listAll, updateFieldsById } from '../src/modules/blog/model/posts.repository';
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const DATABASE_URL = process.env.DATABASE_URL;
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
-if (!MONGODB_URI) throw new Error('MONGODB_URI not set');
+if (!DATABASE_URL) throw new Error('DATABASE_URL not set');
 if (!DEEPSEEK_API_KEY) throw new Error('DEEPSEEK_API_KEY not set');
 
 const ai = new OpenAI({ baseURL: 'https://api.deepseek.com', apiKey: DEEPSEEK_API_KEY });
@@ -62,29 +62,9 @@ const MAX_ITERATIONS = (() => {
 })();
 
 // ---------------------------------------------------------------------------
-// Mongoose model (inline to keep this CLI's runtime self-contained)
+// Persistence goes through the shared Drizzle/Neon repository (listAll,
+// updateFieldsById) — no separate model.
 // ---------------------------------------------------------------------------
-
-const BlogPostSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, index: true },
-    content: { type: String, required: true },
-    status: { type: String, enum: ['draft', 'published'], default: 'draft' },
-    locale: { type: String, enum: ['en', 'ru', 'uz'], required: true, index: true },
-    generationGroupId: { type: String, index: true, sparse: true },
-    coverImage: { url: String, thumbUrl: String, authorName: String, authorUrl: String, keyword: String },
-    category: { type: String, index: true, sparse: true },
-    postFormat: String,
-    primaryKeyword: String,
-    secondaryKeywords: [String],
-    metaDescription: String,
-    contentImages: [{ url: String, thumbUrl: String, authorName: String, authorUrl: String, keyword: String }],
-  },
-  { timestamps: true }
-);
-
-const BlogPost = mongoose.models.BlogPost || mongoose.model('BlogPost', BlogPostSchema);
 
 // ---------------------------------------------------------------------------
 // AI helpers
@@ -758,7 +738,7 @@ async function runAnalysis(): Promise<AnalysisResult> {
   console.log('  PHASE 1: ANALYSIS');
   console.log('═══════════════════════════════════════════════════\n');
 
-  const allPosts = (await BlogPost.find({}).lean()) as PostDoc[];
+  const allPosts = (await listAll()) as unknown as PostDoc[];
   console.log(`📦 Loaded ${allPosts.length} posts from DB`);
 
   // Build indexes for duplicate/similarity detection
@@ -1181,7 +1161,7 @@ async function fixGroups(analysis: AnalysisResult) {
 
       // Apply updates
       if (Object.keys(updateFields).length > 0) {
-        await BlogPost.updateOne({ _id: post._id }, { $set: updateFields });
+        await updateFieldsById(String(post._id), updateFields);
         const changedKeys = Object.keys(updateFields).join(', ');
         console.log(`   💾 ${locale}: updated [${changedKeys}]`);
         fixed++;
@@ -1206,9 +1186,7 @@ async function main() {
     `  Flags: ${[DRY_RUN && 'dry-run', ANALYZE_ONLY && 'analyze-only', RESUME && 'resume', FORCE && 'force', MAX_ITERATIONS > 1 && `iterations=${MAX_ITERATIONS}`].filter(Boolean).join(', ') || 'default (fix)'}`
   );
 
-  console.log('\n🔌 Connecting to MongoDB...');
-  await mongoose.connect(MONGODB_URI!);
-  console.log('✅ Connected');
+  console.log('\n🔌 Using Neon Postgres (DATABASE_URL)');
 
   let totalFixed = 0;
 
@@ -1226,7 +1204,6 @@ async function main() {
 
     if (ANALYZE_ONLY) {
       console.log('\n📊 Analyze-only mode, exiting.');
-      await mongoose.disconnect();
       process.exit(0);
     }
 
@@ -1259,7 +1236,6 @@ async function main() {
   if (DRY_RUN) console.log('   ⚠️  DRY RUN — no changes were saved');
   console.log('═══════════════════════════════════════════════════');
 
-  await mongoose.disconnect();
   process.exit(0);
 }
 

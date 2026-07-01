@@ -2,7 +2,7 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.1-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
+[![Neon](https://img.shields.io/badge/Neon-Postgres-00E599?style=flat-square&logo=postgresql)](https://neon.tech/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
 
@@ -77,7 +77,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 
 - Node.js 18+
 - Yarn
-- MongoDB Atlas (or local MongoDB)
+- Neon (serverless Postgres) — free tier is fine
 - DeepSeek API key (for blog generation)
 
 ### Installation
@@ -117,7 +117,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `MONGODB_URI` | ✅ | MongoDB connection string |
+| `DATABASE_URL` | ✅ | Neon (serverless Postgres) connection string |
 | `NEXT_PUBLIC_BASE_URL` | ✅ | Base URL for API calls (e.g. `http://localhost:3000`) |
 | `NEXT_PUBLIC_TG_BOT_TOKEN` | ✅* | Telegram bot for contact form notifications |
 | `NEXT_PUBLIC_TG_CHAT_ID` | ✅* | Telegram chat for contact form notifications |
@@ -150,7 +150,7 @@ See `env.example` for setup. Never commit `.env.local` or real credentials.
 
 | Command | Description |
 |---------|-------------|
-| `npx tsx scripts/generate-post.ts [options]` | Generate blog post(s) and save to MongoDB |
+| `npx tsx scripts/generate-post.ts [options]` | Generate blog post(s) and save to Neon Postgres |
 | `npx tsx scripts/regenerate-posts.ts [flags]` | Fix/heal blog posts (structure, dedup, images) |
 
 **generate-post options:**
@@ -223,7 +223,7 @@ softwhere.uz/
 | **Framework** | Next.js 16 (App Router) |
 | **Language** | TypeScript 5.8 |
 | **Styling** | Tailwind CSS |
-| **Database** | MongoDB + Mongoose |
+| **Database** | Neon Postgres + Drizzle |
 | **AI** | DeepSeek (OpenAI-compatible API) |
 | **i18n** | next-intl |
 | **Deployment** | Vercel |

@@ -1,10 +1,11 @@
-import dbConnect from '@/core/db';
-import BlogPost from '@/modules/blog/model/BlogPost';
+import { deleteById, getById, isValidPostId, slugTaken, updateById } from '@/modules/blog/model/posts.repository';
+import type { NewBlogPost } from '@/modules/blog/model/BlogPost';
 import { verifyApiSecret } from '@/core/auth';
 import { logger } from '@/core/logger';
-import mongoose from 'mongoose';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
+
+type PostPatch = Partial<Pick<NewBlogPost, 'title' | 'slug' | 'content' | 'status' | 'locale'>>;
 
 // Bust the blog ISR caches after a successful write. revalidateTag busts the
 // list page's tagged data query; revalidatePath busts the statically-rendered
@@ -25,14 +26,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+  if (!id || !isValidPostId(id)) {
     return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
   }
 
   try {
-    await dbConnect();
-
-    const post = await BlogPost.findById(id);
+    const post = await getById(id);
 
     if (!post) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
@@ -42,7 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       success: true,
       post,
     });
-  } catch (error: any) {
+  } catch (error) {
     logger.error('Error fetching post', error, 'API');
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -56,7 +55,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+  if (!id || !isValidPostId(id)) {
     return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
   }
 
@@ -80,37 +79,31 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
     }
 
-    await dbConnect();
-
     // Find the existing post
-    const existingPost = await BlogPost.findById(id);
+    const existingPost = await getById(id);
 
     if (!existingPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    // Check for slug collision only if the slug has changed
+    // Check for slug collision only if the slug has changed (same locale, other id)
     if (slug !== existingPost.slug) {
-      const slugCollision = await BlogPost.findOne({
-        slug,
-        locale,
-        _id: { $ne: id },
-      }); // Check other posts in same locale
-
-      if (slugCollision) {
+      if (await slugTaken(slug, locale, id)) {
         return NextResponse.json({ error: `Slug "${slug}" already exists for locale "${locale}"` }, { status: 409 }); // 409 Conflict
       }
     }
 
     // Perform the update
-    const updatedPost = await BlogPost.findByIdAndUpdate(
-      id,
-      { title, slug, content, status, locale },
-      { new: true, runValidators: true } // Return the updated document and run schema validators
-    );
+    const updatedPost = await updateById(id, {
+      title,
+      slug,
+      content,
+      status: status as 'draft' | 'published',
+      locale: locale as 'en' | 'ru' | 'uz',
+    });
 
     if (!updatedPost) {
-      // Should not happen if findById found it, but handle just in case
+      // Should not happen if getById found it, but handle just in case
       return NextResponse.json({ error: 'Post not found after update attempt' }, { status: 404 });
     }
 
@@ -123,12 +116,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       message: 'Post updated successfully',
       post: updatedPost,
     });
-  } catch (error: any) {
+  } catch (error) {
     logger.error('Error updating post', error, 'API');
-    // Handle potential validation errors from Mongoose
-    if (error.name === 'ValidationError') {
-      return NextResponse.json({ error: 'Validation failed', details: error.message }, { status: 400 });
-    }
 
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -143,35 +132,30 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   try {
     const { id } = await params;
 
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    if (!id || !isValidPostId(id)) {
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
     }
 
     const body = await request.json();
 
-    const update: Record<string, unknown> = {};
+    const patch: PostPatch = {};
     for (const field of PATCH_ALLOWED_FIELDS) {
-      if (field in body) update[field] = body[field];
+      if (field in body) patch[field] = body[field];
     }
 
-    if (Object.keys(update).length === 0) {
+    if (Object.keys(patch).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
-    if (update.status && !['draft', 'published'].includes(update.status as string)) {
+    if (patch.status && !['draft', 'published'].includes(patch.status)) {
       return NextResponse.json({ error: 'Invalid status value' }, { status: 400 });
     }
 
-    if (update.locale && !['en', 'ru', 'uz'].includes(update.locale as string)) {
+    if (patch.locale && !['en', 'ru', 'uz'].includes(patch.locale)) {
       return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
     }
 
-    await dbConnect();
-
-    const updatedPost = await BlogPost.findByIdAndUpdate(id, update, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedPost = await updateById(id, patch);
 
     if (!updatedPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
@@ -197,15 +181,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     const { id } = await params;
 
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    if (!id || !isValidPostId(id)) {
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
     }
 
-    await dbConnect();
+    const deleted = await deleteById(id);
 
-    const deletedPost = await BlogPost.findByIdAndDelete(id);
-
-    if (!deletedPost) {
+    if (!deleted) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 

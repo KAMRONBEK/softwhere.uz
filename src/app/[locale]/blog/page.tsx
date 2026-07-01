@@ -3,8 +3,7 @@ import { unstable_cache } from 'next/cache';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import BlogListClient, { BlogPostSummary } from '@/modules/blog/components/BlogListClient';
-import dbConnect from '@/core/db';
-import BlogPostModel from '@/modules/blog/model/BlogPost';
+import { listPublished } from '@/modules/blog/model/posts.repository';
 import { validateLocale } from '@/core/auth';
 import { safeJsonLd } from '@/shared/utils/security';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
@@ -45,13 +44,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 const getPublishedPosts = unstable_cache(
   async (locale: string): Promise<BlogPostSummary[]> => {
     try {
-      await dbConnect();
       const validLocale = validateLocale(locale, 'en');
-      const posts = await BlogPostModel.find({ locale: validLocale, status: 'published' })
-        .sort({ createdAt: -1 })
-        .select('title slug createdAt locale coverImage category')
-        .lean();
-      return JSON.parse(JSON.stringify(posts));
+      return await listPublished(validLocale);
     } catch {
       return [];
     }

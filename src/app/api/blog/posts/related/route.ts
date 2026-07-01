@@ -1,6 +1,5 @@
 import { logger } from '@/core/logger';
-import dbConnect from '@/core/db';
-import BlogPost from '@/modules/blog/model/BlogPost';
+import { getPublishedGroupSibling } from '@/modules/blog/model/posts.repository';
 import { isValidLocale } from '@/core/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -30,14 +29,8 @@ export async function GET(request: NextRequest) {
       'RELATED_POSTS_API'
     );
 
-    await dbConnect();
-
     // Find the post in the target locale with the same generation group ID
-    const relatedPost = await BlogPost.findOne({
-      generationGroupId,
-      locale: targetLocale,
-      status: 'published',
-    });
+    const relatedPost = await getPublishedGroupSibling(generationGroupId, targetLocale);
 
     if (!relatedPost) {
       logger.info(

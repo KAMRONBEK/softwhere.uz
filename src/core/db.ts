@@ -1,85 +1,45 @@
+import { neon } from '@neondatabase/serverless';
+import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { ENV } from '@/core/constants';
 import { logger } from '@/core/logger';
-import _mongoose, { Mongoose } from 'mongoose';
-
-declare global {
-  // allow global `var` declarations
-
-  var _mongoose: {
-    conn: Mongoose | null;
-    promise: Promise<Mongoose> | null;
-  };
-}
-
-const MONGODB_URI: string = ENV.MONGODB_URI;
+import * as schema from '@/modules/blog/model/BlogPost';
 
 /**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
+ * Neon (serverless Postgres) via Drizzle's HTTP driver. The HTTP driver is
+ * stateless — every query is a fetch — so there is no connection pool to tune
+ * and nothing to keep warm across serverless invocations. That replaces the
+ * whole hand-tuned Mongoose pool/timeout/`Promise.race` dance we used before.
+ *
+ * The client is created lazily on first use so that importing this module stays
+ * side-effect-free: `next build` can collect page data without `DATABASE_URL`
+ * set, and any route that actually queries gets a clear error at call time.
  */
-let cached = global._mongoose;
+let cached: NeonHttpDatabase<typeof schema> | null = null;
 
-if (!cached) {
-  cached = global._mongoose = { conn: null, promise: null };
+export function getDb(): NeonHttpDatabase<typeof schema> {
+  if (cached) return cached;
+
+  const url = ENV.DATABASE_URL || process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error('DATABASE_URL is not set — provision a Neon database and set it in the environment.');
+  }
+
+  logger.info('Initializing Neon/Drizzle client', undefined, 'DB');
+  cached = drizzle({ client: neon(url), schema });
+  return cached;
 }
 
-async function dbConnect(): Promise<Mongoose> {
-  // Validate the env at call time (not module-eval time) so importing this
-  // module is side-effect-free — otherwise `next build` fails collecting page
-  // data for any route that imports it, even though the build needs no DB.
-  if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env or .env.local');
-  }
+/**
+ * A proxy that defers client creation until the first query. Repository code can
+ * `import { db }` and use it like a normal Drizzle instance without triggering
+ * `neon()` at module-eval time.
+ */
+export const db = new Proxy({} as NeonHttpDatabase<typeof schema>, {
+  get(_target, prop, receiver) {
+    const real = getDb();
+    const value = Reflect.get(real as object, prop, receiver);
+    return typeof value === 'function' ? value.bind(real) : value;
+  },
+});
 
-  if (cached.conn) {
-    logger.debug('Using cached MongoDB connection', undefined, 'DB');
-
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-      serverSelectionTimeoutMS: 5000, // Reduced to 5 seconds for Vercel
-      socketTimeoutMS: 20000, // Reduced to 20 seconds for Vercel
-      connectTimeoutMS: 5000, // Reduced to 5 seconds for Vercel
-      maxPoolSize: 5, // Reduced pool size for serverless
-      minPoolSize: 1, // Reduced minimum pool size
-      maxIdleTimeMS: 10000, // Reduced idle time for serverless
-      heartbeatFrequencyMS: 10000, // Add heartbeat for connection health
-      retryWrites: true,
-      retryReads: true,
-    };
-
-    logger.info('Creating new MongoDB connection', undefined, 'DB');
-
-    // Add timeout wrapper for the entire connection process
-    const connectionTimeout = new Promise<never>((_, reject) => {
-      setTimeout(() => {
-        reject(new Error('MongoDB connection timeout after 8 seconds'));
-      }, 8000);
-    });
-
-    cached.promise = Promise.race([
-      _mongoose.connect(MONGODB_URI, opts).then(mongooseInstance => {
-        logger.info('MongoDB connection established', undefined, 'DB');
-
-        return mongooseInstance;
-      }),
-      connectionTimeout,
-    ]);
-  }
-
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    logger.error('MongoDB connection error', e, 'DB');
-    throw e;
-  }
-
-  return cached.conn;
-}
-
-export default dbConnect;
+export default db;

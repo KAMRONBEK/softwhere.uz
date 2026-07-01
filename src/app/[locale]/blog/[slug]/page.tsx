@@ -13,13 +13,12 @@ import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import BlogPostClient from '@/modules/blog/components/BlogPostClient';
-import dbConnect from '@/core/db';
-import BlogPostModel from '@/modules/blog/model/BlogPost';
+import * as postsRepo from '@/modules/blog/model/posts.repository';
 import { CoverImage } from '@/shared/types';
 import { validateLocale } from '@/core/auth';
 import { getSlugRoot } from '@/shared/utils/slug';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
-import { BlogPost, BlogPostSchema, escapeRegex, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
+import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
 
 // ISR: render posts on demand and cache for an hour. generateStaticParams
 // returns [] so nothing is prerendered at build time (no build-time DB), and
@@ -50,33 +49,15 @@ const getBlogPost = cache(async (rawSlug: string, locale: string): Promise<BlogP
     // Malformed slug can never match a document -> genuine 404.
     return null;
   }
-  await dbConnect();
   const validLocale = validateLocale(locale, 'en');
-  let post = await BlogPostModel.findOne({ slug, locale: validLocale, status: 'published' }).lean();
-  if (!post) {
-    post = await BlogPostModel.findOne({ slug, status: 'published' }).lean();
-  }
-  if (!post) return null;
-  return JSON.parse(JSON.stringify(post));
+  return postsRepo.getPublishedBySlugFlexible(slug, validLocale);
 });
 
 const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Promise<PostLocaleSlug | null> => {
   try {
-    await dbConnect();
     const normalizedLocale = validateLocale(locale, 'en');
     const slugRoot = getSlugRoot(slug);
-    const slugPattern = new RegExp(`^${escapeRegex(slugRoot)}(?:-\\d{10,})?$`);
-    const canonicalPost = await BlogPostModel.findOne({
-      locale: normalizedLocale,
-      status: 'published',
-      slug: slugPattern,
-    })
-      .sort({ createdAt: 1 })
-      .select('slug locale')
-      .lean();
-
-    if (!canonicalPost) return null;
-    return JSON.parse(JSON.stringify(canonicalPost));
+    return await postsRepo.getCanonicalForLocale(normalizedLocale, slugRoot);
   } catch {
     return null;
   }
@@ -84,9 +65,7 @@ const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Pr
 
 const getGroupSiblings = cache(async (generationGroupId: string): Promise<PostLocaleSlug[]> => {
   try {
-    await dbConnect();
-    const siblings = await BlogPostModel.find({ generationGroupId, status: 'published' }).select('slug locale').lean();
-    return JSON.parse(JSON.stringify(siblings));
+    return await postsRepo.getGroupSiblings(generationGroupId);
   } catch {
     return [];
   }
@@ -99,18 +78,7 @@ async function getRelatedPosts(
 ): Promise<Array<{ title: string; slug: string; coverImage?: CoverImage }>> {
   if (!category) return [];
   try {
-    await dbConnect();
-    const posts = await BlogPostModel.find({
-      category,
-      locale,
-      status: 'published',
-      _id: { $ne: currentId },
-    })
-      .sort({ createdAt: -1 })
-      .limit(3)
-      .select('title slug coverImage')
-      .lean();
-    return JSON.parse(JSON.stringify(posts));
+    return await postsRepo.getRelatedByCategory(category, validateLocale(locale, 'en'), currentId, 3);
   } catch {
     return [];
   }

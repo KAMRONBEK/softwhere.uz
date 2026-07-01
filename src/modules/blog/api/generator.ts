@@ -1,4 +1,5 @@
-import BlogPost, { ICoverImage } from '@/modules/blog/model/BlogPost';
+import type { ICoverImage } from '@/modules/blog/model/BlogPost';
+import { listRecentTopicInfo } from '@/modules/blog/model/posts.repository';
 import { safeGenerateContent, safeGenerateJSON } from '@/core/ai';
 import { logger } from '@/core/logger';
 import { createSlug } from '@/shared/utils/slug';
@@ -257,11 +258,7 @@ interface RecentPostInfo {
 }
 
 export async function smartSelectTopic(): Promise<TopicResult> {
-  const recentPosts = await BlogPost.find({ locale: 'en' })
-    .sort({ createdAt: -1 })
-    .limit(30)
-    .select('category postFormat primaryKeyword')
-    .lean<RecentPostInfo[]>();
+  const recentPosts = await listRecentTopicInfo(30);
 
   const usedKeywords = new Set(recentPosts.map((p: RecentPostInfo) => p.primaryKeyword).filter(Boolean));
   const recentFormats = recentPosts
