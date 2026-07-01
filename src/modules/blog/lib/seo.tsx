@@ -25,27 +25,44 @@ export function escapeRegex(input: string): string {
   return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function extractDescription(content: string, storedMeta?: string): string {
-  if (storedMeta) return storedMeta;
+const FALLBACK_DESC: Record<string, string> = {
+  en: 'Expert insights on software development from Softwhere.uz.',
+  ru: 'Экспертные материалы о разработке программного обеспечения от Softwhere.uz.',
+  uz: "Softwhere.uz'dan dasturiy ta'minot ishlab chiqish bo'yicha ekspert maqolalari.",
+};
+
+export function extractDescription(content: string, storedMeta?: string, locale: string = 'en'): string {
+  if (storedMeta && storedMeta.trim()) return storedMeta.trim();
   const line = content
     .replace(/#{1,6}\s/g, '')
     .replace(/\*\*(.*?)\*\*/g, '$1')
     .replace(/\*(.*?)\*/g, '$1')
     .split('\n')
-    .find(l => l.trim().length > 50);
-  // Without this guard, an unmatched find() interpolated as `undefined...`
-  // (a truthy string) so the fallback below never fired.
-  if (!line) return 'Expert insights on software development from Softwhere.uz.';
-  return `${line.substring(0, 160)}...`;
+    .map(l => l.trim())
+    .find(l => l.length > 50);
+  // Guard: an unmatched find() would interpolate as `undefined...` (truthy).
+  if (!line) return FALLBACK_DESC[locale] ?? FALLBACK_DESC.en;
+  if (line.length <= 160) return line;
+  // Clamp near 155 chars on a word boundary; add the ellipsis only if truncated.
+  const clipped = line.slice(0, 157);
+  const lastSpace = clipped.lastIndexOf(' ');
+  return `${(lastSpace > 100 ? clipped.slice(0, lastSpace) : clipped).trim()}…`;
 }
+
+const FALLBACK_KEYWORDS: Record<string, string[]> = {
+  en: ['mobile app development', 'web development', 'telegram bot', 'software development', 'uzbekistan'],
+  ru: ['разработка мобильных приложений', 'веб-разработка', 'телеграм бот', 'разработка по', 'узбекистан'],
+  uz: ['mobil ilova ishlab chiqish', 'veb-dasturlash', 'telegram bot', "dasturiy ta'minot", "o'zbekiston"],
+};
 
 export function getKeywords(post: BlogPost): string[] {
   if (post.primaryKeyword || post.secondaryKeywords?.length) {
-    return [...(post.primaryKeyword ? [post.primaryKeyword] : []), ...(post.secondaryKeywords ?? []), 'softwhere.uz', 'uzbekistan'];
+    return [...(post.primaryKeyword ? [post.primaryKeyword] : []), ...(post.secondaryKeywords ?? []), 'softwhere.uz'];
   }
-  const fallback = ['mobile app development', 'web development', 'telegram bot', 'software development', 'uzbekistan'];
+  const fallback = FALLBACK_KEYWORDS[post.locale] ?? FALLBACK_KEYWORDS.en;
   const contentLower = post.content.toLowerCase();
-  return fallback.filter(kw => contentLower.includes(kw));
+  const matched = fallback.filter(kw => contentLower.includes(kw));
+  return matched.length ? matched : fallback.slice(0, 3);
 }
 
 export const PILLAR_LABELS: Record<string, string> = {
@@ -99,10 +116,16 @@ export function parseFAQPairs(content: string): Array<{ q: string; a: string }> 
 
 export function BlogPostSchema({ post }: { post: BlogPost }) {
   const baseUrl = ENV.BASE_URL;
-  const description = extractDescription(post.content, post.metaDescription);
-  const keywords = getKeywords(post);
   const locale = post.locale;
+  const description = extractDescription(post.content, post.metaDescription, locale);
+  const keywords = getKeywords(post);
   const articleSection = post.category ? (PILLAR_LABELS[post.category] ?? 'Technology') : 'Technology';
+  // E-E-A-T: use a real named Person author when BLOG_AUTHOR_NAME is set
+  // (Google rewards Person authors); otherwise fall back to the Organization.
+  const authorName = process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR;
+  const author = authorName
+    ? { '@type': 'Person', name: authorName, url: `${baseUrl}/${locale}#contact` }
+    : { '@type': 'Organization', name: 'SoftWhere.uz', url: baseUrl };
 
   const schemas: object[] = [
     {
@@ -111,7 +134,7 @@ export function BlogPostSchema({ post }: { post: BlogPost }) {
       headline: post.title,
       description,
       image: post.coverImage?.url || `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
-      author: { '@type': 'Organization', name: 'SoftWhere.uz', url: baseUrl },
+      author,
       publisher: {
         '@type': 'Organization',
         name: 'SoftWhere.uz',
@@ -125,7 +148,7 @@ export function BlogPostSchema({ post }: { post: BlogPost }) {
       },
       articleSection,
       keywords: keywords.join(', '),
-      wordCount: post.content.split(' ').length,
+      wordCount: post.content.split(/\s+/).filter(Boolean).length,
       inLanguage: locale,
       isPartOf: { '@type': 'Blog', '@id': `${baseUrl}/${locale}/blog` },
     },

@@ -12,8 +12,9 @@ import {
   buildSourcePrompt,
   smartSelectTopic,
   generateBlogContent,
-  generateFallbackContent,
   generateMetaDescription,
+  localizePostMeta,
+  WORD_FLOOR,
   MAX_SOURCE_TEXT_LENGTH,
   MAX_CUSTOM_TOPIC_LENGTH,
   ALLOWED_LOCALES,
@@ -26,8 +27,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const maxDuration = 60;
 
-if (!process.env.DEEPSEEK_API_KEY) {
-  logger.error('DEEPSEEK_API_KEY environment variable not set', undefined, 'BLOG');
+if (!process.env.MOONSHOT_API_KEY && !process.env.DEEPSEEK_API_KEY) {
+  logger.error('No AI key set (MOONSHOT_API_KEY or DEEPSEEK_API_KEY)', undefined, 'BLOG');
 }
 if (!process.env.MONGODB_URI) {
   logger.error('MONGODB_URI environment variable not set', undefined, 'BLOG');
@@ -220,38 +221,45 @@ export async function POST(request: NextRequest) {
 
     for (const locale of locales) {
       try {
-        let content: string;
-
+        // 1. Generate the body. null => generation failed or was too thin, so
+        //    we skip this locale rather than persist boilerplate filler.
+        let content: string | null;
         if (resolvedSource && sourceClassification) {
-          const prompt = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
+          const { system, user } = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
           logger.info(`Generating source-based content for "${selectedTopic.title}" in ${locale}`, undefined, 'BLOG');
-          const generated = await safeGenerateContent(prompt, `blog-source-${locale}`);
-          content = generated && generated.split(/\s+/).length >= 300 ? generated : generateFallbackContent(selectedTopic, locale);
+          const generated = await safeGenerateContent(user, `blog-source-${locale}`, undefined, system);
+          content = generated && generated.trim().split(/\s+/).filter(Boolean).length >= WORD_FLOOR ? generated : null;
         } else {
           content = await generateBlogContent(selectedTopic, locale, inlineImages);
         }
 
-        // Localize title
+        if (!content) {
+          logger.warn(`Skipping ${locale}: no acceptable content generated`, undefined, 'BLOG');
+          continue;
+        }
+
+        // 2. Localize title/meta/keywords for ru|uz (single JSON call), so
+        //    non-English posts target their own language's search terms.
         let localizedTitle = selectedTopic.title;
-        if (locale !== 'en') {
-          const titlePrompt = `Translate the following blog post title into ${locale === 'ru' ? 'Russian' : 'Uzbek'}: "${selectedTopic.title}". Only return the translated title, nothing else.`;
-          const translated = await safeGenerateContent(titlePrompt, `title-translate-${locale}`, 100);
-          if (translated) {
-            localizedTitle = translated.trim().replace(/^"|"$/g, '');
-          }
-        }
-
-        // Localize meta description
         let localizedMeta = metaDesc;
-        if (locale !== 'en') {
-          const metaPrompt = `Translate this meta description into ${locale === 'ru' ? 'Russian' : 'Uzbek'}. Keep it under 160 characters. Return ONLY the translation.\n\n"${metaDesc}"`;
-          const translatedMeta = await safeGenerateContent(metaPrompt, `meta-translate-${locale}`, 200);
-          if (translatedMeta) {
-            localizedMeta = translatedMeta.trim().replace(/^"|"$/g, '');
-          }
+        let localizedPrimary = selectedTopic.primaryKeyword;
+        let localizedSecondary = selectedTopic.secondaryKeywords;
+        if (locale === 'ru' || locale === 'uz') {
+          const loc = await localizePostMeta(locale, {
+            title: selectedTopic.title,
+            metaDescription: metaDesc,
+            primaryKeyword: selectedTopic.primaryKeyword,
+            secondaryKeywords: selectedTopic.secondaryKeywords,
+          });
+          localizedTitle = loc.title;
+          localizedMeta = loc.metaDescription;
+          localizedPrimary = loc.primaryKeyword;
+          localizedSecondary = loc.secondaryKeywords;
         }
 
-        const slug = await resolveUniqueSlug(generatedSlugBase, locale);
+        // 3. Localized, stable slug from THIS locale's title (no timestamp).
+        const slugBase = createSlug(localizedTitle) || generatedSlugBase;
+        const slug = await resolveUniqueSlug(slugBase, locale);
 
         const blogPost = new BlogPost({
           title: localizedTitle,
@@ -263,8 +271,8 @@ export async function POST(request: NextRequest) {
           ...(coverImage && { coverImage }),
           category: selectedTopic.servicePillar,
           postFormat: selectedTopic.postFormat,
-          primaryKeyword: selectedTopic.primaryKeyword,
-          secondaryKeywords: selectedTopic.secondaryKeywords,
+          primaryKeyword: localizedPrimary,
+          secondaryKeywords: localizedSecondary,
           metaDescription: localizedMeta,
           contentImages: allContentImages,
         });

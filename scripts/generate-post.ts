@@ -784,7 +784,12 @@ async function main() {
       if (translatedMeta) localizedMeta = translatedMeta.trim().replace(/^"|"$/g, '');
     }
 
-    const slug = `${createSlug(selectedTopic.title)}-${Date.now()}`;
+    // Localized, stable slug (no timestamp) with a per-locale collision suffix.
+    const slugBase = createSlug(localizedTitle) || createSlug(selectedTopic.title) || `post-${generationGroupId.slice(0, 8)}`;
+    let slug = slugBase;
+    for (let n = 1; await BlogPost.exists({ slug, locale }); n += 1) {
+      slug = `${slugBase}-${n}`;
+    }
 
     const blogPost = new BlogPost({
       title: localizedTitle,

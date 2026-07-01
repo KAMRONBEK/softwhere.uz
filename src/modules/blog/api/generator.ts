@@ -1,5 +1,5 @@
 import BlogPost, { ICoverImage } from '@/modules/blog/model/BlogPost';
-import { safeGenerateContent } from '@/core/ai';
+import { safeGenerateContent, safeGenerateJSON } from '@/core/ai';
 import { logger } from '@/core/logger';
 import { createSlug } from '@/shared/utils/slug';
 import { assertFetchableUrl } from '@/shared/utils/security';
@@ -11,6 +11,9 @@ export const MAX_SOURCE_TEXT_LENGTH = 5000;
 export const MAX_EXTRACTED_TEXT_LENGTH = 4000;
 export const ALLOWED_LOCALES = ['en', 'ru', 'uz'];
 export const MAX_CUSTOM_TOPIC_LENGTH = 200;
+// Minimum acceptable body length. Below this we treat generation as failed and
+// return null (the route skips it) rather than persisting a thin/boilerplate post.
+export const WORD_FLOOR = 500;
 
 export const POST_FORMATS: PostFormat[] = [
   'cost-guide',
@@ -38,6 +41,10 @@ export interface SourceClassification {
   secondaryKeywords: string[];
   postFormat: PostFormat;
   imageHints: string[];
+}
+
+function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,15 +113,11 @@ Return JSON:
 
 Pick the category that best matches how Softwhere.uz would cover this topic. Security/hacking → cybersecurity. AI news → ai-solutions. App news → mobile-app-development. Etc.`;
 
-  const result = await safeGenerateContent(prompt, 'source-classify', 500);
+  const result = await safeGenerateJSON(prompt, 'source-classify', 600);
 
   if (result) {
     try {
-      const cleaned = result
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-      const parsed = JSON.parse(cleaned);
+      const parsed = JSON.parse(result);
       const validCategories = SERVICE_PILLARS.map(p => p.id);
       return {
         title: parsed.title || 'Industry Update: Expert Analysis',
@@ -140,6 +143,50 @@ Pick the category that best matches how Softwhere.uz would cover this topic. Sec
 }
 
 // ---------------------------------------------------------------------------
+// Shared prompt building blocks
+// ---------------------------------------------------------------------------
+
+const LANG_NAME: Record<string, string> = { en: 'English', ru: 'Russian', uz: 'Uzbek' };
+
+function langInstructionFor(locale: string): string {
+  if (locale === 'ru') return 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент, заголовки и CTA на русском.';
+  if (locale === 'uz') return "MUHIM: BUTUNLAY o'zbek tilida yozing. Barcha kontent, sarlavhalar va CTA o'zbek tilida.";
+  return 'Write in English.';
+}
+
+/** The persona + hard quality/honesty rules — sent as the SYSTEM message. */
+function buildSystemPrompt(locale: string, pillarName: string): string {
+  const langLine = locale === 'ru' ? ' Вы пишете на русском языке.' : locale === 'uz' ? " Siz o'zbek tilida yozasiz." : '';
+  return `You are a senior software consultant and content lead at Softwhere.uz — a product-engineering studio in Tashkent, Uzbekistan that ships mobile apps, web platforms, AI/RAG systems, Telegram bots, and CRM/ERP for businesses across Central Asia and internationally (${pillarName} is your focus here). You write like an experienced practitioner who has shipped real products: specific, opinionated, and genuinely useful — never generic.${langLine}
+
+NON-NEGOTIABLE RULES:
+- NEVER invent statistics, survey results, dates, client names, or citation URLs. Do not write "According to [Source](url), 73%..." with a fabricated source. If you lack a verifiable number, describe the trend qualitatively or frame an example as clearly hypothetical ("a typical mid-size retailer might spend...").
+- Write from engineering experience and first-principles reasoning, not from summarizing the web.
+- BANNED AI-slop words/patterns: delve, tapestry, testament, pivotal, crucial, underscore, vibrant, seamless, "in today's world", "navigating the landscape", "unlock/unleash the power", "when it comes to", "it's worth noting", the "not just X, but Y" construction, and mechanical rule-of-three lists. Prefer plain verbs (is, are, build, ship) over "serves as / stands as". Vary sentence length; don't overuse bold, em dashes, or bolded-colon lists.
+- Be concrete: name real technologies and realistic timelines/effort (in weeks), give worked examples, and answer the reader's actual question fast.`;
+}
+
+/** Real internal links the model may use (locale-prefixed). No placeholders. */
+function internalLinksBlock(locale: string): string {
+  return `INTERNAL LINKS — include 2-3 where they genuinely fit the sentence, as real Markdown links with descriptive anchor text (NEVER placeholder text like "[related service]"):
+- Project cost estimator: /${locale}/estimator
+- Services overview: /${locale}#services
+- AI & RAG solutions: /${locale}#ai
+- Portfolio / past work: /${locale}#portfolio
+- Blog: /${locale}/blog
+- Get a quote / contact us: /${locale}#contact`;
+}
+
+function imageInstructionFor(inlineImages: ICoverImage[], keyword: string): string {
+  if (inlineImages.length === 0) return '';
+  const imgMarkdown = inlineImages.map((img, i) => `![${keyword} - illustration ${i + 1}](${img.url})`).join('\n');
+  return `\nINLINE IMAGES — insert these naturally between sections (after roughly the 2nd and 4th major section, never at the very top or bottom):\n${imgMarkdown}`;
+}
+
+const SELF_REVIEW = (langName: string) =>
+  `Before finalizing, silently check the draft: answer front-loaded in the first 2-3 sentences? ZERO invented statistics or fake URLs? none of the banned AI-slop phrases? 2-3 real internal links present with descriptive anchors? entirely in ${langName}? Then output ONLY the final polished Markdown post (start with the H1 title) — no preamble, notes, or explanation.`;
+
+// ---------------------------------------------------------------------------
 // Source-based prompt
 // ---------------------------------------------------------------------------
 
@@ -148,74 +195,55 @@ export function buildSourcePrompt(
   classification: SourceClassification,
   locale: string,
   inlineImages: ICoverImage[]
-): string {
+): { system: string; user: string } {
   const year = getCurrentYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const blueprint = getBlueprintForFormat(classification.postFormat);
   const pillar = SERVICE_PILLARS.find(p => p.id === classification.category);
   const pillarName = pillar?.name ?? 'Software Development';
+  const langName = LANG_NAME[locale] ?? 'English';
 
-  const langName = locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek';
-  const langInstruction =
-    locale === 'en'
-      ? 'Write in English.'
-      : locale === 'ru'
-        ? 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент, заголовки и CTA на русском.'
-        : "MUHIM: BUTUNLAY o'zbek tilida yozing. Barcha kontent, sarlavhalar va CTA o'zbek tilida.";
+  const system = buildSystemPrompt(locale, pillarName);
 
-  let imageInstruction = '';
-  if (inlineImages.length > 0) {
-    const imgMarkdown = inlineImages.map((img, i) => `![${classification.primaryKeyword} - illustration ${i + 1}](${img.url})`).join('\n');
-    imageInstruction = `\nINLINE IMAGES — Insert these images naturally between sections:\n${imgMarkdown}`;
-  }
+  const user = `${langInstructionFor(locale)}
 
-  return `You are an expert content writer for Softwhere.uz, a software development company in Uzbekistan. You've been given source material to use as inspiration. Write a completely ORIGINAL blog post — do NOT copy the source. Analyze the topic and write from Softwhere.uz's expert perspective with unique value and practical advice.
+Write an ORIGINAL blog post in ${langName} inspired by the source material below. Do NOT copy it — add your own expert analysis. Suggested title: "${classification.title}"
 
----
-
-${langInstruction}
-
-LANGUAGE: Write the ENTIRE post in ${langName}. Do not mix languages.
-
-SOURCE MATERIAL (context/inspiration ONLY — do NOT copy):
+SOURCE MATERIAL (real, extracted from the web — you MAY cite specific facts from it, in your own words; do NOT invent facts beyond it):
 ---
 ${sourceText.slice(0, 3000)}
 ---
 
-Write an original blog post. Suggested title: "${classification.title}"
+FORMAT: ${blueprint.name} — tone: ${blueprint.tone}
+TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words (depth over padding).
 
-FORMAT: ${blueprint.name}
-TONE: ${blueprint.tone}
-TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words
-
-OPENING: ${blueprint.openingInstruction}
+FRONT-LOAD THE ANSWER: ${blueprint.openingInstruction} Put the core takeaway in the first 2-3 sentences.
 
 STRUCTURE:
 ${blueprint.structurePrompt}
 
-FORMATTING RULES:
+FORMATTING:
 ${blueprint.formattingRules}
+- H1 for the title, H2 for major sections, H3 for subsections.
+- Finish with a short FAQ (3-5 real questions readers ask) — each question an H3 ending in "?".
 
-SEO REQUIREMENTS:
-- Primary keyword: "${classification.primaryKeyword}" — use 3-5 times naturally
-- Secondary keywords: ${classification.secondaryKeywords.map(k => `"${k}"`).join(', ')} — use each 1-2 times
+SEO:
+- Primary keyword "${classification.primaryKeyword}" used naturally 3-5 times (in the title and first paragraph too).
+- Secondary keywords: ${classification.secondaryKeywords.map(k => `"${k}"`).join(', ')} — each 1-2 times.
 - ${blueprint.seoHint}
-- Use H1 for the title, H2 for major sections, H3 for subsections
+
+${internalLinksBlock(locale)}
 
 GUIDELINES:
-- Reference the source news/event but add YOUR expert analysis
-- Include actionable advice for business owners
-- Subtle CTA tying back to how Softwhere.uz can help
-- Add practical steps readers can take immediately
-- Include 2-4 statistics from credible sources (${year - 2}–${year})
+- Reference the source, but add YOUR expert analysis and concrete, actionable steps for business owners.
+- One subtle, natural CTA to work with Softwhere.uz.
+- Only cite facts that appear in the source material above; never invent other statistics or URLs.
 
-CONTEXT:
-- Today is ${date}, we are in ${year}
-- Target audience: business owners in Uzbekistan and Central Asia
-- Company: Softwhere.uz — ${pillarName} specialists
-${imageInstruction}
+CONTEXT: Today is ${date}, ${year}. Audience: business owners and decision-makers in Uzbekistan and Central Asia. Softwhere.uz are ${pillarName} specialists.${imageInstructionFor(inlineImages, classification.primaryKeyword)}
 
-Write a unique, valuable post. Every paragraph should teach something or persuade.`;
+${SELF_REVIEW(langName)}`;
+
+  return { system, user };
 }
 
 // ---------------------------------------------------------------------------
@@ -278,96 +306,73 @@ export async function smartSelectTopic(): Promise<TopicResult> {
 // Topic-based prompt
 // ---------------------------------------------------------------------------
 
-export function buildTopicPrompt(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): string {
+export function buildTopicPrompt(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): { system: string; user: string } {
   const blueprint = getBlueprintForFormat(topic.postFormat as PostFormat);
   const year = getCurrentYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const langName = LANG_NAME[locale] ?? 'English';
 
-  const langName = locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek';
-  const langInstruction =
-    locale === 'en'
-      ? 'Write in English.'
-      : locale === 'ru'
-        ? 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент, заголовки и CTA на русском.'
-        : "MUHIM: BUTUNLAY o'zbek tilida yozing. Barcha kontent, sarlavhalar va CTA o'zbek tilida.";
+  const system = buildSystemPrompt(locale, topic.pillarName);
 
-  let imageInstruction = '';
-  if (inlineImages.length > 0) {
-    const imgMarkdown = inlineImages.map((img, i) => `![${topic.primaryKeyword} - illustration ${i + 1}](${img.url})`).join('\n');
-    imageInstruction = `
-INLINE IMAGES — Insert these images naturally between sections (not at the very top or bottom). Place them after the 2nd and 4th major sections:
-${imgMarkdown}`;
-  }
+  const user = `${langInstructionFor(locale)}
 
-  const systemPrompt = `You are an expert content writer and SEO specialist. You write for Softwhere.uz, a software development company based in Uzbekistan that builds mobile apps, web apps, AI solutions, CRM systems, Telegram bots, and more for businesses in Central Asia and globally. ${
-    locale === 'ru' ? 'Вы пишете на русском языке.' : locale === 'uz' ? "Siz o'zbek tilida yozasiz." : ''
-  }`;
+Write a blog post in ${langName} about: "${topic.title}"
 
-  const userPrompt = `${langInstruction}
+FORMAT: ${blueprint.name} — tone: ${blueprint.tone}
+TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words (depth over padding).
 
-Write a blog post about: "${topic.title}"
-
-LANGUAGE: Write the ENTIRE post in ${langName}. Do not mix languages.
-
-FORMAT: ${blueprint.name}
-TONE: ${blueprint.tone}
-TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words
-
-OPENING: ${blueprint.openingInstruction}
+FRONT-LOAD THE ANSWER: ${blueprint.openingInstruction} Put the core answer/takeaway in the first 2-3 sentences.
 
 STRUCTURE:
 ${blueprint.structurePrompt}
 
-FORMATTING RULES:
+FORMATTING:
 ${blueprint.formattingRules}
+- H1 for the title, H2 for major sections, H3 for subsections.
+- Finish with a short FAQ (3-5 real questions readers ask) — each question an H3 ending in "?".
 
-SEO REQUIREMENTS:
-- Primary keyword: "${topic.primaryKeyword}" — use 3-5 times naturally
-- Secondary keywords: ${topic.secondaryKeywords.map(k => `"${k}"`).join(', ')} — use each 1-2 times
-- Target queries to answer: ${topic.targetQueries.map(q => `"${q}"`).join(', ')}
+SEO:
+- Primary keyword "${topic.primaryKeyword}" used naturally 3-5 times (in the title and first paragraph too).
+- Secondary keywords: ${topic.secondaryKeywords.map(k => `"${k}"`).join(', ')} — each 1-2 times.
+- Answer these queries directly: ${topic.targetQueries.map(q => `"${q}"`).join(', ')}.
 - ${blueprint.seoHint}
-- Use H1 for the title, H2 for major sections, H3 for subsections
-- Include internal linking suggestions as "[related service]" placeholders
+
+${internalLinksBlock(locale)}
 
 CONTEXT:
-- Today is ${date}, we are in ${year}
-- Target audience: business owners and decision-makers in Uzbekistan and Central Asia
-- Company: Softwhere.uz — ${topic.pillarName} specialists
-- Service area: ${topic.pillarName}
-${imageInstruction}
+- Today is ${date}, ${year}. Audience: business owners and decision-makers in Uzbekistan and Central Asia (some international).
+- Softwhere.uz are ${topic.pillarName} specialists — include one subtle, natural CTA to work with them.${imageInstructionFor(inlineImages, topic.primaryKeyword)}
 
-CREDIBILITY:
-- Include 2-4 statistics from credible sources (Statista, Gartner, McKinsey, etc.)
-- Format sources as: "According to [Source](URL), [fact]"
-- Use recent data (${year - 2}–${year})
+${SELF_REVIEW(langName)}`;
 
-Write a unique, valuable post. No generic filler. Every paragraph should teach something or persuade.`;
-
-  return `${systemPrompt}\n\n---\n\n${userPrompt}`;
+  return { system, user };
 }
 
 // ---------------------------------------------------------------------------
 // Content generation
 // ---------------------------------------------------------------------------
 
-export async function generateBlogContent(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): Promise<string> {
-  const prompt = buildTopicPrompt(topic, locale, inlineImages);
+/** Returns the generated Markdown body, or null when generation fails / is too
+ *  short (the caller then skips this locale — we never persist thin filler). */
+export async function generateBlogContent(topic: TopicResult, locale: string, inlineImages: ICoverImage[]): Promise<string | null> {
+  const { system, user } = buildTopicPrompt(topic, locale, inlineImages);
 
   logger.info(`Generating "${topic.postFormat}" content for "${topic.title}" in ${locale}`, undefined, 'BLOG');
 
-  const content = await safeGenerateContent(prompt, `blog-${topic.postFormat}-${locale}`);
+  const content = await safeGenerateContent(user, `blog-${topic.postFormat}-${locale}`, undefined, system);
+  const words = content ? wordCount(content) : 0;
 
-  if (content && content.split(/\s+/).length >= 300) {
-    logger.info(`Generated ${content.split(/\s+/).length} words for ${locale}`, undefined, 'BLOG');
+  if (content && words >= WORD_FLOOR) {
+    logger.info(`Generated ${words} words for ${locale}`, undefined, 'BLOG');
     return content;
   }
 
-  logger.warn(`Content too short or missing for ${locale}, using fallback`, undefined, 'BLOG');
-  return generateFallbackContent(topic, locale);
+  logger.warn(`Content too short (${words}w) or missing for ${locale} — skipping locale`, undefined, 'BLOG');
+  return null;
 }
 
 // ---------------------------------------------------------------------------
-// Fallback content
+// Fallback content (kept for tooling; NOT auto-persisted by the route anymore)
 // ---------------------------------------------------------------------------
 
 export function generateFallbackContent(topic: TopicResult, locale: string): string {
@@ -397,7 +402,7 @@ ${topic.targetQueries[0] ?? topic.title} — this is one of the most common ques
 
 ## ${titles.why[l] ?? titles.why.en}
 
-The demand for ${topic.primaryKeyword} continues to grow, especially in emerging markets like Uzbekistan and Central Asia. According to industry reports, businesses investing in ${topic.pillarName.toLowerCase()} see measurable improvements in efficiency, customer engagement, and revenue.
+The demand for ${topic.primaryKeyword} continues to grow, especially in emerging markets like Uzbekistan and Central Asia. Businesses investing in ${topic.pillarName.toLowerCase()} tend to see improvements in efficiency, customer engagement, and revenue.
 
 ## ${titles.details[l] ?? titles.details.en}
 
@@ -428,16 +433,67 @@ The Central Asian tech market is evolving rapidly. Uzbekistan in particular has 
 }
 
 // ---------------------------------------------------------------------------
-// Meta description
+// Meta description + localization
 // ---------------------------------------------------------------------------
 
 export async function generateMetaDescription(title: string, primaryKeyword: string, locale: string): Promise<string> {
-  const prompt = `Write a 150-160 character meta description for a blog post titled "${title}". Include the keyword "${primaryKeyword}". Make it compelling and action-oriented. Write in ${locale === 'en' ? 'English' : locale === 'ru' ? 'Russian' : 'Uzbek'}. Return ONLY the meta description.`;
+  const prompt = `Write a 150-160 character meta description for a blog post titled "${title}". Include the keyword "${primaryKeyword}". Make it compelling and action-oriented. Write in ${LANG_NAME[locale] ?? 'English'}. Return ONLY the meta description.`;
 
   const result = await safeGenerateContent(prompt, `meta-desc-${locale}`, 200);
   if (result && result.length <= 200) return result.trim().replace(/^"|"$/g, '');
 
   return `${title} — Expert insights and practical advice from Softwhere.uz`;
+}
+
+export interface LocalizedMeta {
+  title: string;
+  metaDescription: string;
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+}
+
+/**
+ * Localize title/meta/keywords for ru|uz in a SINGLE JSON call — adapting (not
+ * word-for-word) and translating the keyword to what a native speaker would
+ * actually search, so non-English posts target their own language's queries.
+ */
+export async function localizePostMeta(
+  locale: 'ru' | 'uz',
+  en: { title: string; metaDescription: string; primaryKeyword: string; secondaryKeywords: string[] }
+): Promise<LocalizedMeta> {
+  const langName = LANG_NAME[locale];
+  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep metaDescription under 160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
+{"title":"...","metaDescription":"...","primaryKeyword":"...","secondaryKeywords":["...","..."]}
+
+English title: "${en.title}"
+English metaDescription: "${en.metaDescription}"
+English primaryKeyword: "${en.primaryKeyword}"
+English secondaryKeywords: ${JSON.stringify(en.secondaryKeywords)}`;
+
+  const raw = await safeGenerateJSON(prompt, `localize-meta-${locale}`, 500);
+  if (raw) {
+    try {
+      const p = JSON.parse(raw);
+      const str = (v: unknown, fallback: string) => (typeof v === 'string' && v.trim() ? v.trim().replace(/^"|"$/g, '') : fallback);
+      return {
+        title: str(p.title, en.title),
+        metaDescription: str(p.metaDescription, en.metaDescription).slice(0, 180),
+        primaryKeyword: str(p.primaryKeyword, en.primaryKeyword),
+        secondaryKeywords: Array.isArray(p.secondaryKeywords)
+          ? p.secondaryKeywords.filter((k: unknown): k is string => typeof k === 'string').slice(0, 6)
+          : en.secondaryKeywords,
+      };
+    } catch {
+      logger.warn(`Failed to parse localized meta for ${locale}`, undefined, 'BLOG');
+    }
+  }
+
+  return {
+    title: en.title,
+    metaDescription: en.metaDescription,
+    primaryKeyword: en.primaryKeyword,
+    secondaryKeywords: en.secondaryKeywords,
+  };
 }
 
 export { createSlug };

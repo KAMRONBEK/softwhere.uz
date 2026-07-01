@@ -32,6 +32,12 @@ const CYRILLIC_TO_LATIN: Record<string, string> = {
   э: 'e',
   ю: 'yu',
   я: 'ya',
+  // Uzbek Cyrillic extras (in case a title is entered in Uzbek Cyrillic; Uzbek
+  // Latin oʻ/gʻ are already handled by the apostrophe strip below).
+  ў: 'o',
+  қ: 'q',
+  ғ: 'g',
+  ҳ: 'h',
 };
 
 function transliterate(text: string): string {

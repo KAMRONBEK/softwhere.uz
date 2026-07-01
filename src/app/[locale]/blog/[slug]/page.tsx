@@ -142,7 +142,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     };
   }
 
-  const description = extractDescription(post.content, post.metaDescription);
+  const description = extractDescription(post.content, post.metaDescription, post.locale);
   const keywords = getKeywords(post);
   const baseUrl = ENV.BASE_URL;
   const canonicalPost = await getCanonicalPostForLocale(post.locale, post.slug);
