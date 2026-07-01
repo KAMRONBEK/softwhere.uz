@@ -191,26 +191,38 @@ export default function Wizard() {
 
   return (
     <div className='page-layout container mx-auto pb-10'>
-      <h1 className='text-2xl font-bold mb-4'>{t('title')}</h1>
+      <h1 className='text-2xl font-bold mb-4 font-display text-ember-text'>{t('title')}</h1>
 
       <div className='mb-6'>
-        <p>
+        <p className='text-ember-muted'>
           {t('stepProgress', { current: step + 1, total: maxSteps })}:{' '}
-          <strong>{(t as (k: string) => string)(STEP_LABELS[currentStepId] ?? currentStepId)}</strong>
+          <strong className='text-ember-accent'>{(t as (k: string) => string)(STEP_LABELS[currentStepId] ?? currentStepId)}</strong>
         </p>
         <div className='glass rounded-lg p-6 mt-4'>{renderCurrentStep()}</div>
       </div>
 
       <div className='flex gap-4'>
         {step > 0 && (
-          <Button onClick={() => setStep(s => s - 1)} className='bg-gray-200 text-gray-800'>
+          <Button
+            onClick={() => setStep(s => s - 1)}
+            className='!bg-transparent !border !border-ember-border !text-ember-text !rounded-full'
+          >
             {t('back')}
           </Button>
         )}
         {!isLastStep ? (
-          <Button onClick={() => setStep(s => s + 1)}>{t('next')}</Button>
+          <Button
+            onClick={() => setStep(s => s + 1)}
+            className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full hover:shadow-[0_0_28px_var(--glow)]'
+          >
+            {t('next')}
+          </Button>
         ) : (
-          <Button onClick={fetchAIEstimate} disabled={loading}>
+          <Button
+            onClick={fetchAIEstimate}
+            disabled={loading}
+            className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full hover:shadow-[0_0_28px_var(--glow)] disabled:opacity-60'
+          >
             {loading ? t('calculating') : t('getEstimate')}
           </Button>
         )}

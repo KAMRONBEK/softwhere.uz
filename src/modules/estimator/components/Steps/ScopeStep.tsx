@@ -32,17 +32,17 @@ export default function ScopeStep({
   return (
     <div className='space-y-6'>
       <div>
-        <label className='block mb-2'>{t('scopeComplexity')}</label>
+        <label className='block mb-2 font-display text-ember-text'>{t('scopeComplexity')}</label>
         <div className='flex flex-wrap gap-3'>
           {COMPLEXITIES.map(c => (
             <button
               key={c.id}
               type='button'
               aria-pressed={selectedComplexity === c.id}
-              className={`px-4 py-2 rounded-lg border dark:border-gray-700 transition-all ${
+              className={`px-4 py-2 rounded-lg border text-ember-text transition-all ${
                 selectedComplexity === c.id
-                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'
-                  : 'hover:border-orange-300 bg-white dark:bg-gray-800'
+                  ? 'border-ember-accent bg-[rgba(255,91,30,0.12)]'
+                  : 'hover:border-ember-accent bg-ember-surface border-ember-border'
               }`}
               onClick={() => onComplexityChange(c.id)}
             >
@@ -54,17 +54,17 @@ export default function ScopeStep({
 
       {subtypes.length > 0 && onSubtypeChange && (
         <div>
-          <label className='block mb-2'>{t('scopeSubtype')}</label>
+          <label className='block mb-2 font-display text-ember-text'>{t('scopeSubtype')}</label>
           <div className='flex flex-wrap gap-3'>
             {subtypes.map(s => (
               <button
                 key={s.id}
                 type='button'
                 aria-pressed={selectedSubtype === s.id}
-                className={`px-4 py-2 rounded-lg border dark:border-gray-700 transition-all ${
+                className={`px-4 py-2 rounded-lg border text-ember-text transition-all ${
                   selectedSubtype === s.id
-                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-950'
-                    : 'hover:border-orange-300 bg-white dark:bg-gray-800'
+                    ? 'border-ember-accent bg-[rgba(255,91,30,0.12)]'
+                    : 'hover:border-ember-accent bg-ember-surface border-ember-border'
                 }`}
                 onClick={() => onSubtypeChange(s.id)}
               >

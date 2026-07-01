@@ -18,26 +18,28 @@ export default function FeaturesStep({ projectType, subtype, selectedFeatures, o
 
   return (
     <div>
-      <label className='block mb-2'>{t('stepFeatures')}</label>
+      <label className='block mb-2 font-display text-ember-text'>{t('stepFeatures')}</label>
       <div className='grid grid-cols-2 gap-3'>
         {features.map(feature => (
           <button
             key={feature.id}
             type='button'
             aria-pressed={selectedFeatures.includes(feature.id)}
-            className={`border dark:border-gray-700 rounded-lg p-3 flex items-start cursor-pointer transition-all hover:shadow-md ${
-              selectedFeatures.includes(feature.id) ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' : 'bg-white dark:bg-gray-800'
+            className={`border rounded-lg p-3 flex items-start cursor-pointer transition-all hover:shadow-md ${
+              selectedFeatures.includes(feature.id)
+                ? 'border-ember-accent bg-[rgba(255,91,30,0.12)]'
+                : 'bg-ember-surface border-ember-border'
             }`}
             onClick={() => onToggleFeature(feature.id)}
           >
             <div className='flex-1 text-left'>
-              <div className='font-medium'>{(t as (k: string) => string)(feature.labelKey)}</div>
-              <div className='text-xs text-gray-500 dark:text-gray-400'>
+              <div className='font-medium text-ember-text'>{(t as (k: string) => string)(feature.labelKey)}</div>
+              <div className='text-xs text-ember-muted'>
                 +${((ESTIMATOR.FEATURE_HOURS[feature.id] ?? 0) * HOURLY_RATE).toLocaleString()}
               </div>
             </div>
             {selectedFeatures.includes(feature.id) && (
-              <div className='bg-orange-500 rounded-full p-1'>
+              <div className='bg-ember-accent rounded-full p-1'>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4 text-white'

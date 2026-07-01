@@ -71,11 +71,11 @@ export default function CurrencySwitcher({ currency, onCurrencyChange }: Currenc
 
   return (
     <div className='flex items-center gap-2'>
-      <span className='text-sm text-gray-500 dark:text-gray-400'>{t('currencyLabel')}:</span>
+      <span className='text-sm text-ember-muted font-display'>{t('currencyLabel')}:</span>
       <select
         value={currency}
         onChange={e => onCurrencyChange(e.target.value as CurrencyCode)}
-        className='border dark:border-gray-700 rounded px-2 py-1 text-sm bg-white dark:bg-gray-800 dark:text-gray-100'
+        className='border border-ember-border rounded px-2 py-1 text-sm bg-ember-surface text-ember-text'
       >
         <option value='USD'>{t('currency.usd')}</option>
         <option value='UZS'>{t('currency.uzs')}</option>

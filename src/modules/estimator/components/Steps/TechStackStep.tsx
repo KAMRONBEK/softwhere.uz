@@ -17,7 +17,7 @@ export default function TechStackStep({ projectType, subtype, selectedTech, onTo
 
   if (groups.length === 0) {
     return (
-      <div className='text-gray-500'>
+      <div className='text-ember-muted'>
         <p>{t('techNotApplicable')}</p>
       </div>
     );
@@ -25,28 +25,28 @@ export default function TechStackStep({ projectType, subtype, selectedTech, onTo
 
   return (
     <div className='space-y-6'>
-      <p className='text-sm text-gray-500'>{t('techHint')}</p>
+      <p className='text-sm text-ember-muted'>{t('techHint')}</p>
       {groups.map(({ group, labelKey, options }) => (
         <div key={group}>
-          <label className='block mb-2 font-medium'>{(t as (k: string) => string)(labelKey)}</label>
+          <label className='block mb-2 font-medium font-display text-ember-text'>{(t as (k: string) => string)(labelKey)}</label>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
             {options.map(tech => (
               <button
                 key={tech.id}
                 type='button'
                 aria-pressed={selectedTech.includes(tech.id)}
-                className={`border dark:border-gray-700 rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
-                  selectedTech.includes(tech.id) ? 'border-orange-500 bg-orange-50 dark:bg-orange-950' : 'bg-white dark:bg-gray-800'
+                className={`border rounded-lg p-3 flex items-center cursor-pointer transition-all hover:shadow-md ${
+                  selectedTech.includes(tech.id) ? 'border-ember-accent bg-[rgba(255,91,30,0.12)]' : 'bg-ember-surface border-ember-border'
                 }`}
                 onClick={() => onToggleTech(tech.id)}
               >
                 <div className='flex-1 text-left'>
-                  <div className='font-medium'>{(t as (k: string) => string)(tech.labelKey)}</div>
+                  <div className='font-medium text-ember-text'>{(t as (k: string) => string)(tech.labelKey)}</div>
                 </div>
                 {tech.impactFactor != null && (
                   <div
                     className={`text-sm font-medium ${
-                      tech.impactFactor > 1 ? 'text-red-500' : tech.impactFactor < 1 ? 'text-green-500' : 'text-gray-500'
+                      tech.impactFactor > 1 ? 'text-red-500' : tech.impactFactor < 1 ? 'text-green-500' : 'text-ember-muted'
                     }`}
                   >
                     {tech.impactFactor > 1

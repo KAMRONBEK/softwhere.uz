@@ -78,14 +78,12 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   };
 
   return (
-    <div className='page-layout' style={{ backgroundColor: 'var(--gray-100)' }}>
+    <div className='page-layout' style={{ backgroundColor: 'var(--bg)' }}>
       <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(blogSchema) }} />
       <div className='container py-20'>
         <header className='mb-12 text-center'>
-          <h1 className='text-4xl font-bold text-gray-900 dark:text-gray-100 leading-tight tracking-wide mb-6'>{t('title')}</h1>
-          <p className='text-gray-900 dark:text-gray-300 text-base font-medium leading-5 tracking-tight max-w-2xl mx-auto'>
-            {t('description')}
-          </p>
+          <h1 className='text-4xl font-bold font-display text-ember-text leading-tight tracking-tight mb-6'>{t('title')}</h1>
+          <p className='text-ember-muted text-base font-medium leading-5 tracking-tight max-w-2xl mx-auto'>{t('description')}</p>
         </header>
         <BlogListClient posts={posts} locale={locale} />
       </div>

@@ -222,25 +222,28 @@ async function RelatedPosts({ category, currentId, locale }: { category?: string
 
   return (
     <section className='mt-12'>
-      <h2 className='text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6'>{t('relatedArticles')}</h2>
+      <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-6'>{t('relatedArticles')}</h2>
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {relatedPosts.map(rp => (
           <Link
             key={rp.slug}
             href={`/${locale}/blog/${rp.slug}`}
-            className='bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow'
+            className='bg-ember-surface rounded-lg shadow border border-ember-border overflow-hidden hover:shadow-md transition-shadow'
           >
             {rp.coverImage?.thumbUrl ? (
               <div className='relative h-40'>
                 <Image src={rp.coverImage.thumbUrl} alt={rp.title} fill className='object-cover' sizes='(max-width: 768px) 100vw, 33vw' />
               </div>
             ) : (
-              <div className='h-40 bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
-                <span className='text-white text-4xl font-bold'>{rp.title.charAt(0)}</span>
+              <div
+                className='h-40 flex items-center justify-center'
+                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))' }}
+              >
+                <span className='text-[#0a0705] text-4xl font-bold'>{rp.title.charAt(0)}</span>
               </div>
             )}
             <div className='p-4'>
-              <h3 className='font-semibold text-gray-900 dark:text-gray-100 line-clamp-2'>{rp.title}</h3>
+              <h3 className='font-semibold font-display text-ember-text line-clamp-2'>{rp.title}</h3>
             </div>
           </Link>
         ))}
@@ -279,34 +282,34 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     >
       <BlogPostSchema post={post} />
 
-      <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--gray-100)' }}>
+      <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--bg)' }}>
         {/* Breadcrumbs */}
-        <nav className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700' aria-label='Breadcrumb'>
+        <nav className='bg-ember-surface border-b border-ember-border' aria-label='Breadcrumb'>
           <div className='container py-4'>
-            <ol className='flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400'>
+            <ol className='flex items-center space-x-2 text-sm text-ember-muted'>
               <li>
-                <Link href={`/${locale}`} className='hover:text-[#fe4502] transition-colors'>
+                <Link href={`/${locale}`} className='hover:text-ember-accent transition-colors'>
                   Home
                 </Link>
               </li>
               <li>›</li>
               <li>
-                <Link href={`/${locale}/blog`} className='hover:text-[#fe4502] transition-colors'>
+                <Link href={`/${locale}/blog`} className='hover:text-ember-accent transition-colors'>
                   Blog
                 </Link>
               </li>
               <li>›</li>
-              <li className='text-gray-900 dark:text-gray-100 truncate max-w-xs'>{post.title}</li>
+              <li className='text-ember-text truncate max-w-xs'>{post.title}</li>
             </ol>
           </div>
         </nav>
 
         {/* Header with navigation */}
-        <header className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm'>
+        <header className='bg-ember-surface border-b border-ember-border sticky top-0 z-10 shadow-sm'>
           <div className='container py-4'>
             <Link
               href={`/${locale}/blog`}
-              className='inline-flex items-center text-gray-600 dark:text-gray-300 hover:text-[#fe4502] transition-colors duration-300 font-medium'
+              className='inline-flex items-center text-ember-muted hover:text-ember-accent transition-colors duration-300 font-medium'
             >
               <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>
@@ -353,14 +356,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
         {/* Main content */}
         <main className='container py-12'>
-          <div className='bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden'>
+          <div className='bg-ember-surface rounded-xl shadow-lg border border-ember-border overflow-hidden'>
             <article className='p-8 md:p-12'>
               {/* Article header */}
               <header className='mb-12 text-center'>
-                <h1 className='text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-8 leading-tight tracking-wide'>
+                <h1 className='text-4xl md:text-5xl font-bold font-display text-ember-text mb-8 leading-tight tracking-tight'>
                   {post.title}
                 </h1>
-                <div className='flex items-center justify-center flex-wrap gap-4 text-gray-500 dark:text-gray-400 text-sm font-medium'>
+                <div className='flex items-center justify-center flex-wrap gap-4 text-ember-muted text-sm font-medium'>
                   <time dateTime={post.createdAt} className='flex items-center'>
                     <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                       <path
@@ -383,9 +386,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                     </svg>
                     {readingTime} {t('readingTime')}
                   </span>
-                  <span className='px-3 py-1 bg-[#fe4502] text-white text-xs font-semibold rounded-full'>{post.locale.toUpperCase()}</span>
+                  <span className='px-3 py-1 bg-ember-accent text-[#0a0705] text-xs font-semibold rounded-full'>
+                    {post.locale.toUpperCase()}
+                  </span>
                   {post.category && PILLAR_LABELS[post.category] && (
-                    <span className='px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full'>
+                    <span className='px-3 py-1 bg-ember-surface2 text-ember-muted text-xs font-semibold rounded-full'>
                       {(tCat as (k: string) => string)(post.category)}
                     </span>
                   )}
@@ -393,51 +398,47 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
               </header>
 
               {/* Article content */}
-              <div className='prose prose-lg prose-gray dark:prose-invert max-w-none'>
+              <div className='prose prose-lg prose-gray dark:prose-invert prose-headings:font-display max-w-none'>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeHighlight]}
                   components={{
                     h1: ({ children }) => (
-                      <h1 className='text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mt-12 mb-6 leading-tight'>
+                      <h1 className='text-3xl md:text-4xl font-bold font-display text-ember-text mt-12 mb-6 leading-tight tracking-tight'>
                         {children}
                       </h1>
                     ),
                     h2: ({ children }) => (
-                      <h2 className='text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mt-10 mb-5 leading-tight'>
+                      <h2 className='text-2xl md:text-3xl font-bold font-display text-ember-text mt-10 mb-5 leading-tight tracking-tight'>
                         {children}
                       </h2>
                     ),
                     h3: ({ children }) => (
-                      <h3 className='text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 leading-tight'>{children}</h3>
+                      <h3 className='text-xl md:text-2xl font-bold font-display text-ember-text mt-8 mb-4 leading-tight'>{children}</h3>
                     ),
-                    p: ({ children }) => (
-                      <p className='text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6 font-light'>{children}</p>
-                    ),
-                    ul: ({ children }) => (
-                      <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-gray-700 dark:text-gray-300'>{children}</ul>
-                    ),
-                    ol: ({ children }) => (
-                      <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-gray-700 dark:text-gray-300'>{children}</ol>
-                    ),
+                    p: ({ children }) => <p className='text-lg text-ember-text leading-relaxed mb-6 font-light'>{children}</p>,
+                    ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ul>,
+                    ol: ({ children }) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ol>,
                     li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
                     blockquote: ({ children }) => (
-                      <blockquote className='border-l-4 border-blue-500 pl-6 py-2 my-8 bg-gray-50 dark:bg-gray-900 italic text-lg text-gray-700 dark:text-gray-300 rounded-r-lg'>
+                      <blockquote className='border-l-4 border-ember-accent pl-6 py-2 my-8 bg-ember-surface italic text-lg text-ember-muted rounded-r-lg'>
                         {children}
                       </blockquote>
                     ),
                     code: ({ children }) => (
-                      <code className='bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-sm font-mono text-gray-800 dark:text-gray-200'>
+                      <code className='bg-[#050302] border border-ember-border px-2 py-1 rounded text-sm font-mono text-ember-text'>
                         {children}
                       </code>
                     ),
                     pre: ({ children }) => (
-                      <pre className='bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto my-6'>{children}</pre>
+                      <pre className='bg-[#050302] border border-ember-border font-mono text-ember-text p-4 rounded-lg overflow-x-auto my-6'>
+                        {children}
+                      </pre>
                     ),
                     a: ({ href, children }) => (
                       <a
                         href={href}
-                        className='text-[#fe4502] hover:text-[#ff5f24] underline transition-colors'
+                        className='text-ember-accent hover:text-ember-accent2 underline transition-colors'
                         target={href?.startsWith('http') ? '_blank' : undefined}
                         rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
                       >
@@ -459,24 +460,20 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                             className='absolute inset-0 h-full w-full object-cover'
                           />
                         </span>
-                        {alt && <figcaption className='text-center text-sm text-gray-500 dark:text-gray-400 mt-2'>{alt}</figcaption>}
+                        {alt && <figcaption className='text-center text-sm text-ember-muted mt-2'>{alt}</figcaption>}
                       </figure>
                     ),
                     table: ({ children }) => (
                       <div className='overflow-x-auto my-6'>
-                        <table className='min-w-full border-collapse border border-gray-200 dark:border-gray-700 text-base'>
-                          {children}
-                        </table>
+                        <table className='min-w-full border-collapse border border-ember-border text-base'>{children}</table>
                       </div>
                     ),
                     th: ({ children }) => (
-                      <th className='border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-4 py-2 text-left font-semibold text-gray-900 dark:text-gray-100'>
+                      <th className='border border-ember-border bg-ember-surface2 px-4 py-2 text-left font-semibold text-ember-text'>
                         {children}
                       </th>
                     ),
-                    td: ({ children }) => (
-                      <td className='border border-gray-200 dark:border-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300'>{children}</td>
-                    ),
+                    td: ({ children }) => <td className='border border-ember-border px-4 py-2 text-ember-text'>{children}</td>,
                   }}
                 >
                   {post.content}
@@ -484,7 +481,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
               </div>
 
               {/* Call to Action */}
-              <div className='mt-16 p-8 bg-gradient-to-r from-[#fe4502] to-[#ff5f24] rounded-xl text-white'>
+              <div
+                className='mt-16 p-8 rounded-xl text-[#160a04]'
+                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))' }}
+              >
                 <div className='text-center'>
                   <h3 className='text-2xl font-bold mb-4'>{t('cta.title')}</h3>
                   <p className='text-lg mb-6 max-w-2xl mx-auto opacity-90'>{t('cta.description')}</p>
@@ -493,7 +493,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                       href={`/${locale}#contact`}
                       type='get_started'
                       slug={post.slug}
-                      className='inline-flex items-center px-6 py-3 bg-white text-[#fe4502] font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300'
+                      className='inline-flex items-center px-6 py-3 bg-white text-ember-accent font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300'
                     >
                       {t('cta.getStarted')}
                       <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
@@ -504,7 +504,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                       href={`/${locale}#portfolio`}
                       type='view_work'
                       slug={post.slug}
-                      className='inline-flex items-center px-6 py-3 bg-transparent text-white font-semibold rounded-lg border-2 border-white hover:bg-white hover:text-[#fe4502] transition-colors duration-300'
+                      className='inline-flex items-center px-6 py-3 bg-transparent text-[#160a04] font-semibold rounded-lg border-2 border-[#160a04] hover:bg-[#160a04] hover:text-[#ffe9dc] transition-colors duration-300'
                     >
                       {t('cta.viewWork')}
                     </TrackedCTALink>
@@ -523,7 +523,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
           <div className='text-center mt-12'>
             <Link
               href={`/${locale}/blog`}
-              className='inline-flex items-center text-[#fe4502] hover:text-[#ff5f24] font-semibold transition-colors duration-300'
+              className='inline-flex items-center text-ember-accent hover:text-ember-accent2 font-semibold transition-colors duration-300'
             >
               <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>

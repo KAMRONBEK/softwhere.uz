@@ -28,13 +28,13 @@ export default function PagesStep({ pageCount, onPageCountChange }: PagesStepPro
 
   return (
     <div>
-      <label htmlFor='pages' className='block mb-2'>
+      <label htmlFor='pages' className='block mb-2 font-display text-ember-text'>
         {t('pagesLabel')}
       </label>
 
       <div className='mb-6'>
         <div className='flex justify-between mb-2'>
-          <span className='text-sm text-gray-500 dark:text-gray-400'>{t('pagesQuestion')}</span>
+          <span className='text-sm text-ember-muted'>{t('pagesQuestion')}</span>
           <span className={`font-bold ${getComplexityColor()}`}>{getComplexityLabel()}</span>
         </div>
 
@@ -43,21 +43,21 @@ export default function PagesStep({ pageCount, onPageCountChange }: PagesStepPro
           type='range'
           min='1'
           max='100'
-          className='w-full accent-orange-500'
+          className='w-full accent-[color:var(--accent)]'
           value={pageCount}
           onChange={e => onPageCountChange(Number(e.target.value))}
         />
 
         <div className='flex justify-between text-sm mt-1'>
           <span>1</span>
-          <span className='font-bold'>{pageCount}</span>
+          <span className='font-bold text-ember-accent'>{pageCount}</span>
           <span>100</span>
         </div>
       </div>
 
-      <div className='p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border dark:border-gray-700 mt-4'>
-        <h4 className='font-medium mb-2'>{t('pagesScreenTitle')}</h4>
-        <p className='text-sm text-gray-600 dark:text-gray-400'>{t('pagesScreenDesc')}</p>
+      <div className='p-4 bg-ember-surface rounded-lg border border-ember-border mt-4'>
+        <h4 className='font-medium mb-2 font-display text-ember-text'>{t('pagesScreenTitle')}</h4>
+        <p className='text-sm text-ember-muted'>{t('pagesScreenDesc')}</p>
       </div>
     </div>
   );

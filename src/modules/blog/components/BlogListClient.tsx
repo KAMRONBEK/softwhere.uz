@@ -71,7 +71,9 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
           <button
             onClick={() => handleCategoryChange('all')}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeCategory === 'all' ? 'bg-[#fe4502] text-white' : 'glass text-gray-600 dark:text-gray-300 hover:-translate-y-0.5'
+              activeCategory === 'all'
+                ? 'bg-ember-accent text-[#0a0705]'
+                : 'bg-ember-surface border border-ember-border text-ember-muted hover:border-ember-accent hover:text-ember-text hover:-translate-y-0.5'
             }`}
           >
             {t('allCategories')}
@@ -81,7 +83,9 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
               key={cat}
               onClick={() => handleCategoryChange(cat)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeCategory === cat ? 'bg-[#fe4502] text-white' : 'glass text-gray-600 dark:text-gray-300 hover:-translate-y-0.5'
+                activeCategory === cat
+                  ? 'bg-ember-accent text-[#0a0705]'
+                  : 'bg-ember-surface border border-ember-border text-ember-muted hover:border-ember-accent hover:text-ember-text hover:-translate-y-0.5'
               }`}
             >
               {categoryLabel(cat)}
@@ -92,7 +96,7 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
 
       {filteredPosts.length === 0 ? (
         <div className='text-center py-16'>
-          <p className='text-xl text-gray-500 dark:text-gray-400'>{t('noPostsAvailable')}</p>
+          <p className='text-xl text-ember-muted'>{t('noPostsAvailable')}</p>
         </div>
       ) : (
         <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-8'>
@@ -116,8 +120,11 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                       priority={index === 0}
                     />
                   ) : (
-                    <div className='w-full h-full bg-gradient-to-br from-[#fe4502] to-[#ff5f24] flex items-center justify-center'>
-                      <span className='text-white/80 text-4xl font-bold'>{post.title.charAt(0)}</span>
+                    <div
+                      className='w-full h-full flex items-center justify-center'
+                      style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))' }}
+                    >
+                      <span className='text-[#0a0705] text-4xl font-bold'>{post.title.charAt(0)}</span>
                     </div>
                   )}
                 </Link>
@@ -137,22 +144,22 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
               </div>
               <div className='p-6'>
                 {post.category && CATEGORY_ORDER.includes(post.category) && (
-                  <span className='inline-block px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-medium rounded mb-2'>
+                  <span className='inline-block px-2 py-0.5 bg-ember-surface2 text-ember-muted text-xs font-medium rounded mb-2'>
                     {categoryLabel(post.category)}
                   </span>
                 )}
-                <h2 className='text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2 leading-tight'>
-                  <Link href={`/${locale}/blog/${post.slug}`} className='hover:text-[#fe4502] transition-colors duration-300'>
+                <h2 className='text-xl font-bold font-display text-ember-text mb-3 line-clamp-2 leading-tight'>
+                  <Link href={`/${locale}/blog/${post.slug}`} className='hover:text-ember-accent transition-colors duration-300'>
                     {post.title}
                   </Link>
                 </h2>
-                <div className='text-sm text-gray-500 dark:text-gray-400 mb-4 font-medium'>
+                <div className='text-sm text-ember-muted mb-4 font-medium'>
                   {format(new Date(post.createdAt), 'MMMM dd, yyyy', { locale: dateLocale })}
                 </div>
                 <div className='mt-4'>
                   <Link
                     href={`/${locale}/blog/${post.slug}`}
-                    className='inline-flex items-center text-[var(--accent-text)] hover:text-[#ff5f24] font-semibold text-sm transition-colors duration-300'
+                    className='inline-flex items-center text-ember-accent hover:text-ember-accent2 font-semibold text-sm transition-colors duration-300'
                   >
                     {t('readMore')}
                     <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>

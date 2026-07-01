@@ -50,7 +50,7 @@ export default function Counter({ to, suffix = '+', duration = 1300, className }
           if (entry.isIntersecting) run();
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.4 }
     );
     io.observe(el);
     return () => io.disconnect();
