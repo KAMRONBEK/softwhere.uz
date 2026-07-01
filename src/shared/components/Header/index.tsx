@@ -1,6 +1,6 @@
 'use client';
 
-import { CONTACT_INFO, UI_CONFIG } from '@/core/constants';
+import { UI_CONFIG } from '@/core/constants';
 import { useBlogContext } from '@/modules/blog/context/BlogContext';
 import { getRelatedPost } from '@/modules/blog/api/posts';
 import { logger } from '@/core/logger';
@@ -14,8 +14,6 @@ import RuFlag from '../../../../public/icons/Russia (RU).svg';
 import EngFlag from '../../../../public/icons/United Kingdom (GB).svg';
 import UzbFlag from '../../../../public/icons/Uzbekistan (UZ).svg';
 import Logo from '../../../../public/icons/logo.svg';
-import EmailIcon from '../../../../public/icons/mail-outline.svg';
-import SmartphoneIcon from '../../../../public/icons/smartphone-icon.svg';
 import ThemeToggle from '../ThemeToggle';
 import css from './style.module.css';
 
@@ -28,7 +26,7 @@ type LanguageSwitcherProps = {
 
 function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherProps) {
   const [open, setOpen] = useState<boolean>(false);
-  const ref = useRef<HTMLLIElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -61,16 +59,17 @@ function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherPro
   ];
 
   return (
-    <li className={css.dropdown} ref={ref}>
+    <div className={css.dropdown} ref={ref}>
       <button
         type='button'
         className={`flex items-center cursor-pointer ${css.lang}`}
         aria-haspopup='true'
         aria-expanded={open}
         aria-controls={menuId}
+        aria-label={label}
         onClick={() => setOpen(prev => !prev)}
       >
-        <p>{label}</p>
+        <span>{lang.toUpperCase()}</span>
         <svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
           <path
             fillRule='evenodd'
@@ -80,7 +79,6 @@ function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherPro
           />
         </svg>
       </button>
-      <div className={css.triangle}></div>
       <ul id={menuId} className={`${css.content} ${open ? css.contentOpen : ''}`}>
         {options.map(option => (
           <li key={option.id}>
@@ -96,7 +94,7 @@ function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherPro
           </li>
         ))}
       </ul>
-    </li>
+    </div>
   );
 }
 
@@ -215,74 +213,55 @@ function Header() {
   };
 
   return (
-    <header className={`${css.header} container ${!isHeaderVisible ? css.headerHidden : ''}`}>
-      <Link href='/'>
-        <Image src={Logo} alt='' />
-      </Link>
-      <ul className={css.links}>
-        <li>
-          <Link href='/'>{t('home')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}#services`}>{t('services')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}#portfolio`}>{t('portfolio')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}#ai`}>{t('ai')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}/blog`}>{t('blog')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}/estimator`}>{t('estimate')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}#contact`}>{t('contact')}</Link>
-        </li>
-        <li>
-          <Link href={`/${lang}#faq`}>{t('faq')}</Link>
-        </li>
-        <LanguageSwitcher lang={lang} label={t('lang')} menuId='desktop-lang-menu' onChange={changeLanguage} />
-      </ul>
+    <header className={`${css.header} ${!isHeaderVisible ? css.headerHidden : ''}`}>
+      <div className={css.inner}>
+        <Link href='/' className={css.brand}>
+          <Image src={Logo} alt='' className={css.logo} />
+          <span className={css.wordmark}>softwhere</span>
+        </Link>
 
-      <div className={css.contacts}>
-        <div className={css.contact}>
-          <Image src={SmartphoneIcon} alt='' />
-          <a href={`tel:${CONTACT_INFO.PHONE}`} className='hover:opacity-50'>
-            {CONTACT_INFO.PHONE}
-          </a>
+        <ul className={css.links}>
+          <li>
+            <Link href={`/${lang}#services`}>{t('services')}</Link>
+          </li>
+          <li>
+            <Link href={`/${lang}#portfolio`}>{t('work')}</Link>
+          </li>
+          <li>
+            <Link href={`/${lang}#ai`}>{t('ai')}</Link>
+          </li>
+          <li>
+            <Link href={`/${lang}/blog`}>{t('blog')}</Link>
+          </li>
+          <li>
+            <Link href={`/${lang}/estimator`}>{t('estimate')}</Link>
+          </li>
+        </ul>
+
+        <div className={css.actions}>
+          <LanguageSwitcher lang={lang} label={t('lang')} menuId='desktop-lang-menu' onChange={changeLanguage} />
+          <ThemeToggle />
+          <Link href={`/${lang}#contact`} className={css.ctaPill}>
+            {t('letsTalk')}
+          </Link>
         </div>
-        <div className={css.contact}>
-          <Image src={EmailIcon} alt='' />
-          <a href={`mailto:${CONTACT_INFO.EMAIL}`} className='hover:opacity-50'>
-            {CONTACT_INFO.EMAIL}
-          </a>
-        </div>
-        <ThemeToggle />
+
+        <button
+          type='button'
+          className={css.burgerMenu}
+          onClick={toggleMenu}
+          aria-label={isOpen ? t('closeMenu') : t('openMenu')}
+          aria-expanded={isOpen}
+          aria-controls='mobile-nav'
+        >
+          <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
+          <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
+          <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
+        </button>
       </div>
-
-      <button
-        type='button'
-        className={css.burgerMenu}
-        onClick={toggleMenu}
-        aria-label={isOpen ? t('closeMenu') : t('openMenu')}
-        aria-expanded={isOpen}
-        aria-controls='mobile-nav'
-      >
-        <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
-        <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
-        <div className={`${css.burgerLine} ${isOpen ? css.open : ''}`}></div>
-      </button>
 
       <nav id='mobile-nav' className={`${css.navMobile} ${isOpen ? css.navOpen : ''}`} inert={!isOpen}>
         <ul className={css.mobileLinks}>
-          <li>
-            <Link href='/' onClick={toggleMenu}>
-              {t('home')}
-            </Link>
-          </li>
           <li>
             <Link href={`/${lang}#services`} onClick={toggleMenu}>
               {t('services')}
@@ -290,7 +269,7 @@ function Header() {
           </li>
           <li>
             <Link href={`/${lang}#portfolio`} onClick={toggleMenu}>
-              {t('portfolio')}
+              {t('work')}
             </Link>
           </li>
           <li>
@@ -309,22 +288,16 @@ function Header() {
             </Link>
           </li>
           <li>
-            <Link href={`/${lang}#contact`} onClick={toggleMenu}>
-              {t('contact')}
+            <Link href={`/${lang}#contact`} onClick={toggleMenu} className={css.mobileCta}>
+              {t('letsTalk')}
             </Link>
           </li>
-
-          <li>
-            <Link href={`/${lang}#faq`} onClick={toggleMenu}>
-              {t('faq')}
-            </Link>
-          </li>
-
           <li>
             <ThemeToggle />
           </li>
-
-          <LanguageSwitcher lang={lang} label={t('lang')} menuId='mobile-lang-menu' onChange={changeLanguage} />
+          <li>
+            <LanguageSwitcher lang={lang} label={t('lang')} menuId='mobile-lang-menu' onChange={changeLanguage} />
+          </li>
         </ul>
       </nav>
     </header>
