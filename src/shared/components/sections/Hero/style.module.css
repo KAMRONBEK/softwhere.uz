@@ -69,7 +69,7 @@
 }
 
 .title {
-  font-family: var(--disp);
+  font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-weight: 800;
   font-size: 72px;
   line-height: 0.98;
@@ -154,7 +154,7 @@
 }
 
 .statValue {
-  font-family: var(--disp);
+  font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-size: 42px;
   font-weight: 800;
   color: var(--accent);

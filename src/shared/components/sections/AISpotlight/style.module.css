@@ -50,7 +50,7 @@
 }
 
 .title {
-  font-family: var(--disp);
+  font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-size: 40px;
   font-weight: 800;
   letter-spacing: -0.02em;

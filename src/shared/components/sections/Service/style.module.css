@@ -43,7 +43,7 @@
 }
 
 .num {
-  font-family: var(--disp);
+  font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-size: 15px;
   color: var(--muted);
 }
@@ -53,7 +53,7 @@
 }
 
 .rowTitle {
-  font-family: var(--disp);
+  font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-size: 26px;
   font-weight: 700;
   margin: 0;

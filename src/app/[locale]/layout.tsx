@@ -128,8 +128,12 @@ export default async function RootLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${inter.variable} ${sora.variable} ${manrope.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang={locale}
+      className={`${inter.variable} ${sora.variable} ${manrope.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body>
         <ThemeProvider>
           <StructuredData locale={locale} />
           <NextIntlClientProvider messages={messages}>

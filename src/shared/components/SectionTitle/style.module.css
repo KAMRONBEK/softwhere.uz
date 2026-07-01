@@ -1,6 +1,6 @@
 .sectionTitle {
   color: var(--text);
-  font-family: var(--disp);
+  font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-size: 46px;
   font-weight: 800;
   line-height: 1.05;

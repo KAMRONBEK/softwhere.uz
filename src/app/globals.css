@@ -56,12 +56,6 @@ html {
   --accent2: #c47a2e;
   --glow: rgba(221, 69, 10, 0.24);
 
-  /* Type stacks (families are loaded in [locale]/layout.tsx via
-     next/font and exposed as --font-* CSS variables) */
-  --disp: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
-  --body: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
-  --mono: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
-
   --glass-bg: rgba(255, 255, 255, 0.55);
   --glass-border: rgba(190, 90, 40, 0.16);
   --glass-shadow: 0 2px 20px rgba(120, 50, 20, 0.1);
@@ -113,7 +107,7 @@ body {
   overflow-x: hidden;
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--body);
+  font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
