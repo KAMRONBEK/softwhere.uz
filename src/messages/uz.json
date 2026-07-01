@@ -9,7 +9,10 @@
     "blog": "Blog",
     "estimate": "Kalkulyator",
     "openMenu": "Menyuni ochish",
-    "closeMenu": "Menyuni yopish"
+    "closeMenu": "Menyuni yopish",
+    "ai": "AI",
+    "work": "Ishlar",
+    "letsTalk": "Suhbatlashamiz"
   },
   "estimatorCTA": {
     "title": "Loyihangiz qancha turadiganini bilmoqchimisiz?",
@@ -48,7 +51,12 @@
     "platformHint": "Kerak bo'lsa, bir nechta platformani tanlash uchun bosing",
     "pagesLabel": "Sahifalar/ekranlar soni",
     "pagesQuestion": "Sizga nechta ekran kerak?",
-    "pagesComplexity": { "simple": "Oddiy", "medium": "O'rtacha", "complex": "Murakkab", "veryComplex": "Juda murakkab" },
+    "pagesComplexity": {
+      "simple": "Oddiy",
+      "medium": "O'rtacha",
+      "complex": "Murakkab",
+      "veryComplex": "Juda murakkab"
+    },
     "pagesScreenTitle": "Ekran deganda nima tushuniladi?",
     "pagesScreenDesc": "Ilovangizdagi har bir noyob ko'rinish alohida ekran hisoblanadi. Masalan, kirish sahifasi, boshqaruv paneli, profil va sozlamalar — bu 4 ta ekran.",
     "techNotApplicable": "Bu xizmat turi uchun texnologiyalar to'plamini tanlash qo'llanilmaydi.",
@@ -64,7 +72,11 @@
       "desktop": "Desktop",
       "other": "Boshqa"
     },
-    "platform": { "ios": "iOS", "android": "Android", "both": "Ikkalasi" },
+    "platform": {
+      "ios": "iOS",
+      "android": "Android",
+      "both": "Ikkalasi"
+    },
     "subtype": {
       "landing": "Landing",
       "corporate": "Korporativ",
@@ -86,7 +98,11 @@
       "custom": "Maxsus",
       "erpCrm": "ERP/CRM"
     },
-    "complexity": { "mvp": "MVP", "standard": "Standart", "enterprise": "Enterprise" },
+    "complexity": {
+      "mvp": "MVP",
+      "standard": "Standart",
+      "enterprise": "Enterprise"
+    },
     "feature": {
       "camera": "Kamera",
       "gps": "GPS",
@@ -166,14 +182,23 @@
       "kotlin": "Kotlin",
       "dart": "Dart"
     },
-    "currency": { "usd": "USD", "uzs": "UZS", "eur": "EUR", "rub": "RUB" }
+    "currency": {
+      "usd": "USD",
+      "uzs": "UZS",
+      "eur": "EUR",
+      "rub": "RUB"
+    }
   },
   "hero": {
     "title": "Har qanday murakkablikdagi mobil ilovalar va veb-xizmatlarni ishlab chiqish.",
     "description": "Biz IOS, Android uchun mobil ilovalarni yaratamiz, ular sizning biznesingizni mijozlaringiz mobil ilovalariga o'tkazadi.",
     "phoneNumber": "Telefon Raqamingiz",
     "name": "Ism Sharifingiz",
-    "btn": "Maslahat olish"
+    "btn": "Maslahat olish",
+    "eyebrow": "Mahsulot studiyasi · Toshkent",
+    "ctaSecondary": "Ishlarimiz",
+    "statAppsLabel": "ta ilova App Store va Play Marketda",
+    "statCountriesLabel": "ta davlat — Toshkentdan Torontogacha"
   },
   "services": {
     "title": "Bizning xizmatlarimiz",
@@ -201,7 +226,8 @@
     "service6": {
       "title": "ERP & CRM",
       "description": "Kompaniyaning barcha operatsion jarayonlarini markaziy ma'lumotlar bazasiga ulab, u sizning biznesingizni raqamlarda ko'rish imkonini beradi."
-    }
+    },
+    "eyebrow": "Biz nima qilamiz"
   },
   "discuss": {
     "title": "Keling, loyihangizni muhokama qilaylik",
@@ -213,7 +239,9 @@
   "projects": {
     "title": "Biz faxrlanadigan loyihalar",
     "description": "Bizning dasturiy ta'minot ishlab chiqish kompaniyamiz biz ishlagan ajoyib mijozlar bilan chinakam faxrlanadi. Biz uzoq muddatli hamkorlikdan mamnunmiz.",
-    "viewProject": "{name} loyihasini ko'rish"
+    "viewProject": "{name} loyihasini ko'rish",
+    "eyebrow": "Tanlangan ishlar",
+    "viewAll": "Barchasi"
   },
   "contact": {
     "title": "Biz bilan bog'lanish",
@@ -241,6 +269,29 @@
     "answer3": "Ushbu bosqichda, dizayn va funksiyalarni asosida asosan kod yozish boshlanadi. Bu qadamda, front-end (mijoz tomoni) va back-end (server tomonidagi logika va ma'lumotlar bilan ishlash) bo'yicha dasturlash bilan shug'ullanish kerak bo'ladi.",
     "question4": "4-bosqich Testlash va Taqdim etish (Testing and Deployment):",
     "answer4": "So'nggi bosqichda, yaratilgan sayt test qilinadi va uni internetga joylashtirish uchun tayyorlashtiriladi. Bu bosqichda, muammo va xato aniqlangan holda, ularni tuzatish va saytni ommaga taqdim etish uchun har qanday testlarni amalga oshirish kerak bo'ladi."
+  },
+  "trust": {
+    "label": "Biz bilan ishlagan jamoalar"
+  },
+  "aiSpotlight": {
+    "eyebrow": "Haqiqatan ishga tushadigan AI",
+    "title": "Hujjatlaringizni savollarga javob beradigan, ishni tayyorlaydigan va harakat qiladigan mahsulotga aylantiramiz.",
+    "chip1": "RAG quvurlari",
+    "chip2": "LLM yordamchilari",
+    "chip3": "Embedding qidiruv",
+    "chip4": "Avtonom agentlar"
+  },
+  "process": {
+    "eyebrow": "Qanday ishlaymiz",
+    "title": "To'rt bosqich, kutilmagan holatlarsiz.",
+    "step1Title": "Rejalashtirish",
+    "step1Desc": "Maqsad, ko'lam va tuzilmani aniqlaymiz hamda kerakli ma'lumotlarni tayyorlaymiz.",
+    "step2Title": "Dizayn",
+    "step2Desc": "Brend, ranglar, shrift va interfeys — foydalanuvchi darhol tushunadigan dizayn.",
+    "step3Title": "Ishlab chiqish",
+    "step3Desc": "Frontend va backend birgalikda ishlab chiqiladi va bosqichma-bosqich yetkaziladi.",
+    "step4Title": "Test va joylashtirish",
+    "step4Desc": "To'liq test va silliq ishga tushirish — birinchi mijozlar uchun bir yil bepul hosting bilan."
   },
   "blog": {
     "title": "Blog",

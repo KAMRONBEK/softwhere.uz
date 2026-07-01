@@ -74,8 +74,8 @@ function Contact() {
 
   return (
     <section className={css.section} id='contact'>
-      <div className='container grid lg:grid-cols-2 place-items-center gap-6'>
-        {/* <Image className={css.bgTextImg} src={BgTextImg} alt=""/> */}
+      <div className={`container grid lg:grid-cols-2 place-items-center gap-6 ${css.card}`}>
+        <div className={css.glow} aria-hidden='true' />
         <div className={'relative z-10'}>
           <SectionText className='!text-white'>{t('title')}</SectionText>
           <SectionText className='!text-white' type='desc'>

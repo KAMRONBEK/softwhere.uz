@@ -9,6 +9,7 @@ function Projects() {
   return (
     <section className={css.section} id='portfolio'>
       <div className='container'>
+        <div className={css.eyebrow}>{t('eyebrow')}</div>
         <SectionText>{t('title')}</SectionText>
         <SectionText className='mt-6 lg:w-1/2' type='desc'>
           {t('description')}

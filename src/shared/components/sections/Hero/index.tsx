@@ -2,47 +2,61 @@
 import { TypeAnimation } from 'react-type-animation';
 import css from './style.module.css';
 
-import SectionText from '@/shared/components/SectionTitle';
+import Counter from '@/shared/components/Counter';
+import { projects } from '@/shared/data/projects';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import BackImage from '../../../../../public/images/app-background.png';
 
 function Hero() {
   const t = useTranslations('hero');
-  const tHeader = useTranslations('header');
 
   return (
     <section className={css.section}>
-      <div className='container 2xl:relative'>
-        <Image className={css.backImage} src={BackImage} alt='' priority />
-        <div className={css.content}>
-          <SectionText as='h1' className='lg:w-1/2'>
-            <TypeAnimation sequence={[t('title')]} wrapper='span' speed={50} />
-          </SectionText>
+      <div className={`container ${css.inner}`}>
+        <div className={css.aura1} aria-hidden='true' />
+        <div className={css.aura2} aria-hidden='true' />
 
-          <SectionText type={'desc'} className={css.description}>
-            {t('description')}
-          </SectionText>
+        <div className={css.grid}>
+          <div className={css.left}>
+            <div className={css.eyebrow}>{t('eyebrow')}</div>
+            <h1 className={css.title}>
+              <TypeAnimation sequence={[t('title')]} wrapper='span' speed={50} />
+            </h1>
+            <p className={css.description}>{t('description')}</p>
+            <div className={css.actions}>
+              <a href='#contact' className={css.ctaPrimary}>
+                {t('btn')}
+                <svg
+                  width='20'
+                  height='20'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                >
+                  <path d='M5 12h14M12 5l7 7-7 7' />
+                </svg>
+              </a>
+              <a href='#portfolio' className={css.ctaSecondary}>
+                {t('ctaSecondary')}
+              </a>
+            </div>
+          </div>
 
-          <div className={css.actions}>
-            <a href='#contact' className={css.ctaPrimary}>
-              {t('btn')}
-              <svg
-                width='20'
-                height='20'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <path d='M5 12h14M12 5l7 7-7 7' />
-              </svg>
-            </a>
-            <a href='#services' className={css.ctaSecondary}>
-              {tHeader('services')}
-            </a>
+          <div className={css.stats}>
+            <div className={css.statCard}>
+              <div className={css.statValue}>
+                <Counter to={projects.length} />
+              </div>
+              <div className={css.statLabel}>{t('statAppsLabel')}</div>
+            </div>
+            <div className={`${css.statCard} ${css.statCardAlt}`}>
+              <div className={`${css.statValue} ${css.statValueAlt}`}>
+                <Counter to={6} />
+              </div>
+              <div className={css.statLabel}>{t('statCountriesLabel')}</div>
+            </div>
           </div>
         </div>
       </div>

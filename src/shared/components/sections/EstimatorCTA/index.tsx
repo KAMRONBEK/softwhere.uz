@@ -11,13 +11,17 @@ async function EstimatorCTA() {
   return (
     <section className={css.section} id='estimator-cta'>
       <div className='container'>
-        <SectionText>{t('title')}</SectionText>
-        <SectionText className='mb-6 lg:w-1/2' type='desc'>
-          {t('description')}
-        </SectionText>
-        <Link href={`/${locale}/estimator`}>
-          <Button className={css.ctaButton}>{t('cta')}</Button>
-        </Link>
+        <div className={css.band} data-aos='fade-up'>
+          <div className={css.content}>
+            <SectionText>{t('title')}</SectionText>
+            <SectionText className='mx-auto mb-8 lg:w-2/3' type='desc'>
+              {t('description')}
+            </SectionText>
+            <Link href={`/${locale}/estimator`}>
+              <Button className={css.ctaButton}>{t('cta')} →</Button>
+            </Link>
+          </div>
+        </div>
       </div>
     </section>
   );

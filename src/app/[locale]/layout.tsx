@@ -8,13 +8,19 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
 import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { Inter } from 'next/font/google';
+import { Inter, Sora, Manrope, JetBrains_Mono } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import React from 'react';
 import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/core/constants';
 import { safeJsonLd } from '@/shared/utils/security';
 
-const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
+// Inter stays loaded with the Cyrillic subset so RU/UZ text always has full
+// glyph coverage; Sora (display) and Manrope (body) are Latin-only and fall
+// back to Inter for Cyrillic via the --disp/--body stacks in globals.css.
+const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap', variable: '--font-inter' });
+const sora = Sora({ subsets: ['latin'], display: 'swap', variable: '--font-sora', weight: ['400', '500', '600', '700', '800'] });
+const manrope = Manrope({ subsets: ['latin'], display: 'swap', variable: '--font-manrope', weight: ['400', '500', '600', '700', '800'] });
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], display: 'swap', variable: '--font-mono', weight: ['400', '500'] });
 
 // Only the three known locales are valid; anything else 404s instead of
 // rendering the home page with lang="xx".
@@ -123,7 +129,7 @@ export default async function RootLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${sora.variable} ${manrope.variable} ${jetbrainsMono.variable}`}>
         <ThemeProvider>
           <StructuredData locale={locale} />
           <NextIntlClientProvider messages={messages}>

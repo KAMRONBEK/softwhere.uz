@@ -1,9 +1,10 @@
 .sectionTitle {
-  color: var(--gray-900);
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 144%;
-  letter-spacing: 0.33px;
+  color: var(--text);
+  font-family: var(--disp);
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   margin-bottom: 24px;
 }
 
@@ -12,16 +13,16 @@
 }
 
 .description {
-  color: var(--gray-900);
-  font-size: 15px;
+  color: var(--muted);
+  font-size: 17px;
   font-weight: 500;
-  line-height: 20px;
-  letter-spacing: -0.24px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 }
 
 @media (max-width: 1025px) {
   .sectionTitle {
-    font-size: 32px;
+    font-size: 36px;
     margin-bottom: 15px;
   }
 }
@@ -38,6 +39,6 @@
 
 @media (max-width: 450px) {
   .sectionTitle {
-    font-size: 28px;
+    font-size: 30px;
   }
 }

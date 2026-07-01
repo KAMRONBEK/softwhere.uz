@@ -9,7 +9,10 @@
     "blog": "Blog",
     "estimate": "Estimate",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "ai": "AI",
+    "work": "Work",
+    "letsTalk": "Let's talk"
   },
   "estimatorCTA": {
     "title": "Want to estimate how much your project will cost?",
@@ -48,7 +51,12 @@
     "platformHint": "Click to select multiple platforms if needed",
     "pagesLabel": "Number of Pages/Screens",
     "pagesQuestion": "How many screens do you need?",
-    "pagesComplexity": { "simple": "Simple", "medium": "Medium", "complex": "Complex", "veryComplex": "Very Complex" },
+    "pagesComplexity": {
+      "simple": "Simple",
+      "medium": "Medium",
+      "complex": "Complex",
+      "veryComplex": "Very Complex"
+    },
     "pagesScreenTitle": "What counts as a screen?",
     "pagesScreenDesc": "Each unique view in your application counts as a screen. For example, a login page, dashboard, profile page, and settings page would count as 4 screens.",
     "techNotApplicable": "Tech stack selection is not applicable for this service type.",
@@ -64,7 +72,11 @@
       "desktop": "Desktop App",
       "other": "Other"
     },
-    "platform": { "ios": "iOS", "android": "Android", "both": "Both" },
+    "platform": {
+      "ios": "iOS",
+      "android": "Android",
+      "both": "Both"
+    },
     "subtype": {
       "landing": "Landing",
       "corporate": "Corporate",
@@ -86,7 +98,11 @@
       "custom": "Custom",
       "erpCrm": "ERP/CRM"
     },
-    "complexity": { "mvp": "MVP", "standard": "Standard", "enterprise": "Enterprise" },
+    "complexity": {
+      "mvp": "MVP",
+      "standard": "Standard",
+      "enterprise": "Enterprise"
+    },
     "feature": {
       "camera": "Camera",
       "gps": "GPS/Location",
@@ -166,14 +182,23 @@
       "kotlin": "Kotlin",
       "dart": "Dart"
     },
-    "currency": { "usd": "USD", "uzs": "UZS", "eur": "EUR", "rub": "RUB" }
+    "currency": {
+      "usd": "USD",
+      "uzs": "UZS",
+      "eur": "EUR",
+      "rub": "RUB"
+    }
   },
   "hero": {
     "title": "Development of mobile applications and web services of any complexity.",
     "description": "We create mobile applications for iOS and Android that will bring your business to mobile audiences.",
     "phoneNumber": "Your Phone Number",
     "name": "Your Name",
-    "btn": "Get Consultation"
+    "btn": "Get Consultation",
+    "eyebrow": "Product studio · Tashkent",
+    "ctaSecondary": "See our work",
+    "statAppsLabel": "apps live on the App Store & Play Market",
+    "statCountriesLabel": "countries, from Tashkent to Toronto"
   },
   "services": {
     "title": "Our Services",
@@ -201,7 +226,8 @@
     "service6": {
       "title": "ERP & CRM",
       "description": "Providing centralized access to all operational processes of the company and giving you the opportunity to see your business in numbers."
-    }
+    },
+    "eyebrow": "What we do"
   },
   "discuss": {
     "title": "Come, let's discuss your project",
@@ -213,7 +239,9 @@
   "projects": {
     "title": "Our pride - projects",
     "description": "Our software development company is proud of our wonderful clients. We are very pleased with long-term cooperation.",
-    "viewProject": "View {name}"
+    "viewProject": "View {name}",
+    "eyebrow": "Selected work",
+    "viewAll": "View all"
   },
   "contact": {
     "title": "Contact Us",
@@ -241,6 +269,29 @@
     "answer3": "At this stage, code writing begins based on design and functions. Here you will need front-end (client side) and back-end (server logic and data handling) programming.",
     "question4": "Stage 4 Testing and Deployment:",
     "answer4": "In the final stage, the created site is tested and prepared for placement on the Internet. At this stage, it is necessary to conduct all types of tests to detect problems and errors, fix them and present your site to a wide audience."
+  },
+  "trust": {
+    "label": "Teams we've shipped with"
+  },
+  "aiSpotlight": {
+    "eyebrow": "AI you can actually ship",
+    "title": "We turn your documents into a product that answers questions, drafts work, and takes action.",
+    "chip1": "RAG pipelines",
+    "chip2": "LLM copilots",
+    "chip3": "Embeddings search",
+    "chip4": "Autonomous agents"
+  },
+  "process": {
+    "eyebrow": "How we work",
+    "title": "Four stages, zero surprises.",
+    "step1Title": "Planning",
+    "step1Desc": "We define goals, scope and structure, and prepare the right data to build on.",
+    "step2Title": "Design",
+    "step2Desc": "Brand, colors, type and interface — a design your users understand instantly.",
+    "step3Title": "Development",
+    "step3Desc": "Front-end and back-end engineered together, shipped in reviewable increments.",
+    "step4Title": "Test & Deploy",
+    "step4Desc": "Full testing, then a smooth launch — with a year of free hosting for early clients."
   },
   "blog": {
     "title": "Blog",

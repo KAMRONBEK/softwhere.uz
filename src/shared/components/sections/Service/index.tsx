@@ -1,73 +1,38 @@
 import SectionText from '@/shared/components/SectionTitle';
-import ConsultingImage from '../../../../../public/images/consulting.png';
-import CrmImage from '../../../../../public/images/crm.webp';
-import LandingPageImage2 from '../../../../../public/images/landing-page.webp';
-import LandingPageImage from '../../../../../public/images/landing.webp';
-import MobileImage from '../../../../../public/images/mobile.png';
-import StartupsImage from '../../../../../public/images/startups.webp';
 import css from './style.module.css';
-import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 
 async function Service() {
   const t = await getTranslations('services');
   const services = [
-    {
-      id: 0,
-      title: t('service1.title'),
-      image: LandingPageImage,
-      description: t('service1.description'),
-    },
-    {
-      id: 1,
-      title: t('service2.title'),
-      image: LandingPageImage2,
-      description: t('service2.description'),
-    },
-    {
-      id: 2,
-      title: t('service3.title'),
-      image: MobileImage,
-      description: t('service3.description'),
-    },
-    {
-      id: 3,
-      title: t('service4.title'),
-      image: ConsultingImage,
-      description: t('service4.description'),
-    },
-    {
-      id: 4,
-      title: t('service5.title'),
-      image: StartupsImage,
-      description: t('service5.description'),
-    },
-    {
-      id: 5,
-      title: t('service6.title'),
-      image: CrmImage,
-      description: t('service6.description'),
-    },
+    { num: 1, title: t('service1.title'), description: t('service1.description') },
+    { num: 2, title: t('service2.title'), description: t('service2.description') },
+    { num: 3, title: t('service3.title'), description: t('service3.description') },
+    { num: 4, title: t('service4.title'), description: t('service4.description') },
+    { num: 5, title: t('service5.title'), description: t('service5.description') },
+    { num: 6, title: t('service6.title'), description: t('service6.description') },
   ];
 
   return (
     <section className={css.section} id='services'>
       <div className='container'>
+        <div className={css.eyebrow}>{t('eyebrow')}</div>
         <SectionText>{t('title')}</SectionText>
-        <SectionText className='mb-6 lg:w-1/2' type='desc'>
+        <SectionText className='mb-10 lg:w-1/2' type='desc'>
           {t('description')}
         </SectionText>
-        <ul className='grid md:grid-cols-2 grid-cols-1 md:gap-6 gap-3'>
+        <div className={css.rows}>
           {services.map((item, index) => (
-            <li data-aos={index % 2 === 0 ? 'flip-down' : 'flip-up'} className={css.serviceItem} key={item.title}>
-              <div>
-                <b>{item.title}</b>
-                <p>{item.description}</p>
-              </div>
-              <Image src={item.image} alt='' />
-            </li>
+            <div data-aos='fade-up' className={`${css.row} ${index === 2 ? css.rowHighlight : ''}`} key={item.title}>
+              <span className={css.num}>{String(item.num).padStart(2, '0')}</span>
+              <h3 className={css.rowTitle}>{item.title}</h3>
+              <p className={css.rowDesc}>{item.description}</p>
+              <span className={css.arrow} aria-hidden='true'>
+                →
+              </span>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </section>
   );

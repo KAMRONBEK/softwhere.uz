@@ -1,10 +1,29 @@
 .section {
   position: relative;
-  padding: 28px 0;
-  background-color: var(--accent);
-  background-image: url('../../../../../public/images/noise.svg');
-  background-size: 300px 300px;
-  background-repeat: repeat;
+  padding: 96px 0;
+  background-color: var(--bg);
+}
+
+/* The contact panel stays a deep ember-dark card in both themes, so the
+   white contact text/icons keep their contrast in light mode too. */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 52px;
+  background: linear-gradient(135deg, #20140b, #120b07);
+  border: 1px solid rgba(255, 150, 90, 0.15);
+}
+
+.glow {
+  position: absolute;
+  bottom: -140px;
+  left: -60px;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(255, 91, 30, 0.4), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .bgTextImg {

@@ -3,12 +3,13 @@ import { setRequestLocale } from 'next-intl/server';
 
 import HomeClientLayer from '@/shared/components/HomeClientLayer';
 import Hero from '@/shared/components/sections/Hero';
-import EstimatorCTA from '@/shared/components/sections/EstimatorCTA';
+import Trust from '@/shared/components/sections/Trust';
 import Service from '@/shared/components/sections/Service';
-import Discuss from '@/shared/components/sections/Discuss';
+import AISpotlight from '@/shared/components/sections/AISpotlight';
+import Process from '@/shared/components/sections/Process';
 import Projects from '@/shared/components/sections/Projects';
 import Contact from '@/shared/components/sections/Contact';
-import FAQ from '@/shared/components/sections/FAQ';
+import EstimatorCTA from '@/shared/components/sections/EstimatorCTA';
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = (await params) as { locale: Locale };
@@ -18,12 +19,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     <main>
       <HomeClientLayer locale={locale} />
       <Hero />
-      <EstimatorCTA />
+      <Trust />
       <Service />
-      <Discuss />
+      <AISpotlight />
+      <Process />
       <Projects />
       <Contact />
-      <FAQ />
+      <EstimatorCTA />
     </main>
   );
 }

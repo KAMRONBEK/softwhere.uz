@@ -230,6 +230,9 @@ function Header() {
           <Link href={`/${lang}#portfolio`}>{t('portfolio')}</Link>
         </li>
         <li>
+          <Link href={`/${lang}#ai`}>{t('ai')}</Link>
+        </li>
+        <li>
           <Link href={`/${lang}/blog`}>{t('blog')}</Link>
         </li>
         <li>
@@ -288,6 +291,11 @@ function Header() {
           <li>
             <Link href={`/${lang}#portfolio`} onClick={toggleMenu}>
               {t('portfolio')}
+            </Link>
+          </li>
+          <li>
+            <Link href={`/${lang}#ai`} onClick={toggleMenu}>
+              {t('ai')}
             </Link>
           </li>
           <li>

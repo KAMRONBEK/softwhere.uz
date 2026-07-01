@@ -1,0 +1,46 @@
+.section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 22px 0;
+  overflow: hidden;
+  background: var(--bg2);
+}
+
+.track {
+  display: flex;
+  gap: 60px;
+  width: max-content;
+  animation: trustMarquee 32s linear infinite;
+  font-family: var(--disp);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.item {
+  transition: color 0.2s ease;
+}
+
+.item:hover {
+  color: var(--accent);
+}
+
+@keyframes trustMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+    gap: 24px 40px;
+  }
+}
