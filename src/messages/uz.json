@@ -23,7 +23,7 @@
     "title": "Loyiha kalkulyatori",
     "stepProjectType": "Nima kerak?",
     "stepPlatforms": "Platformalar",
-    "stepScope": "Hajm",
+    "stepScope": "Ko'lam",
     "stepFeatures": "Asosiy funksiyalar",
     "stepScale": "Hajm",
     "stepAdvanced": "Qo'shimcha",
@@ -187,7 +187,21 @@
       "uzs": "UZS",
       "eur": "EUR",
       "rub": "RUB"
-    }
+    },
+    "eyebrow": "Loyiha kalkulyatori",
+    "headline": "Ishlab chiqish qancha turadi?",
+    "subtitle": "Bir nechta savolga javob bering. Raqamlarni AI bilan aniqlaymiz va haqiqiy dasturchi bog'lanadi.",
+    "liveEstimate": "Jonli hisob",
+    "stepEstimate": "Hisob",
+    "seeEstimate": "Hisobni ko'rish",
+    "resultHeading": "Mana taxminiy hisobingiz.",
+    "summaryType": "Turi",
+    "summaryComplexity": "Murakkablik",
+    "summaryScreens": "Ekranlar",
+    "summaryFeatures": "Funksiyalar",
+    "typicalRange": "Odatiy oraliq",
+    "indicativeNote": "Taxminiy. Aniq narx — qisqa suhbatdan so'ng.",
+    "bookCall": "Qo'ng'iroqqa yozilish"
   },
   "hero": {
     "title": "Har qanday murakkablikdagi mobil ilovalar va veb-xizmatlarni ishlab chiqish.",

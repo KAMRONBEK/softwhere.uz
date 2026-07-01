@@ -187,7 +187,21 @@
       "uzs": "UZS",
       "eur": "EUR",
       "rub": "RUB"
-    }
+    },
+    "eyebrow": "Project estimator",
+    "headline": "What will it cost to build?",
+    "subtitle": "Answer a few questions. We refine the numbers with AI and a real developer follows up.",
+    "liveEstimate": "Live estimate",
+    "stepEstimate": "Estimate",
+    "seeEstimate": "See estimate",
+    "resultHeading": "Here's your ballpark.",
+    "summaryType": "Type",
+    "summaryComplexity": "Complexity",
+    "summaryScreens": "Screens",
+    "summaryFeatures": "Features",
+    "typicalRange": "Typical range",
+    "indicativeNote": "Indicative only. Final quote after a short discovery call.",
+    "bookCall": "Book a call"
   },
   "hero": {
     "title": "Development of mobile applications and web services of any complexity.",

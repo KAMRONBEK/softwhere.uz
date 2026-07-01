@@ -10,6 +10,8 @@ import {
   ScopeStep,
   TechStackStep,
 } from '@/modules/estimator/components';
+import LivePreview from './LivePreview';
+import { useCurrency } from './CurrencySwitcher';
 import { logger } from '@/core/logger';
 import { getEstimate } from '@/modules/estimator/api';
 import type { EstimateResult, EstimatorInput } from '@/modules/estimator/types';
@@ -30,6 +32,10 @@ const STEP_LABELS: Record<StepId, string> = {
 
 export default function Wizard() {
   const t = useTranslations('estimator');
+  // next-intl types t() to literal keys; STEP_LABELS values are dynamic.
+  const tLabel = t as (key: string) => string;
+  const { currency, setCurrency, format } = useCurrency();
+
   const [step, setStep] = useState(0);
   const [input, setInput] = useState<EstimatorInput>({
     projectType: 'mobile',
@@ -38,13 +44,6 @@ export default function Wizard() {
     pages: 1,
     platforms: [],
     techStack: [],
-  });
-
-  const defaultEstimate = calculateEstimate({
-    projectType: 'mobile',
-    complexity: 'mvp',
-    features: [],
-    pages: 1,
   });
 
   const [estimate, setEstimate] = useState<EstimateResult | null>(null);
@@ -59,8 +58,11 @@ export default function Wizard() {
   const shouldShowTechStep = input.projectType !== 'other';
   let steps: StepId[] = shouldShowPlatformStep ? ALL_STEPS : ALL_STEPS.filter(s => s !== 'platforms');
   if (!shouldShowTechStep) steps = steps.filter(s => s !== 'advanced');
-  const maxSteps = steps.length;
-  const isLastStep = step === maxSteps - 1;
+
+  const resultIndex = steps.length; // the trailing "Estimate" step
+  const isResultStep = step >= resultIndex;
+  const isLastInputStep = step === steps.length - 1;
+  const progress = Math.round((Math.min(step, resultIndex) / resultIndex) * 100);
 
   const fetchAIEstimate = async () => {
     setLoading(true);
@@ -90,6 +92,18 @@ export default function Wizard() {
       setLoading(false);
     }
   };
+
+  const gotoStep = (i: number) => {
+    setStep(i);
+    if (i >= resultIndex && !loading) fetchAIEstimate();
+  };
+
+  const next = () => {
+    if (isLastInputStep) gotoStep(resultIndex);
+    else setStep(s => s + 1);
+  };
+
+  const back = () => setStep(s => Math.max(0, s - 1));
 
   const handleProjectTypeChange = (type: EstimatorInput['projectType']) => {
     setInput(prev => ({ ...prev, projectType: type, subtype: undefined, platforms: [] }));
@@ -126,7 +140,7 @@ export default function Wizard() {
     const current = input.techStack ?? [];
     setInput(prev => ({
       ...prev,
-      techStack: current.includes(tech) ? current.filter(t => t !== tech) : [...current, tech],
+      techStack: current.includes(tech) ? current.filter(x => x !== tech) : [...current, tech],
     }));
   };
 
@@ -189,53 +203,100 @@ export default function Wizard() {
     }
   };
 
+  const railItems = [...steps.map(id => ({ id, label: tLabel(STEP_LABELS[id]) })), { id: 'result', label: t('stepEstimate') }];
+
   return (
-    <div className='page-layout container mx-auto pb-10'>
-      <h1 className='text-2xl font-bold mb-4 font-display text-ember-text'>{t('title')}</h1>
-
-      <div className='mb-6'>
-        <p className='text-ember-muted'>
-          {t('stepProgress', { current: step + 1, total: maxSteps })}:{' '}
-          <strong className='text-ember-accent'>{(t as (k: string) => string)(STEP_LABELS[currentStepId] ?? currentStepId)}</strong>
-        </p>
-        <div className='glass rounded-lg p-6 mt-4'>{renderCurrentStep()}</div>
+    <div className='page-layout container mx-auto pb-16'>
+      {/* Header */}
+      <div className='text-center max-w-2xl mx-auto mb-10'>
+        <div className='uppercase tracking-[0.2em] text-xs font-bold text-ember-accent mb-3'>{t('eyebrow')}</div>
+        <h1 className='font-display text-4xl md:text-5xl font-extrabold tracking-tight text-ember-text mb-3'>{t('headline')}</h1>
+        <p className='text-ember-muted'>{t('subtitle')}</p>
       </div>
 
-      <div className='flex gap-4'>
-        {step > 0 && (
-          <Button
-            onClick={() => setStep(s => s - 1)}
-            className='!bg-transparent !border !border-ember-border !text-ember-text !rounded-full'
-          >
-            {t('back')}
-          </Button>
-        )}
-        {!isLastStep ? (
-          <Button
-            onClick={() => setStep(s => s + 1)}
-            className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full hover:shadow-[0_0_28px_var(--glow)]'
-          >
-            {t('next')}
-          </Button>
-        ) : (
-          <Button
-            onClick={fetchAIEstimate}
-            disabled={loading}
-            className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full hover:shadow-[0_0_28px_var(--glow)] disabled:opacity-60'
-          >
-            {loading ? t('calculating') : t('getEstimate')}
-          </Button>
-        )}
-      </div>
+      {/* 3-column wizard */}
+      <div className='grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)_320px] gap-6 lg:gap-7 items-start'>
+        {/* Step rail */}
+        <aside className='hidden lg:flex flex-col gap-1.5 lg:sticky lg:top-28'>
+          {railItems.map((item, i) => {
+            const active = i === step;
+            const done = i < step;
+            return (
+              <button
+                key={item.id}
+                type='button'
+                onClick={() => gotoStep(i)}
+                aria-current={active}
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-left transition-colors ${
+                  active ? 'bg-ember-surface border border-ember-accent' : 'border border-transparent hover:bg-ember-surface'
+                }`}
+              >
+                <span
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                    active
+                      ? 'bg-ember-accent text-[#0a0705]'
+                      : done
+                        ? 'bg-[rgba(255,91,30,0.2)] text-ember-accent'
+                        : 'bg-ember-surface2 text-ember-muted'
+                  }`}
+                >
+                  {i + 1}
+                </span>
+                <span className='text-sm font-semibold text-ember-text'>{item.label}</span>
+              </button>
+            );
+          })}
+        </aside>
 
-      <ResultDisplay
-        result={estimate ?? localEstimate ?? defaultEstimate}
-        source={estimateSource}
-        loading={loading}
-        error={error}
-        aiReasoning={aiReasoning}
-        onReset={handleReset}
-      />
+        {/* Step body */}
+        <div className='rounded-3xl border border-ember-border p-6 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'>
+          <div className='lg:hidden text-sm text-ember-muted mb-3'>
+            {isResultStep ? t('stepEstimate') : t('stepProgress', { current: step + 1, total: steps.length })}
+          </div>
+
+          <div className='h-1 rounded-full bg-ember-surface overflow-hidden mb-7'>
+            <div
+              className='h-full rounded-full bg-[linear-gradient(90deg,var(--accent),var(--accent2))] transition-[width] duration-500 ease-out'
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          {isResultStep ? (
+            <ResultDisplay
+              result={estimate ?? localEstimate}
+              source={estimateSource}
+              loading={loading}
+              error={error}
+              aiReasoning={aiReasoning}
+              onReset={handleReset}
+              format={format}
+            />
+          ) : (
+            renderCurrentStep()
+          )}
+
+          {!isResultStep && (
+            <div className='flex justify-between items-center mt-8 pt-6 border-t border-ember-border'>
+              {step > 0 ? (
+                <Button onClick={back} className='!bg-transparent !border !border-ember-border !text-ember-text !rounded-full'>
+                  ← {t('back')}
+                </Button>
+              ) : (
+                <span />
+              )}
+              <Button
+                onClick={next}
+                className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full hover:shadow-[0_0_28px_var(--glow)]'
+              >
+                {isLastInputStep ? `${t('seeEstimate')} →` : `${t('next')} →`}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Live estimate panel */}
+        <LivePreview estimate={localEstimate} input={input} format={format} currency={currency} setCurrency={setCurrency} />
+      </div>
     </div>
   );
 }
