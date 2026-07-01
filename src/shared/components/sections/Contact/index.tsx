@@ -135,7 +135,7 @@ function Contact() {
             </div>
           </div>
         </div>
-        <form onSubmit={handleSubmit} data-aos='zoom-in' className={css.formBox}>
+        <form onSubmit={handleSubmit} data-aos='zoom-in' className={`${css.formBox} contact-form`}>
           <div className='grid md:grid-cols-2 gap-6'>
             <div className={css.formInput}>
               <label htmlFor='phone-input'>{t('phoneNumber')}</label>
@@ -199,7 +199,11 @@ function Contact() {
               className={css.textarea}
             ></textarea>
           </div>
-          <Button className='block mt-6 ml-auto' type='submit' disabled={submitting}>
+          <Button
+            className='block mt-6 ml-auto !bg-ember-accent !text-[#0a0705] font-bold !rounded-full'
+            type='submit'
+            disabled={submitting}
+          >
             {t('btn')}
           </Button>
         </form>

@@ -158,6 +158,26 @@ html.dark .react-international-phone-country-selector-dropdown {
   border-color: var(--gray-300) !important;
 }
 
+/* The contact form sits on an always-dark ember panel, so force its phone
+   input dark in BOTH themes (react-international-phone emits global classes). */
+.contact-form .react-international-phone-input-container,
+.contact-form .react-international-phone-input,
+.contact-form .react-international-phone-country-selector-button {
+  background: transparent !important;
+  color: #fbeee6 !important;
+  border-color: transparent !important;
+}
+
+.contact-form .react-international-phone-input::placeholder {
+  color: #8a6a55 !important;
+}
+
+.contact-form .react-international-phone-country-selector-dropdown {
+  background: #181009 !important;
+  border-color: rgba(255, 150, 90, 0.2) !important;
+  color: #fbeee6 !important;
+}
+
 .glass {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
