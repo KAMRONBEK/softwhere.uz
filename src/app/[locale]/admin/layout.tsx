@@ -10,16 +10,32 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
   // Authoritative check on the server: unauthenticated requests never receive
   // the admin UI (fixes the old client-only gate where pages were reachable).
   if (!(await isAdminAuthenticated())) {
     return <AdminLogin />;
   }
 
+  const { locale } = await params;
+
   return (
     <div>
-      <div className='flex justify-end items-center px-4 sm:px-6 lg:px-8 h-11 bg-ember-bg border-b border-ember-border'>
+      <div className='flex justify-between items-center px-4 sm:px-6 lg:px-8 h-11 bg-ember-bg border-b border-ember-border'>
+        <nav className='flex items-center gap-4 text-sm'>
+          <a href={`/${locale}/admin/posts`} className='text-ember-muted hover:text-ember-text transition-colors'>
+            Posts
+          </a>
+          <a href={`/${locale}/admin/leads`} className='text-ember-muted hover:text-ember-text transition-colors'>
+            Leads
+          </a>
+        </nav>
         <AdminLogout />
       </div>
       {children}

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { db } from '@/core/db';
 import { leads, type NewLead } from './Lead';
 
@@ -24,4 +24,28 @@ export async function markLeadNotified(id: string, ok: boolean): Promise<void> {
     .update(leads)
     .set({ notifiedTelegram: ok ? 'sent' : 'failed' })
     .where(eq(leads.id, id));
+}
+
+export interface LeadSummary {
+  id: string;
+  name: string;
+  phone: string;
+  message: string | null;
+  source: string | null;
+  notifiedTelegram: 'pending' | 'sent' | 'failed';
+  createdAt: string;
+}
+
+/** List recent leads for the admin viewer, newest first. */
+export async function listLeads(limit = 200): Promise<LeadSummary[]> {
+  const rows = await db.select().from(leads).orderBy(desc(leads.createdAt)).limit(limit);
+  return rows.map(r => ({
+    id: r.id,
+    name: r.name,
+    phone: r.phone,
+    message: r.message,
+    source: r.source,
+    notifiedTelegram: r.notifiedTelegram,
+    createdAt: r.createdAt.toISOString(),
+  }));
 }
