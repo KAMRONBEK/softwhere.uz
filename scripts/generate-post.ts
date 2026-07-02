@@ -1,5 +1,5 @@
 /**
- * Weekly blog generation CLI — a thin wrapper around the SAME pipeline the
+ * Scheduled blog generation CLI — a thin wrapper around the SAME pipeline the
  * admin API route uses (src/modules/blog/api/pipeline.ts), run from GitHub
  * Actions where wall-clock is free, so it uses the 'deep' mode (research →
  * draft → lint/revise → cross-model critique → revise).
@@ -13,10 +13,10 @@
  *   --sourceUrl <url>    URL to fetch and use as source material
  *   --sourceText <str>   Raw text to use as source material (max 5000 chars)
  *   --locales <list>     Comma-separated locales (default: en,ru,uz)
- *   --force              Ignore the weekly idempotency check (scheduled runs)
+ *   --force              Ignore the per-slot idempotency check (scheduled runs)
  *
  * Scheduled runs (GITHUB_EVENT_NAME=schedule) use a deterministic group id
- * (weekly-<year>-W<week>): a duplicate cron fire or a re-run after partial
+ * (sched-<date>-<am|pm>): a duplicate cron fire or a re-run after partial
  * failure resumes the same group and only generates the missing locales.
  */
 
@@ -81,17 +81,16 @@ function parseArgs() {
 }
 
 // ---------------------------------------------------------------------------
-// Idempotency: deterministic group id per ISO week for scheduled runs
+// Idempotency: deterministic group id per schedule slot. The workflow fires
+// twice a day (morning + evening UTC), so the slot is date + am/pm — a
+// duplicate cron fire is a no-op, and a re-run after partial failure resumes
+// the same slot's group and fills only the missing locales.
 // ---------------------------------------------------------------------------
 
-function isoWeekId(date = new Date()): string {
-  // ISO-8601 week number (UTC): Thursday of the current week decides the year.
-  const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  const day = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() + 4 - day);
-  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-  const week = Math.ceil(((d.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
-  return `weekly-${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+function scheduleSlotId(date = new Date()): string {
+  const day = date.toISOString().slice(0, 10);
+  const half = date.getUTCHours() < 12 ? 'am' : 'pm';
+  return `sched-${day}-${half}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -134,19 +133,19 @@ async function main() {
   }
 
   // --- Idempotency / continuation ------------------------------------------
-  // Scheduled runs share one deterministic group per ISO week: a duplicate
-  // cron fire is a no-op, and a re-run after partial failure fills only the
-  // missing locales. --force opts out and generates a brand-new group.
+  // Scheduled runs share one deterministic group per schedule slot: a
+  // duplicate cron fire is a no-op, and a re-run after partial failure fills
+  // only the missing locales. --force opts out and makes a brand-new group.
 
-  const useWeeklyGroup = isScheduled && !opts.force;
-  const generationGroupId = useWeeklyGroup ? isoWeekId() : uuidv4();
+  const useSlotGroup = isScheduled && !opts.force;
+  const generationGroupId = useSlotGroup ? scheduleSlotId() : uuidv4();
   let existingTopic: TopicResult | null = null;
   let existingCover: ICoverImage | null = null;
   let existingImages: ICoverImage[] = [];
   let existingMeta: string | null = null;
   let locales = opts.locales;
 
-  if (useWeeklyGroup) {
+  if (useSlotGroup) {
     const existing = await getByGroupId(generationGroupId);
     if (existing) {
       // Drafts count as done — resume must not duplicate unreviewed drafts.
@@ -154,9 +153,9 @@ async function main() {
       locales = opts.locales.filter(l => !done.has(l));
 
       if (locales.length === 0) {
-        const msg = `This week's group ${generationGroupId} already has all requested locales — nothing to do (dispatch with force=true for an extra post).`;
+        const msg = `Slot group ${generationGroupId} already has all requested locales — nothing to do (dispatch with force=true for an extra post).`;
         console.log(`✅ ${msg}`);
-        writeStepSummary(`### Weekly post already generated\n${msg}`);
+        writeStepSummary(`### Post already generated for this slot\n${msg}`);
         process.exit(0);
       }
 
@@ -372,11 +371,11 @@ async function main() {
       `<b>📝 New blog draft${created.length > 1 ? 's' : ''} ready for review</b>\n${list}${failedLine}\n\n<a href="${adminUrl}">Review in admin</a>`
     );
   } else {
-    await sendTelegramMessage(`<b>❌ Weekly blog generation produced no drafts</b>\nTopic: ${escapeTelegramHtml(topic.title)}`);
+    await sendTelegramMessage(`<b>❌ Blog generation produced no drafts</b>\nTopic: ${escapeTelegramHtml(topic.title)}`);
   }
 
   // Any failed locale exits non-zero so CI opens an issue — safe because a
-  // scheduled re-run resumes the weekly group and fills only what's missing.
+  // scheduled re-run resumes the slot's group and fills only what's missing.
   process.exit(failed.length > 0 || created.length === 0 ? 1 : 0);
 }
 

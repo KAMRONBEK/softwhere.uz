@@ -61,6 +61,8 @@ function allowedUrlsFor(factSheet: FactSheet | undefined, images: ICoverImage[],
     ...images.map(i => i.thumbUrl),
     'https://unsplash.com',
     'https://images.unsplash.com',
+    // Chart images built from verified facts (see factsBlock in generator.ts).
+    'https://quickchart.io',
   ];
   void source;
   return urls;

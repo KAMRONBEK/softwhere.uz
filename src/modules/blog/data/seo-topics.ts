@@ -188,12 +188,12 @@ export const SERVICE_PILLARS: ServicePillar[] = [
     topics: [
       {
         id: 'ai-rag',
-        title: 'How RAG Can Transform Your Business Knowledge Base',
-        primaryKeyword: 'RAG for business',
-        secondaryKeywords: ['retrieval augmented generation', 'AI knowledge base'],
+        title: 'AI That Knows Your Business: Turning Company Documents into Instant Answers',
+        primaryKeyword: 'AI knowledge base for business',
+        secondaryKeywords: ['AI assistant for company documents', 'AI knowledge management'],
         searchIntent: 'informational',
         postFormat: 'beginner-guide',
-        targetQueries: ['what is RAG in AI', 'RAG for business use cases', 'AI knowledge management'],
+        targetQueries: ['AI for company knowledge base', 'AI answers from company documents', 'AI knowledge management'],
         imageHints: ['AI brain network', 'knowledge database'],
       },
       {

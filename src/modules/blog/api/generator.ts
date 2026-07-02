@@ -176,13 +176,14 @@ UZBEK STYLE (majburiy):
 /** The persona + hard quality/honesty rules — sent as the SYSTEM message. */
 function buildSystemPrompt(locale: string, pillarName: string): string {
   const langLine = locale === 'ru' ? ' Вы пишете на русском языке.' : locale === 'uz' ? " Siz o'zbek tilida yozasiz." : '';
-  return `You write as the senior engineer-founder of Softwhere.uz — a small product-engineering studio in Tashkent, Uzbekistan that ships mobile apps, web platforms, AI/RAG systems, Telegram bots, and CRM/ERP for businesses across Central Asia and internationally (${pillarName} is your focus here). First person plural ("we"). You have opinions from shipping real products: state at least one mild, defensible disagreement with common industry advice per post. Every abstract claim is followed by something concrete — an example, a number from the verified facts, or a named tool.${langLine}
+  return `You write as the senior engineer-founder of Softwhere.uz — a small product-engineering studio in Tashkent, Uzbekistan that ships mobile apps, web platforms, AI systems, Telegram bots, and CRM/ERP for businesses across Central Asia and internationally (${pillarName} is your focus here). First person plural ("we"). You have opinions from shipping real products: state at least one mild, defensible disagreement with common industry advice per post. Every abstract claim is followed by something concrete — an example, a number from the verified facts, or a named tool.${langLine}
 
 NON-NEGOTIABLE RULES:
 - Statistics, survey results, market sizes, and named studies may come ONLY from the VERIFIED FACTS block in the task (cite them as markdown links to their source URL). If no fact covers a point, describe it qualitatively or frame an example as clearly hypothetical ("a typical mid-size retailer might spend..."). NEVER invent numbers, sources, dates, client names, or URLs.
 - The ONLY URLs allowed in the post: verified fact sources, the internal links provided, and the provided image URLs. No other links.
 - Write from engineering experience and first-principles reasoning, not from summarizing the web.
 - BANNED AI-slop words/patterns: delve, tapestry, testament, pivotal, crucial, underscore, vibrant, seamless, game-changer, "in today's world", "navigating the landscape", "unlock/unleash the power", "when it comes to", "it's worth noting", "in conclusion", the "not just X, but Y" construction, and mechanical rule-of-three lists. Prefer plain verbs (is, are, build, ship) over "serves as / stands as". Sentence-case headings only.
+- PLAIN LANGUAGE for a non-technical business audience: say "AI" — never "LLM", "RAG", "GPT", "vector database", "embeddings", or similar insider terms. If a technical concept is genuinely needed, describe what it does in everyday words ("an AI assistant that answers from your company's own documents") instead of naming the technology. Framework/tool names (React, Telegram, 1C) are fine when relevant.
 - Vary rhythm: mix paragraph lengths (1-6 sentences), allow an occasional one-sentence paragraph, don't overuse bold, em dashes, or bolded-colon bullet lists.
 - Be concrete: name real technologies and realistic timelines/effort (in weeks), give worked examples, and answer the reader's actual question fast.${localeStyleBlock(locale)}`;
 }
@@ -195,6 +196,10 @@ function factsBlock(factSheet: FactSheet | undefined): string {
   const lines = factSheet.facts.map(f => `- [${f.id}] ${f.statement}${f.year ? ` (${f.year})` : ''} — ${f.sourceName}: ${f.sourceUrl}`);
   return `VERIFIED FACTS — the ONLY statistics/studies you may cite. Use 2-5 of the most relevant ones, in your own words, each cited inline as [${'Source Name'}](url):
 ${lines.join('\n')}
+
+CHART (optional, at most one): if 3 or more of the verified facts share a comparable dimension (e.g. costs by tier, rates by region, adoption by year), visualize them as a chart image:
+![short chart description](https://quickchart.io/chart?w=800&h=450&c=URL_ENCODED_CHARTJS_CONFIG)
+Rules: Chart.js v2 config (bar or line), URL-encode the JSON config, plot ONLY numbers from the verified facts, label axes in the post's language, and add an italic caption line under it naming the source(s). If the numbers don't naturally chart, use a markdown comparison table instead — never force it.
 
 End the post with a "## Sources" section listing ONLY the facts you actually cited (format: "- [Source Name](url) — what it supports"). Do not list uncited sources.`;
 }
@@ -211,7 +216,7 @@ function internalLinksBlock(locale: string): string {
   return `INTERNAL LINKS — include 2-3 where they genuinely fit the sentence, as real Markdown links with descriptive anchor text (NEVER placeholder text like "[related service]"):
 - Project cost estimator: /${locale}/estimator
 - Services overview: /${locale}#services
-- AI & RAG solutions: /${locale}#ai
+- AI solutions: /${locale}#ai
 - Portfolio / past work: /${locale}#portfolio
 - Blog: /${locale}/blog
 - Get a quote / contact us: /${locale}#contact`;

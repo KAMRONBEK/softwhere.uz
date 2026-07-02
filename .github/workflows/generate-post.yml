@@ -1,10 +1,13 @@
-name: Weekly Blog Post
+name: Generate Blog Post
 
 on:
   schedule:
-    # Monday 06:17 UTC (11:17 Tashkent). Off the top of the hour on purpose —
-    # GitHub delays/skips schedules at :00 peaks. Runs use the code on `main`.
-    - cron: '17 6 * * 1'
+    # Twice daily: 06:17 and 18:17 UTC (11:17 / 23:17 Tashkent). Off the top
+    # of the hour on purpose — GitHub delays/skips schedules at :00 peaks.
+    # Runs use the code on `main`. Posts land as DRAFTS for human review, so
+    # generation cadence is a backlog knob, not a publish cadence.
+    - cron: '17 6 * * *'
+    - cron: '17 18 * * *'
   workflow_dispatch:
     inputs:
       category:
@@ -45,7 +48,7 @@ on:
         type: string
         default: ''
       force:
-        description: 'Bypass the already-generated-this-week check'
+        description: 'Bypass the already-generated-this-slot check'
         required: false
         type: boolean
         default: false
@@ -115,10 +118,10 @@ jobs:
         run: |
           gh issue create \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Weekly blog generation failed ($(date -u +%F))" \
+            --title "Blog generation failed ($(date -u +%FT%H:%MZ))" \
             --body "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
 
-          Scheduled runs resume the same weekly group — re-running the workflow only generates the missing locales." \
+          Scheduled runs resume the same generation slot — re-running the workflow only generates the missing locales." \
             || echo "::warning::Could not create failure issue"
 
       - name: Keepalive (reset 60-day schedule auto-disable)
