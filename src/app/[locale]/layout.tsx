@@ -22,13 +22,15 @@ const sora = Sora({ subsets: ['latin'], display: 'swap', variable: '--font-sora'
 const manrope = Manrope({ subsets: ['latin'], display: 'swap', variable: '--font-manrope', weight: ['400', '500', '600', '700', '800'] });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], display: 'swap', variable: '--font-mono', weight: ['400', '500'] });
 
-// Only the three known locales are valid; anything else 404s instead of
-// rendering the home page with lang="xx".
+// Only the three known locales are valid; anything else 404s via the
+// hasLocale() check in the layout body. Do NOT add `dynamicParams = false`
+// here: on a parent layout it requires the ENTIRE nested path (locale AND
+// slug) to be pre-generated, which made every on-demand blog post URL die
+// with NoFallbackError — the runtime notFound() below already covers bad
+// locales without breaking nested ISR routes.
 export function generateStaticParams() {
   return [{ locale: 'uz' }, { locale: 'ru' }, { locale: 'en' }];
 }
-
-export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };

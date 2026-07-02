@@ -105,10 +105,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   if (!post) {
-    return {
-      title: 'Post Not Found | SoftWhere.uz',
-      description: 'The requested blog post could not be found.',
-    };
+    // Throw notFound() HERE, not only in the page body: metadata resolves
+    // before the response shell flushes, so this yields a real HTTP 404.
+    // The page body's notFound() fires mid-stream and produces a soft 404
+    // (not-found UI with status 200), which search engines keep indexing.
+    notFound();
   }
 
   const description = extractDescription(post.content, post.metaDescription, post.locale);
