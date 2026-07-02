@@ -9,6 +9,8 @@ import heyall from '../../../public/images/projects/heyall.jpg';
 import nestegg from '../../../public/images/projects/nestegg.jpg';
 import netevia from '../../../public/images/projects/netevia.jpg';
 import swish from '../../../public/images/projects/swish.jpg';
+import talimIcon from '../../../public/images/projects/talim-ai.svg';
+import talimShot from '../../../public/images/projects/screens/talim-ai.webp';
 import truckme from '../../../public/images/projects/truckme.jpg';
 import workaxle from '../../../public/images/projects/workaxle.jpg';
 
@@ -33,6 +35,7 @@ export interface ProjectVisual {
  * entry get an initials badge in the slider.
  */
 export const projectVisuals: Record<string, ProjectVisual> = {
+  'Talim AI': { src: talimIcon, screenshot: talimShot },
   DriveMe: { src: driveme },
   'DriveMe Driver': { src: drivemeDriver },
   Netevia: { src: netevia, screenshot: neteviaShot },

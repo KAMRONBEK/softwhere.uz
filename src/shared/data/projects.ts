@@ -7,6 +7,19 @@ import { Project } from '@/shared/types';
 export const projects: Project[] = [
   {
     id: 1,
+    name: 'Talim AI',
+    description: {
+      uz: "AI asosidagi mustaqil ta'lim platformasi — PDF, taqdimot yoki YouTube havolasini yuklang: aniq konspekt, podkast, testlar va faqat sizning materialingiz asosida javob beruvchi AI-repetitor. O'zbek, ingliz va rus tillarida ishlaydi.",
+      ru: 'Платформа самообучения на базе AI — загрузите PDF, презентацию или ссылку на YouTube и получите конспект, подкаст, тесты и AI-репетитора, который отвечает по вашим материалам, а не по всему интернету. Работает на узбекском, английском и русском.',
+      en: 'AI-powered self-learning platform — drop in a PDF, slide deck, or YouTube link and get a clean summary, a podcast, quizzes, and an AI tutor that answers from your material, not the whole internet. Works in Uzbek, English, and Russian.',
+    },
+    technology: 'RAG / LLM / React / TypeScript / Web',
+    location: 'Uzbekistan',
+    type: 'AI & EdTech',
+    website: 'https://talim-ai.uz/',
+  },
+  {
+    id: 2,
     name: 'DriveMe',
     description: {
       uz: 'Premium haydovchi xizmati ilovasi — qulay safarlarni buyurtma qiling, mashinani xaritada kuzating va Business, Premium yoki Minivan sinfini tanlang.',
@@ -20,7 +33,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/uz/app/driveme-elite/id6757360912',
   },
   {
-    id: 2,
+    id: 3,
     name: 'Netevia',
     description: {
       uz: "Onlayn-banking mobil ilovasi — hisoblarni boshqarish, to'lovlar va moliyaviy xizmatlar istalgan joyda, bitta ilovada.",
@@ -35,7 +48,7 @@ export const projects: Project[] = [
     website: 'https://netevia.com/',
   },
   {
-    id: 3,
+    id: 4,
     name: 'Truck Me',
     description: {
       uz: "Yuk mashinalari uchun servis topish ilovasi — yaqin atrofdagi ishonchli ta'mirlash, texnik xizmat va moliyalash yechimlarini tez toping, 24/7 qo'llab-quvvatlash bilan.",
@@ -49,7 +62,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/us/app/truck-me/id6754442584',
   },
   {
-    id: 4,
+    id: 5,
     name: 'VBrato & SwishSportsApp',
     description: {
       uz: 'Real vaqtdagi chat, ilova ichidagi xaridlar va boy media imkoniyatlariga ega krossplatforma sport va ijtimoiy mobil ilovalar.',
@@ -63,7 +76,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/us/app/swish-sports/id1551295361',
   },
   {
-    id: 5,
+    id: 6,
     name: 'HeyAll',
     description: {
       uz: "HeyAll, ikki xil maqsadga xizmat qiluvchi va ularni uzluksiz bog'laydigan ilova. Bir tomondan, bu xostlar uchun o'z tadbirlarini rejalashtirish uchun ilova bo'lsa, boshqa tomondan, bu tadbirlarda ishlaydigan yetkazib beruvchilar uchun dastur.",
@@ -76,7 +89,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/au/app/heyall/id1590498767',
   },
   {
-    id: 6,
+    id: 7,
     name: 'WorkAxle',
     description: {
       uz: "WorkAxle - bu kengaytiriladigan, kelajakka chidamli va tez miqyosda joylashtiriladigan zamonaviy va modulli korporativ ishchi kuchini boshqarish platformasi. Ushbu platforma an'anaviy monolit WFM ilovalari muammosini hal qiladi, shu bilan birga korporativ mijozlar uchun moslashtirilgan yechimni taqdim etadi.",
@@ -91,7 +104,7 @@ export const projects: Project[] = [
     website: 'https://www.workaxle.com/',
   },
   {
-    id: 7,
+    id: 8,
     name: 'Asia Insurance',
     description: {
       uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug'urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
@@ -104,7 +117,7 @@ export const projects: Project[] = [
     website: 'https://asiainsurance.uz/',
   },
   {
-    id: 8,
+    id: 9,
     name: 'EDOCS',
     description: {
       uz: 'E-DOCS (edocs.uz) yuridik ahamiyatga ega boʻlgan elektron hujjat aylanishini taʼminlash boʻyicha dasturiy taʼminot toʻplami elektron shaklda hisob-fakturalarni (yetkazib berish dalolatnomalari, dalolatnomalar va boshqalar) yaratish hamda ularni mijozlar va hamkorlar bilan almashish imkonini beruvchi tizimdir.',
@@ -118,7 +131,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/kz/app/edocs-uz/id6754750404',
   },
   {
-    id: 9,
+    id: 10,
     name: 'Primus mall',
     description: {
       uz: "Primus Mall – bu oddiy onlayn do'kon emas, siz uyingizdan chiqmasdan onlayn xarid qilishingiz mumkin.",
@@ -130,7 +143,7 @@ export const projects: Project[] = [
     type: 'Marketplace',
   },
   {
-    id: 10,
+    id: 11,
     name: 'BDM',
     description: {
       uz: "Biznes dasturlash markazi bo'lib, har bir hujjat BDM tizimi orqali imzolanib, qonuniy kuchga ega bo'ladi.",
@@ -144,7 +157,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/id/app/bdm-uz/id1641747341',
   },
   {
-    id: 11,
+    id: 12,
     name: 'ASCON',
     description: {
       uz: "ASCON loyihasi doirasida bizning xizmatimizdan foydalanib, sizga tezkor to'lov to'lanadi va zararni olish uchun boshqa holatlar bo'ylab yugurishingiz shart emas.",
@@ -158,7 +171,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/uz/app/ascon/id1613704743',
   },
   {
-    id: 12,
+    id: 13,
     name: 'Nestegg.ai',
     description: {
       uz: "NestEgg sizga Buyuk Britaniyaning mas'ul kreditorlaridan ishonchli kreditlarni topishga, ariza topshirishga va ularni qabul qilishga yordam beradi. Platforma mas'ul kreditorlarga kredit arizalarini yuboradi va ular o'zlari va mijozlari uchun yaxshiroq kredit qarorlarini qabul qilishlari uchun kredit qarorlarini qabul qilish xizmatlarini taqdim etadi.",
@@ -171,7 +184,7 @@ export const projects: Project[] = [
     website: 'https://nestegg.ai/',
   },
   {
-    id: 13,
+    id: 14,
     name: 'Nestegg Loan',
     description: {
       uz: "NestEgg platformasi mas'ul kreditorlar tomonidan taqdim etilgan kredit mahsulotlari bilan qulay kredit izlayotganlarga mos keladi. Ariza beruvchilar to'g'ri kreditordan to'g'ri kreditni topadilar va qabul qilinish imkoniyatlarini tekshiradilar.",
@@ -184,7 +197,7 @@ export const projects: Project[] = [
     website: 'https://loans.nestegg.ai/',
   },
   {
-    id: 14,
+    id: 15,
     name: 'Align 360',
     description: {
       uz: "Align 360 qurilish va ta'mirlash guruhlari uchun mo'ljallangan. Ilova vazifalar menejeri, tahliliy vosita va jamoalar ichida muloqot qilish uchun messenjerni birlashtiradi.",
@@ -196,7 +209,7 @@ export const projects: Project[] = [
     type: 'Construction',
   },
   {
-    id: 15,
+    id: 16,
     name: 'NAFT',
     description: {
       uz: "Agar sizga zudlik bilan ish kerak bo'lsa yoki aksincha, mutaxassis, u holda Naft aynan sizga kerak bo'lgan narsadir. Bizning ilovamiz tez va qulay nomzodlar va takliflar manbai bo'lib, har bir foydalanuvchi o'ziga keraklisini topa oladi.",
@@ -208,7 +221,7 @@ export const projects: Project[] = [
     type: 'Job marketplace',
   },
   {
-    id: 16,
+    id: 17,
     name: 'DriveMe Driver',
     description: {
       uz: "DriveMe premium platformasi haydovchilari uchun ilova — buyurtmalarni qabul qiling, marshrut va yo'lovchi ma'lumotlarini ko'ring, safarlarni qulay interfeys orqali boshqaring.",
@@ -222,7 +235,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/uz/app/driveme-driver/id6757392657',
   },
   {
-    id: 17,
+    id: 18,
     name: 'BrainWake',
     description: {
       uz: "Ta'limiy budilnik ilovasi — har kuni ertalab so'z boyligi, umumiy bilim va matematika mashqlari bilan miyangizni uyg'otadi. Mobil va veb versiyalari mavjud.",
@@ -234,7 +247,7 @@ export const projects: Project[] = [
     type: 'Education',
   },
   {
-    id: 18,
+    id: 19,
     name: 'Nexus',
     description: {
       uz: 'Kripto-portfel platformasi — 200+ raqamli aktivlar, tematik portfellar va blokcheyn hamyon integratsiyasi bilan.',
@@ -247,7 +260,7 @@ export const projects: Project[] = [
     website: 'https://www.projectnexus.app/',
   },
   {
-    id: 19,
+    id: 20,
     name: 'Snap Taxi',
     description: {
       uz: 'Taksi va kuryerlik yetkazib berish ilovasi — manzilingizni kiriting, kuryer buyumingizni olib, eshikkacha yetkazib beradi.',
@@ -259,7 +272,7 @@ export const projects: Project[] = [
     type: 'Transport & Delivery',
   },
   {
-    id: 20,
+    id: 21,
     name: 'Seyf Bazar',
     description: {
       uz: "Toshkentdagi yirik onlayn do'kon — elektronika, maishiy texnika, smartfonlar va gadjetlar, O'zbekiston bo'ylab yetkazib berish bilan.",
@@ -271,7 +284,7 @@ export const projects: Project[] = [
     type: 'E-commerce',
   },
   {
-    id: 21,
+    id: 22,
     name: 'Bozorlik',
     description: {
       uz: 'Uydan chiqmasdan bozor narxlarida mahsulot sotib olish uchun onlayn bozor — mahsulotlarni kuzating va mobil orqali oson xarid qiling.',
@@ -283,7 +296,7 @@ export const projects: Project[] = [
     type: 'Marketplace',
   },
   {
-    id: 22,
+    id: 23,
     name: 'MyDesign',
     description: {
       uz: "Moda dizayni ilovasi — foydalanuvchilar kiyim andozalarini tanlab, ranglar va mato naqshlarini qo'shib, o'ziga xos ko'rinish yaratadilar. O'z naqshlaringizni yuklash ham mumkin.",
@@ -295,7 +308,7 @@ export const projects: Project[] = [
     type: 'Fashion & Design',
   },
   {
-    id: 23,
+    id: 24,
     name: 'Avtogen.uz',
     description: {
       uz: "O'zbekiston bo'ylab avtomoykalarni qidirish va navbatga yozilish — yaqin atrofdagi joylarni toping va o'rningizni bir zumda band qiling.",
