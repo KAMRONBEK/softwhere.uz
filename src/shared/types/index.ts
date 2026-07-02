@@ -106,6 +106,7 @@ export interface Project {
   description: {
     uz: string;
     ru: string;
+    en: string;
   };
   technology: string;
   location: string;

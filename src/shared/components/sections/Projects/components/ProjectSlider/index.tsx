@@ -8,6 +8,7 @@ import 'slick-carousel/slick/slick.css';
 import css from './style.module.css';
 
 import { projects } from '@/shared/data/projects';
+import { projectVisuals } from '@/shared/data/projectImages';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import AppStoreIcon from '../../../../../../../public/icons/ios.svg';
@@ -15,7 +16,16 @@ import LinkToIcon from '../../../../../../../public/icons/link.svg';
 import LocationIcon from '../../../../../../../public/icons/place_outline_24.svg';
 import PlayMarketIcon from '../../../../../../../public/icons/play-market.svg';
 import WorkIcon from '../../../../../../../public/icons/work_outline_24.svg';
-import ProjectImage from '../../../../../../../public/images/i-teka.png';
+
+/** "Align 360" -> "A3", "NAFT" -> "N" — fallback badge for icon-less projects. */
+function initialsOf(name: string): string {
+  return name
+    .split(/\s+/)
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
 
 function ProjectSlider() {
   const sliderRef = useRef<Slider | null>(null);
@@ -52,7 +62,7 @@ function ProjectSlider() {
 
   return (
     <div className='mt-10'>
-      <div className='hidden lg:flex'>
+      <div className='hidden lg:flex lg:flex-wrap'>
         {projects.map((item, _index) => (
           <button
             type='button'
@@ -75,9 +85,7 @@ function ProjectSlider() {
                 {item.name}
               </b>
               <p data-aos='zoom-in' data-aos-delay='100' className={css.desc}>
-                {/* No English copy exists yet — fall back to Russian rather
-                    than rendering an empty paragraph on the en locale. */}
-                {lang === 'uz' ? item.description.uz : item.description.ru}
+                {lang === 'uz' ? item.description.uz : lang === 'ru' ? item.description.ru : item.description.en}
               </p>
               <p data-aos='zoom-in' data-aos-delay='200' className={css.desc}>
                 {item.technology}
@@ -130,7 +138,19 @@ function ProjectSlider() {
                 )}
               </div>
             </div>
-            <Image data-aos='fade-up-left' className={css.itemImage} src={ProjectImage} alt='' />
+            <div data-aos='fade-up-left' className={css.iconWrap}>
+              {projectVisuals[item.name] ? (
+                <Image
+                  className={projectVisuals[item.name].wide ? css.appLogo : css.appIcon}
+                  src={projectVisuals[item.name].src}
+                  alt={`${item.name} app icon`}
+                />
+              ) : (
+                <span className={css.initials} aria-hidden='true'>
+                  {initialsOf(item.name)}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </Slider>
