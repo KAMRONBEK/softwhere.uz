@@ -37,6 +37,7 @@ import {
 import { producePostContent, persistLocalePost, type BlogLocale } from '../src/modules/blog/api/pipeline';
 import { buildFactSheet, verifyFactUrls, EMPTY_FACT_SHEET, type FactSheet } from '../src/modules/blog/api/research';
 import { getCoverImageForTopic, getImagesForPost } from '../src/modules/blog/utils/unsplash';
+import { pingIndexNow } from '../src/modules/blog/utils/indexnow';
 import { safeGenerateContent } from '../src/core/ai';
 import { sendTelegramMessage, escapeTelegramHtml } from '../src/core/notify';
 import type { ICoverImage } from '../src/modules/blog/model/BlogPost';
@@ -77,6 +78,7 @@ function parseArgs() {
       .map(l => l.trim())
       .filter((l): l is BlogLocale => ALLOWED.includes(l as BlogLocale)),
     force: flags.has('force') || opts.force === 'true',
+    publish: opts.publish || '',
   };
 }
 
@@ -101,9 +103,26 @@ interface CreatedPost {
   locale: string;
   title: string;
   slug: string;
+  url: string;
   provider: string;
   words: number;
   warnings: number;
+}
+
+/** Best-effort ISR cache bust on the live site (Bearer API_SECRET). Without
+ *  it, freshly published posts appear on the list/feeds within ~1 hour. */
+async function requestRevalidate(): Promise<boolean> {
+  const secret = process.env.API_SECRET;
+  if (!secret) return false;
+  try {
+    const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${secret}` },
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function writeStepSummary(markdown: string): void {
@@ -131,6 +150,13 @@ async function main() {
     console.error('❌ No valid locales requested');
     process.exit(1);
   }
+
+  // Owner decision (2026-07-02): scheduled runs publish directly — the deep
+  // pipeline's gates (grounded facts, link audit, lint, cross-model critique)
+  // are the review. Manual dispatch defaults to publish too (workflow input);
+  // bare local runs without --publish stay drafts for safe testing.
+  const publish = opts.publish === 'true' || (opts.publish !== 'false' && isScheduled);
+  console.log(publish ? '🚀 Mode: auto-publish' : '📝 Mode: drafts (review in admin)');
 
   // --- Idempotency / continuation ------------------------------------------
   // Scheduled runs share one deterministic group per schedule slot: a
@@ -320,6 +346,7 @@ async function main() {
         coverImage: coverImage ?? null,
         allContentImages,
         metaDescription: metaDesc,
+        status: publish ? 'published' : 'draft',
       });
 
       const words = produced.content.split(/\s+/).filter(Boolean).length;
@@ -327,11 +354,12 @@ async function main() {
         locale,
         title: saved.title,
         slug: saved.slug,
+        url: `${baseUrl()}/${locale}/blog/${encodeURIComponent(saved.slug)}`,
         provider: produced.provider,
         words,
         warnings: produced.residualIssues.length,
       });
-      console.log(`   💾 Saved draft "${saved.title}" (${saved.slug}) — ${words} words via ${produced.provider}`);
+      console.log(`   💾 Saved ${publish ? 'PUBLISHED post' : 'draft'} "${saved.title}" (${saved.slug}) — ${words} words via ${produced.provider}`);
       if (produced.residualIssues.length > 0) {
         console.log(`   ⚠️ ${produced.residualIssues.length} residual lint warning(s): ${produced.residualIssues.map(i => i.detail).join(' | ')}`);
       }
@@ -341,11 +369,25 @@ async function main() {
     }
   }
 
+  // --- Publish side effects -----------------------------------------------
+
+  if (publish && created.length > 0) {
+    console.log('\n📣 Notifying search engines + busting caches...');
+    await pingIndexNow(created.map(p => p.url));
+    const revalidated = await requestRevalidate();
+    console.log(
+      revalidated
+        ? '   ✅ Site caches revalidated — posts are live now'
+        : '   ⚠️ Cache revalidation skipped/failed (set API_SECRET secret for instant visibility) — posts appear within ~1h'
+    );
+  }
+
   // --- Report -----------------------------------------------------------------
 
   const adminUrl = `${baseUrl()}/en/admin/posts`;
+  const noun = publish ? 'post' : 'draft';
   const summaryLines = [
-    `### ${created.length > 0 ? '📝 Blog drafts generated' : '❌ Blog generation failed'}`,
+    `### ${created.length > 0 ? (publish ? '🚀 Blog posts published' : '📝 Blog drafts generated') : '❌ Blog generation failed'}`,
     '',
     `**Topic:** ${topic.title}  `,
     `**Format/pillar:** ${topic.postFormat} / ${topic.servicePillar}  `,
@@ -354,24 +396,30 @@ async function main() {
     '',
     '| Locale | Title | Words | Provider | Lint warnings |',
     '|---|---|---|---|---|',
-    ...created.map(p => `| ${p.locale} | ${p.title} | ${p.words} | ${p.provider} | ${p.warnings} |`),
+    ...created.map(p => `| ${publish ? `[${p.locale}](${p.url})` : p.locale} | ${p.title} | ${p.words} | ${p.provider} | ${p.warnings} |`),
     ...(failed.length > 0 ? ['', `⚠️ Failed locales: ${failed.join(', ')} — re-run the workflow to fill them in.`] : []),
     '',
-    `Drafts await review in the [admin](${adminUrl}) — nothing publishes automatically.`,
+    publish
+      ? `Published live (IndexNow pinged). Manage in the [admin](${adminUrl}).`
+      : `Drafts await review in the [admin](${adminUrl}) — nothing published automatically.`,
   ];
   writeStepSummary(summaryLines.join('\n'));
 
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`🏁 Done: ${created.length} draft(s), ${failed.length} failed locale(s)`);
+  console.log(`🏁 Done: ${created.length} ${noun}(s), ${failed.length} failed locale(s)`);
 
   if (created.length > 0) {
-    const list = created.map(p => `• [${p.locale}] ${escapeTelegramHtml(p.title)}`).join('\n');
+    const list = created
+      .map(p => (publish ? `• <a href="${p.url}">[${p.locale}] ${escapeTelegramHtml(p.title)}</a>` : `• [${p.locale}] ${escapeTelegramHtml(p.title)}`))
+      .join('\n');
     const failedLine = failed.length > 0 ? `\n⚠️ Failed locales: ${failed.join(', ')} — re-run the workflow to fill them.` : '';
     await sendTelegramMessage(
-      `<b>📝 New blog draft${created.length > 1 ? 's' : ''} ready for review</b>\n${list}${failedLine}\n\n<a href="${adminUrl}">Review in admin</a>`
+      publish
+        ? `<b>🚀 New blog post${created.length > 1 ? 's' : ''} published</b>\n${list}${failedLine}\n\n<a href="${adminUrl}">Manage in admin</a>`
+        : `<b>📝 New blog draft${created.length > 1 ? 's' : ''} ready for review</b>\n${list}${failedLine}\n\n<a href="${adminUrl}">Review in admin</a>`
     );
   } else {
-    await sendTelegramMessage(`<b>❌ Blog generation produced no drafts</b>\nTopic: ${escapeTelegramHtml(topic.title)}`);
+    await sendTelegramMessage(`<b>❌ Blog generation produced no ${noun}s</b>\nTopic: ${escapeTelegramHtml(topic.title)}`);
   }
 
   // Any failed locale exits non-zero so CI opens an issue — safe because a

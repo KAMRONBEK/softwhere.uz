@@ -157,6 +157,8 @@ export interface PersistOptions {
   coverImage: ICoverImage | null;
   allContentImages: ICoverImage[];
   metaDescription: string;
+  /** 'draft' (default — admin route) or 'published' (scheduled auto-publish). */
+  status?: 'draft' | 'published';
 }
 
 async function resolveUniqueSlug(baseSlug: string, locale: BlogLocale): Promise<string> {
@@ -167,7 +169,7 @@ async function resolveUniqueSlug(baseSlug: string, locale: BlogLocale): Promise<
   return candidate;
 }
 
-/** Localize meta for ru/uz, build a stable localized slug, persist as draft. */
+/** Localize meta for ru/uz, build a stable localized slug, persist. */
 export async function persistLocalePost(opts: PersistOptions): Promise<IBlogPost> {
   const { topic, locale, content } = opts;
 
@@ -196,7 +198,7 @@ export async function persistLocalePost(opts: PersistOptions): Promise<IBlogPost
     title,
     slug,
     content,
-    status: 'draft',
+    status: opts.status ?? 'draft',
     locale,
     generationGroupId: opts.generationGroupId,
     coverImage: opts.coverImage,

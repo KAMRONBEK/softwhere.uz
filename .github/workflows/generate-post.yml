@@ -4,8 +4,8 @@ on:
   schedule:
     # Twice daily: 06:17 and 18:17 UTC (11:17 / 23:17 Tashkent). Off the top
     # of the hour on purpose — GitHub delays/skips schedules at :00 peaks.
-    # Runs use the code on `main`. Posts land as DRAFTS for human review, so
-    # generation cadence is a backlog knob, not a publish cadence.
+    # Runs use the code on `main`. Scheduled posts PUBLISH automatically
+    # (owner decision); dispatch with publish=false to get drafts instead.
     - cron: '17 6 * * *'
     - cron: '17 18 * * *'
   workflow_dispatch:
@@ -52,6 +52,11 @@ on:
         required: false
         type: boolean
         default: false
+      publish:
+        description: 'Publish immediately (false = save as drafts for review)'
+        required: false
+        type: boolean
+        default: true
 
 # A manual dispatch must not overlap the weekly run (double posts).
 concurrency:
@@ -94,14 +99,18 @@ jobs:
           MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-          # Optional: Telegram "draft ready for review" ping (same bot as leads).
+          # Optional: Telegram published/draft notification (same bot as leads).
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          # Optional: lets the script bust the site's ISR caches right after
+          # auto-publishing (otherwise new posts surface within ~1 hour).
+          API_SECRET: ${{ secrets.API_SECRET }}
           INPUT_CATEGORY: ${{ github.event.inputs.category }}
           INPUT_CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
           INPUT_SOURCE_URL: ${{ github.event.inputs.sourceUrl }}
           INPUT_SOURCE_TEXT: ${{ github.event.inputs.sourceText }}
           INPUT_FORCE: ${{ github.event.inputs.force }}
+          INPUT_PUBLISH: ${{ github.event.inputs.publish }}
         run: |
           npx tsx scripts/generate-post.ts \
             --category "$INPUT_CATEGORY" \
@@ -109,7 +118,8 @@ jobs:
             --sourceUrl "$INPUT_SOURCE_URL" \
             --sourceText "$INPUT_SOURCE_TEXT" \
             --locales "en,ru,uz" \
-            ${INPUT_FORCE:+--force "$INPUT_FORCE"}
+            ${INPUT_FORCE:+--force "$INPUT_FORCE"} \
+            ${INPUT_PUBLISH:+--publish "$INPUT_PUBLISH"}
 
       - name: Open issue on failure
         if: failure()
