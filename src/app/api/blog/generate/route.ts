@@ -1,31 +1,31 @@
-import { createPost, getByGroupId, slugTaken } from '@/modules/blog/model/posts.repository';
+import { getByGroupId } from '@/modules/blog/model/posts.repository';
 import type { ICoverImage } from '@/modules/blog/model/BlogPost';
 import { requireAdmin } from '@/core/auth';
 import { safeGenerateContent, aiStats } from '@/core/ai';
 import { logger } from '@/core/logger';
-import { createSlug } from '@/shared/utils/slug';
 import { getCoverImageForTopic, getImagesForPost } from '@/modules/blog/utils/unsplash';
 import { SERVICE_PILLARS, getAllTopics, type PostFormat } from '@/modules/blog/data/seo-topics';
 import {
   extractTextFromUrl,
   classifySourceContent,
-  buildSourcePrompt,
   smartSelectTopic,
-  generateBlogContent,
   generateMetaDescription,
-  localizePostMeta,
-  WORD_FLOOR,
   MAX_SOURCE_TEXT_LENGTH,
   MAX_CUSTOM_TOPIC_LENGTH,
   ALLOWED_LOCALES,
   type SourceClassification,
   type TopicResult,
 } from '@/modules/blog/api/generator';
+import { producePostContent, persistLocalePost, type BlogLocale } from '@/modules/blog/api/pipeline';
+import { buildFactSheet, verifyFactUrls, EMPTY_FACT_SHEET, type FactSheet } from '@/modules/blog/api/research';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 
-export const maxDuration = 60;
+// 300s is the Hobby maximum with Fluid compute (the old 10s/60s limits are
+// pre-Fluid history). If Fluid is off for this project, enable it in
+// Vercel Project Settings → Functions.
+export const maxDuration = 300;
 
 if (!process.env.MOONSHOT_API_KEY && !process.env.DEEPSEEK_API_KEY) {
   logger.error('No AI key set (MOONSHOT_API_KEY or DEEPSEEK_API_KEY)', undefined, 'BLOG');
@@ -35,18 +35,6 @@ if (!process.env.DATABASE_URL) {
 }
 
 const VALID_CATEGORIES = SERVICE_PILLARS.map(p => p.id);
-
-async function resolveUniqueSlug(baseSlug: string, locale: string): Promise<string> {
-  let candidate = baseSlug;
-  let suffix = 1;
-
-  while (await slugTaken(candidate, locale as 'en' | 'ru' | 'uz')) {
-    candidate = `${baseSlug}-${suffix}`;
-    suffix += 1;
-  }
-
-  return candidate;
-}
 
 export async function POST(request: NextRequest) {
   const authError = await requireAdmin(request);
@@ -58,15 +46,21 @@ export async function POST(request: NextRequest) {
 
     // --- Validation -----------------------------------------------------------
 
-    if (customTopic && typeof customTopic === 'string' && customTopic.length > MAX_CUSTOM_TOPIC_LENGTH) {
-      return NextResponse.json({ error: `customTopic must be ${MAX_CUSTOM_TOPIC_LENGTH} characters or fewer` }, { status: 400 });
+    if (customTopic !== undefined && (typeof customTopic !== 'string' || customTopic.length > MAX_CUSTOM_TOPIC_LENGTH)) {
+      return NextResponse.json(
+        { error: `customTopic must be a string of ${MAX_CUSTOM_TOPIC_LENGTH} characters or fewer` },
+        { status: 400 }
+      );
     }
 
-    if (sourceText && typeof sourceText === 'string' && sourceText.length > MAX_SOURCE_TEXT_LENGTH) {
-      return NextResponse.json({ error: `sourceText must be ${MAX_SOURCE_TEXT_LENGTH} characters or fewer` }, { status: 400 });
+    if (sourceText !== undefined && (typeof sourceText !== 'string' || sourceText.length > MAX_SOURCE_TEXT_LENGTH)) {
+      return NextResponse.json({ error: `sourceText must be a string of ${MAX_SOURCE_TEXT_LENGTH} characters or fewer` }, { status: 400 });
     }
 
-    if (sourceUrl && typeof sourceUrl === 'string') {
+    if (sourceUrl !== undefined) {
+      if (typeof sourceUrl !== 'string') {
+        return NextResponse.json({ error: 'sourceUrl must be a string' }, { status: 400 });
+      }
       try {
         new URL(sourceUrl);
       } catch {
@@ -212,67 +206,45 @@ export async function POST(request: NextRequest) {
       metaDesc = await generateMetaDescription(selectedTopic.title, selectedTopic.primaryKeyword, 'en');
     }
 
+    // --- Research: real facts the writer is allowed to cite -------------------
+    // Server-side web search via Kimi; empty sheet => the prompts force
+    // qualitative writing with zero statistics instead. The round timeout is
+    // capped so research can't eat the function's 300s budget.
+    let factSheet: FactSheet = EMPTY_FACT_SHEET;
+    try {
+      factSheet = await verifyFactUrls(await buildFactSheet(selectedTopic, { roundTimeoutMs: 100_000 }));
+    } catch (error) {
+      logger.warn('Research step failed — generating without grounded facts', error, 'BLOG');
+    }
+
     // --- Generate per locale -------------------------------------------------
 
     const createdPosts = [];
-    const generatedSlugBase = createSlug(selectedTopic.title) || `post-${generationGroupId.slice(0, 8)}`;
 
-    for (const locale of locales) {
+    for (const locale of locales as BlogLocale[]) {
       try {
-        // 1. Generate the body. null => generation failed or was too thin, so
-        //    we skip this locale rather than persist boilerplate filler.
-        let content: string | null;
-        if (resolvedSource && sourceClassification) {
-          const { system, user } = buildSourcePrompt(resolvedSource, sourceClassification, locale, inlineImages);
-          logger.info(`Generating source-based content for "${selectedTopic.title}" in ${locale}`, undefined, 'BLOG');
-          const generated = await safeGenerateContent(user, `blog-source-${locale}`, undefined, system);
-          content = generated && generated.trim().split(/\s+/).filter(Boolean).length >= WORD_FLOOR ? generated : null;
-        } else {
-          content = await generateBlogContent(selectedTopic, locale, inlineImages);
-        }
+        const produced = await producePostContent({
+          topic: selectedTopic,
+          source: resolvedSource && sourceClassification ? { text: resolvedSource, classification: sourceClassification } : undefined,
+          locale,
+          inlineImages,
+          factSheet,
+          mode: 'fast',
+        });
 
-        if (!content) {
+        if (!produced) {
           logger.warn(`Skipping ${locale}: no acceptable content generated`, undefined, 'BLOG');
           continue;
         }
 
-        // 2. Localize title/meta/keywords for ru|uz (single JSON call), so
-        //    non-English posts target their own language's search terms.
-        let localizedTitle = selectedTopic.title;
-        let localizedMeta = metaDesc;
-        let localizedPrimary = selectedTopic.primaryKeyword;
-        let localizedSecondary = selectedTopic.secondaryKeywords;
-        if (locale === 'ru' || locale === 'uz') {
-          const loc = await localizePostMeta(locale, {
-            title: selectedTopic.title,
-            metaDescription: metaDesc,
-            primaryKeyword: selectedTopic.primaryKeyword,
-            secondaryKeywords: selectedTopic.secondaryKeywords,
-          });
-          localizedTitle = loc.title;
-          localizedMeta = loc.metaDescription;
-          localizedPrimary = loc.primaryKeyword;
-          localizedSecondary = loc.secondaryKeywords;
-        }
-
-        // 3. Localized, stable slug from THIS locale's title (no timestamp).
-        const slugBase = createSlug(localizedTitle) || generatedSlugBase;
-        const slug = await resolveUniqueSlug(slugBase, locale);
-
-        const savedPost = await createPost({
-          title: localizedTitle,
-          slug,
-          content,
-          status: 'draft',
-          locale: locale as 'en' | 'ru' | 'uz',
+        const savedPost = await persistLocalePost({
+          topic: selectedTopic,
+          locale,
+          content: produced.content,
           generationGroupId,
           coverImage: coverImage ?? null,
-          category: selectedTopic.servicePillar,
-          postFormat: selectedTopic.postFormat,
-          primaryKeyword: localizedPrimary,
-          secondaryKeywords: localizedSecondary,
-          metaDescription: localizedMeta,
-          contentImages: allContentImages,
+          allContentImages,
+          metaDescription: metaDesc,
         });
 
         createdPosts.push({

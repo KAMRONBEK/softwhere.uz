@@ -75,7 +75,9 @@ export default function AdminLeadsPage() {
                       <td className='px-4 py-3 whitespace-nowrap text-ember-muted'>{format(new Date(lead.createdAt), 'MMM dd, HH:mm')}</td>
                       <td className='px-4 py-3 whitespace-nowrap'>{lead.name}</td>
                       <td className='px-4 py-3 whitespace-nowrap'>
-                        <a href={`tel:${lead.phone}`} className='hover:text-ember-accent'>{lead.phone}</a>
+                        <a href={`tel:${lead.phone}`} className='hover:text-ember-accent'>
+                          {lead.phone}
+                        </a>
                       </td>
                       <td className='px-4 py-3 max-w-md whitespace-pre-wrap'>
                         {lead.message || <span className='text-ember-muted'>—</span>}

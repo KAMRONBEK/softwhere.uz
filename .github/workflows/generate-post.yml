@@ -1,8 +1,10 @@
-name: Generate Weekly Blog Post
+name: Weekly Blog Post
 
 on:
   schedule:
-    - cron: '0 9 * * 1'
+    # Monday 06:17 UTC (11:17 Tashkent). Off the top of the hour on purpose —
+    # GitHub delays/skips schedules at :00 peaks. Runs use the code on `main`.
+    - cron: '17 6 * * 1'
   workflow_dispatch:
     inputs:
       category:
@@ -42,12 +44,31 @@ on:
         required: false
         type: string
         default: ''
+      force:
+        description: 'Bypass the already-generated-this-week check'
+        required: false
+        type: boolean
+        default: false
+
+# A manual dispatch must not overlap the weekly run (double posts).
+concurrency:
+  group: generate-post
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write # notify-on-failure issue
+  actions: write # keepalive re-enable (resets the 60-day auto-disable timer)
 
 jobs:
   generate:
     runs-on: ubuntu-latest
+    # NOTE: this environment must have NO required reviewers / wait timers —
+    # a scheduled job would sit in "Waiting" for 30 days and then fail.
     environment: Production
-    timeout-minutes: 30
+    # Worst case: research (~5 min) + 3 locales × up to 3 body-length calls
+    # (draft + critique-revise + lint-revise) at up to 5 min each.
+    timeout-minutes: 45
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,25 +76,55 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Generate blog post
+        timeout-minutes: 40
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Kimi K2.6 is the primary provider AND the web-search grounding
+          # backend; without this key posts fall back to DeepSeek, ungrounded.
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          # Optional: Telegram "draft ready for review" ping (same bot as leads).
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           INPUT_CATEGORY: ${{ github.event.inputs.category }}
           INPUT_CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
           INPUT_SOURCE_URL: ${{ github.event.inputs.sourceUrl }}
           INPUT_SOURCE_TEXT: ${{ github.event.inputs.sourceText }}
+          INPUT_FORCE: ${{ github.event.inputs.force }}
         run: |
           npx tsx scripts/generate-post.ts \
             --category "$INPUT_CATEGORY" \
             --customTopic "$INPUT_CUSTOM_TOPIC" \
             --sourceUrl "$INPUT_SOURCE_URL" \
             --sourceText "$INPUT_SOURCE_TEXT" \
-            --locales "en,ru,uz"
+            --locales "en,ru,uz" \
+            ${INPUT_FORCE:+--force "$INPUT_FORCE"}
+
+      - name: Open issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Weekly blog generation failed ($(date -u +%F))" \
+            --body "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Scheduled runs resume the same weekly group — re-running the workflow only generates the missing locales." \
+            || echo "::warning::Could not create failure issue"
+
+      - name: Keepalive (reset 60-day schedule auto-disable)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/generate-post.yml/enable" \
+            || echo "::warning::Keepalive failed — schedule may auto-disable after 60 days of repo inactivity"

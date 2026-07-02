@@ -2,6 +2,8 @@ import { deleteById, getById, isValidPostId, slugTaken, updateById } from '@/mod
 import type { NewBlogPost } from '@/modules/blog/model/BlogPost';
 import { requireAdmin } from '@/core/auth';
 import { logger } from '@/core/logger';
+import { ENV } from '@/core/constants';
+import { pingIndexNow } from '@/modules/blog/utils/indexnow';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -111,6 +113,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     invalidateBlogCache();
 
+    // On publish (or a published post's URL/content change), ping IndexNow so
+    // Yandex/Bing pick the URL up within minutes. Awaited: fire-and-forget
+    // promises can be killed when the serverless instance suspends.
+    if (status === 'published') {
+      await pingIndexNow([`${ENV.BASE_URL}/${locale}/blog/${encodeURIComponent(slug)}`]);
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Post updated successfully',
@@ -162,6 +171,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     invalidateBlogCache();
+
+    // The admin UI publishes via PATCH {status:'published'} — this is the real
+    // publish path, so ping IndexNow here. Awaited: a fire-and-forget promise
+    // can be killed when the serverless instance suspends after responding.
+    if (patch.status === 'published') {
+      await pingIndexNow([`${ENV.BASE_URL}/${updatedPost.locale}/blog/${encodeURIComponent(updatedPost.slug)}`]);
+    }
 
     return NextResponse.json({
       success: true,

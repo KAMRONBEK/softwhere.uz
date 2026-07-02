@@ -17,7 +17,15 @@ const requiredEnvVars = ['DATABASE_URL'] as const;
 // generation; both being absent just disables AI features (graceful fallback).
 // NEON_AUTH_BASE_URL + NEON_AUTH_COOKIE_SECRET power the Neon Auth admin login;
 // without them the admin gate fails closed (denied) but the public site boots.
-const optionalEnvVars = ['MOONSHOT_API_KEY', 'DEEPSEEK_API_KEY', 'API_SECRET', 'NEON_AUTH_BASE_URL', 'NEON_AUTH_COOKIE_SECRET', 'UNSPLASH_ACCESS_KEY', 'EXCHANGERATE_API_KEY'] as const;
+const optionalEnvVars = [
+  'MOONSHOT_API_KEY',
+  'DEEPSEEK_API_KEY',
+  'API_SECRET',
+  'NEON_AUTH_BASE_URL',
+  'NEON_AUTH_COOKIE_SECRET',
+  'UNSPLASH_ACCESS_KEY',
+  'EXCHANGERATE_API_KEY',
+] as const;
 
 export function validateEnvironment(): EnvConfig {
   const env: Partial<EnvConfig> = {

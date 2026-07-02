@@ -120,30 +120,57 @@ export default function AdminPostsPage() {
     try {
       setGenerating(true);
 
-      const payload: Record<string, unknown> = { locales: generationForm.locales };
-      if (genMode === 'source') {
-        if (generationForm.sourceUrl) payload.sourceUrl = generationForm.sourceUrl;
-        else if (generationForm.sourceText) payload.sourceText = generationForm.sourceText;
-      } else {
-        if (generationForm.customTopic) payload.customTopic = generationForm.customTopic;
-        else if (generationForm.category) payload.category = generationForm.category;
+      // One locale per request: research + a full 8K-token draft don't fit
+      // 3× into the route's 300s budget. The first call creates the group;
+      // follow-ups continue it via generationGroupId (reusing topic/images).
+      let groupId: string | undefined;
+      let createdCount = 0;
+      const failedLocales: string[] = [];
+
+      for (const locale of generationForm.locales) {
+        const payload: Record<string, unknown> = { locales: [locale] };
+        if (groupId) {
+          payload.generationGroupId = groupId;
+        } else if (genMode === 'source') {
+          if (generationForm.sourceUrl) payload.sourceUrl = generationForm.sourceUrl;
+          else if (generationForm.sourceText) payload.sourceText = generationForm.sourceText;
+        } else {
+          if (generationForm.customTopic) payload.customTopic = generationForm.customTopic;
+          else if (generationForm.category) payload.category = generationForm.category;
+        }
+
+        try {
+          const response = await adminFetch('/api/blog/generate', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            groupId = data.generationGroupId ?? groupId;
+            createdCount += data.posts?.length ?? 0;
+          } else {
+            let message = `HTTP ${response.status}`;
+            try {
+              message = (await response.json()).error ?? message;
+            } catch {
+              /* non-JSON error body */
+            }
+            failedLocales.push(`${locale}: ${message}`);
+          }
+        } catch {
+          failedLocales.push(`${locale}: network error`);
+        }
       }
 
-      const response = await adminFetch('/api/blog/generate', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        alert(`Successfully generated ${data.posts.length} blog post(s)!`);
+      if (createdCount > 0) {
+        alert(
+          `Generated ${createdCount} blog post(s)!${failedLocales.length > 0 ? `\nFailed — retry these via the same topic: ${failedLocales.join('; ')}` : ''}`
+        );
         fetchPosts();
         setShowGenerator(false);
       } else {
-        const error = await response.json();
-
-        alert(`Error: ${error.error}`);
+        alert(`Error: ${failedLocales.join('; ') || 'no posts generated'}`);
       }
     } catch (error) {
       console.error('Error generating posts:', error);

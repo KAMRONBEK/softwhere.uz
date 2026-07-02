@@ -11,6 +11,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import TrackedCTALink from '@/shared/components/TrackedCTALink';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import BlogPostClient from '@/modules/blog/components/BlogPostClient';
 import * as postsRepo from '@/modules/blog/model/posts.repository';
@@ -138,14 +139,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: `${post.title} | SoftWhere.uz Blog`,
     description,
     keywords: keywords.join(', '),
-    authors: [{ name: 'SoftWhere.uz Team' }],
+    // Keep the meta author consistent with the JSON-LD Person author when
+    // BLOG_AUTHOR_NAME is configured (E-E-A-T: one identity everywhere).
+    authors: [{ name: process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR || 'SoftWhere.uz Team' }],
     openGraph: {
       title: post.title,
       description,
       type: 'article',
       publishedTime: post.createdAt,
       modifiedTime: post.updatedAt,
-      authors: ['SoftWhere.uz'],
+      authors: [process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR || 'SoftWhere.uz'],
       url: canonicalUrl,
       siteName: 'SoftWhere.uz',
       locale: post.locale,
@@ -369,20 +372,31 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
               <div className='prose prose-lg prose-gray dark:prose-invert prose-headings:font-display max-w-none'>
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight]}
+                  // rehype-slug gives headings stable ids so sections are
+                  // deep-linkable (#faq etc.); the custom heading components
+                  // must forward the id or the anchors are silently dropped.
+                  rehypePlugins={[rehypeSlug, rehypeHighlight]}
                   components={{
-                    h1: ({ children }) => (
-                      <h1 className='text-3xl md:text-4xl font-bold font-display text-ember-text mt-12 mb-6 leading-tight tracking-tight'>
+                    h1: ({ children, id }) => (
+                      <h1
+                        id={id}
+                        className='text-3xl md:text-4xl font-bold font-display text-ember-text mt-12 mb-6 leading-tight tracking-tight'
+                      >
                         {children}
                       </h1>
                     ),
-                    h2: ({ children }) => (
-                      <h2 className='text-2xl md:text-3xl font-bold font-display text-ember-text mt-10 mb-5 leading-tight tracking-tight'>
+                    h2: ({ children, id }) => (
+                      <h2
+                        id={id}
+                        className='text-2xl md:text-3xl font-bold font-display text-ember-text mt-10 mb-5 leading-tight tracking-tight'
+                      >
                         {children}
                       </h2>
                     ),
-                    h3: ({ children }) => (
-                      <h3 className='text-xl md:text-2xl font-bold font-display text-ember-text mt-8 mb-4 leading-tight'>{children}</h3>
+                    h3: ({ children, id }) => (
+                      <h3 id={id} className='text-xl md:text-2xl font-bold font-display text-ember-text mt-8 mb-4 leading-tight'>
+                        {children}
+                      </h3>
                     ),
                     p: ({ children }) => <p className='text-lg text-ember-text leading-relaxed mb-6 font-light'>{children}</p>,
                     ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ul>,

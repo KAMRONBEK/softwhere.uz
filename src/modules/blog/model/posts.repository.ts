@@ -153,6 +153,14 @@ export async function getGroupSiblings(generationGroupId: string): Promise<Local
     .where(and(eq(blogPosts.generationGroupId, generationGroupId), eq(blogPosts.status, 'published')));
 }
 
+/** Locales that exist in a group in ANY status (drafts included) — used by
+ *  the generation CLI to resume a partially generated weekly group without
+ *  duplicating locales that already have drafts awaiting review. */
+export async function listGroupLocales(generationGroupId: string): Promise<Locale[]> {
+  const rows = await db.select({ locale: blogPosts.locale }).from(blogPosts).where(eq(blogPosts.generationGroupId, generationGroupId));
+  return [...new Set(rows.map(r => r.locale))];
+}
+
 /** Up to `limit` published posts in a category/locale, excluding one id. */
 export async function getRelatedByCategory(category: string, locale: Locale, excludeId: string, limit = 3): Promise<RelatedPost[]> {
   const rows = await db
@@ -167,6 +175,38 @@ export async function getRelatedByCategory(category: string, locale: Locale, exc
 }
 
 /** All published posts, minimal columns, oldest first — for the sitemap. */
+export interface FeedPost {
+  title: string;
+  slug: string;
+  createdAt: string;
+  metaDescription: string | null;
+  category: string | null;
+}
+
+/** Newest published posts for the per-locale RSS feed. */
+export async function listForFeed(locale: Locale, limit = 20): Promise<FeedPost[]> {
+  const rows = await db
+    .select({
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      createdAt: blogPosts.createdAt,
+      metaDescription: blogPosts.metaDescription,
+      category: blogPosts.category,
+    })
+    .from(blogPosts)
+    .where(and(eq(blogPosts.status, 'published'), eq(blogPosts.locale, locale)))
+    .orderBy(desc(blogPosts.createdAt))
+    .limit(limit);
+
+  return rows.map(r => ({
+    title: r.title,
+    slug: r.slug,
+    createdAt: r.createdAt.toISOString(),
+    metaDescription: r.metaDescription,
+    category: r.category,
+  }));
+}
+
 export async function listForSitemap(): Promise<SitemapPost[]> {
   const rows = await db
     .select({
@@ -231,7 +271,15 @@ export async function getById(id: string): Promise<IBlogPost | null> {
 
 /** The first post in a generation group (any status/locale) — continuation mode. */
 export async function getByGroupId(generationGroupId: string): Promise<IBlogPost | null> {
-  const rows = await db.select().from(blogPosts).where(eq(blogPosts.generationGroupId, generationGroupId)).limit(1);
+  // Prefer the English row: continuation/resume rebuilds the group's shared
+  // topic from this post, and reconstructing it from a ru/uz sibling would
+  // poison the remaining locales with localized titles/keywords.
+  const rows = await db
+    .select()
+    .from(blogPosts)
+    .where(eq(blogPosts.generationGroupId, generationGroupId))
+    .orderBy(sql`CASE WHEN ${blogPosts.locale} = 'en' THEN 0 ELSE 1 END`)
+    .limit(1);
   return rows[0] ? serializePost(rows[0]) : null;
 }
 

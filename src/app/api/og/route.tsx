@@ -2,6 +2,29 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
+/**
+ * Load a subset of Noto Sans containing exactly the glyphs we render, via the
+ * Google Fonts CSS API. Without an explicit font, ImageResponse embeds a
+ * Latin-only default and Cyrillic (RU) titles render as tofu boxes — and the
+ * broken image would be cached immutable for a year. The legacy User-Agent
+ * makes the API return TTF (Satori can't read woff2). Best-effort: on any
+ * failure we fall back to the default font rather than erroring the image.
+ */
+async function loadFontSubset(text: string, weight: 400 | 700): Promise<ArrayBuffer | null> {
+  try {
+    const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans:wght@${weight}&text=${encodeURIComponent(text)}`;
+    const css = await fetch(cssUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.30 (KHTML, like Gecko)' },
+    }).then(res => (res.ok ? res.text() : ''));
+    const fontUrl = css.match(/src:\s*url\((.+?)\)\s*format\(['"]?(?:truetype|opentype)['"]?\)/)?.[1];
+    if (!fontUrl) return null;
+    const font = await fetch(fontUrl);
+    return font.ok ? await font.arrayBuffer() : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
@@ -31,6 +54,14 @@ export async function GET(request: Request) {
       ru: 'Мобильные приложения • Веб-разработка • Telegram боты',
       uz: 'Mobil ilovalar • Veb ishlab chiqish • Telegram botlar',
     };
+
+    // Subset covers every string the image renders (title + subtitle + brand).
+    const renderedText = `${title} SoftWhere.uz ${localizedSubtitle[locale as keyof typeof localizedSubtitle]}`;
+    const [fontRegular, fontBold] = await Promise.all([loadFontSubset(renderedText, 400), loadFontSubset(renderedText, 700)]);
+    const fonts = [
+      ...(fontRegular ? [{ name: 'Noto Sans', data: fontRegular, weight: 400 as const, style: 'normal' as const }] : []),
+      ...(fontBold ? [{ name: 'Noto Sans', data: fontBold, weight: 700 as const, style: 'normal' as const }] : []),
+    ];
 
     const backgroundStyle: React.CSSProperties = imageUrl
       ? {
@@ -125,8 +156,11 @@ export async function GET(request: Request) {
       {
         width: 1200,
         height: 630,
+        ...(fonts.length > 0 && { fonts }),
         headers: {
-          'Cache-Control': 'public, immutable, no-transform, max-age=31536000',
+          // Cache aggressively only when the proper font loaded — a tofu
+          // fallback render must not be pinned in caches for a year.
+          'Cache-Control': fonts.length > 0 ? 'public, immutable, no-transform, max-age=31536000' : 'public, max-age=3600',
         },
       }
     );

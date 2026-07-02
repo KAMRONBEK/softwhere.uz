@@ -1,0 +1,40 @@
+name: Blog Audit
+
+# Read-only report of structural gaps and near-duplicate posts. Replaces the
+# old "Fix Blog Posts" workflow, whose fix mode embedded pre-overhaul prompts
+# and would have overwritten reviewed posts with unreviewed AI output.
+on:
+  workflow_dispatch:
+  schedule:
+    # First Monday-ish of each month, 07:07 UTC — a low-noise health report.
+    - cron: '7 7 1 * *'
+
+concurrency:
+  group: audit-posts
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Audit blog posts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx tsx scripts/audit-posts.ts

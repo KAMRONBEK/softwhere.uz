@@ -25,7 +25,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
 3. Detailed breakdown by project phase (discovery, design, development, testing, launch)
 4. Hidden costs most people forget
 5. How to reduce costs without sacrificing quality
-6. Real pricing examples (anonymized case studies with budgets)
+6. Worked pricing examples (clearly framed as typical/estimated scenarios, not real client data)
 7. When to invest more vs when to save
 8. Call-to-action: "Get a free estimate for your project"`,
     formattingRules:
@@ -36,7 +36,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   comparison: {
     id: 'comparison',
     name: 'X vs Y Comparison',
-    wordRange: [2500, 3000],
+    wordRange: [2000, 2600],
     tone: 'analytical and fair — present both sides honestly before giving a recommendation',
     openingInstruction:
       'Open with the core dilemma: "You need X, but should you go with A or B?" Frame it as a business decision, not a technical one.',
@@ -56,7 +56,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'how-to': {
     id: 'how-to',
     name: 'Step-by-Step How-To',
-    wordRange: [2500, 3500],
+    wordRange: [2000, 2800],
     tone: 'instructional, confident, and encouraging — like a mentor walking you through a process',
     openingInstruction:
       'Start with the end result: "By the end of this guide, you will have..." Then briefly mention what you need before starting.',
@@ -114,22 +114,22 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
 
   'case-study': {
     id: 'case-study',
-    name: 'Case Study',
-    wordRange: [2000, 3000],
+    name: 'Scenario Walkthrough',
+    wordRange: [2000, 2800],
     tone: "storytelling and results-focused — show, don't just tell",
     openingInstruction:
-      'Open with the client\'s situation: "A [industry] company came to us with a problem: [specific pain point]." Make it relatable to the reader.',
+      'Open with a realistic scenario, honestly framed: "Imagine a mid-size [industry] company in Tashkent facing [specific pain point]." NEVER present an invented client or invented results as a real engagement — fabricated case studies destroy trust.',
     structurePrompt: `
-1. The Client: industry, size, and context (anonymized if needed)
-2. The Challenge: specific problems and pain points (use blockquotes for client perspective)
-3. Our Approach: methodology, technology choices, team setup
-4. Implementation: timeline, key milestones, obstacles overcome
-5. Results: measurable outcomes with specific numbers (use a metrics table)
+1. The Scenario: industry, size, and context — explicitly framed as a representative example
+2. The Challenge: specific problems and pain points typical for this situation
+3. The Approach: methodology, technology choices, team setup — grounded in how we actually work
+4. Implementation: realistic timeline in weeks, key milestones, obstacles that typically appear
+5. Expected Outcomes: what improvements such a project realistically targets (qualitative, or verified facts if provided; estimated figures clearly labeled as estimates)
 6. Key Takeaways: lessons applicable to the reader's business
 7. Call-to-action: "Facing a similar challenge? Let's talk"`,
     formattingRules:
-      'Use blockquotes for client quotes/perspective. Include a results table with before/after metrics. Use bold for all numbers and percentages. Timeline can be a simple numbered list.',
-    seoHint: 'Include industry-specific keywords. Target "[service] case study" and "[industry] success story" queries.',
+      'Include a table of expected before/after improvements framed as targets, not measured results. Use bold for numbers. Timeline can be a simple numbered list. No invented client names, quotes, or measured outcomes.',
+    seoHint: 'Include industry-specific keywords. Target "[service] example project" and "how [industry] uses [service]" queries.',
   },
 
   'myth-buster': {
@@ -144,12 +144,12 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
 2. For each myth (5-7 myths), use this pattern:
    - H2: "Myth: [the myth]"
    - H3: "Reality: [the truth]"
-   - Evidence, examples, and data supporting the reality
+   - Reasoning and concrete examples supporting the reality (verified facts where available)
    - Why this myth persists
 3. Summary: "What's actually true about [topic]"
 4. Call-to-action: "Ready to make decisions based on facts?"`,
     formattingRules:
-      'Use H2 for each myth labeled "Myth:" and H3 for each reality labeled "Reality:". Use blockquotes for the myth statement. Bold the reality statement. Include data or sources for each debunking.',
+      'Use H2 for each myth labeled "Myth:" and H3 for each reality labeled "Reality:". Use blockquotes for the myth statement. Bold the reality statement. Debunk with engineering reasoning and worked examples; cite numbers only from the verified facts provided.',
     seoHint: 'Target "[topic] myths", "is it true that", "[topic] misconceptions" keywords.',
   },
 
@@ -175,22 +175,22 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'trend-report': {
     id: 'trend-report',
     name: 'Trends & Predictions',
-    wordRange: [2500, 3500],
+    wordRange: [1800, 2500],
     tone: 'forward-thinking and authoritative — position the company as industry insiders',
     openingInstruction:
-      'Open with a striking statistic or market shift: "In the last 12 months, [dramatic change]. Here\'s what it means for your business."',
+      'Open with the single most consequential shift you can support — a verified fact if one is available, otherwise a concrete change you have seen in client work. Never invent a statistic for the hook.',
     structurePrompt: `
-1. Market landscape overview with current data
-2. Trend 1 through Trend 5-7, each as H2 with:
-   - What's happening (data and evidence)
+1. Market landscape overview (verified facts where available; otherwise qualitative, from experience)
+2. Trend 1 through Trend 4-6, each as H2 with:
+   - What's happening (cite a verified fact if one supports it)
    - Why it matters for businesses
    - How to prepare or take advantage
-3. Predictions for the next 1-2 years
+3. Predictions for the next 1-2 years (clearly labeled as your expectations)
 4. What this means for businesses in Central Asia specifically
 5. Action items: what to do right now
 6. Call-to-action: "Stay ahead of these trends — let's build your strategy"`,
     formattingRules:
-      'Include statistics and source links. Use bold for numbers and percentages. Use blockquotes for key predictions. Include a timeline or summary table.',
+      'Numbers and source links may come ONLY from the verified facts provided. Use bold for numbers. Use blockquotes for key predictions. Include a timeline or summary table.',
     seoHint: 'Target "[topic] trends [year]", "future of [topic]", "[topic] predictions" keywords.',
   },
 
@@ -203,15 +203,15 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
     structurePrompt: `
 1. The investment question — frame the cost as an investment decision
 2. The costs: honest breakdown of what you'll spend
-3. The returns: specific, measurable benefits with data
-4. ROI calculation: simple formula with real numbers
+3. The returns: benefits, with verified facts where available and qualitative reasoning where not
+4. ROI calculation: simple formula walked through on a clearly-hypothetical example business
 5. Payback timeline: when you'll see returns
 6. Risk factors and how to mitigate them
-7. Case example: a real business that made this investment
+7. Worked example: a typical (hypothetical) business making this investment
 8. The cost of doing nothing (opportunity cost)
 9. Call-to-action: "Calculate your specific ROI — talk to us"`,
     formattingRules:
-      'Use tables for cost/benefit breakdowns. Bold all dollar amounts and percentages. Use a blockquote for the key ROI figure. Include a simple calculation the reader can follow.',
+      'Use tables for cost/benefit breakdowns. Bold all dollar amounts and percentages. Use a blockquote for the key ROI figure. Include a simple calculation the reader can follow. All hypothetical numbers must be framed as estimates ("a typical retailer might..."), never as real client results.',
     seoHint: 'Target "ROI of [topic]", "is [topic] worth it", "[topic] cost vs benefit" keywords.',
   },
 
@@ -239,7 +239,7 @@ export const POST_BLUEPRINTS: Record<PostFormat, PostBlueprint> = {
   'deep-dive': {
     id: 'deep-dive',
     name: 'Technical Deep Dive',
-    wordRange: [3000, 4000],
+    wordRange: [2200, 3000],
     tone: 'expert and technical — for CTOs, tech leads, and developers evaluating solutions',
     openingInstruction:
       'Open with a technical challenge: "When building [system], the architecture decisions you make in week one determine your scaling costs for years."',

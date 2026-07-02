@@ -10,13 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function AdminLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
+export default async function AdminLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   // Authoritative check on the server: unauthenticated requests never receive
   // the admin UI (fixes the old client-only gate where pages were reachable).
   if (!(await isAdminAuthenticated())) {

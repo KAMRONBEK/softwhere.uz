@@ -25,7 +25,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
         return {
           url: `${baseUrl}/${locale}${page}`,
-          lastModified: new Date(),
+          // No lastModified for static pages: stamping new Date() on every
+          // sitemap render churned the field and trains Google to ignore it.
           changeFrequency: 'weekly' as const,
           priority: page === '' ? 1 : 0.8,
           alternates: { languages },

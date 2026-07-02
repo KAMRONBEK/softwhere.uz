@@ -38,7 +38,7 @@ function sanitizeKeyword(keyword: string): string {
     .slice(0, 100);
 }
 
-/** Ask Gemini for a visual keyword (returns null when quota-blocked or unavailable). */
+/** Ask the AI provider chain for a visual keyword (null when unavailable). */
 async function generateImageKeyword(title: string): Promise<string | null> {
   const prompt = `Return 2-3 English keywords for a stock photo that would visually represent this blog topic: "${title}". Focus on visual concepts a photographer would capture, not technical jargon. Only output the keywords, space-separated.`;
   const text = await safeGenerateContent(prompt, 'image-keyword');
