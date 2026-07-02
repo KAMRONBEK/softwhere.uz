@@ -79,6 +79,31 @@
   min-height: 1.96em;
 }
 
+/* Server-rendered headline with a typewriter-style caret (CSS-only — the old
+   JS typing animation left the LCP element empty until hydration). */
+.typed::after {
+  content: '';
+  display: inline-block;
+  width: 0.05em;
+  height: 0.85em;
+  margin-left: 0.08em;
+  background: var(--accent);
+  vertical-align: baseline;
+  animation: heroCaretBlink 1.1s steps(2, start) infinite;
+}
+
+@keyframes heroCaretBlink {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typed::after {
+    animation: none;
+  }
+}
+
 .description {
   font-size: 19px;
   line-height: 1.6;

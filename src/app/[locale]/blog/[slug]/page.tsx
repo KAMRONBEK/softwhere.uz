@@ -20,6 +20,7 @@ import { validateLocale } from '@/core/auth';
 import { getSlugRoot } from '@/shared/utils/slug';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
 import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
+import { jetbrainsMono } from '@/shared/fonts';
 
 // ISR: render posts on demand and cache for an hour. generateStaticParams
 // returns [] so nothing is prerendered at build time (no build-time DB), and
@@ -254,7 +255,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     >
       <BlogPostSchema post={post} />
 
-      <div className='page-layout min-h-screen' style={{ backgroundColor: 'var(--bg)' }}>
+      <div className={`page-layout min-h-screen ${jetbrainsMono.variable}`} style={{ backgroundColor: 'var(--bg)' }}>
         {/* Breadcrumbs */}
         <nav className='bg-ember-surface border-b border-ember-border' aria-label='Breadcrumb'>
           <div className='container py-4'>

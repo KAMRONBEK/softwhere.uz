@@ -2,8 +2,14 @@
 
 import SectionText from '@/shared/components/SectionTitle';
 import { FormEvent, useState } from 'react';
-import { PhoneInput } from 'react-international-phone';
+import { PhoneInput, defaultCountries, parseCountry } from 'react-international-phone';
 import 'react-international-phone/style.css';
+
+// The dropdown SSRs its FULL country list into the homepage HTML (~210 <li>
+// with flag <img> each ≈ half the page's bytes). Limit it to the markets that
+// actually contact us; everyone else can still type any number manually.
+const RELEVANT_COUNTRIES = new Set(['uz', 'ru', 'kz', 'kg', 'tj', 'tm', 'az', 'tr', 'ae', 'us', 'gb', 'de']);
+const contactCountries = defaultCountries.filter(c => RELEVANT_COUNTRIES.has(parseCountry(c).iso2));
 import css from './style.module.css';
 
 import Button from '@/shared/components/Button';
@@ -141,6 +147,7 @@ function Contact() {
               <label htmlFor='phone-input'>{t('phoneNumber')}</label>
               <PhoneInput
                 defaultCountry='uz'
+                countries={contactCountries}
                 value={phone}
                 onChange={phone => {
                   setPhone(phone);

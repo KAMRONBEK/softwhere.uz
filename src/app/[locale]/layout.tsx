@@ -8,7 +8,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
 import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { Inter, Sora, Manrope, JetBrains_Mono } from 'next/font/google';
+import { Inter, Sora, Manrope } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import React from 'react';
 import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/core/constants';
@@ -20,7 +20,7 @@ import { safeJsonLd } from '@/shared/utils/security';
 const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap', variable: '--font-inter' });
 const sora = Sora({ subsets: ['latin'], display: 'swap', variable: '--font-sora', weight: ['400', '500', '600', '700', '800'] });
 const manrope = Manrope({ subsets: ['latin'], display: 'swap', variable: '--font-manrope', weight: ['400', '500', '600', '700', '800'] });
-const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], display: 'swap', variable: '--font-mono', weight: ['400', '500'] });
+// JetBrains Mono intentionally NOT loaded here — see src/shared/fonts.ts.
 
 // Only the three known locales are valid; anything else 404s via the
 // hasLocale() check in the layout body. Do NOT add `dynamicParams = false`
@@ -132,7 +132,7 @@ export default async function RootLayout({ children, params }: Props) {
   return (
     <html
       lang={locale}
-      className={`${inter.variable} ${sora.variable} ${manrope.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${sora.variable} ${manrope.variable}`}
       suppressHydrationWarning
     >
       <body>

@@ -1,5 +1,7 @@
-'use client';
-import { TypeAnimation } from 'react-type-animation';
+// Server component on purpose: the H1 is the LCP element and must be in the
+// prerendered HTML. The old react-type-animation rendered an EMPTY <h1> until
+// the whole JS bundle hydrated — on slow links the headline painted seconds
+// late. The typewriter personality is kept with a pure-CSS blinking caret.
 import css from './style.module.css';
 
 import Counter from '@/shared/components/Counter';
@@ -19,7 +21,7 @@ function Hero() {
           <div className={css.left}>
             <div className={css.eyebrow}>{t('eyebrow')}</div>
             <h1 className={css.title}>
-              <TypeAnimation sequence={[t('title')]} wrapper='span' speed={50} />
+              <span className={css.typed}>{t('title')}</span>
             </h1>
             <p className={css.description}>{t('description')}</p>
             <div className={css.actions}>

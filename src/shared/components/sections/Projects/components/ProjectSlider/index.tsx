@@ -27,6 +27,10 @@ function ProjectSlider() {
   const settings = {
     dots: false,
     infinite: true,
+    // Without lazyLoad, infinite mode CLONES every slide into the DOM
+    // (11 projects rendered as 23 nodes = ~60KB of homepage HTML with
+    // 100+ duplicate <img> tags). ondemand renders slides as they show.
+    lazyLoad: 'ondemand' as const,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
@@ -71,7 +75,9 @@ function ProjectSlider() {
                 {item.name}
               </b>
               <p data-aos='zoom-in' data-aos-delay='100' className={css.desc}>
-                {lang === 'uz' ? item.description.uz : lang === 'ru' ? item.description.ru : ''}
+                {/* No English copy exists yet — fall back to Russian rather
+                    than rendering an empty paragraph on the en locale. */}
+                {lang === 'uz' ? item.description.uz : item.description.ru}
               </p>
               <p data-aos='zoom-in' data-aos-delay='200' className={css.desc}>
                 {item.technology}

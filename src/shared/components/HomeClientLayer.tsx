@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
-import 'react-toastify/dist/ReactToastify.css';
-
 const ToastContainer = dynamic(() => import('react-toastify').then(m => m.ToastContainer), { ssr: false });
 
 function HomeClientLayer({ locale }: { locale: string }) {
@@ -19,6 +17,10 @@ function HomeClientLayer({ locale }: { locale: string }) {
     // @ts-expect-error -- CSS module import has no type declarations
     import('aos/dist/aos.css');
     import('aos').then(AOS => AOS.init());
+    // Toast styles are only needed after a form submit — keep them out of the
+    // render-blocking CSS bundle.
+    // @ts-expect-error -- CSS import has no type declarations
+    import('react-toastify/dist/ReactToastify.css');
   }, []);
 
   // Secret click sequence on logo (5 clicks within 3 seconds)
