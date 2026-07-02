@@ -17,6 +17,10 @@ import LocationIcon from '../../../../../../../public/icons/place_outline_24.svg
 import PlayMarketIcon from '../../../../../../../public/icons/play-market.svg';
 import WorkIcon from '../../../../../../../public/icons/work_outline_24.svg';
 
+function visualFor(name: string) {
+  return projectVisuals[name];
+}
+
 /** "Align 360" -> "A3", "NAFT" -> "N" — fallback badge for icon-less projects. */
 function initialsOf(name: string): string {
   return name
@@ -139,7 +143,12 @@ function ProjectSlider() {
               </div>
             </div>
             <div data-aos='fade-up-left' className={css.iconWrap}>
-              {projectVisuals[item.name] ? (
+              {visualFor(item.name)?.screenshot ? (
+                <>
+                  <Image className={css.screenshot} src={visualFor(item.name)!.screenshot!} alt={`${item.name} app screenshot`} />
+                  <Image className={css.iconBadge} src={visualFor(item.name)!.src} alt='' />
+                </>
+              ) : projectVisuals[item.name] ? (
                 <Image
                   className={projectVisuals[item.name].wide ? css.appLogo : css.appIcon}
                   src={projectVisuals[item.name].src}

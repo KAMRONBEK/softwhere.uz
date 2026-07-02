@@ -55,6 +55,7 @@
 /* App-icon slide visual: the portfolio ships 512x512 app icons (not device
    mockups), so present them App-Store-style on a soft glow tile. */
 .iconWrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,6 +75,27 @@
   height: 176px;
   border-radius: 40px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+/* Real App Store screenshot with the app icon as a corner badge. */
+.screenshot {
+  height: 400px;
+  width: auto;
+  margin: 28px 0;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+.iconBadge {
+  position: absolute;
+  right: 26px;
+  bottom: 26px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  border: 2px solid rgba(10, 7, 5, 0.7);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5);
 }
 
 .appLogo {
@@ -127,6 +149,20 @@
 @media (max-width: 450px) {
   .iconWrap {
     min-height: 240px;
+  }
+
+  .screenshot {
+    height: 280px;
+    margin: 18px 0;
+    border-radius: 20px;
+  }
+
+  .iconBadge {
+    right: 14px;
+    bottom: 14px;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
   }
 
   .appIcon,

@@ -12,10 +12,19 @@ import swish from '../../../public/images/projects/swish.jpg';
 import truckme from '../../../public/images/projects/truckme.jpg';
 import workaxle from '../../../public/images/projects/workaxle.jpg';
 
+import asconShot from '../../../public/images/projects/screens/ascon.webp';
+import bdmShot from '../../../public/images/projects/screens/bdm.webp';
+import heyallShot from '../../../public/images/projects/screens/heyall.webp';
+import neteviaShot from '../../../public/images/projects/screens/netevia.webp';
+import swishShot from '../../../public/images/projects/screens/swish.webp';
+import workaxleShot from '../../../public/images/projects/screens/workaxle.webp';
+
 export interface ProjectVisual {
   src: StaticImageData;
   /** Wide wordmark/logo (rendered at natural aspect) vs square app icon. */
   wide?: boolean;
+  /** Real App Store screenshot (from Apple's public lookup API). */
+  screenshot?: StaticImageData;
 }
 
 /**
@@ -26,14 +35,14 @@ export interface ProjectVisual {
 export const projectVisuals: Record<string, ProjectVisual> = {
   DriveMe: { src: driveme },
   'DriveMe Driver': { src: drivemeDriver },
-  Netevia: { src: netevia },
+  Netevia: { src: netevia, screenshot: neteviaShot },
   'Truck Me': { src: truckme },
-  'VBrato & SwishSportsApp': { src: swish },
-  HeyAll: { src: heyall },
-  WorkAxle: { src: workaxle },
+  'VBrato & SwishSportsApp': { src: swish, screenshot: swishShot },
+  HeyAll: { src: heyall, screenshot: heyallShot },
+  WorkAxle: { src: workaxle, screenshot: workaxleShot },
   EDOCS: { src: edocs },
-  BDM: { src: bdm },
-  ASCON: { src: ascon },
+  BDM: { src: bdm, screenshot: bdmShot },
+  ASCON: { src: ascon, screenshot: asconShot },
   'Nestegg.ai': { src: nestegg, wide: true },
   'Nestegg Loan': { src: nestegg, wide: true },
 };
