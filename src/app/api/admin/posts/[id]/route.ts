@@ -1,6 +1,6 @@
 import { deleteById, getById, isValidPostId, slugTaken, updateById } from '@/modules/blog/model/posts.repository';
 import type { NewBlogPost } from '@/modules/blog/model/BlogPost';
-import { verifyApiSecret } from '@/core/auth';
+import { requireAdmin } from '@/core/auth';
 import { logger } from '@/core/logger';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
@@ -21,7 +21,7 @@ function invalidateBlogCache(): void {
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   const { id } = await params;
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 // PUT handler to update a single post
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   const { id } = await params;
@@ -126,7 +126,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 const PATCH_ALLOWED_FIELDS = ['status', 'title', 'content', 'slug', 'locale'] as const;
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   try {
@@ -175,7 +175,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   try {

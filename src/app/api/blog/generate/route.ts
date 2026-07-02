@@ -1,6 +1,6 @@
 import { createPost, getByGroupId, slugTaken } from '@/modules/blog/model/posts.repository';
 import type { ICoverImage } from '@/modules/blog/model/BlogPost';
-import { verifyApiSecret } from '@/core/auth';
+import { requireAdmin } from '@/core/auth';
 import { safeGenerateContent, aiStats } from '@/core/ai';
 import { logger } from '@/core/logger';
 import { createSlug } from '@/shared/utils/slug';
@@ -49,7 +49,7 @@ async function resolveUniqueSlug(baseSlug: string, locale: string): Promise<stri
 }
 
 export async function POST(request: NextRequest) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   try {

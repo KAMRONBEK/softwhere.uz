@@ -1,29 +1,21 @@
-const STORAGE_KEY = 'admin_api_secret';
-
-export function getAdminSecret(): string | null {
-  if (typeof window === 'undefined') return null;
-  return sessionStorage.getItem(STORAGE_KEY);
-}
-
-export function setAdminSecret(secret: string): void {
-  sessionStorage.setItem(STORAGE_KEY, secret);
-}
-
-export function clearAdminSecret(): void {
-  sessionStorage.removeItem(STORAGE_KEY);
-}
-
+/**
+ * Fetch wrapper for admin API calls. Auth now rides on the httpOnly session
+ * cookie (set at login), which the browser sends automatically on same-origin
+ * requests — so there is no token to attach here. On a 401 (expired/invalid
+ * session) we reload so the server-side admin gate falls back to the login form.
+ */
 export async function adminFetch(url: string, init?: RequestInit): Promise<Response> {
-  const secret = getAdminSecret();
   const headers = new Headers(init?.headers);
-
-  if (secret) {
-    headers.set('Authorization', `Bearer ${secret}`);
-  }
 
   if (!headers.has('Content-Type') && init?.body) {
     headers.set('Content-Type', 'application/json');
   }
 
-  return fetch(url, { ...init, headers });
+  const res = await fetch(url, { ...init, headers, credentials: 'same-origin' });
+
+  if (res.status === 401 && typeof window !== 'undefined') {
+    window.location.reload();
+  }
+
+  return res;
 }

@@ -1,11 +1,11 @@
 import { logger } from '@/core/logger';
 import { createPost, listForAdmin, slugTaken } from '@/modules/blog/model/posts.repository';
-import { verifyApiSecret } from '@/core/auth';
+import { requireAdmin } from '@/core/auth';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
   const startTime = Date.now();
 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
 // POST handler to create a new blog post
 export async function POST(request: NextRequest) {
-  const authError = verifyApiSecret(request);
+  const authError = await requireAdmin(request);
   if (authError) return authError;
 
   try {

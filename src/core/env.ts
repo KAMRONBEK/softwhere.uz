@@ -5,6 +5,8 @@ interface EnvConfig {
   MOONSHOT_API_KEY?: string;
   DEEPSEEK_API_KEY?: string;
   API_SECRET?: string;
+  NEON_AUTH_BASE_URL?: string;
+  NEON_AUTH_COOKIE_SECRET?: string;
   UNSPLASH_ACCESS_KEY?: string;
   EXCHANGERATE_API_KEY?: string;
   NODE_ENV: string;
@@ -13,7 +15,9 @@ interface EnvConfig {
 const requiredEnvVars = ['DATABASE_URL'] as const;
 // At least one AI key (MOONSHOT_API_KEY for Kimi, or DEEPSEEK_API_KEY) enables
 // generation; both being absent just disables AI features (graceful fallback).
-const optionalEnvVars = ['MOONSHOT_API_KEY', 'DEEPSEEK_API_KEY', 'API_SECRET', 'UNSPLASH_ACCESS_KEY', 'EXCHANGERATE_API_KEY'] as const;
+// NEON_AUTH_BASE_URL + NEON_AUTH_COOKIE_SECRET power the Neon Auth admin login;
+// without them the admin gate fails closed (denied) but the public site boots.
+const optionalEnvVars = ['MOONSHOT_API_KEY', 'DEEPSEEK_API_KEY', 'API_SECRET', 'NEON_AUTH_BASE_URL', 'NEON_AUTH_COOKIE_SECRET', 'UNSPLASH_ACCESS_KEY', 'EXCHANGERATE_API_KEY'] as const;
 
 export function validateEnvironment(): EnvConfig {
   const env: Partial<EnvConfig> = {
@@ -21,6 +25,8 @@ export function validateEnvironment(): EnvConfig {
     MOONSHOT_API_KEY: process.env.MOONSHOT_API_KEY,
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
     API_SECRET: process.env.API_SECRET,
+    NEON_AUTH_BASE_URL: process.env.NEON_AUTH_BASE_URL,
+    NEON_AUTH_COOKIE_SECRET: process.env.NEON_AUTH_COOKIE_SECRET,
     UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY,
     EXCHANGERATE_API_KEY: process.env.EXCHANGERATE_API_KEY,
     NODE_ENV: process.env.NODE_ENV || 'development',

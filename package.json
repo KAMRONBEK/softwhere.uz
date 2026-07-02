@@ -24,6 +24,7 @@
     "env:pull:development": "npx vercel env pull .env --environment development --yes"
   },
   "dependencies": {
+    "@neondatabase/auth": "^0.4.2-beta",
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/analytics": "^1.6.1",
     "@vercel/speed-insights": "^1.2.0",
