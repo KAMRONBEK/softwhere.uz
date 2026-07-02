@@ -264,7 +264,8 @@
     "name": "Your Name",
     "message": "Message",
     "messagePlaceholder": "Enter your message here...",
-    "btn": "Send"
+    "btn": "Send",
+    "telegramCta": "Chat with us on Telegram"
   },
   "toastMessage": {
     "phoneNumber": "Enter phone number!",

@@ -10,6 +10,7 @@ type EventMap = {
   project_view: { project: string };
   scroll_to_top: Record<string, never>;
   external_link_click: { type: 'phone' | 'email'; source: string };
+  telegram_chat_click: { locale: string };
 };
 
 export function trackEvent<K extends keyof EventMap>(name: K, ...args: EventMap[K] extends Record<string, never> ? [] : [EventMap[K]]) {

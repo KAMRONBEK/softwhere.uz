@@ -1,6 +1,7 @@
 import Footer from '@/shared/components/Footer';
 import Header from '@/shared/components/Header';
 import ScrollToTop from '@/shared/components/ScrollToTop';
+import TelegramChat from '@/shared/components/TelegramChat';
 import ThemeProvider from '@/shared/components/ThemeProvider';
 import { BlogProvider } from '@/modules/blog/context/BlogContext';
 import { Analytics } from '@vercel/analytics/next';
@@ -139,6 +140,7 @@ export default async function RootLayout({ children, params }: Props) {
               <Header />
               {children}
               <ScrollToTop />
+              <TelegramChat />
               <Footer />
             </BlogProvider>
           </NextIntlClientProvider>

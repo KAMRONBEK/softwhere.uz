@@ -264,7 +264,8 @@
     "name": "Ism Sharifingiz",
     "message": "Xabar",
     "messagePlaceholder": "Xabaringizni shu yerga yozing...",
-    "btn": "Yuborish"
+    "btn": "Yuborish",
+    "telegramCta": "Telegramda yozing"
   },
   "toastMessage": {
     "phoneNumber": "Telefon raqamni kiriting!",

@@ -264,7 +264,8 @@
     "name": "Ваше имя",
     "message": "Сообщение",
     "messagePlaceholder": "Введите ваше сообщение здесь...",
-    "btn": "Отправить"
+    "btn": "Отправить",
+    "telegramCta": "Написать нам в Telegram"
   },
   "toastMessage": {
     "phoneNumber": "Введите номер телефона!",
