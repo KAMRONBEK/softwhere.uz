@@ -1,121 +1,104 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-# API Migration Guide
+# Data Access & API Conventions
 
-## 🔄 **Migrating from fetch() to API Client**
+How data flows in softwhere.uz: databases behind repositories, feature HTTP calls behind module `api` modules, and one generic HTTP client in `core`. The old "migrate `fetch()` to `src/utils/api.ts`" guide is obsolete — that file never existed post-refactor. Use the patterns below instead.
 
-The centralized API client in [src/utils/api.ts](mdc:src/utils/api.ts) should replace all direct `fetch()` calls for consistency, error handling, and logging.
+## At a glance
 
-## 📍 **Files Requiring Migration**
+| Need | Use | Location |
+| --- | --- | --- |
+| Read/write the DB | A repository function | `src/modules/*/model/*.repository.ts` |
+| Call an internal/external HTTP endpoint | A module `api` wrapper, else `apiClient` | `src/modules/*/api*.ts`, `src/core/http.ts` |
+| Response/error types | `ApiResponse<T>`, `AppError` | `src/core/http.ts` |
+| Admin browser calls (auth cookie) | `adminFetch` | `src/modules/admin/utils/adminFetch.ts` |
 
-### **Admin Posts Page**
-File: [src/app/[locale]/admin/posts/page.tsx](mdc:src/app/[locale]/admin/posts/page.tsx)
+## 1. Database access — the repository layer
 
-**Before:**
+Drizzle and the `db` client (`src/core/db.ts`) are imported **only** by repository files. Routes, pages, and other modules call exported repository functions; they never build queries themselves.
+
+- `src/modules/blog/model/posts.repository.ts` — `blog_posts` reads/writes (`listPublished`, `getPublishedBySlug`, `createPost`, `updateById`, `deleteById`, `listForAdmin`, `pingDb`, ...).
+- `src/modules/contact/model/leads.repository.ts` — `leads` reads/writes (`createLead`, `markLeadNotified`, `listLeads`).
+
 ```typescript
-const response = await fetch('/api/admin/posts');
-const data = await response.json();
+// src/app/[locale]/blog/[slug]/page.tsx
+import * as postsRepo from '@/modules/blog/model/posts.repository';
+
+const post = await postsRepo.getPublishedBySlugFlexible(slug, locale);
 ```
 
-**After:**
+Repositories return already-serialized shapes (e.g. `IBlogPost` with `_id` and ISO-string dates from `serializePost` in `src/modules/blog/model/BlogPost.ts`), so callers stay decoupled from raw DB rows.
+
+## 2. Feature HTTP calls — module `api` modules
+
+Feature-specific HTTP calls live next to their module and build on the core client. Client-only files here are distinct from the server-only generation code in the same folder.
+
+- `src/modules/blog/api/posts.ts` — `getRelatedPost(generationGroupId, locale)` (client). The generator (`api/generator.ts`, `api/pipeline.ts`) in the same directory is **server-only**.
+- `src/modules/estimator/api.ts` — `getEstimate(...)` and `submitEstimateLead(...)`.
+
 ```typescript
-import { api } from '@/utils/api';
-const response = await api.admin.getPosts();
-if (response.success) {
-  const posts = response.data;
+// src/modules/blog/api/posts.ts
+import { apiClient } from '@/core/http';
+
+export async function getRelatedPost(generationGroupId: string, locale: string) {
+  return apiClient.get<{ post: { slug: string; locale: string } }>(
+    `/api/blog/posts/related?generationGroupId=${generationGroupId}&locale=${locale}`
+  );
 }
 ```
 
-### **Blog Pages**
-Files: 
-- [src/app/[locale]/blog/page.tsx](mdc:src/app/[locale]/blog/page.tsx)
-- [src/app/[locale]/blog/[slug]/page.tsx](mdc:src/app/[locale]/blog/[slug]/page.tsx)
+When a call needs a timeout longer than the client's 10s default (e.g. the estimator's ~60s AI round), the wrapper may use a dedicated `fetch` with its own `AbortController` while still returning an `ApiResponse` — see `getEstimate` in `src/modules/estimator/api.ts`.
 
-**Before:**
-```typescript
-const res = await fetch(`/api/blog/posts/${slug}?locale=${locale}`);
-```
+## 3. The generic HTTP client — `core/http`
 
-**After:**
-```typescript
-import { api } from '@/utils/api';
-const response = await api.blog.getPost(slug, locale);
-```
+`src/core/http.ts` exports a singleton `apiClient` (an `ApiClient` instance) plus response types and helpers. It is domain-agnostic so `core` stays free of any `shared`/`modules` dependency.
 
-### **Header Component**
-File: [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx)
+| Export | What it is |
+| --- | --- |
+| `apiClient` | `get` / `post` / `put` / `delete` / `patch`, each returning `Promise<ApiResponse<T>>` |
+| `ApiResponse<T>` | `{ success: boolean; data?: T; error?: string; message?: string }` |
+| `AppError` | `{ message: string; code?: string; status?: number }` |
+| `handleApiError` | Maps a failed `ApiResponse` to an `AppError` |
+| `validateApiResponse` | Returns `data` or throws the `AppError` on `!success` |
 
-**Before:**
-```typescript
-const response = await fetch(`/api/blog/posts/related?generationGroupId=${id}&locale=${locale}`);
-```
-
-**After:**
-```typescript
-import { api } from '@/utils/api';
-const response = await api.blog.getPosts({ generationGroupId: id, locale });
-```
-
-## 🎯 **Available API Methods**
-
-### **Blog API**
-- `api.blog.getPosts(params?)` - Get blog posts with optional filters
-- `api.blog.getPost(slug, locale)` - Get single blog post
-- `api.blog.generatePosts(data)` - Generate new blog posts
-
-### **Admin API**
-- `api.admin.getPosts()` - Get all posts for admin
-- `api.admin.getPost(id)` - Get single post by ID
-- `api.admin.updatePost(id, data)` - Update post
-- `api.admin.deletePost(id)` - Delete post
-- `api.admin.publishPost(id)` - Publish post
-- `api.admin.unpublishPost(id)` - Unpublish post
-
-### **Contact API**
-- `api.contact.send(data)` - Send contact form
-
-## ✅ **Benefits of Migration**
-
-1. **Consistent Error Handling** - All API calls return `{ success: boolean, data?, error? }`
-2. **Automatic Logging** - Request/response logging with performance metrics
-3. **Timeout Management** - Prevents hanging requests (10s default)
-4. **Type Safety** - Proper TypeScript interfaces
-5. **Centralized Configuration** - Easy to modify API behavior
-
-## 🔧 **Error Handling Pattern**
+Behavior: sets `Content-Type: application/json`, logs request/response/timing via `logger`, aborts after a 10s default timeout, and normalizes non-2xx responses into `{ success: false, error }` (it never throws for HTTP errors).
 
 ```typescript
-import { api, validateApiResponse } from '@/utils/api';
+import { apiClient, validateApiResponse } from '@/core/http';
 
-try {
-  const response = await api.blog.getPosts();
-  if (response.success) {
-    const posts = response.data;
-    // Handle success
-  } else {
-    logger.error('Failed to fetch posts', response.error);
-    // Handle error
-  }
-} catch (error) {
-  logger.error('API call failed', error);
+const res = await apiClient.get('/api/blog/posts');
+if (res.success) {
+  const posts = res.data;
 }
-
-// Or use validation utility
-try {
-  const posts = validateApiResponse(await api.blog.getPosts());
-  // posts is guaranteed to be valid data
-} catch (error) {
-  // Handle error
-}
+// or, throw-on-failure:
+const posts = validateApiResponse(await apiClient.get('/api/blog/posts'));
 ```
 
-## 🚨 **Migration Priority**
+> `ApiResponse` and `AppError` intentionally live in `@/core/http`, not in `@/shared/types`, so that `core` does not depend on `shared`.
 
-1. **High Priority**: Admin panel operations (CRUD operations)
-2. **Medium Priority**: Blog listing and individual posts
-3. **Low Priority**: Contact form and other utilities
+## 4. Admin calls from the browser
 
-Replace `fetch()` calls gradually, testing each migration to ensure functionality remains intact.
+Admin UI calls go through `adminFetch` (`src/modules/admin/utils/adminFetch.ts`): it sends the Neon Auth session cookie (`credentials: 'same-origin'`), sets JSON headers when there's a body, and reloads the page on a 401 so the server-side admin gate re-shows the login form. Server route handlers still enforce access with `requireAdmin` (`src/core/auth.ts`).
+
+## Internal API endpoints (reference)
+
+Route handlers live under `src/app/api/**`:
+
+| Endpoint | Handler |
+| --- | --- |
+| `GET /api/blog/posts`, `GET /api/blog/posts/[slug]`, `GET /api/blog/posts/related` | `src/app/api/blog/posts/**` |
+| `POST /api/blog/generate` | `src/app/api/blog/generate/route.ts` |
+| `GET/POST /api/admin/posts`, `/api/admin/posts/[id]`, `/api/admin/leads`, `/api/admin/revalidate` | `src/app/api/admin/**` |
+| `POST /api/contact`, `POST /api/estimate`, `POST /api/estimate/lead`, `GET /api/currency/rates` | `src/app/api/**` |
+| `/api/auth/[...path]` (Neon Auth), `GET /api/health`, `GET /api/health/db`, `GET /api/og` | `src/app/api/**` |
+
+## Related docs
+- [project-structure.mdc](./project-structure.mdc)
+- [development-guidelines.mdc](./development-guidelines.mdc)
+- [API reference](../../docs/api-reference.md)
+- [Database](../../docs/database.md)
+
+_Last verified against code: 2026-07-03._

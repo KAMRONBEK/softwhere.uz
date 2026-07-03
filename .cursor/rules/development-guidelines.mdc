@@ -1,100 +1,124 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 # Development Guidelines
 
-## 🎯 **Core Principles**
+Conventions for writing code in softwhere.uz. Follow the layered architecture and the shared infrastructure in `src/core`; do not reintroduce the pre-refactor `utils/api.ts` / `lib/db.ts` / `constants/` / `types/` layout — those paths no longer exist.
 
-Follow SOLID principles and clean code practices. Always prioritize maintainability and type safety.
+## At a glance
 
-## 📋 **Code Standards**
+| Concern | Do this | Source |
+| --- | --- | --- |
+| DB access | Call a repository; never touch Drizzle/`db` in routes or pages | `src/modules/*/model/*.repository.ts` |
+| HTTP calls | Use `apiClient` (or a module's `api` wrapper); check `response.success` | `src/core/http.ts` |
+| AI | Call the helpers in `core/ai` (quota-aware, provider fallback) | `src/core/ai.ts` |
+| Logging | Use `logger`, not `console.*` | `src/core/logger.ts` |
+| Constants | Import from `core/constants` (or a module's `constants.ts`) | `src/core/constants.ts` |
+| i18n | `next-intl`; keys in `src/messages/*.json` | `src/core/i18n.ts` |
+| Layers | `core` -> `shared` -> `modules` -> `app` (enforced) | `eslint.config.mjs` |
 
-### **Constants Usage**
-- Import from [src/constants/index.ts](mdc:src/constants/index.ts) instead of hardcoding values
-- Use `UI_CONFIG.SCROLL_THRESHOLD` instead of magic numbers
-- Use `CONTACT_INFO.PHONE` instead of hardcoded contact details
+## Layer boundaries
 
-### **Type Safety**
-- Import types from [src/types/index.ts](mdc:src/types/index.ts)
-- Use proper interfaces: `BlogPost`, `Project`, `ApiResponse<T>`
-- Avoid `any` types - use proper generics
+`eslint-plugin-boundaries` enforces the import direction in `eslint.config.mjs`:
 
-### **Logging**
-- Import logger from [src/utils/logger.ts](mdc:src/utils/logger.ts)
-- Use `logger.info()`, `logger.error()`, `logger.debug()` instead of `console.log`
-- Include context: `logger.error('API failed', error, 'CONTEXT')`
+```
+core   -> core
+shared -> core, shared
+module -> core, shared, own module (same moduleName)
+app    -> core, shared, module, app
+```
 
-### **API Calls**
-- Use API client from [src/utils/api.ts](mdc:src/utils/api.ts)
-- Replace `fetch()` calls with `api.blog.getPosts()`, `api.admin.deletePost()`
-- Handle responses properly: check `response.success` before using `response.data`
+The rule (`boundaries/element-types`) currently runs at **`warn`** severity, so `yarn lint` stays green while the pre-existing cross-layer couplings noted in the config are surfaced rather than blocking. Do not add new violations. `src/messages/**`, `src/proxy.ts`, `**/global.d.ts`, and `scripts/**` are excluded from the check.
 
-### **SVG Optimization**
-- Use `preserveAspectRatio="xMidYMid meet"` for all SVGs
-- Avoid fixed width/height on SVG elements (use viewBox instead)
-- Use semantic attributes for better accessibility
-- Minify SVG files before committing
+## Data access — repository pattern
 
-## 🔧 **Component Guidelines**
+Only repositories import `@/core/db`. Routes and pages import repository functions, never Drizzle directly.
 
-### **Header Component**
-- [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx) handles scroll behavior
-- Uses `UI_CONFIG.SCROLL_THRESHOLD` for scroll detection
-- Implements throttled scroll events with `requestAnimationFrame`
+```typescript
+// src/app/api/admin/posts/route.ts
+import { createPost, listForAdmin, slugTaken } from '@/modules/blog/model/posts.repository';
+import { requireAdmin } from '@/core/auth';
+```
 
-### **Project Slider**
-- [src/components/sections/Projects/components/ProjectSlider/index.tsx](mdc:src/components/sections/Projects/components/ProjectSlider/index.tsx)
-- Uses data from [src/data/projects.ts](mdc:src/data/projects.ts)
-- Supports multi-language descriptions
+The DB is Neon (serverless Postgres) accessed via Drizzle's HTTP driver (`src/core/db.ts`) — **not** MongoDB/Mongoose. There is no `MONGODB_URI`; the connection env var is `DATABASE_URL`. Schemas live in `src/modules/blog/model/BlogPost.ts` (`blog_posts`) and `src/modules/contact/model/Lead.ts` (`leads`). Full data-access conventions are in `api-migration.mdc`.
 
-## 🌐 **Internationalization**
+## HTTP calls
 
-### **Language Switching**
-- Handle `generationGroupId` for related posts in different languages
-- Fallback to blog listing if no related post found
+Client-side and server-to-internal calls go through `apiClient` from `src/core/http.ts`, which returns a `{ success, data?, error? }` envelope, logs the request, and applies a 10s default timeout:
 
-### **Supported Locales**
-- `uz` (Uzbek) - default
-- `ru` (Russian)  
-- `en` (English)
+```typescript
+import { apiClient } from '@/core/http';
 
-## 🔒 **Security**
+const res = await apiClient.get<{ post: { slug: string } }>('/api/blog/posts/related?...');
+if (res.success) {
+  // res.data is present
+}
+```
 
-### **Admin Access**
-- No permanent visible admin buttons
-- Secret access via click sequence (5 clicks on top-left corner)
-- Auto-hide admin button after 10 seconds
+Prefer a module's typed wrapper when one exists (`src/modules/blog/api/posts.ts`, `src/modules/estimator/api.ts`) over calling `fetch` inline.
 
-### **Environment Variables**
-- Use [src/utils/env.ts](mdc:src/utils/env.ts) for validation
-- Required: `MONGODB_URI`
-- Optional: `DEEPSEEK_API_KEY`, `API_SECRET`, `UNSPLASH_ACCESS_KEY`
+## AI generation
 
-## 📊 **Performance**
+All model calls go through `src/core/ai.ts` (OpenAI-compatible SDK). The chain is **Kimi K2.6 (Moonshot) primary, DeepSeek V4 Pro fallback**, both quota-aware and env-overridable; if only one key is set, that provider is used alone. Use the exported helpers rather than instantiating a client:
 
-### **Scroll Optimization**
-- Use `requestAnimationFrame` for scroll events
-- Throttle expensive operations
-- Use CSS transforms for smooth animations
+- `safeGenerateContent` / `generateContentWithProvider` — text (blog bodies get a large token budget + a longer timeout)
+- `safeGenerateJSON` / `safeGenerateJSONWithTimeout` — JSON output
+- `generateWithWebSearch` — grounded generation via Moonshot's `$web_search` (Kimi-only)
 
-### **SVG Performance**
-- Optimize SVGs using SVGO before adding to the codebase
-- Remove unnecessary attributes and metadata
-- Use properly sized SVGs for different screen sizes through media queries
+> Note: some older docs describe AI as "DeepSeek only". The code makes DeepSeek the **fallback**; Kimi K2.6 is the default primary provider.
 
-### **Database**
-- Connection pooling via [src/lib/db.ts](mdc:src/lib/db.ts)
-- Proper error handling and logging
-- Environment validation on startup
+## Logging
 
-## 🚫 **Avoid**
+Use the `logger` singleton from `src/core/logger.ts`; `no-console` is a lint warning and the logger is the sanctioned `console` boundary. Include a context tag:
 
-- ❌ `console.log` statements (use logger)
-- ❌ Magic numbers (use constants)
-- ❌ Direct `fetch()` calls (use API client)
-- ❌ Hardcoded values (use constants)
-- ❌ `any` types (use proper interfaces)
-- ❌ Fixed width/height on SVGs without preserveAspectRatio
+```typescript
+import { logger } from '@/core/logger';
+logger.error('Neon Auth session check failed', e, 'AUTH');
+```
 
+Errors and warnings are always emitted (including in production); info/debug are dev-only.
+
+## Internationalization
+
+`next-intl` with locales `uz` (default), `ru`, `en`. Message catalogs are `src/messages/{uz,ru,en}.json`; request config is `src/core/i18n.ts`; routing/redirect middleware is `src/proxy.ts`. Validate locales with `isValidLocale` / `validateLocale` from `src/core/auth.ts`. Related-locale posts are linked by `generationGroupId`.
+
+## Admin auth
+
+Guard admin route handlers with `requireAdmin` from `src/core/auth.ts`. It authorizes **either** a Neon Auth session whose user has the `admin` role **or** a `Bearer ${API_SECRET}` header (machine callers). Browser admin calls should go through `adminFetch` (`src/modules/admin/utils/adminFetch.ts`), which sends the session cookie and reloads on 401.
+
+## Environment variables
+
+Validated at startup in `src/core/env.ts`. Only `DATABASE_URL` is required; the rest are optional and degrade gracefully.
+
+| Var | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | yes | Neon Postgres connection |
+| `NEXT_PUBLIC_BASE_URL` | no (defaults to `https://softwhere.uz`) | Base URL for internal calls (`ENV.BASE_URL`) |
+| `MOONSHOT_API_KEY` (or `KIMI_API_KEY`) | no | Kimi K2.6 — primary AI provider |
+| `DEEPSEEK_API_KEY` | no | DeepSeek — AI fallback |
+| `API_SECRET` | no | Bearer auth for admin/generation endpoints |
+| `NEON_AUTH_BASE_URL`, `NEON_AUTH_COOKIE_SECRET` | no | Neon Auth admin login (gate fails closed if unset) |
+| `UNSPLASH_ACCESS_KEY` | no | Blog cover images |
+| `EXCHANGERATE_API_KEY` | no | Currency rates for the estimator |
+| `NEXT_PUBLIC_TG_BOT_TOKEN`, `NEXT_PUBLIC_TG_CHAT_ID` | no | Telegram contact-form notifications |
+
+> `env.example` is partially stale: it predates `MOONSHOT_API_KEY`, `NEON_AUTH_*`, and `EXCHANGERATE_API_KEY`. Treat `src/core/env.ts` as the source of truth.
+
+## Avoid
+
+- Importing `@/core/db` / Drizzle anywhere outside a repository.
+- `console.*` — use `logger`.
+- Inline `fetch` when a module `api` wrapper or `apiClient` covers the call.
+- `MONGODB_URI`, `src/utils/api.ts`, `src/lib/db.ts`, `src/constants/`, `src/types/` — none exist.
+- New cross-layer imports that violate the boundary rules.
+
+## Related docs
+- [project-structure.mdc](./project-structure.mdc)
+- [api-migration.mdc](./api-migration.mdc)
+- [Environment](../../docs/environment.md)
+- [Auth & admin](../../docs/auth-and-admin.md)
+- [Blog pipeline](../../docs/blog-pipeline.md)
+
+_Last verified against code: 2026-07-03._
