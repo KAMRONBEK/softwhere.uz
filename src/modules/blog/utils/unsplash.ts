@@ -213,10 +213,12 @@ export async function getCoverImageForTopic(title: string, keywordHint?: string)
 /**
  * Fetches multiple images for inline use in a blog post.
  * Uses provided imageHints as keywords, falls back to AI-generated keywords.
+ * Pass the chosen cover URL as `excludeUrl` so the hero photo is never reused
+ * as an in-body illustration (live posts repeated it right below the hero).
  */
-export async function getImagesForPost(imageHints: string[], fallbackTitle: string): Promise<ICoverImage[]> {
+export async function getImagesForPost(imageHints: string[], fallbackTitle: string, excludeUrl?: string): Promise<ICoverImage[]> {
   const images: ICoverImage[] = [];
-  const usedUrls = new Set<string>();
+  const usedUrls = new Set<string>(excludeUrl ? [excludeUrl] : []);
   const hints =
     imageHints.length > 0
       ? [...imageHints, `${extractFallbackKeyword(fallbackTitle)} technology`]

@@ -10,9 +10,12 @@ const MAX_ATTEMPTS = 2;
 // ~1.0 for analysis/JSON.
 const KIMI_TEMPERATURE = 0.6;
 const DEFAULT_TEMPERATURE = 0.6;
-// Both Kimi and DeepSeek truncate silently at their completion cap, so blog
-// bodies get a generous budget (Kimi K2.6 allows far more; DeepSeek caps 8K).
-const BLOG_MAX_TOKENS = 8000;
+// Blog bodies get a deliberately generous completion budget: the previous
+// 8000 hard cap was itself what truncated live UZ posts mid-word. Verified
+// July 2026: Kimi K2.6 allows up to ~256K-minus-prompt output and DeepSeek V4
+// (flash and pro) up to 384K, so 32K costs nothing extra unless used and no
+// realistic post ever hits it. Env-overridable.
+const BLOG_MAX_TOKENS = Number(process.env.BLOG_MAX_TOKENS) || 32_000;
 // Server-side $web_search rounds are bounded so a runaway tool loop can't
 // spend unbounded searches ($0.005 each) or wall-clock.
 const MAX_SEARCH_ROUNDS = 6;
@@ -45,6 +48,12 @@ const DEEPSEEK: Provider = {
   apiKey: process.env.DEEPSEEK_API_KEY,
   model: process.env.AI_FALLBACK_MODEL || 'deepseek-v4-flash',
 };
+
+// Long-form quality tier: blog bodies on the DeepSeek path use V4 Pro (the
+// stronger writer; ~$0.87/M output after the 2026-05-31 price cut — fractions
+// of a cent per post). Flash stays the default for latency-sensitive JSON
+// calls (the estimator's 60s budget) and utility prompts.
+const DEEPSEEK_PRO_MODEL = process.env.AI_FALLBACK_PRO_MODEL || 'deepseek-v4-pro';
 
 /** Configured providers in preference order (Kimi, then DeepSeek by default).
  *  `prefer` moves the named provider to the front when it is configured —
@@ -155,6 +164,8 @@ interface GenOptions {
   firstOnly?: boolean;
   /** Try this provider first (falls back to the rest of the chain). */
   prefer?: ProviderName;
+  /** Long-form quality tier: DeepSeek calls use V4 Pro instead of Flash. */
+  quality?: boolean;
 }
 
 /** Per-provider temperature: Kimi is pinned to its fixed default; DeepSeek
@@ -170,7 +181,11 @@ function temperatureFor(provider: Provider, requested?: number): number {
  * provider on quota/error. Returns the text (and which provider produced it)
  * or null when everything is exhausted.
  */
-async function generate(prompt: string, label: string, opts: GenOptions): Promise<{ text: string; provider: string } | null> {
+async function generate(
+  prompt: string,
+  label: string,
+  opts: GenOptions
+): Promise<{ text: string; provider: string; finishReason: string | null } | null> {
   let providers = providerChain(opts.prefer);
   if (opts.firstOnly) providers = providers.slice(0, 1);
   if (providers.length === 0) {
@@ -209,7 +224,7 @@ async function generate(prompt: string, label: string, opts: GenOptions): Promis
               : {};
         const completion = await clientFor(p).chat.completions.create(
           {
-            model: p.model,
+            model: p.name === 'deepseek' && opts.quality ? DEEPSEEK_PRO_MODEL : p.model,
             messages,
             temperature: temperatureFor(p, opts.temperature),
             ...responseFormat,
@@ -221,8 +236,12 @@ async function generate(prompt: string, label: string, opts: GenOptions): Promis
           } as unknown as OpenAI.ChatCompletionCreateParamsNonStreaming,
           { timeout: opts.timeout ?? 120_000, maxRetries: 0 }
         );
-        const text = completion.choices[0]?.message?.content ?? null;
-        if (text) return { text, provider: p.name };
+        const choice = completion.choices[0];
+        const text = choice?.message?.content ?? null;
+        // finish_reason 'length' means the completion cap truncated the output
+        // mid-stream — callers (the blog pipeline) use it to trigger a
+        // continuation instead of silently publishing a cut-off post.
+        if (text) return { text, provider: p.name, finishReason: choice?.finish_reason ?? null };
         break; // empty response — try the next provider
       } catch (error) {
         if (isQuotaError(error)) {
@@ -245,27 +264,34 @@ export interface GenerateExtras {
   temperature?: number;
   /** Provider to try first, e.g. 'deepseek' for Uzbek content. */
   prefer?: ProviderName;
+  /** Quality tier: DeepSeek calls use V4 Pro instead of Flash. The whole blog
+   *  pipeline sets this (owner decision 2026-07: quality over latency there);
+   *  the estimator stays on Flash for its 60s budget. */
+  quality?: boolean;
 }
 
 /** Quota-aware text generation with provider fallback. Blog bodies (label
  *  starts with 'blog-') get sanitized and a generous default token budget.
- *  Returns the text and which provider produced it. */
+ *  Returns the text, which provider produced it, and the finish reason
+ *  ('length' = truncated at the completion cap). */
 export async function generateContentWithProvider(
   prompt: string,
   label: string,
   maxTokens?: number,
   system?: string,
   extras?: GenerateExtras
-): Promise<{ text: string; provider: string } | null> {
+): Promise<{ text: string; provider: string; finishReason: string | null } | null> {
   const isContent = label.startsWith('blog-');
   const res = await generate(prompt, label, {
     system,
     maxTokens: maxTokens ?? (isContent ? BLOG_MAX_TOKENS : undefined),
-    // A full 8K-token body takes K2.6 well over the default 120s (measured
-    // live); short-changing the timeout fails every long draft.
+    // A full blog body takes K2.6 well over the default 120s (measured live);
+    // short-changing the timeout fails every long draft.
     timeout: isContent ? 300_000 : undefined,
     temperature: extras?.temperature,
     prefer: extras?.prefer,
+    // Blog bodies always ride the quality tier (DeepSeek V4 Pro on that path).
+    quality: isContent || extras?.quality,
   });
   if (!res) return null;
   return isContent ? { ...res, text: sanitizeContent(res.text) } : res;
@@ -291,7 +317,14 @@ export async function safeGenerateJSON(
   system?: string,
   extras?: GenerateExtras
 ): Promise<string | null> {
-  const res = await generate(prompt, label, { system, json: true, maxTokens, temperature: extras?.temperature, prefer: extras?.prefer });
+  const res = await generate(prompt, label, {
+    system,
+    json: true,
+    maxTokens,
+    temperature: extras?.temperature,
+    prefer: extras?.prefer,
+    quality: extras?.quality,
+  });
   return res?.text ?? null;
 }
 
