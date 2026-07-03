@@ -1,0 +1,82 @@
+name: Backfill Lost Posts
+
+# One-time recovery of the pre-Neon blog posts that still hold Google/Yandex
+# demand but now 404 (see scripts/backfill-lost-posts.ts + scripts/data/lost-topics.json).
+#
+# "Apply and go home": this runs entirely on GitHub — no local machine needed.
+# It recovers a small batch every hour (staying under the Unsplash Demo budget
+# of 50 req/hr; ~5 req/topic), skips topics already done, and DISABLES its own
+# schedule once every topic is recovered. Re-enable + dispatch to run again.
+on:
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Topics per run. Unsplash Demo = 50 req/hr, ~5 req/topic → keep <= 8.'
+        required: false
+        type: string
+        default: '4'
+      dryRun:
+        description: 'List the next topics without generating.'
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    # Hourly at :42 — off the top of the hour (GitHub delays :00 schedules) and
+    # away from generate-post.yml's :17 runs, so the two never stack Unsplash usage.
+    - cron: '42 * * * *'
+
+# Never overlap a previous backfill run (protects the shared Unsplash budget).
+concurrency:
+  group: backfill-lost-posts
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write # self-disable the schedule when the backlog is empty
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    # Must have NO required reviewers / wait timers or a scheduled run would hang.
+    environment: Production
+    # A batch of 4 topics × 3 locales (deep pipeline + research) fits comfortably.
+    timeout-minutes: 150
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Backfill a batch
+        id: run
+        timeout-minutes: 140
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          INPUT_COUNT: ${{ github.event.inputs.count }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dryRun }}
+        run: |
+          DRY=""
+          if [ "$INPUT_DRY_RUN" = "true" ]; then DRY="--dry-run"; fi
+          npx tsx scripts/backfill-lost-posts.ts --limit "${INPUT_COUNT:-4}" $DRY
+
+      - name: Disable the schedule when the backlog is empty
+        if: steps.run.outputs.done == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "All lost topics recovered — disabling the hourly schedule."
+          gh api -X PUT "repos/$GITHUB_REPOSITORY/actions/workflows/backfill-lost-posts.yml/disable" \
+            || echo "::warning::Could not auto-disable — disable 'Backfill Lost Posts' manually in the Actions tab."

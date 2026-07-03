@@ -65,6 +65,22 @@ const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Pr
   }
 });
 
+// Legacy-URL recovery: when a slug isn't found, an old pre-Neon URL of the form
+// `<root>-<timestamp>` whose root matches a live post 301s to that post instead
+// of 404ing — preserving the accumulated search authority of the old URL.
+// Returns the redirect path, or null when there is no live post to recover to.
+async function legacyRedirectTarget(locale: string, rawSlug: string): Promise<string | null> {
+  let slug = rawSlug;
+  try {
+    slug = decodeURIComponent(rawSlug);
+  } catch {
+    /* keep the raw slug */
+  }
+  const canonical = await getCanonicalPostForLocale(locale, slug);
+  if (!canonical || canonical.slug === slug) return null;
+  return `/${canonical.locale}/blog/${encodeURIComponent(canonical.slug)}`;
+}
+
 const getGroupSiblings = cache(async (generationGroupId: string): Promise<PostLocaleSlug[]> => {
   try {
     return await postsRepo.getGroupSiblings(generationGroupId);
@@ -106,6 +122,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   if (!post) {
+    // Recover legacy `<root>-<timestamp>` URLs with a 301 before giving up.
+    const target = await legacyRedirectTarget(locale, slug);
+    if (target) permanentRedirect(target);
     // Throw notFound() HERE, not only in the page body: metadata resolves
     // before the response shell flushes, so this yields a real HTTP 404.
     // The page body's notFound() fires mid-stream and produces a soft 404
@@ -237,6 +256,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const tCat = await getTranslations('blog.categories');
 
   if (!post) {
+    // Recover legacy `<root>-<timestamp>` URLs with a 301 before 404ing.
+    const target = await legacyRedirectTarget(locale, slug);
+    if (target) permanentRedirect(target);
     notFound();
   }
 
