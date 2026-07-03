@@ -220,7 +220,6 @@ ${content}
     const rawCritique = await safeGenerateJSON(critique.user, `blog-critique-${locale}`, 1500, critique.system, {
       prefer: critic,
       temperature: 1.0,
-      quality: true,
     });
     const critiqueIssues = parseCritique(rawCritique);
     if (critiqueIssues.length > 0) {

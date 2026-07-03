@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
         );
       } else if (customTopic) {
         const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${customTopic}"`;
-        const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize', 100, undefined, { quality: true });
+        const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize', 100);
         const topicTitle = normalized ? normalized.trim().replace(/^"|"$/g, '') : customTopic;
 
         selectedTopic = {

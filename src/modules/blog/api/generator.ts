@@ -112,7 +112,7 @@ Return JSON:
 
 Pick the category that best matches how Softwhere.uz would cover this topic. Security/hacking → cybersecurity. AI news → ai-solutions. App news → mobile-app-development. Etc.`;
 
-  const result = await safeGenerateJSON(prompt, 'source-classify', 600, undefined, { quality: true });
+  const result = await safeGenerateJSON(prompt, 'source-classify', 600);
 
   if (result) {
     try {
@@ -617,7 +617,7 @@ Output ONLY the corrected, complete Markdown post (starting with the H1). No com
 export async function generateMetaDescription(title: string, primaryKeyword: string, locale: string): Promise<string> {
   const prompt = `Write a 150-160 character meta description for a blog post titled "${title}". Include the keyword "${primaryKeyword}". Make it compelling and action-oriented. Write in ${LANG_NAME[locale] ?? 'English'}. Return ONLY the meta description.`;
 
-  const result = await safeGenerateContent(prompt, `meta-desc-${locale}`, 200, undefined, { quality: true });
+  const result = await safeGenerateContent(prompt, `meta-desc-${locale}`, 200);
   // Google truncates around ~160 chars; clamp on a word/sentence boundary
   // instead of shipping a mid-word cut into the SERP snippet.
   if (result) return clampMeta(result.trim().replace(/^"|"$/g, ''));
@@ -650,7 +650,7 @@ English metaDescription: "${en.metaDescription}"
 English primaryKeyword: "${en.primaryKeyword}"
 English secondaryKeywords: ${JSON.stringify(en.secondaryKeywords)}`;
 
-  const raw = await safeGenerateJSON(prompt, `localize-meta-${locale}`, 500, undefined, { quality: true });
+  const raw = await safeGenerateJSON(prompt, `localize-meta-${locale}`, 500);
   if (raw) {
     try {
       const p = JSON.parse(raw);

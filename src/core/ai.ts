@@ -46,14 +46,11 @@ const DEEPSEEK: Provider = {
   // The legacy 'deepseek-chat' alias is discontinued in late July 2026;
   // 'deepseek-v4-flash' is what it currently maps to (launched 2026-04-24).
   apiKey: process.env.DEEPSEEK_API_KEY,
-  model: process.env.AI_FALLBACK_MODEL || 'deepseek-v4-flash',
+  // V4 Pro everywhere (owner decision 2026-07: best quality, cost is
+  // negligible at ~$0.87/M output post-May price cut). Set AI_FALLBACK_MODEL
+  // to 'deepseek-v4-flash' to trade quality for latency again.
+  model: process.env.AI_FALLBACK_MODEL || 'deepseek-v4-pro',
 };
-
-// Long-form quality tier: blog bodies on the DeepSeek path use V4 Pro (the
-// stronger writer; ~$0.87/M output after the 2026-05-31 price cut — fractions
-// of a cent per post). Flash stays the default for latency-sensitive JSON
-// calls (the estimator's 60s budget) and utility prompts.
-const DEEPSEEK_PRO_MODEL = process.env.AI_FALLBACK_PRO_MODEL || 'deepseek-v4-pro';
 
 /** Configured providers in preference order (Kimi, then DeepSeek by default).
  *  `prefer` moves the named provider to the front when it is configured —
@@ -164,8 +161,6 @@ interface GenOptions {
   firstOnly?: boolean;
   /** Try this provider first (falls back to the rest of the chain). */
   prefer?: ProviderName;
-  /** Long-form quality tier: DeepSeek calls use V4 Pro instead of Flash. */
-  quality?: boolean;
 }
 
 /** Per-provider temperature: Kimi is pinned to its fixed default; DeepSeek
@@ -224,7 +219,7 @@ async function generate(
               : {};
         const completion = await clientFor(p).chat.completions.create(
           {
-            model: p.name === 'deepseek' && opts.quality ? DEEPSEEK_PRO_MODEL : p.model,
+            model: p.model,
             messages,
             temperature: temperatureFor(p, opts.temperature),
             ...responseFormat,
@@ -264,10 +259,6 @@ export interface GenerateExtras {
   temperature?: number;
   /** Provider to try first, e.g. 'deepseek' for Uzbek content. */
   prefer?: ProviderName;
-  /** Quality tier: DeepSeek calls use V4 Pro instead of Flash. The whole blog
-   *  pipeline sets this (owner decision 2026-07: quality over latency there);
-   *  the estimator stays on Flash for its 60s budget. */
-  quality?: boolean;
 }
 
 /** Quota-aware text generation with provider fallback. Blog bodies (label
@@ -290,8 +281,6 @@ export async function generateContentWithProvider(
     timeout: isContent ? 300_000 : undefined,
     temperature: extras?.temperature,
     prefer: extras?.prefer,
-    // Blog bodies always ride the quality tier (DeepSeek V4 Pro on that path).
-    quality: isContent || extras?.quality,
   });
   if (!res) return null;
   return isContent ? { ...res, text: sanitizeContent(res.text) } : res;
@@ -323,7 +312,6 @@ export async function safeGenerateJSON(
     maxTokens,
     temperature: extras?.temperature,
     prefer: extras?.prefer,
-    quality: extras?.quality,
   });
   return res?.text ?? null;
 }

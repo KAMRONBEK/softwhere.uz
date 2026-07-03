@@ -246,9 +246,7 @@ async function main() {
     const normalized = await safeGenerateContent(
       `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${opts.customTopic}"`,
       'topic-normalize',
-      100,
-      undefined,
-      { quality: true }
+      100
     );
     const title = normalized ? normalized.trim().replace(/^"|"$/g, '') : opts.customTopic;
     topic = {
