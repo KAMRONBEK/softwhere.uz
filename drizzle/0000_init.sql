@@ -30,3 +30,17 @@ CREATE UNIQUE INDEX IF NOT EXISTS "blog_posts_locale_slug_uq" ON "blog_posts" ("
 CREATE INDEX IF NOT EXISTS "blog_posts_status_locale_created_idx" ON "blog_posts" ("status", "locale", "created_at");
 CREATE INDEX IF NOT EXISTS "blog_posts_category_locale_status_created_idx" ON "blog_posts" ("category", "locale", "status", "created_at");
 CREATE INDEX IF NOT EXISTS "blog_posts_group_idx" ON "blog_posts" ("generation_group_id");
+
+-- `leads` — contact-form submissions (durable system of record; the Telegram
+-- notification is a side-channel tracked by "notified_telegram").
+CREATE TABLE IF NOT EXISTS "leads" (
+  "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "name" text NOT NULL,
+  "phone" text NOT NULL,
+  "message" text,
+  "source" text,
+  "notified_telegram" text DEFAULT 'pending' NOT NULL,
+  "created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS "leads_created_idx" ON "leads" ("created_at");
