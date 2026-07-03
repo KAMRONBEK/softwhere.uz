@@ -46,7 +46,7 @@ export const CONTACT_INFO = {
 
 // Social Links
 export const SOCIAL_LINKS = {
-  TELEGRAM: 'https://t.me/softwhere_uz',
+  TELEGRAM: 'https://t.me/softwhereuz',
   INSTAGRAM: 'https://instagram.com/softwhere.uz',
 } as const;
 
