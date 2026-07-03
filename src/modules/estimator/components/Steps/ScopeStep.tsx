@@ -1,77 +1,110 @@
 'use client';
 
-import { SERVICE_TYPES } from '@/modules/estimator/data/estimator-options';
-import type { Complexity, ProjectType } from '@/modules/estimator/types';
+import { MOBILE_FACTOR } from '@/modules/estimator/constants';
+import { getSubtype, hasScreens } from '@/modules/estimator/data/catalog';
+import type { EstimatorInput, MobileApproach, Platform, Tier } from '@/modules/estimator/types';
 import { useTranslations } from 'next-intl';
+import { SelectCard, StepLabel } from '../ui';
 
-type ScopeStepProps = {
-  projectType: ProjectType;
-  selectedComplexity: Complexity;
-  selectedSubtype?: string;
-  onComplexityChange: (c: Complexity) => void;
-  onSubtypeChange?: (s: string) => void;
+type Props = {
+  input: EstimatorInput;
+  onTogglePlatform: (platform: Platform) => void;
+  onApproachChange: (approach: MobileApproach) => void;
+  onTierChange: (tier: Tier) => void;
+  onScreensChange: (screens: number) => void;
 };
 
-const COMPLEXITIES: { id: Complexity; labelKey: string }[] = [
-  { id: 'mvp', labelKey: 'complexity.mvp' },
-  { id: 'standard', labelKey: 'complexity.standard' },
-  { id: 'enterprise', labelKey: 'complexity.enterprise' },
-];
+const TIERS: Tier[] = ['mvp', 'standard', 'enterprise'];
 
-export default function ScopeStep({
-  projectType,
-  selectedComplexity,
-  selectedSubtype,
-  onComplexityChange,
-  onSubtypeChange,
-}: ScopeStepProps) {
+export default function ScopeStep({ input, onTogglePlatform, onApproachChange, onTierChange, onScreensChange }: Props) {
   const t = useTranslations('estimator');
-  const service = SERVICE_TYPES.find(s => s.id === projectType);
-  const subtypes = service?.subtypes?.filter(s => !['ios', 'android', 'both'].includes(s.id)) ?? [];
+  const tx = t as unknown as (key: string) => string;
+  const def = getSubtype(input.projectType, input.subtype);
+  const showScreens = hasScreens(input.projectType, input.subtype);
+  const isMobile = input.projectType === 'mobile';
+  const bothPlatforms = input.platforms.length !== 1;
+
+  const nativeExtra = Math.round(((bothPlatforms ? MOBILE_FACTOR.native_both : MOBILE_FACTOR.native_single) - 1) * 100);
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-7'>
+      {isMobile && (
+        <>
+          <div>
+            <StepLabel>{t('platformTitle')}</StepLabel>
+            <div className='grid grid-cols-2 gap-3 max-w-md'>
+              {(['ios', 'android'] as Platform[]).map(p => (
+                <SelectCard
+                  key={p}
+                  compact
+                  selected={input.platforms.includes(p)}
+                  onClick={() => onTogglePlatform(p)}
+                  icon={p === 'ios' ? '🍎' : '🤖'}
+                  title={p === 'ios' ? 'iOS' : 'Android'}
+                />
+              ))}
+            </div>
+            <p className='text-xs text-ember-muted mt-2'>{t('platformHint')}</p>
+          </div>
+
+          <div>
+            <StepLabel>{t('approachTitle')}</StepLabel>
+            <div className='grid md:grid-cols-2 gap-3'>
+              <SelectCard
+                selected={input.approach === 'cross'}
+                onClick={() => onApproachChange('cross')}
+                icon='🔀'
+                title={t('approach.cross')}
+                desc={t('approachDesc.cross')}
+                badge={t('recommended')}
+              />
+              <SelectCard
+                selected={input.approach === 'native'}
+                onClick={() => onApproachChange('native')}
+                icon='⚡'
+                title={t('approach.native')}
+                desc={`${t('approachDesc.native')} (+${nativeExtra}%)`}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
       <div>
-        <label className='block mb-2 font-display text-ember-text'>{t('scopeComplexity')}</label>
-        <div className='flex flex-wrap gap-3'>
-          {COMPLEXITIES.map(c => (
-            <button
-              key={c.id}
-              type='button'
-              aria-pressed={selectedComplexity === c.id}
-              className={`px-4 py-2 rounded-lg border text-ember-text transition-all ${
-                selectedComplexity === c.id
-                  ? 'border-ember-accent bg-[rgba(255,91,30,0.12)]'
-                  : 'hover:border-ember-accent bg-ember-surface border-ember-border'
-              }`}
-              onClick={() => onComplexityChange(c.id)}
-            >
-              {(t as (k: string) => string)(c.labelKey)}
-            </button>
+        <StepLabel hint={t('tierHint')}>{t('tierTitle')}</StepLabel>
+        <div className='grid md:grid-cols-3 gap-3'>
+          {TIERS.map(tier => (
+            <SelectCard
+              key={tier}
+              selected={input.tier === tier}
+              onClick={() => onTierChange(tier)}
+              icon={tier === 'mvp' ? '🌱' : tier === 'standard' ? '🚀' : '🏆'}
+              title={tx(`tier.${tier}`)}
+              desc={tx(`tierDesc.${tier}`)}
+            />
           ))}
         </div>
       </div>
 
-      {subtypes.length > 0 && onSubtypeChange && (
+      {showScreens && (
         <div>
-          <label className='block mb-2 font-display text-ember-text'>{t('scopeSubtype')}</label>
-          <div className='flex flex-wrap gap-3'>
-            {subtypes.map(s => (
-              <button
-                key={s.id}
-                type='button'
-                aria-pressed={selectedSubtype === s.id}
-                className={`px-4 py-2 rounded-lg border text-ember-text transition-all ${
-                  selectedSubtype === s.id
-                    ? 'border-ember-accent bg-[rgba(255,91,30,0.12)]'
-                    : 'hover:border-ember-accent bg-ember-surface border-ember-border'
-                }`}
-                onClick={() => onSubtypeChange(s.id)}
-              >
-                {(t as (k: string) => string)(s.labelKey)}
-              </button>
-            ))}
+          <StepLabel hint={t('screensHint')}>{t('screensTitle')}</StepLabel>
+          <div className='flex items-center gap-4'>
+            <input
+              id='screens'
+              type='range'
+              min={1}
+              max={def.maxScreens}
+              value={input.screens}
+              aria-label={t('screensTitle')}
+              className='w-full accent-[color:var(--accent)]'
+              onChange={e => onScreensChange(Number(e.target.value))}
+            />
+            <div className='shrink-0 w-16 text-center rounded-xl border border-ember-border bg-ember-surface py-1.5 font-display font-bold text-ember-accent'>
+              {input.screens}
+            </div>
           </div>
+          <p className='text-xs text-ember-muted mt-2'>{t('screensIncluded', { count: def.includedScreens })}</p>
         </div>
       )}
     </div>

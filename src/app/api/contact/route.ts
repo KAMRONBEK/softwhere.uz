@@ -35,7 +35,9 @@ export async function POST(request: NextRequest) {
     try {
       leadId = await createLead({ name: leadName, phone: leadPhone, message: leadMessage, source: leadSource });
     } catch (e) {
-      logger.error('Failed to store lead', e, 'CONTACT');
+      // Don't pass the raw driver error to the logger: drizzle attaches the
+      // bound INSERT params (name/phone — PII) to the wrapped error.
+      logger.error('Failed to store lead', e instanceof Error ? e.message : 'unknown error', 'CONTACT');
       return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
     }
 

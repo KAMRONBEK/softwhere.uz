@@ -1,107 +1,91 @@
-/** Hourly rate for quality agencies in UZ/KZ/RU */
-export const HOURLY_RATE = 35;
+/**
+ * Pricing model v2 — calibrated to the Central Asia market (July 2026 research).
+ *
+ * Market anchors (Tashkent quality-agency band):
+ *   · Clutch UZ list rates $25–49/hr are export-facing; effective local rates
+ *     for quality agencies are $10–20/hr (median dev salary ≈ $745/mo ⇒
+ *     fully-loaded ≈ $5–6/hr; IT Park residents pay 0% profit/VAT/social tax,
+ *     so $14/hr blended keeps a healthy margin while beating the old $35/hr
+ *     model that overpriced local work 3–5×).
+ *   · Fixed-price sanity targets: landing $300–700 · corporate $800–1,500 ·
+ *     e-commerce $1.2–3k · Telegram order bot $400–700 · Mini App $0.9–3k ·
+ *     mobile MVP $3–8k · custom CRM $5–10k.
+ */
 
-/** Seniority hourly rates (USD) for reference */
-export const SENIORITY_RATES = {
-  senior: [18, 28],
-  middle: [9, 18],
-  junior: [4, 9],
+/** Effective blended hourly rate (design+dev+QA+PM averaged), USD. */
+export const BLENDED_RATE = 14;
+
+/** Tier scales scope depth: QA rigor, edge cases, polish, documentation. */
+export const TIER_MULTIPLIER = {
+  mvp: 1.0,
+  standard: 1.4,
+  enterprise: 2.0,
 } as const;
 
-export const ESTIMATOR = {
-  // Base hours per project type (core structure, navigation, setup)
-  BASE_HOURS: {
-    mobile: 200,
-    web: 250,
-    telegram: 150,
-    ai: 250,
-    desktop: 300,
-    other: 200,
-  } as Record<string, number>,
-
-  // Hours per optional feature — keys from estimator-options
-  FEATURE_HOURS: {
-    camera: 35,
-    gps: 22,
-    notifications: 17,
-    payments: 300, // Stripe, Braintree
-    payments_regional: 250, // Payme, Click, Uzum, YooKassa, SberPay, etc.
-    chat: 28,
-    offline: 200,
-    video: 300,
-    biometric: 14,
-    auth: 22,
-    cms: 34,
-    search: 17,
-    analytics: 14,
-    blog: 11,
-    multilang: 20,
-    api: 28,
-    inline_keyboard: 11,
-    webhooks: 14,
-    miniapp: 57,
-    llm: 57,
-    rag: 71,
-    embeddings: 42,
-    finetuning: 114,
-    api_integration: 34,
-    autoupdate: 17,
-    installer: 11,
-    tray: 8,
-    cloud_sync: 28,
-    consulting: 14,
-  } as Record<string, number>,
-
-  // Hours per screen/page (13 screens ≈ 195h; base 200h = core structure)
-  PAGE_HOURS: 15,
-
-  // Multiplier applied based on project complexity
-  COMPLEXITY_MULTIPLIER: {
-    mvp: 1,
-    standard: 1.5,
-    enterprise: 2,
-  },
-
-  // Additional adjustment by tech-stack choice (percentage factor)
-  TECH_STACK_ADJUSTMENT: {
-    ios_native: 1.15,
-    android_native: 1.15,
-    swift_kotlin: 1.15,
-    flutter: 0.95,
-    react_native: 1,
-    dotnet_maui: 1.05,
-    nextjs: 1,
-    remix: 1,
-    nuxt: 1,
-    react_vite: 0.98,
-    vue: 0.98,
-    angular: 1.1,
-    nestjs: 1.1,
-    express: 1,
-    fastapi: 1,
-    django: 1.05,
-    go_gin: 1.05,
-    dotnet: 1.1,
-    rails: 1,
-    laravel: 1,
-    langchain: 1.05,
-    openai_api: 1,
-    electron: 1,
-    tauri: 0.95,
-    postgresql: 1,
-    mongodb: 1,
-    redis: 1.02,
-    supabase: 0.95,
-    firebase: 0.98,
-  } as Record<string, number>,
-
-  // Support rate applied to dev cost (percentage) — first year
-  SUPPORT_RATE: 0.1,
-
-  // Hours per dev week (for deadline calc); parallel iOS+Android ≈ 75h/week (16 weeks for 1200h)
-  HOURS_PER_WEEK_SINGLE: 40,
-  HOURS_PER_WEEK_PARALLEL: 75,
+/** Design scope multiplier (client-provided designs are cheaper, custom UI adds). */
+export const DESIGN_MULTIPLIER = {
+  ready: 0.92,
+  template: 1.0,
+  custom: 1.15,
 } as const;
 
-export type FeatureKey = keyof typeof ESTIMATOR.FEATURE_HOURS;
-export type TechnologyKey = keyof typeof ESTIMATOR.TECH_STACK_ADJUSTMENT;
+export const URGENCY_MULTIPLIER = {
+  flexible: 0.97,
+  normal: 1.0,
+  rush: 1.25,
+} as const;
+
+/**
+ * Urgency effect on the CALENDAR (cost uses URGENCY_MULTIPLIER above): rush
+ * buys a compressed schedule via parallel effort; flexible stretches it.
+ * Derived from pre-urgency hours so paying +25% never shows a LONGER deadline.
+ */
+export const URGENCY_WEEKS_FACTOR = {
+  flexible: 1.15,
+  normal: 1.0,
+  rush: 0.8,
+} as const;
+
+/** Extra UI language beyond the first (uz/ru/en is the regional norm). */
+export const EXTRA_LANGUAGE_FACTOR = 0.06;
+
+/**
+ * Mobile platform/approach factors. Base hours assume cross-platform (Flutter/
+ * RN) shipping to BOTH stores — the regional default. Native = per-platform
+ * codebases.
+ */
+export const MOBILE_FACTOR = {
+  cross_single: 0.94,
+  cross_both: 1.0,
+  native_single: 1.12,
+  native_both: 1.55,
+} as const;
+
+/** Spread applied to the point estimate to build the honest range. */
+export const RANGE_LOW = 0.85;
+export const RANGE_HIGH = 1.3;
+
+/** First-year support ≈ 10% of dev cost, shown as an optional monthly retainer. */
+export const SUPPORT_RATE_YEARLY = 0.1;
+export const SUPPORT_MONTHLY_MIN = 40;
+
+/**
+ * Delivery velocity in effective hours/week by project size (small teams work
+ * one stream; bigger budgets parallelize).
+ */
+export const VELOCITY = [
+  { maxHours: 120, hoursPerWeek: 30 },
+  { maxHours: 400, hoursPerWeek: 45 },
+  { maxHours: 900, hoursPerWeek: 70 },
+  { maxHours: Infinity, hoursPerWeek: 95 },
+] as const;
+
+export const MIN_WEEKS = 1;
+
+/** Server-side clamps for the AI refinement vs the formula estimate. */
+export const AI_CLAMP = {
+  costMinFactor: 0.6, // AI min may not go below 60% of formula min
+  costMaxFactor: 1.6, // AI max may not exceed 160% of formula max
+  weeksMinFactor: 0.5,
+  weeksMaxFactor: 2.0,
+} as const;

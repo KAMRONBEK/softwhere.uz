@@ -132,9 +132,21 @@ function sanitizeContent(text: string): string {
     .join('');
 }
 
+/** Strict structured-output schema (Kimi `response_format: json_schema`).
+ *  Must conform to MFJS (Moonshot-flavored JSON Schema): explicit `type` on
+ *  every property, no oneOf/allOf/format. DeepSeek doesn't support it, so the
+ *  provider chain degrades to plain json_object there — describe the fields in
+ *  the prompt too. */
+export interface JsonSchemaSpec {
+  name: string;
+  schema: Record<string, unknown>;
+}
+
 interface GenOptions {
   system?: string;
   json?: boolean;
+  /** Takes precedence over `json` on providers that support strict schemas (Kimi). */
+  jsonSchema?: JsonSchemaSpec;
   maxTokens?: number;
   /** Applied to DeepSeek only — Kimi K2.6 rejects non-default sampling. */
   temperature?: number;
@@ -183,12 +195,24 @@ async function generate(prompt: string, label: string, opts: GenOptions): Promis
     for (let attempt = 1; attempt <= attempts; attempt++) {
       aiStats.callAttempts++;
       try {
+        // Strict schema output is Kimi-only; DeepSeek degrades to json_object.
+        const responseFormat =
+          opts.jsonSchema && p.name === 'kimi'
+            ? {
+                response_format: {
+                  type: 'json_schema',
+                  json_schema: { name: opts.jsonSchema.name, strict: true, schema: opts.jsonSchema.schema },
+                },
+              }
+            : opts.json || opts.jsonSchema
+              ? { response_format: { type: 'json_object' as const } }
+              : {};
         const completion = await clientFor(p).chat.completions.create(
           {
             model: p.model,
             messages,
             temperature: temperatureFor(p, opts.temperature),
-            ...(opts.json && { response_format: { type: 'json_object' as const } }),
+            ...responseFormat,
             ...(opts.maxTokens && { max_tokens: opts.maxTokens }),
             // kimi-k2.6 defaults to thinking mode, which rejects any
             // temperature except 1 — plain generation must disable it
@@ -370,22 +394,33 @@ export async function generateWithWebSearch(
 }
 
 /**
- * JSON generation with a hard timeout and (by default) the primary provider
- * only + a single attempt — used by the estimator to keep its 60s cap. Falls
- * back to null on timeout/failure so the caller can use its formula.
+ * JSON generation with a hard timeout — used by the estimator to keep its 60s
+ * cap. Walks the provider chain (Kimi with strict json_schema when given,
+ * DeepSeek degrading to json_object) unless `firstOnly`. Falls back to null on
+ * timeout/failure so the caller can use its formula. Returns the provider name
+ * so callers can attribute the result.
  */
 export async function safeGenerateJSONWithTimeout(
   prompt: string,
   label: string,
-  options?: { timeout?: number; maxRetries?: number; maxTokens?: number; system?: string }
-): Promise<string | null> {
-  const res = await generate(prompt, label, {
+  options?: {
+    timeout?: number;
+    maxRetries?: number;
+    maxTokens?: number;
+    system?: string;
+    jsonSchema?: JsonSchemaSpec;
+    prefer?: ProviderName;
+    firstOnly?: boolean;
+  }
+): Promise<{ text: string; provider: string } | null> {
+  return generate(prompt, label, {
     system: options?.system,
     json: true,
+    jsonSchema: options?.jsonSchema,
     timeout: options?.timeout ?? 60_000,
     attempts: (options?.maxRetries ?? 0) + 1,
     maxTokens: options?.maxTokens,
-    firstOnly: true,
+    firstOnly: options?.firstOnly ?? true,
+    prefer: options?.prefer,
   });
-  return res?.text ?? null;
 }

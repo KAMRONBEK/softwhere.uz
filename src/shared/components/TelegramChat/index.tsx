@@ -18,6 +18,9 @@ export default function TelegramChat() {
 
   if (pathname?.includes('/admin')) return null;
 
+  // The estimator's mobile sticky bar owns the bottom edge there — float above it.
+  const bottomOffset = pathname?.includes('/estimator') ? 'bottom-24 lg:bottom-5' : 'bottom-5';
+
   return (
     <a
       href={SOCIAL_LINKS.TELEGRAM}
@@ -26,7 +29,7 @@ export default function TelegramChat() {
       aria-label={t('telegramCta')}
       title={t('telegramCta')}
       onClick={() => trackEvent('telegram_chat_click', { locale })}
-      className='fixed bottom-5 left-5 z-40 flex h-13 w-13 items-center justify-center rounded-full shadow-lg transition-transform duration-200 hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
+      className={`fixed ${bottomOffset} left-5 z-40 flex h-13 w-13 items-center justify-center rounded-full shadow-lg transition-transform duration-200 hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
       style={{ backgroundColor: '#229ED9', width: 52, height: 52 }}
     >
       {/* Telegram paper plane (inline — no icon dependency) */}
