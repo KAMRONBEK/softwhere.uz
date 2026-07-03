@@ -134,7 +134,7 @@ See `env.example` for setup. Never commit `.env.local` or real credentials.
 
 | Script | Description |
 |--------|--------------|
-| `yarn dev` | Start development server (pulls env from Vercel) |
+| `yarn dev` | Start development server (`next dev`) |
 | `yarn build` | Build for production |
 | `yarn start` | Start production server |
 | `yarn lint` | Run ESLint |
@@ -151,7 +151,8 @@ See `env.example` for setup. Never commit `.env.local` or real credentials.
 | Command | Description |
 |---------|-------------|
 | `npx tsx scripts/generate-post.ts [options]` | Generate blog post(s) and save to Neon Postgres |
-| `npx tsx scripts/regenerate-posts.ts [flags]` | Fix/heal blog posts (structure, dedup, images) |
+| `npx tsx scripts/regenerate-post.ts [flags]` | Regenerate/repair existing posts in place |
+| `npx tsx scripts/audit-posts.ts [flags]` | Read-only quality audit of published posts |
 
 **generate-post options:**
 
@@ -161,11 +162,9 @@ See `env.example` for setup. Never commit `.env.local` or real credentials.
 - `--sourceText <str>` — Raw text as source (max 5000 chars)
 - `--locales <list>` — Comma-separated (default: `en,ru,uz`)
 
-**regenerate-posts flags:**
-
-- `--dry-run` — Report issues without writing
-- `--analyze-only` — Only run analysis, print report
-- `--force` — Process all groups (even healthy ones)
+> Full, current flag lists for every script live in
+> [`docs/scripts.md`](docs/scripts.md); the GitHub Actions that run them are documented in
+> [`docs/ci-workflows.md`](docs/ci-workflows.md).
 
 ---
 
@@ -174,12 +173,14 @@ See `env.example` for setup. Never commit `.env.local` or real credentials.
 ```
 softwhere.uz/
 ├── .github/workflows/
-│   ├── generate-post.yml    # Weekly post generation (Mon 9 AM UTC)
-│   └── fix-posts.yml        # Manual fix/heal workflow
+│   ├── generate-post.yml    # Scheduled generation (06:17 & 18:17 UTC daily)
+│   ├── regenerate-post.yml  # Manual in-place post regeneration
+│   └── audit-posts.yml      # Monthly read-only quality audit
 ├── public/                  # Static assets
 ├── scripts/
 │   ├── generate-post.ts     # CLI blog post generator
-│   ├── regenerate-posts.ts  # Fix & heal posts
+│   ├── regenerate-post.ts   # Regenerate/repair posts in place
+│   ├── audit-posts.ts       # Read-only quality audit
 │   └── lib/
 │       ├── similarity.ts    # Duplicate detection
 │       └── post-structure.ts
@@ -213,6 +214,9 @@ softwhere.uz/
 
 > Layer import direction (`core → shared → modules → app`) is enforced by
 > `eslint-plugin-boundaries`. See [`docs/architecture.md`](docs/architecture.md).
+>
+> **📚 Full documentation index: [`docs/README.md`](docs/README.md)** — architecture, blog
+> pipeline, estimator, i18n, API reference, auth, deployment, SEO, MCP, testing, and ADRs.
 
 ---
 
@@ -247,17 +251,21 @@ softwhere.uz/
 
 ## 🤖 GitHub Actions
 
-### Generate Weekly Blog Post
+Three workflows automate the blog. Full detail — inputs, secrets, and what each commits — is in
+[`docs/ci-workflows.md`](docs/ci-workflows.md).
 
-- **Schedule**: Every Monday 9:00 UTC
+### Generate Blog Post (`generate-post.yml`)
+
+- **Schedule**: Twice daily at 06:17 and 18:17 UTC
 - **Manual**: `workflow_dispatch` with inputs (category, customTopic, sourceUrl, sourceText)
-- **Secrets**: Configure required repository secrets in GitHub
 
-### Fix Blog Posts
+### Regenerate Blog Posts (`regenerate-post.yml`)
 
-- **Trigger**: Manual only
-- **Inputs**: `mode` (dry-run | analyze-only | fix), `force` (boolean)
-- **Purpose**: Enforce structure, deduplicate, inject images
+- **Trigger**: Manual only — regenerates/repairs existing posts in place
+
+### Blog Audit (`audit-posts.yml`)
+
+- **Schedule**: Monthly, on the 1st at 07:07 UTC — read-only quality report
 
 ---
 

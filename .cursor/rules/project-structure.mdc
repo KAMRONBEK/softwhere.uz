@@ -1,61 +1,96 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-# Project Structure Guide
+# Project Structure
 
-## 🏗️ **Core Architecture**
+softwhere.uz is a Next.js 16 (App Router) multilingual marketing site, portfolio, AI-generated blog, cost estimator, and admin panel, written in TypeScript and organized into four enforced layers: `core` -> `shared` -> `modules` -> `app`.
 
-This is a Next.js project with internationalization (next-intl) and a comprehensive blog system with admin interface.
+## At a glance
 
-### **Key Entry Points**
-- Main homepage: [src/app/[locale]/page.tsx](mdc:src/app/[locale]/page.tsx)
-- Admin panel: [src/app/[locale]/admin/posts/page.tsx](mdc:src/app/[locale]/admin/posts/page.tsx)
-- Blog listing: [src/app/[locale]/blog/page.tsx](mdc:src/app/[locale]/blog/page.tsx)
-- Individual blog posts: [src/app/[locale]/blog/[slug]/page.tsx](mdc:src/app/[locale]/blog/[slug]/page.tsx)
+| Layer | Path | May import from | Holds |
+| --- | --- | --- | --- |
+| `core` | `src/core/**` | `core` only | Framework-agnostic infra: DB client, AI, HTTP client, auth, logger, env, i18n config, constants |
+| `shared` | `src/shared/**` | `core`, `shared` | Cross-feature UI (Header, Footer, sections), fonts, shared types/utils/data |
+| `modules` | `src/modules/*/**` | `core`, `shared`, own module | Feature slices: `admin`, `blog`, `contact`, `estimator` |
+| `app` | `src/app/**` | anything | Next.js routes, pages, layouts, API route handlers |
 
-### **Optimized Structure**
+The `@/*` path alias maps to `./src/*` (`tsconfig.json`). Layer rules are enforced by `eslint-plugin-boundaries` in `eslint.config.mjs` (see `development-guidelines.mdc`).
 
-#### **📁 Constants & Configuration**
-- [src/constants/index.ts](mdc:src/constants/index.ts) - Centralized configuration (API endpoints, UI settings, contact info)
-- [src/utils/env.ts](mdc:src/utils/env.ts) - Environment validation and configuration
+## `core/` infrastructure
 
-#### **📁 Type Definitions**
-- [src/types/index.ts](mdc:src/types/index.ts) - All TypeScript interfaces and types
+Every file under `src/core` is importable from any layer. Key modules:
 
-#### **📁 Utilities**
-- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Structured logging system
-- [src/utils/api.ts](mdc:src/utils/api.ts) - Centralized HTTP client with error handling
-- [src/lib/db.ts](mdc:src/lib/db.ts) - MongoDB connection with logging
+| File | Purpose |
+| --- | --- |
+| `src/core/db.ts` | Neon (serverless Postgres) via Drizzle's HTTP driver; exports a lazy `db` proxy |
+| `src/core/http.ts` | Generic `apiClient` HTTP client + `ApiResponse<T>` / `AppError` types |
+| `src/core/ai.ts` | AI generation over the OpenAI-compatible SDK (Kimi K2.6 primary, DeepSeek fallback) |
+| `src/core/auth.ts` | `requireAdmin` route guard (Neon Auth session OR `Bearer API_SECRET`), locale validators |
+| `src/core/neonAuth.ts` | Lazy Neon Auth (Better Auth) server instance via `getAuth()` |
+| `src/core/logger.ts` | Structured `logger` singleton (the sanctioned `console` boundary) |
+| `src/core/env.ts` | Startup env validation (`validateEnvironment`) |
+| `src/core/constants.ts` | App constants (`BLOG_CONFIG`, `UI_CONFIG`, `CONTACT_INFO`, `ENV`, ...) |
+| `src/core/i18n.ts` | next-intl `getRequestConfig` (locale resolution + message loading) |
+| `src/core/notify.ts` | Telegram notification helper |
 
-#### **📁 Data & Content**
-- [src/data/projects.ts](mdc:src/data/projects.ts) - Project portfolio data
+## Entry points
 
-#### **📁 Components**
-- [src/components/Header/index.tsx](mdc:src/components/Header/index.tsx) - Main navigation with scroll behavior
-- [src/components/sections/Projects/components/ProjectSlider/index.tsx](mdc:src/components/sections/Projects/components/ProjectSlider/index.tsx) - Project showcase slider
+### Pages (`src/app/[locale]/`)
+- Home: `src/app/[locale]/page.tsx` (composes `shared/components/sections/*`)
+- Blog listing: `src/app/[locale]/blog/page.tsx`
+- Blog post: `src/app/[locale]/blog/[slug]/page.tsx`
+- Estimator: `src/app/[locale]/estimator/page.tsx`
+- Admin posts: `src/app/[locale]/admin/posts/page.tsx` (plus `new/`, `edit/[postId]/`, `loading.tsx`)
+- Admin leads: `src/app/[locale]/admin/leads/page.tsx`
+- Layouts: `src/app/layout.tsx` (root), `src/app/[locale]/layout.tsx`, `src/app/[locale]/admin/layout.tsx`
 
-#### **📁 Assets & SVGs**
-- [public/favicon.svg](mdc:public/favicon.svg) - Site favicon
-- [public/icons/logo.svg](mdc:public/icons/logo.svg) - Main logo
-- All SVGs use `preserveAspectRatio="xMidYMid meet"` for consistent rendering
+### Non-page routes (`src/app/`)
+- SEO: `src/app/robots.ts`, `src/app/sitemap.ts`, `src/app/[locale]/feed.xml/route.ts`, `src/app/api/og/route.tsx`
 
-## 🔐 **Admin Access**
+### API route handlers (`src/app/api/`)
+- Blog: `blog/posts/route.ts`, `blog/posts/[slug]/route.ts`, `blog/posts/related/route.ts`, `blog/generate/route.ts`
+- Admin: `admin/posts/route.ts`, `admin/posts/[id]/route.ts`, `admin/leads/route.ts`, `admin/revalidate/route.ts`
+- Contact / estimator: `contact/route.ts`, `estimate/route.ts`, `estimate/lead/route.ts`, `currency/rates/route.ts`
+- Auth (Neon Auth catch-all): `auth/[...path]/route.ts`
+- Health: `health/route.ts`, `health/db/route.ts`
 
-Secret admin access via clicking top-left corner 5 times quickly within 3 seconds. Button appears for 10 seconds in top-right corner.
+## Modules (`src/modules/`)
 
-## 🌐 **Internationalization**
+Each feature slice keeps its own model/components/api/utils. A module may import `core`, `shared`, and only its **own** module.
 
-Supports 3 locales: `uz` (default), `ru`, `en`. Blog posts can be generated in multiple languages with shared `generationGroupId`.
+| Module | Notable contents |
+| --- | --- |
+| `blog` | `model/BlogPost.ts` (Drizzle schema), `model/posts.repository.ts` (DB access), `api/posts.ts` (client HTTP), `api/generator.ts` + `api/pipeline.ts` (server-only generation), `components/`, `data/`, `utils/`, `lib/seo.tsx` |
+| `contact` | `model/Lead.ts` (Drizzle schema), `model/leads.repository.ts` |
+| `estimator` | `api.ts` (client HTTP), `utils/estimator.ts` (formula), `data/catalog.ts`, `components/Wizard.tsx` + `Steps/`, `types.ts`, `constants.ts` |
+| `admin` | UI kit `components/Admin*.tsx`, `utils/adminFetch.ts`, `utils/authClient.ts`, `utils/markdown.ts` |
 
-## 📊 **Optimization Status**
+## Database tables
 
-Project has been comprehensively optimized following SOLID principles:
-- ✅ Constants centralization
-- ✅ Type safety enhancement  
-- ✅ Structured logging
-- ✅ API client standardization
-- ✅ Environment validation
-- ✅ Security improvements
-- ✅ SVG optimization for search engines
+Two Postgres tables, each defined as a Drizzle schema and reachable **only** through a repository (see `api-migration.mdc`):
+
+| Table | Schema | Repository |
+| --- | --- | --- |
+| `blog_posts` | `src/modules/blog/model/BlogPost.ts` | `src/modules/blog/model/posts.repository.ts` |
+| `leads` | `src/modules/contact/model/Lead.ts` | `src/modules/contact/model/leads.repository.ts` |
+
+Both schemas are registered in `drizzle.config.ts` for `yarn db:push` / `db:generate` / `db:studio`.
+
+## Internationalization
+
+Three locales — `uz` (default), `ru`, `en` — via next-intl. Config: `src/core/i18n.ts`; middleware: `src/proxy.ts` (www-stripping, `/` -> `/uz`, locale routing); messages: `src/messages/{uz,ru,en}.json`. Blog posts translated across locales share a `generationGroupId`.
+
+## Admin access
+
+The admin UI lives under `src/app/[locale]/admin/**` and is gated by `requireAdmin` (`src/core/auth.ts`): a Neon Auth session with the `admin` role, or a `Bearer ${API_SECRET}` header for machine callers.
+
+## Related docs
+- [development-guidelines.mdc](./development-guidelines.mdc)
+- [api-migration.mdc](./api-migration.mdc)
+- [Architecture overview](../../docs/architecture.md)
+- [Database](../../docs/database.md)
+- [Project README](../../README.md)
+
+_Last verified against code: 2026-07-03._

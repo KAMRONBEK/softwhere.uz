@@ -38,7 +38,8 @@ produced: `_id` (string), ISO-string `createdAt`/`updatedAt`, optional fields as
 
 3. **CI secret.** Add **`DATABASE_URL`** to the repo's GitHub Actions secrets so
    the scheduled generators (`.github/workflows/generate-post.yml`,
-   `fix-posts.yml`) can write. You can delete the old `MONGODB_URI` secret.
+   `regenerate-post.yml`, `audit-posts.yml`) can write. You can delete any old
+   `MONGODB_URI` secret.
 
 4. **Repopulate.** The migration started from an empty database. Go to
    `/admin/posts` → **Generate New Posts** (or run `yarn tsx scripts/generate-post.ts`)

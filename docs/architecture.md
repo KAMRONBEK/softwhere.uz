@@ -15,7 +15,7 @@ src/
 ├─ core/           # Framework-level, app-agnostic infra (single-file modules)
 │  ├─ env.ts       #   environment access
 │  ├─ logger.ts    #   logging façade
-│  ├─ db.ts        #   Mongoose connection
+│  ├─ db.ts        #   Neon/Drizzle client (Postgres) — see docs/database.md
 │  ├─ i18n.ts      #   next-intl bootstrap (referenced by next.config.mjs)
 │  ├─ ai.ts        #   LLM client
 │  ├─ http.ts      #   generic API client
@@ -32,7 +32,7 @@ src/
 │  ├─ blog/
 │  │   ├─ api/          # generator (calls core/ai, core/http)
 │  │   ├─ components/   # UI that belongs to the blog domain only
-│  │   ├─ model/        # Mongoose model + domain types
+│  │   ├─ model/        # Drizzle schema + repository + domain types
 │  │   ├─ data/         # seo-topics, post-blueprints
 │  │   ├─ context/      # React context
 │  │   └─ utils/
@@ -42,6 +42,8 @@ src/
 │  │   ├─ utils/
 │  │   ├─ constants.ts
 │  │   └─ types.ts
+│  ├─ contact/
+│  │   └─ model/        # Lead schema + leads repository
 │  └─ admin/
 │      ├─ components/
 │      └─ utils/
@@ -50,6 +52,11 @@ src/
 ├─ messages/       # next-intl locale bundles (en/ru/uz)
 └─ proxy.ts        # next-intl routing proxy (middleware)
 ```
+
+> **Datastore:** `core/db.ts` is a lazy Neon (serverless Postgres) client over
+> Drizzle's HTTP driver, and `modules/blog/model/` holds the Drizzle table
+> (`blog_posts`) plus its repository. See [database.md](./database.md) for the
+> schema, setup, and query layer.
 
 ### 1.1 Import Rules
 
@@ -120,8 +127,9 @@ switched to `error` and gated in CI.
 
 ### 3.3 Architecture Decision Records
 
-> **Not yet adopted.** There is no `docs/adr/` directory yet. Introduce one if/when
-> ADRs are needed.
+Load-bearing decisions are recorded as ADRs in [`docs/adr/`](./adr/), one file per
+decision (numbered `NNNN-*.md`) and indexed by [`docs/adr/README.md`](./adr/README.md).
+Supersede a changed decision with a new record rather than editing an accepted one.
 
 ---
 
@@ -130,7 +138,7 @@ switched to `error` and gated in CI.
 - ✅ ESLint boundaries installed and configured (`warn` mode).
 - ✅ `core/` carved out (`src/utils/*`, `src/lib/*`, `src/constants/*`, `src/i18n.ts`).
 - ✅ `shared/` extracted (non-domain components, utils, data, types).
-- ✅ `modules/{blog,estimator,admin}` carved out.
+- ✅ `modules/{blog,contact,estimator,admin}` carved out.
 - ⏳ Remove the §1.1 cross-layer couplings, then promote boundaries to `error`.
 
 ---
@@ -139,3 +147,10 @@ switched to `error` and gated in CI.
 
 - Clean Architecture – Robert C. Martin
 - eslint-plugin-boundaries – <https://github.com/javierbrea/eslint-plugin-boundaries>
+
+## Related docs
+
+- [database.md](./database.md) — Neon/Drizzle datastore, `blog_posts` schema, and the repository layer.
+- [../README.md](../README.md) — project overview and setup.
+
+_Last verified against code: 2026-07-03._
