@@ -35,7 +35,7 @@ const eslintConfig = [
   // Layered-architecture boundaries (core / shared / modules / app).
   // Severity is 'warn' (not 'error') so `yarn lint` stays at 0 errors while
   // still surfacing the pre-existing cross-layer couplings that the current
-  // file placement reveals (core/http -> shared & modules types, shared
+  // file placement reveals (core/db -> blog model schema, and shared
   // Header -> blog module). Those are real coupling debts to resolve later,
   // not config noise — promote to 'error' once they are removed.
   {

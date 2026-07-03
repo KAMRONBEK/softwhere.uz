@@ -6,7 +6,7 @@ name: Blog Audit
 on:
   workflow_dispatch:
   schedule:
-    # First Monday-ish of each month, 07:07 UTC — a low-noise health report.
+    # The 1st of each month, 07:07 UTC — a low-noise health report.
     - cron: '7 7 1 * *'
 
 concurrency:
