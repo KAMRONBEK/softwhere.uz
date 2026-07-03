@@ -1,0 +1,98 @@
+name: Regenerate Blog Posts
+
+# Manual-only: re-drafts the BODY of existing posts in place (same slug/URL/
+# status/images) through the deep pipeline with the EN sibling as anchor.
+# Built for the 2026-07 content review; safe to re-run — failed locales leave
+# their posts untouched, and every old row is uploaded as an artifact first.
+on:
+  workflow_dispatch:
+    inputs:
+      groups:
+        description: 'Comma-separated generationGroupIds to regenerate'
+        required: true
+        type: string
+      locales:
+        description: 'Locales to regenerate (en is used as the anchor for ru/uz; include it only to re-draft the EN post too)'
+        required: false
+        type: string
+        default: 'ru,uz'
+      dryRun:
+        description: 'Dry run: produce content as artifacts, no DB writes'
+        required: false
+        type: boolean
+        default: false
+
+# Never overlap the scheduled generator or another regeneration (shared DB +
+# provider quotas).
+concurrency:
+  group: generate-post
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write # notify-on-failure issue
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    environment: Production
+    # Worst case: 5 groups × (research ~5 min + 2 locales × deep pipeline
+    # (draft + revise + critique-revise + proofread) at a few minutes each).
+    timeout-minutes: 120
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Regenerate posts
+        timeout-minutes: 110
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Kimi K2.6 = primary provider + web-search grounding; DeepSeek V4
+          # Pro handles the UZ path and cross-model critique.
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          # Optional: Telegram summary + instant ISR cache bust.
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          INPUT_GROUPS: ${{ github.event.inputs.groups }}
+          INPUT_LOCALES: ${{ github.event.inputs.locales }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dryRun }}
+        run: |
+          npx tsx scripts/regenerate-post.ts \
+            --groups "$INPUT_GROUPS" \
+            --locales "$INPUT_LOCALES" \
+            ${INPUT_DRY_RUN:+--dryRun "$INPUT_DRY_RUN"}
+
+      - name: Upload backups of replaced rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regen-backups-${{ github.run_id }}
+          path: |
+            regen-backups/
+            regen-preview/
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Open issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Blog regeneration failed ($(date -u +%FT%H:%MZ))" \
+            --body "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          Failed locales left their posts untouched — re-dispatch with the same groups to retry." \
+            || echo "::warning::Could not create failure issue"
