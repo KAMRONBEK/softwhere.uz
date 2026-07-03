@@ -5,7 +5,7 @@ type EventMap = {
   language_switch: { from: string; to: string };
   blog_post_view: { slug: string; category?: string; locale: string; readingTime: number };
   blog_category_filter: { category: string };
-  cta_click: { type: 'get_started' | 'view_work'; slug: string };
+  cta_click: { type: 'get_started' | 'view_work' | 'estimate'; slug: string };
   faq_toggle: { question: string };
   project_view: { project: string };
   scroll_to_top: Record<string, never>;
