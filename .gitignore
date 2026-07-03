@@ -41,3 +41,7 @@ next-env.d.ts
 
 # Playwright MCP browser artifacts
 .playwright-mcp/
+
+# Blog regeneration working dirs (CI artifacts, never committed)
+regen-backups/
+regen-preview/
