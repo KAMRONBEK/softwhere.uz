@@ -78,7 +78,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 - Node.js 18+
 - Yarn
 - Neon (serverless Postgres) — free tier is fine
-- DeepSeek API key (for blog generation)
+- An AI API key for blog generation (Kimi/Moonshot primary, or DeepSeek) — optional
 
 ### Installation
 
@@ -103,13 +103,25 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 
    Edit `.env.local` with your values (see [Environment Variables](#-environment-variables)).
 
-4. **Run development server**
+4. **Set up the database**
+
+   Create the `blog_posts` and `leads` tables in your Neon database:
+
+   ```bash
+   yarn db:push
+   ```
+
+   > `drizzle-kit` reads **`.env`** (via `dotenv/config`), not `.env.local`. Put
+   > `DATABASE_URL` in `.env` for this step — or paste `drizzle/0000_init.sql`
+   > into the Neon SQL editor. See [`docs/database.md`](docs/database.md).
+
+5. **Run development server**
 
    ```bash
    yarn dev
    ```
 
-5. **Open** [http://localhost:3000](http://localhost:3000)
+6. **Open** [http://localhost:3000](http://localhost:3000)
 
 ---
 
