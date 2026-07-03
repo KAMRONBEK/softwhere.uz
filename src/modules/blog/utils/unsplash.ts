@@ -150,6 +150,14 @@ async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, '
     clearTimeout(timeoutId);
     unsplashLimiter.record();
 
+    // Surface the account's real hourly budget (Demo = 50/hr, Production =
+    // 1000/hr). Lets a bulk backfill confirm the ceiling and pace itself.
+    const rlLimit = response.headers.get('x-ratelimit-limit');
+    const rlRemaining = response.headers.get('x-ratelimit-remaining');
+    if (rlLimit) {
+      logger.info(`Unsplash budget: ${rlRemaining ?? '?'}/${rlLimit} remaining this hour`, undefined, 'UNSPLASH');
+    }
+
     if (!response.ok) {
       logger.error(`Unsplash API returned ${response.status}`, undefined, 'UNSPLASH');
       return null;

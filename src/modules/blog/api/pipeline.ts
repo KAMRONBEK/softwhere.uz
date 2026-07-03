@@ -291,6 +291,10 @@ export interface PersistOptions {
   status?: 'draft' | 'published';
   /** Already-localized meta from producePostContent — avoids a second (drifting) localization call. */
   localizedMeta?: LocalizedMeta;
+  /** Pin the slug instead of deriving it from the title — used by the legacy
+   *  backfill to restore an old URL's exact slug-root so `<root>-<timestamp>`
+   *  URLs 301 to it. Still de-duplicated per locale via resolveUniqueSlug. */
+  slug?: string;
 }
 
 async function resolveUniqueSlug(baseSlug: string, locale: BlogLocale): Promise<string> {
@@ -337,7 +341,7 @@ export async function persistLocalePost(opts: PersistOptions): Promise<IBlogPost
     secondaryKeywords = secondaryKeywords.map(normalizeUzbekApostrophes);
   }
 
-  const slugBase = createSlug(title) || createSlug(topic.title) || `post-${opts.generationGroupId.slice(0, 8)}`;
+  const slugBase = opts.slug || createSlug(title) || createSlug(topic.title) || `post-${opts.generationGroupId.slice(0, 8)}`;
   const slug = await resolveUniqueSlug(slugBase, locale);
 
   return createPost({
