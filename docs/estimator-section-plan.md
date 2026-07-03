@@ -1,3 +1,7 @@
+> **SUPERSEDED (July 2026):** the estimator was rebuilt with a Central Asia
+> market-calibrated pricing model, an integrations catalog, AI refinement and
+> lead capture. See **[estimator-v2.md](estimator-v2.md)** for the current design.
+
 # 🧭 Feature Estimator Section – Master Plan
 
 > **Purpose:** Provide visitors with an interactive wizard to estimate project deadlines, development cost, and support fees based on their requirements (mobile app, web app, Telegram bot, etc.).

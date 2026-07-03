@@ -5,11 +5,16 @@ type Bucket = { count: number; resetAt: number };
 const buckets = new Map<string, Bucket>();
 let lastPrune = 0;
 
-/** Best-effort client IP from proxy headers (Vercel sets x-forwarded-for). */
+/** Best-effort client IP from proxy headers (Vercel sets x-forwarded-for).
+ *  IPv6 is bucketed to its /64 prefix — consumers get a whole /64, so per-full-
+ *  address buckets would hand an attacker 2^64 fresh rate-limit keys. */
 export function getClientIp(request: NextRequest): string {
   const fwd = request.headers.get('x-forwarded-for');
-  if (fwd) return fwd.split(',')[0].trim();
-  return request.headers.get('x-real-ip') || 'unknown';
+  const ip = fwd ? fwd.split(',')[0].trim() : request.headers.get('x-real-ip') || 'unknown';
+  if (ip.includes(':') && !ip.includes('.')) {
+    return ip.split(':').slice(0, 4).join(':');
+  }
+  return ip;
 }
 
 /**

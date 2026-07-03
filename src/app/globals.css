@@ -178,6 +178,42 @@ html.dark .react-international-phone-country-selector-dropdown {
   color: #fbeee6 !important;
 }
 
+/* Estimator lead form phone input — ember tokens in both themes. */
+.estimator-phone .react-international-phone-input-container {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg) !important;
+  transition: border-color 0.15s ease;
+}
+
+.estimator-phone .react-international-phone-input-container:focus-within {
+  border-color: var(--accent);
+}
+
+.estimator-phone .react-international-phone-input {
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text) !important;
+  font-size: 14px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  height: auto !important;
+}
+
+.estimator-phone .react-international-phone-country-selector-button {
+  background: transparent !important;
+  border: none !important;
+  padding-left: 10px;
+}
+
+.estimator-phone .react-international-phone-country-selector-dropdown {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
 .glass {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);

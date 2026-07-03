@@ -1,201 +1,211 @@
 'use client';
 
-import Button from '@/shared/components/Button';
-import {
-  FeaturesStep,
-  PagesStep,
-  PlatformStep,
-  ProjectTypeStep,
-  ResultDisplay,
-  ScopeStep,
-  TechStackStep,
-} from '@/modules/estimator/components';
-import LivePreview from './LivePreview';
-import { useCurrency } from './CurrencySwitcher';
-import { logger } from '@/core/logger';
 import { getEstimate } from '@/modules/estimator/api';
-import type { EstimateResult, EstimatorInput } from '@/modules/estimator/types';
+import { applySubtype, defaultInputFor } from '@/modules/estimator/data/catalog';
+import type { DesignStatus, EstimatorInput, MobileApproach, Platform, ProjectType, Tier, Urgency } from '@/modules/estimator/types';
 import { calculateEstimate } from '@/modules/estimator/utils/estimator';
-import { useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { sanitizeEstimatorInput } from '@/modules/estimator/utils/sanitize';
+import { trackEvent } from '@/shared/utils/analytics';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCurrency } from './CurrencySwitcher';
+import LivePreview from './LivePreview';
+import ResultPanel, { type AiState } from './ResultPanel';
+import { DetailsStep, FeaturesStep, IntegrationsStep, ScopeStep, TechStep, TypeStep } from './Steps';
 
-type StepId = 'service' | 'platforms' | 'scope' | 'features' | 'scale' | 'advanced';
-const ALL_STEPS: StepId[] = ['service', 'platforms', 'scope', 'features', 'scale', 'advanced'];
-const STEP_LABELS: Record<StepId, string> = {
-  service: 'stepProjectType',
-  platforms: 'stepPlatforms',
-  scope: 'stepScope',
-  features: 'stepFeatures',
-  scale: 'stepScale',
-  advanced: 'stepAdvanced',
-};
+type StepId = 'type' | 'scope' | 'features' | 'integrations' | 'tech' | 'details';
+const STEPS: StepId[] = ['type', 'scope', 'features', 'integrations', 'tech', 'details'];
+
+const STORAGE_KEY = 'estimator-state-v2';
 
 export default function Wizard() {
   const t = useTranslations('estimator');
-  // next-intl types t() to literal keys; STEP_LABELS values are dynamic.
-  const tLabel = t as (key: string) => string;
-  const { currency, setCurrency, format } = useCurrency();
+  const tx = t as unknown as (key: string) => string;
+  const locale = useLocale();
+  const { currency, setCurrency, format, available } = useCurrency();
 
   const [step, setStep] = useState(0);
-  const [input, setInput] = useState<EstimatorInput>({
-    projectType: 'mobile',
-    complexity: 'mvp',
-    features: [],
-    pages: 1,
-    platforms: [],
-    techStack: [],
-  });
+  const [input, setInput] = useState<EstimatorInput>(() => defaultInputFor('mobile'));
+  const [aiState, setAiState] = useState<AiState>({ status: 'loading' });
 
-  const [estimate, setEstimate] = useState<EstimateResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [aiReasoning, setAiReasoning] = useState('');
-  const [estimateSource, setEstimateSource] = useState<'formula' | 'ai' | null>(null);
+  const startedRef = useRef(false);
+  const hydratedRef = useRef(false);
+  const completedKeyRef = useRef('');
+  const aiFetchKeyRef = useRef('');
+  const aiAbortRef = useRef<AbortController | null>(null);
 
-  const localEstimate = useMemo(() => calculateEstimate(input), [input]);
-
-  const shouldShowPlatformStep = input.projectType === 'mobile';
-  const shouldShowTechStep = input.projectType !== 'other';
-  let steps: StepId[] = shouldShowPlatformStep ? ALL_STEPS : ALL_STEPS.filter(s => s !== 'platforms');
-  if (!shouldShowTechStep) steps = steps.filter(s => s !== 'advanced');
-
-  const resultIndex = steps.length; // the trailing "Estimate" step
+  const resultIndex = STEPS.length;
   const isResultStep = step >= resultIndex;
-  const isLastInputStep = step === steps.length - 1;
   const progress = Math.round((Math.min(step, resultIndex) / resultIndex) * 100);
 
-  const fetchAIEstimate = async () => {
-    setLoading(true);
-    setError('');
+  const estimate = useMemo(() => calculateEstimate(input), [input]);
 
+  // Hydrate a previous session (client-only to avoid SSR mismatch); the stored
+  // blob goes through the same sanitizer the API uses, so stale/garbled state
+  // degrades to defaults instead of crashing the wizard.
+  useEffect(() => {
+    // StrictMode runs this twice; the second pass must not re-read storage the
+    // persist effect may have touched in between.
+    if (hydratedRef.current) return;
     try {
-      const response = await getEstimate(input);
-
-      if (response.success && response.data) {
-        setEstimate(response.data);
-        setEstimateSource(response.data.source);
-        if (response.data.reasoning) setAiReasoning(response.data.reasoning);
-        if (response.data.source === 'formula') {
-          setError(t('errorFormulaFallback'));
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as { input?: unknown; step?: number };
+        const restored = sanitizeEstimatorInput(parsed.input);
+        if (restored) {
+          setInput(restored);
+          if (Number.isInteger(parsed.step) && (parsed.step as number) >= 0 && (parsed.step as number) < resultIndex) {
+            setStep(parsed.step as number);
+          }
         }
-      } else {
-        setEstimate(calculateEstimate(input));
-        setEstimateSource('formula');
-        setError(t('errorApiFallback'));
       }
-    } catch (err) {
-      logger.error('Estimate API failed', err, 'ESTIMATOR');
-      setEstimate(calculateEstimate(input));
-      setEstimateSource('formula');
-      setError(t('errorCalcFallback'));
-    } finally {
-      setLoading(false);
+    } catch {
+      /* corrupted state — start fresh */
     }
+    // Gate the persist effect until restore ran: under StrictMode's double
+    // effects, persisting first would overwrite the saved session with defaults.
+    hydratedRef.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ input, step: Math.min(step, resultIndex - 1) }));
+    } catch {
+      /* storage full/blocked — persistence is best-effort */
+    }
+  }, [input, step, resultIndex]);
+
+  // AI refinement: fires when the user reaches the result; the formula range
+  // is already on screen, so this is pure enrichment (never blocks the UX).
+  useEffect(() => {
+    if (!isResultStep) return;
+    const key = JSON.stringify({ input, locale });
+    if (aiFetchKeyRef.current === key) return;
+    aiFetchKeyRef.current = key;
+
+    aiAbortRef.current?.abort();
+    const controller = new AbortController();
+    aiAbortRef.current = controller;
+
+    setAiState({ status: 'loading' });
+    getEstimate(input, locale, controller.signal).then(res => {
+      if (controller.signal.aborted) return;
+      if (res.success && res.data?.ai) {
+        setAiState({ status: 'ready', ai: res.data.ai });
+        trackEvent('estimator_ai', { status: 'ok' });
+      } else {
+        setAiState({ status: 'unavailable' });
+        trackEvent('estimator_ai', { status: res.success ? 'unavailable' : 'error' });
+      }
+    });
+
+    return () => {
+      controller.abort();
+      // An aborted fetch left aiState at 'loading'; clear the dedupe key so
+      // re-entering the result step retries instead of hanging forever.
+      if (aiFetchKeyRef.current === key) aiFetchKeyRef.current = '';
+    };
+  }, [isResultStep, input, locale]);
+
+  const update = (patch: Partial<EstimatorInput> | ((prev: EstimatorInput) => EstimatorInput)) => {
+    // Compute the next value eagerly so the start event carries the type the
+    // user actually picked (not the pre-click default, which skews to 'mobile').
+    const next = typeof patch === 'function' ? patch(input) : { ...input, ...patch };
+    if (!startedRef.current) {
+      startedRef.current = true;
+      trackEvent('estimator_start', { projectType: next.projectType, locale });
+    }
+    setInput(next);
   };
 
   const gotoStep = (i: number) => {
     setStep(i);
-    if (i >= resultIndex && !loading) fetchAIEstimate();
+    if (i >= resultIndex) {
+      // Once per configuration — re-entering the result after "back" is not a
+      // new completion.
+      const key = JSON.stringify(input);
+      if (completedKeyRef.current !== key) {
+        completedKeyRef.current = key;
+        trackEvent('estimator_complete', { projectType: input.projectType, subtype: input.subtype, tier: input.tier, locale });
+      }
+    }
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const next = () => {
-    if (isLastInputStep) gotoStep(resultIndex);
-    else setStep(s => s + 1);
+  const handleTypeSelect = (type: ProjectType) => {
+    if (type === input.projectType) return;
+    update(prev => ({ ...defaultInputFor(type), description: prev.description }));
   };
 
-  const back = () => setStep(s => Math.max(0, s - 1));
+  const handleSubtypeSelect = (subtype: string) => update(prev => applySubtype(prev, subtype));
 
-  const handleProjectTypeChange = (type: EstimatorInput['projectType']) => {
-    setInput(prev => ({ ...prev, projectType: type, subtype: undefined, platforms: [] }));
-  };
+  const handleTogglePlatform = (platform: Platform) =>
+    update(prev => {
+      const has = prev.platforms.includes(platform);
+      // Never allow zero platforms — the engine would silently price "both".
+      if (has && prev.platforms.length === 1) return prev;
+      return { ...prev, platforms: has ? prev.platforms.filter(p => p !== platform) : [...prev.platforms, platform] };
+    });
 
-  const handlePlatformToggle = (platform: 'ios' | 'android') => {
-    const current = input.platforms ?? [];
-    setInput(prev => ({
+  const handleToggle = (field: 'features' | 'integrations') => (id: string) =>
+    update(prev => ({
       ...prev,
-      platforms: current.includes(platform) ? current.filter(p => p !== platform) : [...current, platform],
+      [field]: prev[field].includes(id) ? prev[field].filter(x => x !== id) : [...prev[field], id],
     }));
-  };
 
-  const handleComplexityChange = (c: EstimatorInput['complexity']) => {
-    setInput(prev => ({ ...prev, complexity: c }));
-  };
-
-  const handleSubtypeChange = (s: string) => {
-    setInput(prev => ({ ...prev, subtype: s }));
-  };
-
-  const handleFeatureToggle = (feature: string) => {
-    setInput(prev => ({
+  const handleToggleTech = (id: string) =>
+    update(prev => ({
       ...prev,
-      features: prev.features.includes(feature) ? prev.features.filter(f => f !== feature) : [...prev.features, feature],
+      autoTech: false,
+      techStack: prev.techStack.includes(id) ? prev.techStack.filter(x => x !== id) : [...prev.techStack, id],
     }));
-  };
 
-  const handlePageCountChange = (count: number) => {
-    setInput(prev => ({ ...prev, pages: count }));
-  };
-
-  const handleTechToggle = (tech: string) => {
-    const current = input.techStack ?? [];
-    setInput(prev => ({
-      ...prev,
-      techStack: current.includes(tech) ? current.filter(x => x !== tech) : [...current, tech],
-    }));
-  };
+  const handleAutoTech = () => update(prev => ({ ...prev, autoTech: !prev.autoTech, techStack: [] }));
 
   const handleReset = () => {
     setStep(0);
-    setInput({
-      projectType: 'mobile',
-      complexity: 'mvp',
-      features: [],
-      pages: 1,
-      platforms: [],
-      techStack: [],
-    });
-    setEstimate(null);
-    setAiReasoning('');
-    setEstimateSource(null);
-    setError('');
+    setInput(defaultInputFor('mobile'));
+    setAiState({ status: 'loading' });
+    aiFetchKeyRef.current = '';
+    completedKeyRef.current = '';
+    startedRef.current = false;
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
   };
 
-  const currentStepId = steps[step];
-
-  const renderCurrentStep = () => {
-    switch (currentStepId) {
-      case 'service':
-        return <ProjectTypeStep selectedType={input.projectType} onSelect={handleProjectTypeChange} />;
-      case 'platforms':
-        return <PlatformStep selectedPlatforms={input.platforms ?? []} onTogglePlatform={handlePlatformToggle} />;
+  const renderStep = () => {
+    switch (STEPS[step]) {
+      case 'type':
+        return <TypeStep input={input} onTypeSelect={handleTypeSelect} onSubtypeSelect={handleSubtypeSelect} />;
       case 'scope':
         return (
           <ScopeStep
-            projectType={input.projectType}
-            selectedComplexity={input.complexity}
-            selectedSubtype={input.subtype}
-            onComplexityChange={handleComplexityChange}
-            onSubtypeChange={handleSubtypeChange}
+            input={input}
+            onTogglePlatform={handleTogglePlatform}
+            onApproachChange={(approach: MobileApproach) => update({ approach })}
+            onTierChange={(tier: Tier) => update({ tier })}
+            onScreensChange={screens => update({ screens })}
           />
         );
       case 'features':
+        return <FeaturesStep input={input} onToggleFeature={handleToggle('features')} />;
+      case 'integrations':
+        return <IntegrationsStep input={input} onToggleIntegration={handleToggle('integrations')} />;
+      case 'tech':
+        return <TechStep input={input} onAutoTech={handleAutoTech} onToggleTech={handleToggleTech} />;
+      case 'details':
         return (
-          <FeaturesStep
-            projectType={input.projectType}
-            subtype={input.subtype}
-            selectedFeatures={input.features}
-            onToggleFeature={handleFeatureToggle}
-          />
-        );
-      case 'scale':
-        return <PagesStep pageCount={input.pages} onPageCountChange={handlePageCountChange} />;
-      case 'advanced':
-        return (
-          <TechStackStep
-            projectType={input.projectType}
-            subtype={input.subtype}
-            selectedTech={input.techStack ?? []}
-            onToggleTech={handleTechToggle}
+          <DetailsStep
+            input={input}
+            onDesignChange={(design: DesignStatus) => update({ design })}
+            onLanguagesChange={languages => update({ languages })}
+            onUrgencyChange={(urgency: Urgency) => update({ urgency })}
+            onDescriptionChange={description => update({ description })}
           />
         );
       default:
@@ -203,10 +213,10 @@ export default function Wizard() {
     }
   };
 
-  const railItems = [...steps.map(id => ({ id, label: tLabel(STEP_LABELS[id]) })), { id: 'result', label: t('stepEstimate') }];
+  const railItems = [...STEPS.map(id => ({ id, label: tx(`step.${id}`) })), { id: 'result', label: t('step.result') }];
 
   return (
-    <div className='page-layout container mx-auto pb-16'>
+    <div className='page-layout container mx-auto pb-28 lg:pb-16'>
       {/* Header */}
       <div className='text-center max-w-2xl mx-auto mb-10'>
         <div className='uppercase tracking-[0.2em] text-xs font-bold text-ember-accent mb-3'>{t('eyebrow')}</div>
@@ -227,7 +237,7 @@ export default function Wizard() {
                 type='button'
                 onClick={() => gotoStep(i)}
                 aria-current={active}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-left transition-colors ${
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-left transition-colors cursor-pointer ${
                   active ? 'bg-ember-surface border border-ember-accent' : 'border border-transparent hover:bg-ember-surface'
                 }`}
               >
@@ -240,7 +250,7 @@ export default function Wizard() {
                         : 'bg-ember-surface2 text-ember-muted'
                   }`}
                 >
-                  {i + 1}
+                  {done ? '✓' : i + 1}
                 </span>
                 <span className='text-sm font-semibold text-ember-text'>{item.label}</span>
               </button>
@@ -249,9 +259,9 @@ export default function Wizard() {
         </aside>
 
         {/* Step body */}
-        <div className='rounded-3xl border border-ember-border p-6 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'>
+        <div className='rounded-3xl border border-ember-border p-5 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'>
           <div className='lg:hidden text-sm text-ember-muted mb-3'>
-            {isResultStep ? t('stepEstimate') : t('stepProgress', { current: step + 1, total: steps.length })}
+            {isResultStep ? t('step.result') : t('stepProgress', { current: step + 1, total: STEPS.length })}
           </div>
 
           <div className='h-1 rounded-full bg-ember-surface overflow-hidden mb-7'>
@@ -262,41 +272,87 @@ export default function Wizard() {
           </div>
 
           {isResultStep ? (
-            <ResultDisplay
-              result={estimate ?? localEstimate}
-              source={estimateSource}
-              loading={loading}
-              error={error}
-              aiReasoning={aiReasoning}
-              onReset={handleReset}
+            <ResultPanel
+              input={input}
+              estimate={estimate}
+              aiState={aiState}
               format={format}
+              currency={currency}
+              available={available}
+              setCurrency={setCurrency}
+              onReset={handleReset}
             />
           ) : (
-            renderCurrentStep()
-          )}
+            <>
+              {renderStep()}
 
-          {!isResultStep && (
-            <div className='flex justify-between items-center mt-8 pt-6 border-t border-ember-border'>
-              {step > 0 ? (
-                <Button onClick={back} className='!bg-transparent !border !border-ember-border !text-ember-text !rounded-full'>
-                  ← {t('back')}
-                </Button>
-              ) : (
-                <span />
-              )}
-              <Button
-                onClick={next}
-                className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full hover:shadow-[0_0_28px_var(--glow)]'
-              >
-                {isLastInputStep ? `${t('seeEstimate')} →` : `${t('next')} →`}
-              </Button>
-            </div>
+              <div className='hidden lg:flex justify-between items-center mt-8 pt-6 border-t border-ember-border'>
+                {step > 0 ? (
+                  <button
+                    type='button'
+                    onClick={() => gotoStep(step - 1)}
+                    className='px-6 py-2.5 rounded-full border border-ember-border text-ember-text text-sm font-semibold hover:border-ember-accent transition-colors cursor-pointer'
+                  >
+                    ← {t('back')}
+                  </button>
+                ) : (
+                  <span />
+                )}
+                <button
+                  type='button'
+                  onClick={() => gotoStep(step + 1)}
+                  className='px-7 py-2.5 rounded-full bg-ember-accent text-[#0a0705] font-bold text-sm hover:shadow-[0_0_28px_var(--glow)] transition-shadow cursor-pointer'
+                >
+                  {step === STEPS.length - 1 ? `${t('seeEstimate')} →` : `${t('next')} →`}
+                </button>
+              </div>
+            </>
           )}
         </div>
 
-        {/* Live estimate panel */}
-        <LivePreview estimate={localEstimate} input={input} format={format} currency={currency} setCurrency={setCurrency} />
+        {/* Live estimate panel (desktop) */}
+        <LivePreview
+          estimate={estimate}
+          input={input}
+          format={format}
+          currency={currency}
+          available={available}
+          setCurrency={setCurrency}
+        />
       </div>
+
+      {/* Mobile sticky bottom bar: live range + primary action, always thumb-reachable */}
+      {!isResultStep && (
+        <div className='lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-ember-border bg-[color:var(--surface)]/95 backdrop-blur px-4 py-3'>
+          <div className='flex items-center justify-between gap-3 max-w-xl mx-auto'>
+            <div className='min-w-0'>
+              <div className='text-[11px] uppercase tracking-wide font-bold text-ember-muted'>{t('liveEstimate')}</div>
+              <div className='font-display font-extrabold text-ember-accent text-lg leading-tight truncate'>
+                {format(estimate.cost.min)} – {format(estimate.cost.max)}
+              </div>
+            </div>
+            <div className='flex items-center gap-2 shrink-0'>
+              {step > 0 && (
+                <button
+                  type='button'
+                  onClick={() => gotoStep(step - 1)}
+                  aria-label={t('back')}
+                  className='w-11 h-11 rounded-full border border-ember-border text-ember-text font-bold cursor-pointer'
+                >
+                  ←
+                </button>
+              )}
+              <button
+                type='button'
+                onClick={() => gotoStep(step + 1)}
+                className='px-5 h-11 rounded-full bg-ember-accent text-[#0a0705] font-bold text-sm cursor-pointer'
+              >
+                {step === STEPS.length - 1 ? t('seeEstimate') : t('next')} →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,6 +11,10 @@ type EventMap = {
   scroll_to_top: Record<string, never>;
   external_link_click: { type: 'phone' | 'email'; source: string };
   telegram_chat_click: { locale: string };
+  estimator_start: { projectType: string; locale: string };
+  estimator_complete: { projectType: string; subtype: string; tier: string; locale: string };
+  estimator_lead_submit: { projectType: string; locale: string };
+  estimator_ai: { status: 'ok' | 'unavailable' | 'error' };
 };
 
 export function trackEvent<K extends keyof EventMap>(name: K, ...args: EventMap[K] extends Record<string, never> ? [] : [EventMap[K]]) {
