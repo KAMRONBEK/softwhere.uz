@@ -16,6 +16,19 @@
     },
     "github": {
       "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "searchconsole-mcp": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": ["mcp:searchconsole"]
+    },
+    "yandex-webmaster": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": ["mcp:yandex-webmaster"],
+      "env": {
+        "YANDEX_WEBMASTER_HOST_URL": "https://softwhere.uz"
+      }
     }
   }
 }

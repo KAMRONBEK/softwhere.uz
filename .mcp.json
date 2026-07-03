@@ -38,6 +38,24 @@
         "ghcr.io/github/github-mcp-server"
       ],
       "env": {}
+    },
+    "searchconsole-mcp": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": [
+        "mcp:searchconsole"
+      ],
+      "env": {}
+    },
+    "yandex-webmaster": {
+      "type": "stdio",
+      "command": "yarn",
+      "args": [
+        "mcp:yandex-webmaster"
+      ],
+      "env": {
+        "YANDEX_WEBMASTER_HOST_URL": "https://softwhere.uz"
+      }
     }
   }
 }

@@ -21,7 +21,11 @@
     "db:studio": "drizzle-kit studio",
     "normalize-line-endings": "git add --renormalize .",
     "env:pull:production": "npx vercel env pull .env --environment production --yes",
-    "env:pull:development": "npx vercel env pull .env --environment development --yes"
+    "env:pull:development": "npx vercel env pull .env --environment development --yes",
+    "env:pull:local:production": "npx vercel env pull .env.local --environment production --yes",
+    "mcp": "yarn env:pull:local:production && node scripts/verify-mcp-env.js",
+    "mcp:searchconsole": "node scripts/searchconsole-mcp.js",
+    "mcp:yandex-webmaster": "node scripts/yandex-webmaster-mcp.js"
   },
   "dependencies": {
     "@neondatabase/auth": "^0.4.2-beta",
