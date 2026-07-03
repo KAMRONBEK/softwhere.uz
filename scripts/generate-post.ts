@@ -246,7 +246,9 @@ async function main() {
     const normalized = await safeGenerateContent(
       `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${opts.customTopic}"`,
       'topic-normalize',
-      100
+      100,
+      undefined,
+      { quality: true }
     );
     const title = normalized ? normalized.trim().replace(/^"|"$/g, '') : opts.customTopic;
     topic = {
@@ -293,7 +295,9 @@ async function main() {
   } else {
     console.log('🖼️  Fetching images...');
     coverImage = await getCoverImageForTopic(topic.title, topic.imageHints?.[0]);
-    inlineImages = await getImagesForPost(topic.imageHints, topic.title);
+    // Exclude the cover from the inline pool — otherwise the hero photo
+    // repeats as "illustration 1" directly below itself.
+    inlineImages = await getImagesForPost(topic.imageHints, topic.title, coverImage?.url);
     allContentImages = [...(coverImage ? [coverImage] : []), ...inlineImages];
     console.log(`   Got ${allContentImages.length} image(s)`);
   }
@@ -319,6 +323,13 @@ async function main() {
 
   const created: CreatedPost[] = [];
   const failed: string[] = [];
+  // The EN body anchors ru/uz to one outline/example/figures. On a resumed
+  // slot the EN post may already be in the DB — reuse its content.
+  let enContent: string | undefined;
+  if (useSlotGroup) {
+    const existing = await getByGroupId(generationGroupId);
+    if (existing?.locale === 'en') enContent = existing.content;
+  }
 
   for (const locale of locales) {
     console.log(`\n🌐 Generating ${locale.toUpperCase()} (deep pipeline)...`);
@@ -330,6 +341,8 @@ async function main() {
         inlineImages,
         factSheet,
         mode: 'deep',
+        enContent: locale === 'en' ? undefined : enContent,
+        enMetaDescription: metaDesc,
       });
 
       if (!produced) {
@@ -337,6 +350,7 @@ async function main() {
         failed.push(locale);
         continue;
       }
+      if (locale === 'en') enContent = produced.content;
 
       const saved = await persistLocalePost({
         topic,
@@ -347,6 +361,7 @@ async function main() {
         allContentImages,
         metaDescription: metaDesc,
         status: publish ? 'published' : 'draft',
+        localizedMeta: produced.localizedMeta,
       });
 
       const words = produced.content.split(/\s+/).filter(Boolean).length;
@@ -359,9 +374,13 @@ async function main() {
         words,
         warnings: produced.residualIssues.length,
       });
-      console.log(`   💾 Saved ${publish ? 'PUBLISHED post' : 'draft'} "${saved.title}" (${saved.slug}) — ${words} words via ${produced.provider}`);
+      console.log(
+        `   💾 Saved ${publish ? 'PUBLISHED post' : 'draft'} "${saved.title}" (${saved.slug}) — ${words} words via ${produced.provider}`
+      );
       if (produced.residualIssues.length > 0) {
-        console.log(`   ⚠️ ${produced.residualIssues.length} residual lint warning(s): ${produced.residualIssues.map(i => i.detail).join(' | ')}`);
+        console.log(
+          `   ⚠️ ${produced.residualIssues.length} residual lint warning(s): ${produced.residualIssues.map(i => i.detail).join(' | ')}`
+        );
       }
     } catch (err) {
       console.error(`   ❌ ${locale} failed:`, (err as Error).message);
@@ -410,7 +429,9 @@ async function main() {
 
   if (created.length > 0) {
     const list = created
-      .map(p => (publish ? `• <a href="${p.url}">[${p.locale}] ${escapeTelegramHtml(p.title)}</a>` : `• [${p.locale}] ${escapeTelegramHtml(p.title)}`))
+      .map(p =>
+        publish ? `• <a href="${p.url}">[${p.locale}] ${escapeTelegramHtml(p.title)}</a>` : `• [${p.locale}] ${escapeTelegramHtml(p.title)}`
+      )
       .join('\n');
     const failedLine = failed.length > 0 ? `\n⚠️ Failed locales: ${failed.join(', ')} — re-run the workflow to fill them.` : '';
     await sendTelegramMessage(
@@ -430,6 +451,8 @@ async function main() {
 main().catch(async err => {
   console.error('💥 Fatal error:', err);
   writeStepSummary(`### ❌ Blog generation crashed\n\`\`\`\n${String(err?.stack ?? err).slice(0, 1500)}\n\`\`\``);
-  await sendTelegramMessage(`<b>💥 Blog generation crashed</b>\n<pre>${escapeTelegramHtml(String(err).slice(0, 500))}</pre>`).catch(() => {});
+  await sendTelegramMessage(`<b>💥 Blog generation crashed</b>\n<pre>${escapeTelegramHtml(String(err).slice(0, 500))}</pre>`).catch(
+    () => {}
+  );
   process.exit(1);
 });

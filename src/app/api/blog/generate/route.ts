@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
         );
       } else if (customTopic) {
         const normalizePrompt = `You are a professional editor. Normalize this blog post topic by fixing spelling, improving grammar, and making it professional. Return ONLY the normalized topic.\n\nTopic: "${customTopic}"`;
-        const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize', 100);
+        const normalized = await safeGenerateContent(normalizePrompt, 'topic-normalize', 100, undefined, { quality: true });
         const topicTitle = normalized ? normalized.trim().replace(/^"|"$/g, '') : customTopic;
 
         selectedTopic = {
@@ -200,7 +200,9 @@ export async function POST(request: NextRequest) {
 
       const coverKeyword = selectedTopic.imageHints?.[0];
       coverImage = await getCoverImageForTopic(selectedTopic.title, coverKeyword);
-      inlineImages = await getImagesForPost(selectedTopic.imageHints, selectedTopic.title);
+      // Exclude the cover from the inline pool — otherwise the hero photo
+      // repeats as "illustration 1" directly below itself.
+      inlineImages = await getImagesForPost(selectedTopic.imageHints, selectedTopic.title, coverImage?.url);
       allContentImages = [...(coverImage ? [coverImage] : []), ...inlineImages];
 
       metaDesc = await generateMetaDescription(selectedTopic.title, selectedTopic.primaryKeyword, 'en');
@@ -220,6 +222,10 @@ export async function POST(request: NextRequest) {
     // --- Generate per locale -------------------------------------------------
 
     const createdPosts = [];
+    // The EN body anchors the ru/uz generations to one outline/example/figures
+    // (locales previously diverged into different articles with 3-8× different
+    // price anchors). 'en' is first in the default locale order.
+    let enContent: string | undefined;
 
     for (const locale of locales as BlogLocale[]) {
       try {
@@ -230,12 +236,15 @@ export async function POST(request: NextRequest) {
           inlineImages,
           factSheet,
           mode: 'fast',
+          enContent: locale === 'en' ? undefined : enContent,
+          enMetaDescription: metaDesc,
         });
 
         if (!produced) {
           logger.warn(`Skipping ${locale}: no acceptable content generated`, undefined, 'BLOG');
           continue;
         }
+        if (locale === 'en') enContent = produced.content;
 
         const savedPost = await persistLocalePost({
           topic: selectedTopic,
@@ -245,6 +254,7 @@ export async function POST(request: NextRequest) {
           coverImage: coverImage ?? null,
           allContentImages,
           metaDescription: metaDesc,
+          localizedMeta: produced.localizedMeta,
         });
 
         createdPosts.push({

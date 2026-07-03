@@ -53,6 +53,12 @@ const RU_BANNED: RegExp[] = [
   /^#{1,6}\s*Заключение\s*$/im,
 ];
 
+// Uzbek meta-commentary scaffolding observed in live posts: first-person
+// promises of data ("keltiraman"), hypothetical framing that asserts nothing,
+// and leftover generation notes. All high-precision — normal prose in the
+// "biz" register never uses these.
+const UZ_BANNED: RegExp[] = [/faraziy ravishda/i, /keltiraman/i, /mijoz ruxsat bergan/i, /misol tariqasida faraziy/i];
+
 /** "not just X, but Y" and variants — one per post is tolerable, more is a tell. */
 const NEGATIVE_PARALLELISM = /\bnot (?:just|only|merely)\b[^.\n]{3,80}\bbut\b/gi;
 const SENTENCE_OPENERS = /(?:^|\. )(Additionally|Moreover|Furthermore),/g;
@@ -94,7 +100,9 @@ export function lintContent(content: string, opts: LintOptions): LintIssue[] {
   const words = content.split(/\s+/).filter(Boolean).length;
 
   // --- Slop patterns -------------------------------------------------------
-  const banned = opts.locale === 'ru' ? RU_BANNED : EN_BANNED;
+  // UZ drafts get the EN list too: English slop phrases survive untranslated
+  // in mixed-language drafts, and the EN patterns never occur in clean Uzbek.
+  const banned = opts.locale === 'ru' ? RU_BANNED : opts.locale === 'uz' ? [...UZ_BANNED, ...EN_BANNED] : EN_BANNED;
   for (const re of banned) {
     const m = content.match(re);
     if (m) issues.push({ type: 'slop', detail: `Banned phrase used: "${m[0]}"` });

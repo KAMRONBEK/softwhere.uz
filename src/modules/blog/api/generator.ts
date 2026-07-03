@@ -4,6 +4,7 @@ import { safeGenerateContent, safeGenerateJSON } from '@/core/ai';
 import type { FactSheet } from '@/modules/blog/api/research';
 import { logger } from '@/core/logger';
 import { createSlug } from '@/shared/utils/slug';
+import { clampMeta } from '@/modules/blog/utils/meta';
 import { assertFetchableUrl } from '@/shared/utils/security';
 import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '@/modules/blog/data/seo-topics';
 import { getBlueprintForFormat } from '@/modules/blog/data/post-blueprints';
@@ -111,7 +112,7 @@ Return JSON:
 
 Pick the category that best matches how Softwhere.uz would cover this topic. Security/hacking → cybersecurity. AI news → ai-solutions. App news → mobile-app-development. Etc.`;
 
-  const result = await safeGenerateJSON(prompt, 'source-classify', 600);
+  const result = await safeGenerateJSON(prompt, 'source-classify', 600, undefined, { quality: true });
 
   if (result) {
     try {
@@ -146,6 +147,17 @@ Pick the category that best matches how Softwhere.uz would cover this topic. Sec
 
 const LANG_NAME: Record<string, string> = { en: 'English', ru: 'Russian', uz: 'Uzbek' };
 
+/** Structural section labels, localized. Hardcoded English labels ("Sources",
+ *  "FAQ", "Key takeaways") leaked verbatim into published RU/UZ posts — the
+ *  model copies whatever label the instruction hands it. */
+const STRUCTURAL_LABELS: Record<string, { sources: string; faq: string; takeaways: string }> = {
+  en: { sources: 'Sources', faq: 'FAQ', takeaways: 'Key takeaways' },
+  ru: { sources: 'Источники', faq: 'Частые вопросы', takeaways: 'Ключевые выводы' },
+  uz: { sources: 'Manbalar', faq: "Ko'p beriladigan savollar", takeaways: 'Asosiy xulosalar' },
+};
+
+const labelsFor = (locale: string) => STRUCTURAL_LABELS[locale] ?? STRUCTURAL_LABELS.en;
+
 function langInstructionFor(locale: string): string {
   if (locale === 'ru') return 'ВАЖНО: Пишите ПОЛНОСТЬЮ на русском языке. Весь контент, заголовки и CTA на русском.';
   if (locale === 'uz') return "MUHIM: BUTUNLAY o'zbek tilida yozing. Barcha kontent, sarlavhalar va CTA o'zbek tilida.";
@@ -161,14 +173,19 @@ function localeStyleBlock(locale: string): string {
 RUSSIAN STYLE (обязательно):
 - Пишите как живой практик, разговорно-профессионально, без канцелярита.
 - ЗАПРЕЩЕНО: "важно отметить", "стоит отметить", "играет ключевую/важную роль", "в современном мире", "является неотъемлемой частью", "подчеркивает важность", отдельный раздел "Заключение", заголовки С Заглавной Каждой Буквы.
-- Обращение на "вы". Цены и примеры локализуйте (Ташкент, суммы в USD и при уместности в сумах).`;
+- Обращение на "вы". Цены и примеры локализуйте (Ташкент, суммы в USD и при уместности в сумах).
+- НЕ выдумывайте статистику, проценты, множители или число выполненных проектов. Пример с цифрами явно помечайте как гипотетический ("предположим", "для примера").
+- Ключевые термины и SEO-фразы пишите ПО-РУССКИ — не вставляйте английские фразы вроде "website speed optimization" в русский текст.`;
   }
   if (locale === 'uz') {
     return `
 UZBEK STYLE (majburiy):
 - Faqat LOTIN yozuvida yozing (kirillcha emas). O'quvchiga doim "Siz" deb murojaat qiling — hech qachon "sen" emas.
-- Terminlar lug'ati (aynan shu shakllarda ishlating): veb-sayt, mobil ilova, dastur, sun'iy intellekt, ma'lumotlar bazasi, xavfsizlik, integratsiya, loyiha.
-- Qisqa, aniq gaplar yozing. Shakldan ishonchingiz komil bo'lmasa, soddaroq konstruktsiyani tanlang. Ruscha va inglizcha kalkalardan qoching.`;
+- Terminlar lug'ati (aynan shu shakllarda ishlating): veb-sayt, mobil ilova, dastur, sun'iy intellekt, ma'lumotlar bazasi, xavfsizlik, integratsiya, loyiha, tendensiya (tendentsiya EMAS), yechim (echim EMAS).
+- Qisqa, aniq gaplar yozing. Shakldan ishonchingiz komil bo'lmasa, soddaroq konstruktsiyani tanlang. Ruscha va inglizcha kalkalardan qoching.
+- Statistika, foizlar yoki bajarilgan loyihalar sonini O'YLAB TOPMANG. Raqamli misolni aniq faraziy deb belgilang ("faraz qilaylik", "misol uchun").
+- Sarlavhalar oddiy gap ko'rinishida bo'lsin (Har So'z Bosh Harf Bilan EMAS) va sarlavhalarda inglizcha so'zlar ("vs", "Apps", "Cross-Platform") ishlatilmasin.
+- Kompaniya, mahsulot va to'lov tizimlarining faqat REAL nomlarini yozing — O'zbekistonda to'lov tizimlari: Payme, Click, Uzum, Paynet.`;
   }
   return '';
 }
@@ -176,38 +193,61 @@ UZBEK STYLE (majburiy):
 /** The persona + hard quality/honesty rules — sent as the SYSTEM message. */
 function buildSystemPrompt(locale: string, pillarName: string): string {
   const langLine = locale === 'ru' ? ' Вы пишете на русском языке.' : locale === 'uz' ? " Siz o'zbek tilida yozasiz." : '';
+  // The everyday word for "AI" differs per language — an English "AI" left in
+  // Cyrillic/Uzbek prose reads as un-localized AND misses the term natives
+  // actually search (ИИ / sun'iy intellekt).
+  const aiTerm =
+    locale === 'ru'
+      ? 'say "ИИ" (Cyrillic — never leave the Latin "AI" in Russian text)'
+      : locale === 'uz'
+        ? `say "sun'iy intellekt" (do not leave the English "AI" untranslated)`
+        : 'say "AI"';
   return `You write as the senior engineer-founder of Softwhere.uz — a small product-engineering studio in Tashkent, Uzbekistan that ships mobile apps, web platforms, AI systems, Telegram bots, and CRM/ERP for businesses across Central Asia and internationally (${pillarName} is your focus here). First person plural ("we"). You have opinions from shipping real products: state at least one mild, defensible disagreement with common industry advice per post. Every abstract claim is followed by something concrete — an example, a number from the verified facts, or a named tool.${langLine}
 
 NON-NEGOTIABLE RULES:
 - Statistics, survey results, market sizes, and named studies may come ONLY from the VERIFIED FACTS block in the task (cite them as markdown links to their source URL). If no fact covers a point, describe it qualitatively or frame an example as clearly hypothetical ("a typical mid-size retailer might spend..."). NEVER invent numbers, sources, dates, client names, or URLs.
+- Never tie a quality judgment to an absolute dollar floor ("below $X you're getting a thin wrapper") — such claims cannot be true for every market at once. Frame quality caveats by scope and team, not price.
 - The ONLY URLs allowed in the post: verified fact sources, the internal links provided, and the provided image URLs. No other links.
 - Write from engineering experience and first-principles reasoning, not from summarizing the web.
 - BANNED AI-slop words/patterns: delve, tapestry, testament, pivotal, crucial, underscore, vibrant, seamless, game-changer, "in today's world", "navigating the landscape", "unlock/unleash the power", "when it comes to", "it's worth noting", "in conclusion", the "not just X, but Y" construction, and mechanical rule-of-three lists. Prefer plain verbs (is, are, build, ship) over "serves as / stands as". Sentence-case headings only.
-- PLAIN LANGUAGE for a non-technical business audience: say "AI" — never "LLM", "RAG", "GPT", "vector database", "embeddings", or similar insider terms. If a technical concept is genuinely needed, describe what it does in everyday words ("an AI assistant that answers from your company's own documents") instead of naming the technology. Framework/tool names (React, Telegram, 1C) are fine when relevant.
+- PLAIN LANGUAGE for a non-technical business audience: ${aiTerm} — never "LLM", "RAG", "GPT", "vector database", "embeddings", or similar insider terms. If a technical concept is genuinely needed, describe what it does in everyday words ("an AI assistant that answers from your company's own documents") instead of naming the technology. Framework/tool names (React, Telegram, 1C) are fine when relevant.
 - Vary rhythm: mix paragraph lengths (1-6 sentences), allow an occasional one-sentence paragraph, don't overuse bold, em dashes, or bolded-colon bullet lists.
 - Be concrete: name real technologies and realistic timelines/effort (in weeks), give worked examples, and answer the reader's actual question fast.${localeStyleBlock(locale)}`;
 }
 
+/** How the writer includes a data visualization: a fenced \`\`\`chart block of
+ *  plain Chart.js v2 JSON. The pipeline converts it to a chart image
+ *  deterministically — the model never URL-encodes anything itself (the old
+ *  encode-it-yourself instruction produced zero charts in live posts). */
+function chartBlockInstruction(sourceOfNumbers: string): string {
+  return `DATA VISUALIZATION — REQUIRED (exactly one chart per post): visualize ${sourceOfNumbers} as a fenced code block:
+\`\`\`chart
+{"type":"bar","caption":"<one-line caption in the post's language>","data":{"labels":["..."],"datasets":[{"label":"...","data":[1,2,3]}]}}
+\`\`\`
+Rules: plain Chart.js v2 JSON (do NOT URL-encode) plus a "caption" key; it is converted to a chart image automatically. Pick the honest form for the data: "bar" for comparisons, "line" for trends over time, "doughnut" for shares of a whole (e.g. a cost breakdown). All labels and the caption in the post's language. Place it next to the section discussing those numbers — never at the very top or bottom. Only skip the chart if the post genuinely contains no comparable numbers at all (then use a markdown comparison table instead).`;
+}
+
 /** The grounding contract: the writer sees exactly which facts are citable. */
-function factsBlock(factSheet: FactSheet | undefined): string {
+function factsBlock(factSheet: FactSheet | undefined, locale: string): string {
+  const labels = labelsFor(locale);
   if (!factSheet || factSheet.facts.length === 0) {
-    return `VERIFIED FACTS: none available for this topic. Therefore the post must contain ZERO statistics, market numbers, or named studies — write qualitatively, use clearly-hypothetical worked examples, and skip any "## Sources" section.`;
+    return `VERIFIED FACTS: none available for this topic. Therefore the post must contain ZERO statistics, market numbers, or named studies — write qualitatively, use clearly-hypothetical worked examples, and skip any "## ${labels.sources}" section.
+
+${chartBlockInstruction("the worked example's own hypothetical figures (e.g. its cost breakdown as a doughnut, or timeline by phase as a bar chart); the caption MUST say it is an illustrative example, since there are no verified facts")}`;
   }
   const lines = factSheet.facts.map(f => `- [${f.id}] ${f.statement}${f.year ? ` (${f.year})` : ''} — ${f.sourceName}: ${f.sourceUrl}`);
   return `VERIFIED FACTS — the ONLY statistics/studies you may cite. Use 2-5 of the most relevant ones, in your own words, each cited inline as [${'Source Name'}](url):
 ${lines.join('\n')}
 
-CHART (optional, at most one): if 3 or more of the verified facts share a comparable dimension (e.g. costs by tier, rates by region, adoption by year), visualize them as a chart image:
-![short chart description](https://quickchart.io/chart?w=800&h=450&c=URL_ENCODED_CHARTJS_CONFIG)
-Rules: Chart.js v2 config (bar or line), URL-encode the JSON config, plot ONLY numbers from the verified facts, label axes in the post's language, and add an italic caption line under it naming the source(s). If the numbers don't naturally chart, use a markdown comparison table instead — never force it.
+${chartBlockInstruction("the verified facts when 3+ share a comparable dimension (costs by tier, rates by region, shares by platform, adoption by year) — plot ONLY numbers from the verified facts and name the source(s) in the caption; if the facts do not chart, visualize the worked example's hypothetical figures instead with a caption saying it is an illustrative example")}
 
-End the post with a "## Sources" section listing ONLY the facts you actually cited (format: "- [Source Name](url) — what it supports"). Do not list uncited sources.`;
+End the post with a "## ${labels.sources}" section listing ONLY the facts you actually cited (format: "- [Source Name](url) — what it supports"). Do not list uncited sources.`;
 }
 
 /** Answer-first skeleton — serves skimming humans and answer engines alike. */
-const ANSWER_FIRST = `READER-FIRST STRUCTURE:
+const answerFirstBlock = (locale: string) => `READER-FIRST STRUCTURE:
 - First paragraph: answer the title's question directly in 2-3 sentences (no throat-clearing, no "in this article we will").
-- Immediately after, a "**Key takeaways**" blockquote with 3-5 specific one-line takeaways (real numbers/decisions, not platitudes).
+- Immediately after, a "**${labelsFor(locale).takeaways}**" blockquote with 3-5 specific one-line takeaways (real numbers/decisions, not platitudes).
 - Phrase H2 headings as the natural questions readers ask, where it fits.
 - Include exactly one worked example with concrete figures (scope, timeline in weeks, cost range in USD) — clearly hypothetical unless supported by a verified fact.`;
 
@@ -222,14 +262,20 @@ function internalLinksBlock(locale: string): string {
 - Get a quote / contact us: /${locale}#contact`;
 }
 
-function imageInstructionFor(inlineImages: ICoverImage[], keyword: string): string {
+function imageInstructionFor(inlineImages: ICoverImage[], locale: string): string {
   if (inlineImages.length === 0) return '';
-  const imgMarkdown = inlineImages.map((img, i) => `![${keyword} - illustration ${i + 1}](${img.url})`).join('\n');
-  return `\nINLINE IMAGES — insert these naturally between sections (after roughly the 2nd and 4th major section, never at the very top or bottom):\n${imgMarkdown}`;
+  // The alt text renders as a VISIBLE figcaption, so it must be written in the
+  // post's language — an English keyword caption on a RU/UZ page reads broken
+  // and wastes the image-SEO signal.
+  const langName = LANG_NAME[locale] ?? 'English';
+  const imgList = inlineImages.map((img, i) => `${i + 1}. ${img.url}`).join('\n');
+  return `\nINLINE IMAGES — insert these ${inlineImages.length} image(s) naturally between sections (after roughly the 2nd and 4th major section, never at the very top or bottom). For each, write YOUR OWN short 2-6 word ${langName} caption describing what the figure illustrates in context — it becomes the visible caption, so never paste an English keyword or the word "illustration":\n${imgList}\nFormat: ![your ${langName} caption](the image URL exactly as given)`;
 }
 
-const SELF_REVIEW = (langName: string) =>
-  `Before finalizing, silently check the draft: answer front-loaded in the first 2-3 sentences? Key-takeaways box present? every statistic traceable to a VERIFIED FACT with its link (and zero invented numbers/URLs)? none of the banned AI-slop phrases? 2-3 real internal links present with descriptive anchors? entirely in ${langName}? Then output ONLY the final polished Markdown post (start with the H1 title) — no preamble, notes, or explanation.`;
+const SELF_REVIEW = (locale: string) => {
+  const langName = LANG_NAME[locale] ?? 'English';
+  return `Before finalizing, silently check the draft: answer front-loaded in the first 2-3 sentences? "${labelsFor(locale).takeaways}" box present? exactly one \`\`\`chart block present (valid JSON, caption in ${langName})? every statistic traceable to a VERIFIED FACT with its link (and zero invented numbers/URLs)? none of the banned AI-slop phrases? 2-3 real internal links present with descriptive anchors? entirely in ${langName} (headings, image captions, and section labels included)? Then output ONLY the final polished Markdown post (start with the H1 title) — no preamble, notes, or explanation.`;
+};
 
 // ---------------------------------------------------------------------------
 // Source-based prompt
@@ -240,7 +286,8 @@ export function buildSourcePrompt(
   classification: SourceClassification,
   locale: string,
   inlineImages: ICoverImage[],
-  factSheet?: FactSheet
+  factSheet?: FactSheet,
+  anchor?: string
 ): { system: string; user: string } {
   const year = getCurrentYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -248,6 +295,7 @@ export function buildSourcePrompt(
   const pillar = SERVICE_PILLARS.find(p => p.id === classification.category);
   const pillarName = pillar?.name ?? 'Software Development';
   const langName = LANG_NAME[locale] ?? 'English';
+  const labels = labelsFor(locale);
 
   const system = buildSystemPrompt(locale, pillarName);
 
@@ -260,14 +308,14 @@ SOURCE MATERIAL (real, extracted from the web — you MAY cite specific facts fr
 ${sourceText.slice(0, 3000)}
 ---
 
-${factsBlock(factSheet)}
+${factsBlock(factSheet, locale)}
 
 FORMAT: ${blueprint.name} — tone: ${blueprint.tone}
 TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words (depth over padding).
 
 FRONT-LOAD THE ANSWER: ${blueprint.openingInstruction}
 
-${ANSWER_FIRST}
+${answerFirstBlock(locale)}
 
 STRUCTURE:
 ${blueprint.structurePrompt}
@@ -275,7 +323,7 @@ ${blueprint.structurePrompt}
 FORMATTING:
 ${blueprint.formattingRules}
 - H1 for the title, H2 for major sections, H3 for subsections.
-- Finish with a short FAQ (3-5 real questions readers ask) — each question an H3 ending in "?".
+- Finish with a short "${labels.faq}" section (3-5 real questions readers ask) — each question an H3 ending in "?".
 
 SEO:
 - Primary keyword "${classification.primaryKeyword}" used naturally 3-5 times (in the title and first paragraph too).
@@ -283,15 +331,15 @@ SEO:
 - ${blueprint.seoHint}
 
 ${internalLinksBlock(locale)}
-
+${anchor ? `\n${anchor}\n` : ''}
 GUIDELINES:
 - Reference the source, but add YOUR expert analysis and concrete, actionable steps for business owners.
 - Close with one natural CTA: the reader can get a project cost range in ~2 minutes with the estimator at /${locale}/estimator, or contact Softwhere.uz.
 - Beyond the source material and verified facts, never state statistics or URLs.
 
-CONTEXT: Today is ${date}, ${year}. Audience: business owners and decision-makers in Uzbekistan and Central Asia. Softwhere.uz are ${pillarName} specialists.${imageInstructionFor(inlineImages, classification.primaryKeyword)}
+CONTEXT: Today is ${date}, ${year}. Audience: business owners and decision-makers in Uzbekistan and Central Asia. Softwhere.uz are ${pillarName} specialists.${imageInstructionFor(inlineImages, locale)}
 
-${SELF_REVIEW(langName)}`;
+${SELF_REVIEW(locale)}`;
 
   return { system, user };
 }
@@ -356,12 +404,14 @@ export function buildTopicPrompt(
   topic: TopicResult,
   locale: string,
   inlineImages: ICoverImage[],
-  factSheet?: FactSheet
+  factSheet?: FactSheet,
+  anchor?: string
 ): { system: string; user: string } {
   const blueprint = getBlueprintForFormat(topic.postFormat as PostFormat);
   const year = getCurrentYear();
   const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const langName = LANG_NAME[locale] ?? 'English';
+  const labels = labelsFor(locale);
 
   const system = buildSystemPrompt(locale, topic.pillarName);
 
@@ -369,14 +419,14 @@ export function buildTopicPrompt(
 
 Write a blog post in ${langName} about: "${topic.title}"
 
-${factsBlock(factSheet)}
+${factsBlock(factSheet, locale)}
 
 FORMAT: ${blueprint.name} — tone: ${blueprint.tone}
 TARGET LENGTH: ${blueprint.wordRange[0]}–${blueprint.wordRange[1]} words (depth over padding).
 
 FRONT-LOAD THE ANSWER: ${blueprint.openingInstruction}
 
-${ANSWER_FIRST}
+${answerFirstBlock(locale)}
 
 STRUCTURE:
 ${blueprint.structurePrompt}
@@ -384,7 +434,7 @@ ${blueprint.structurePrompt}
 FORMATTING:
 ${blueprint.formattingRules}
 - H1 for the title, H2 for major sections, H3 for subsections.
-- Finish with a short FAQ (3-5 real questions readers ask) — each question an H3 ending in "?".
+- Finish with a short "${labels.faq}" section (3-5 real questions readers ask) — each question an H3 ending in "?".
 
 SEO:
 - Primary keyword "${topic.primaryKeyword}" used naturally 3-5 times (in the title and first paragraph too).
@@ -393,12 +443,12 @@ SEO:
 - ${blueprint.seoHint}
 
 ${internalLinksBlock(locale)}
-
+${anchor ? `\n${anchor}\n` : ''}
 CONTEXT:
 - Today is ${date}, ${year}. Audience: business owners and decision-makers in Uzbekistan and Central Asia (some international).
-- Softwhere.uz are ${topic.pillarName} specialists — close with one natural CTA: get a project cost range in ~2 minutes with the estimator at /${locale}/estimator, or contact us.${imageInstructionFor(inlineImages, topic.primaryKeyword)}
+- Softwhere.uz are ${topic.pillarName} specialists — close with one natural CTA: get a project cost range in ~2 minutes with the estimator at /${locale}/estimator, or contact us.${imageInstructionFor(inlineImages, locale)}
 
-${SELF_REVIEW(langName)}`;
+${SELF_REVIEW(locale)}`;
 
   return { system, user };
 }
@@ -410,6 +460,68 @@ ${SELF_REVIEW(langName)}`;
 // Drafting itself lives in @/modules/blog/api/pipeline (producePostContent),
 // which both the API route and the CLI share — this module only builds
 // prompts and parses model output, so the two entry points cannot drift.
+
+// ---------------------------------------------------------------------------
+// Cross-locale anchor + continuation + proofread prompts
+// ---------------------------------------------------------------------------
+
+/**
+ * Distill the (already-produced) EN draft into a structural anchor for the
+ * ru/uz generations. Without it each locale is an independent article: live
+ * posts diverged in sections, examples, POV — and quoted the same service at
+ * 3-8× different prices across languages. The anchor carries the EN outline
+ * plus every money figure so the localized variants adapt one piece instead
+ * of inventing another.
+ */
+export function buildEnAnchorBlock(enContent: string): string {
+  const headings = (enContent.match(/^#{2,3}\s+.+$/gm) ?? []).slice(0, 24);
+  if (headings.length === 0) return '';
+  const figureLines = enContent
+    .split('\n')
+    .filter(l => /\$\s?\d/.test(l) && !l.trim().startsWith('!'))
+    .slice(0, 8)
+    .map(l => `- ${l.trim().slice(0, 180)}`);
+  return `CROSS-LOCALE CONSISTENCY — this post is the localized adaptation of an English original. Keep the SAME section structure (adapt the wording naturally — do NOT translate headings word-for-word), the SAME single worked example with the SAME figures, and the SAME stated opinions. Localize the context (language, local examples, payment providers like Payme/Click/Uzum where relevant) — never invent different numbers, drop sections, or change the article's position.
+English outline:
+${headings.join('\n')}${figureLines.length > 0 ? `\nKey figures from the original (keep these consistent):\n${figureLines.join('\n')}` : ''}`;
+}
+
+/**
+ * One continuation call for a draft that hit the completion cap (DeepSeek
+ * truncates silently at 8K — live UZ posts shipped ending mid-word). The
+ * incomplete final fragment is passed as context to be rewritten in full.
+ */
+export function buildContinuationPrompt(completedBody: string, fragment: string, locale: string): string {
+  const langName = LANG_NAME[locale] ?? 'English';
+  const tail = completedBody.slice(-1200);
+  return `The ${langName} Markdown blog post you are finishing was cut off mid-generation. Below are its final complete paragraphs${fragment ? ' and the incomplete fragment it stopped inside' : ''}.
+
+Write ONLY the continuation, in ${langName}: ${fragment ? 'first rewrite the interrupted thought as full sentences, then ' : ''}finish the remaining sections (complete the FAQ if unfinished) and end with one short closing CTA paragraph. Do NOT repeat any earlier text, do NOT restart the post, no headings that already exist, no commentary.
+
+POST ENDING (context — do not repeat):
+---
+${tail}
+---
+${fragment ? `\nINCOMPLETE FRAGMENT to rewrite in full:\n---\n${fragment}\n---` : ''}`;
+}
+
+/**
+ * Final native-editor pass (deep mode): live posts shipped with spelling and
+ * wrong-idiom errors in all three locales ("сентяблю", "топите воду",
+ * "mijordan", "a isolated feature") that no deterministic lint can catch.
+ */
+export function buildProofreadPrompt(draft: string, locale: string): string {
+  const langName = LANG_NAME[locale] ?? 'English';
+  const uzNote = locale === 'uz' ? " Standard Uzbek orthography: 'tendensiya' (not 'tendentsiya'), 'yechim' (not 'echim'), 'mijoz'." : '';
+  return `You are a meticulous native ${langName} proofreader. Correct ONLY spelling, grammar, typo, and wrong-idiom errors in the Markdown post below. PRESERVE the meaning, structure, headings, every URL and image reference, all facts and numbers, and the overall wording — do NOT rewrite, shorten, expand, or restyle anything that is not an outright language error.${uzNote}
+
+POST:
+---
+${draft}
+---
+
+Output ONLY the corrected, complete Markdown post (starting with the H1). No commentary.`;
+}
 
 // ---------------------------------------------------------------------------
 // Cross-model critique (deep pipeline only)
@@ -436,7 +548,12 @@ RUBRIC:
 2. SLOP: generic AI phrasing, filler transitions, uniform paragraph rhythm, empty significance claims.
 3. OPENING: the first paragraph must directly answer the title's question; flag throat-clearing.
 4. VAGUE: abstract claims with no example, number, or named tool behind them (flag only the worst 2-3).
-5. LANGUAGE: wrong language, mixed languages, or (for Uzbek) Cyrillic script or "sen" register.
+5. LANGUAGE: wrong language, mixed languages, or (for Uzbek) Cyrillic script or "sen" register.${
+    locale === 'uz'
+      ? `
+6. UZBEK INTEGRITY: garbled or non-Uzbek words, meta-commentary scaffolding ("...keltiraman", "faraziy ravishda..." sentences that promise data and deliver none), and invented product/company names — the real local payment providers are Payme, Click, Uzum, Paynet only.`
+      : ''
+  }
 
 VERIFIED FACTS:
 ${facts}
@@ -500,11 +617,12 @@ Output ONLY the corrected, complete Markdown post (starting with the H1). No com
 export async function generateMetaDescription(title: string, primaryKeyword: string, locale: string): Promise<string> {
   const prompt = `Write a 150-160 character meta description for a blog post titled "${title}". Include the keyword "${primaryKeyword}". Make it compelling and action-oriented. Write in ${LANG_NAME[locale] ?? 'English'}. Return ONLY the meta description.`;
 
-  const result = await safeGenerateContent(prompt, `meta-desc-${locale}`, 200);
-  // Google truncates around ~160 chars; clamp instead of shipping overlong.
-  if (result) return result.trim().replace(/^"|"$/g, '').slice(0, 160);
+  const result = await safeGenerateContent(prompt, `meta-desc-${locale}`, 200, undefined, { quality: true });
+  // Google truncates around ~160 chars; clamp on a word/sentence boundary
+  // instead of shipping a mid-word cut into the SERP snippet.
+  if (result) return clampMeta(result.trim().replace(/^"|"$/g, ''));
 
-  return `${title} — Expert insights and practical advice from Softwhere.uz`.slice(0, 160);
+  return clampMeta(`${title} — Expert insights and practical advice from Softwhere.uz`);
 }
 
 export interface LocalizedMeta {
@@ -524,7 +642,7 @@ export async function localizePostMeta(
   en: { title: string; metaDescription: string; primaryKeyword: string; secondaryKeywords: string[] }
 ): Promise<LocalizedMeta> {
   const langName = LANG_NAME[locale];
-  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep metaDescription under 160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
+  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep the title UNDER 60 characters with the primary keyword front-loaded (the page appends a " | SoftWhere.uz Blog" suffix, and search engines truncate longer titles). Write the metaDescription as 140-160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
 {"title":"...","metaDescription":"...","primaryKeyword":"...","secondaryKeywords":["...","..."]}
 
 English title: "${en.title}"
@@ -532,14 +650,16 @@ English metaDescription: "${en.metaDescription}"
 English primaryKeyword: "${en.primaryKeyword}"
 English secondaryKeywords: ${JSON.stringify(en.secondaryKeywords)}`;
 
-  const raw = await safeGenerateJSON(prompt, `localize-meta-${locale}`, 500);
+  const raw = await safeGenerateJSON(prompt, `localize-meta-${locale}`, 500, undefined, { quality: true });
   if (raw) {
     try {
       const p = JSON.parse(raw);
       const str = (v: unknown, fallback: string) => (typeof v === 'string' && v.trim() ? v.trim().replace(/^"|"$/g, '') : fallback);
+      const title = str(p.title, en.title);
+      if (title.length > 65) logger.warn(`Localized ${locale} title exceeds 60 chars (${title.length}): "${title}"`, undefined, 'BLOG');
       return {
-        title: str(p.title, en.title),
-        metaDescription: str(p.metaDescription, en.metaDescription).slice(0, 160),
+        title,
+        metaDescription: clampMeta(str(p.metaDescription, en.metaDescription)),
         primaryKeyword: str(p.primaryKeyword, en.primaryKeyword),
         secondaryKeywords: Array.isArray(p.secondaryKeywords)
           ? p.secondaryKeywords.filter((k: unknown): k is string => typeof k === 'string').slice(0, 6)

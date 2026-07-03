@@ -1,5 +1,6 @@
 import { CoverImage } from '@/shared/types';
 import { safeJsonLd } from '@/shared/utils/security';
+import { clampMeta } from '@/modules/blog/utils/meta';
 import { ENV } from '@/core/constants';
 
 export interface BlogPost {
@@ -42,11 +43,8 @@ export function extractDescription(content: string, storedMeta?: string, locale:
     .find(l => l.length > 50);
   // Guard: an unmatched find() would interpolate as `undefined...` (truthy).
   if (!line) return FALLBACK_DESC[locale] ?? FALLBACK_DESC.en;
-  if (line.length <= 160) return line;
-  // Clamp near 155 chars on a word boundary; add the ellipsis only if truncated.
-  const clipped = line.slice(0, 157);
-  const lastSpace = clipped.lastIndexOf(' ');
-  return `${(lastSpace > 100 ? clipped.slice(0, lastSpace) : clipped).trim()}…`;
+  // Boundary-aware clamp shared with the generator (never cut mid-word).
+  return clampMeta(line);
 }
 
 const FALLBACK_KEYWORDS: Record<string, string[]> = {
