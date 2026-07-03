@@ -1,7 +1,7 @@
 /**
  * The single content pipeline behind BOTH generation entry points:
  *  - the admin API route (mode 'fast': draft → lint → one revision)
- *  - the weekly GitHub Action  (mode 'deep': draft → lint/revise → cross-model
+ *  - the scheduled GitHub Action  (mode 'deep': draft → lint/revise → cross-model
  *    critique → revise), where wall-clock is free.
  *
  * Everything here degrades gracefully: no fact sheet → qualitative writing,
