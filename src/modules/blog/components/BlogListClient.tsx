@@ -154,7 +154,8 @@ export default function BlogListClient({ posts, locale }: { posts: BlogPostSumma
                   </Link>
                 </h2>
                 <div className='text-sm text-ember-muted mb-4 font-medium'>
-                  {format(new Date(post.createdAt), 'MMMM dd, yyyy', { locale: dateLocale })}
+                  {/* RU/UZ read day-first ('3 июля 2026'); 'MMMM dd, yyyy' is English-only order. */}
+                  {format(new Date(post.createdAt), locale === 'en' ? 'MMMM dd, yyyy' : 'd MMMM yyyy', { locale: dateLocale })}
                 </div>
                 <div className='mt-4'>
                   <Link

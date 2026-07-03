@@ -244,8 +244,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     permanentRedirect(`/${post.locale}/blog/${encodeURIComponent(post.slug)}`);
   }
 
-  const formattedDate = format(new Date(post.createdAt), 'MMMM dd, yyyy', { locale: DATE_LOCALES[locale] });
+  // RU/UZ read day-first ('3 июля 2026'); 'MMMM dd, yyyy' is English-only order.
+  const formattedDate = format(new Date(post.createdAt), locale === 'en' ? 'MMMM dd, yyyy' : 'd MMMM yyyy', {
+    locale: DATE_LOCALES[locale],
+  });
   const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
+  // Generated posts open with '# <title>' duplicating the page <h1> above the
+  // article (two stacked H1s, often with diverging wording). Strip only that
+  // first leading H1 line; section headings are already H2+.
+  const articleMarkdown = post.content.replace(/^\s*#\s+.*(\r?\n|$)/, '');
 
   return (
     <BlogPostClient
@@ -419,30 +426,45 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                         {children}
                       </pre>
                     ),
-                    a: ({ href, children }) => (
-                      <a
-                        href={href}
-                        className='text-ember-accent hover:text-ember-accent2 underline transition-colors'
-                        target={href?.startsWith('http') ? '_blank' : undefined}
-                        rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
-                      >
-                        {children}
-                      </a>
-                    ),
+                    a: ({ href, children }) => {
+                      // Some generated posts emit locale-relative internal links
+                      // ('uz/estimator', 'en#contact') that resolve under the post
+                      // path and 404 — normalize them to absolute paths.
+                      const normalizedHref = href && /^(en|ru|uz)([/#]|$)/.test(href) ? `/${href}` : href;
+                      const isExternal = normalizedHref?.startsWith('http');
+                      return (
+                        <a
+                          href={normalizedHref}
+                          className='text-ember-accent hover:text-ember-accent2 underline transition-colors'
+                          target={isExternal ? '_blank' : undefined}
+                          // nofollow: AI-cited sources are often competitor agency
+                          // blogs — don't pass them link equity from every post.
+                          rel={isExternal ? 'nofollow noopener noreferrer' : undefined}
+                        >
+                          {children}
+                        </a>
+                      );
+                    },
                     img: ({ src, alt }) => (
                       <figure className='my-8'>
-                        {/* In-article markdown images come from arbitrary hosts, so a plain
-                            <img> stays safe (next/image would 400 on non-allow-listed hosts).
+                        {/* The pipeline only emits Unsplash images (allow-listed in
+                            next.config), so serve them through next/image for AVIF/WebP
+                            + responsive sizing; keep a plain-<img> fallback for any
+                            other host (next/image would 400 on non-allow-listed hosts).
                             The 16:9 wrapper reserves space to eliminate layout shift (CLS). */}
                         <span className='relative block w-full overflow-hidden rounded-lg' style={{ aspectRatio: '16 / 9' }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={src}
-                            alt={alt || ''}
-                            loading='lazy'
-                            decoding='async'
-                            className='absolute inset-0 h-full w-full object-cover'
-                          />
+                          {typeof src === 'string' && src.startsWith('https://images.unsplash.com/') ? (
+                            <Image src={src} alt={alt || ''} fill className='object-cover' sizes='(max-width: 768px) 100vw, 768px' />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={src}
+                              alt={alt || ''}
+                              loading='lazy'
+                              decoding='async'
+                              className='absolute inset-0 h-full w-full object-cover'
+                            />
+                          )}
                         </span>
                         {alt && <figcaption className='text-center text-sm text-ember-muted mt-2'>{alt}</figcaption>}
                       </figure>
@@ -460,7 +482,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                     td: ({ children }) => <td className='border border-ember-border px-4 py-2 text-ember-text'>{children}</td>,
                   }}
                 >
-                  {post.content}
+                  {articleMarkdown}
                 </ReactMarkdown>
               </div>
 
@@ -483,6 +505,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                       <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5l7 7-7 7'></path>
                       </svg>
+                    </TrackedCTALink>
+                    <TrackedCTALink
+                      href={`/${locale}/estimator`}
+                      type='estimate'
+                      slug={post.slug}
+                      className='inline-flex items-center px-6 py-3 bg-transparent text-[#160a04] font-semibold rounded-lg border-2 border-[#160a04] hover:bg-[#160a04] hover:text-[#ffe9dc] transition-colors duration-300'
+                    >
+                      {t('cta.estimate')}
                     </TrackedCTALink>
                     <TrackedCTALink
                       href={`/${locale}#portfolio`}
