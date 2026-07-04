@@ -20,7 +20,7 @@ Scope legend: **server** = server-only (never sent to the browser); **client** =
 | `BLOG_MAX_TOKENS` | server | Optional | AI completion budget | `src/core/ai.ts:18` |
 | `NEON_AUTH_BASE_URL` | server | Optional | Admin login (Neon Auth) | `src/core/neonAuth.ts:12` |
 | `NEON_AUTH_COOKIE_SECRET` | server | Optional | Admin session cookie signing | `src/core/neonAuth.ts:13` |
-| `API_SECRET` | server | Optional | Machine/Bearer admin auth + ISR cache bust | `src/core/auth.ts:52`, `scripts/generate-post.ts:115` |
+| `API_SECRET` | server | Optional | Machine/Bearer admin auth + ISR cache bust | `src/core/auth.ts:52`, `scripts/generate-post.ts:128` |
 | `TG_BOT_TOKEN` | server | Optional | Telegram lead/notification bot | `src/app/api/contact/route.ts:46`, `src/core/notify.ts:10` |
 | `TG_CHAT_ID` | server | Optional | Telegram chat target | `src/app/api/contact/route.ts:47`, `src/core/notify.ts:11` |
 | `UNSPLASH_ACCESS_KEY` | server | Optional | Blog cover images | `src/modules/blog/utils/unsplash.ts:124` |
@@ -32,10 +32,10 @@ Scope legend: **server** = server-only (never sent to the browser); **client** =
 | `YANDEX_WEBMASTER_HOST_URL` | tooling | Optional (has default) | Yandex Webmaster MCP host | `scripts/yandex-webmaster-mcp.js:17`, `.mcp.json` |
 | `GSC_SERVICE_ACCOUNT_JSON_BASE64` | tooling | Required for its MCP | Google Search Console MCP | `scripts/searchconsole-mcp.js:17`, `scripts/verify-mcp-env.js:14` |
 | `GITHUB_PERSONAL_ACCESS_TOKEN` | tooling | Required for its MCP | GitHub MCP server (docker) | `.mcp.json` |
-| `GITHUB_EVENT_NAME` | platform | Auto-set (CI) | Scheduled-vs-manual detection | `scripts/generate-post.ts:148` |
-| `GITHUB_STEP_SUMMARY` | platform | Auto-set (CI) | Run summary output file | `scripts/generate-post.ts:129`, `scripts/audit-posts.ts:128` |
+| `GITHUB_EVENT_NAME` | platform | Auto-set (CI) | Scheduled-vs-manual detection | `scripts/generate-post.ts:161` |
+| `GITHUB_STEP_SUMMARY` | platform | Auto-set (CI) | Run summary output file | `scripts/generate-post.ts:142`, `scripts/audit-posts.ts:128` |
 
-\* **AI keys are individually optional but collectively load-bearing:** at least one of `MOONSHOT_API_KEY`/`KIMI_API_KEY` (primary) or `DEEPSEEK_API_KEY` (fallback) must be set for blog generation to work. With none set, the provider chain is empty (`src/core/ai.ts:60`) so generation produces nothing: the CLI generator throws at startup (`scripts/generate-post.ts:46`) and the API route logs a missing-key error (`src/app/api/blog/generate/route.ts:30`).
+\* **AI keys are individually optional but collectively load-bearing:** at least one of `MOONSHOT_API_KEY`/`KIMI_API_KEY` (primary) or `DEEPSEEK_API_KEY` (fallback) must be set for blog generation to work. With none set, the provider chain is empty (`src/core/ai.ts:60`) so generation produces nothing: the CLI generator throws at startup (`scripts/generate-post.ts:50`) and the API route logs a missing-key error (`src/app/api/blog/generate/route.ts:30`).
 
 ## How env is loaded and validated
 
@@ -79,7 +79,7 @@ This is also why `env.ts` lists more optionals than either example file — it i
 ### Core
 
 - **`DATABASE_URL`** — Neon serverless Postgres connection string, consumed by the `@neondatabase/serverless` HTTP driver and by `drizzle.config.ts`. Format: `postgresql://user:pass@ep-xxx-pooler.<region>.aws.neon.tech/neondb?sslmode=require`. Get it from Vercel → Storage → Neon (auto-injected) or the Neon Console. See `database.md`.
-- **`NEXT_PUBLIC_BASE_URL`** — public site origin, no trailing slash (`constants.ts` trims trailing slashes). Backs canonical URLs, sitemap/robots, and the scripts' cache-bust/fetch targets. Defaults to `https://softwhere.uz` if unset (`src/core/constants.ts:61`, `scripts/generate-post.ts:139`). Set `http://localhost:3000` for local dev.
+- **`NEXT_PUBLIC_BASE_URL`** — public site origin, no trailing slash (`constants.ts` trims trailing slashes). Backs canonical URLs, sitemap/robots, and the scripts' cache-bust/fetch targets. Defaults to `https://softwhere.uz` if unset (`src/core/constants.ts:61`, `scripts/generate-post.ts:152`). Set `http://localhost:3000` for local dev.
 
 ### AI generation (blog + estimation)
 
@@ -96,7 +96,7 @@ Get keys from `https://platform.moonshot.ai` (Kimi/Moonshot) and `https://platfo
 
 - **`NEON_AUTH_BASE_URL`** — Neon Auth (Better Auth, beta) project auth base; drives the browser admin login. From the Neon Console → Auth.
 - **`NEON_AUTH_COOKIE_SECRET`** — session-cookie signing key, **min 32 chars**. `createNeonAuth()` validates it at construction and throws if missing/short — construction is lazy (`src/core/neonAuth.ts`) so the public site still boots and admin simply **fails closed** (denied) when these are unset. Generate with `openssl rand -base64 32`.
-- **`API_SECRET`** — Bearer token for machine callers (scripts / cron / curl) hitting admin & blog-generation APIs, checked with a constant-time compare (`src/core/auth.ts:52`). The generator scripts also use it to hit `/api/admin/revalidate` for an instant ISR cache bust after publishing (`scripts/generate-post.ts:115`); if unset, new posts appear within ~1h instead. Any long random string. See `auth-and-admin.md`.
+- **`API_SECRET`** — Bearer token for machine callers (scripts / cron / curl) hitting admin & blog-generation APIs, checked with a constant-time compare (`src/core/auth.ts:52`). The generator scripts also use it to hit `/api/admin/revalidate` for an instant ISR cache bust after publishing (`scripts/generate-post.ts:128`); if unset, new posts appear within ~1h instead. Any long random string. See `auth-and-admin.md`.
 
 ### Contact form & notifications
 

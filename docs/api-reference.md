@@ -208,7 +208,7 @@ Runs the full AI blog pipeline: resolve a topic, fetch images, research grounded
 | `locales` | string[] | 1–3 of `en`/`ru`/`uz`; default `['en','ru','uz']`. |
 | `generationGroupId` | string | **Continuation mode**: reuse an existing group's topic/images/meta to generate missing locales. |
 
-Topic-source precedence when **not** in continuation mode: `sourceUrl` → `sourceText` → `customTopic` → `category` (non-`auto`) → smart auto-select (`smartSelectTopic`). In continuation mode (`generationGroupId` present), the topic/cover/images are rebuilt from the existing group's English row.
+Topic-source precedence when **not** in continuation mode: `sourceUrl` → `sourceText` → `customTopic` → `category` (non-`auto`) → smart auto-select (`smartSelectTopic`). In continuation mode (`generationGroupId` present), the topic/cover/images are rebuilt from the existing group's English row, the group's EN body is reused as the ru/uz anchor, and requests are rejected for locales the group already has (409) or for `en` when the group has no EN post to rebuild the topic from (409).
 
 Example (auto weekly generation, all locales):
 
@@ -250,6 +250,8 @@ Note: generated posts are created by the pipeline (`persistLocalePost`) and the 
 - `401 { "error": "Unauthorized" }` — missing/invalid auth.
 - `400` — validation: `customTopic must be a string of N characters or fewer`, `sourceText must be a string of N characters or fewer`, `sourceUrl must be a string` / `sourceUrl must be a valid URL` / `Could not fetch the provided URL`, `locales must be an array of 1-3 items`, `Invalid locales: …`, `Invalid category`, `No topics for category`, `generationGroupId must be a string`.
 - `404 { "error": "No post found for the given generationGroupId" }` — continuation mode with an unknown group.
+- `409 { "error": "Locale(s) already exist in this group: … — use the regenerate workflow to re-draft them" }` — continuation would duplicate an existing locale.
+- `409 { "error": "This group has no EN post to rebuild the topic from — recreate the group instead of continuing it" }` — `en` requested but the group's EN row is gone (the stored topic is localized).
 - `500 { "error": "Failed to generate any posts" }` — every locale failed.
 - `500 { "error": "Internal server error" }` — unexpected error.
 

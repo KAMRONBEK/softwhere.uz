@@ -1,4 +1,4 @@
-import { getByGroupId } from '@/modules/blog/model/posts.repository';
+import { getByGroupId, listGroupLocales } from '@/modules/blog/model/posts.repository';
 import type { ICoverImage } from '@/modules/blog/model/BlogPost';
 import { requireAdmin } from '@/core/auth';
 import { safeGenerateContent, aiStats } from '@/core/ai';
@@ -85,6 +85,11 @@ export async function POST(request: NextRequest) {
     let inlineImages: ICoverImage[] = [];
     let allContentImages: ICoverImage[] = [];
     let metaDesc: string;
+    // The EN body anchors the ru/uz generations to one outline/example/figures
+    // (locales previously diverged into different articles with 3-8× different
+    // price anchors). Seeded from the DB in continuation mode, or from the
+    // 'en' pass below when this request generates EN itself.
+    let enContent: string | undefined;
 
     // --- Continuation mode: reuse topic/images from a previous call ----------
 
@@ -96,6 +101,29 @@ export async function POST(request: NextRequest) {
 
       if (!existingPost) {
         return NextResponse.json({ error: 'No post found for the given generationGroupId' }, { status: 404 });
+      }
+
+      // Continuation fills locales the group does NOT have. Regenerating an
+      // existing locale here would insert a duplicate row (resolveUniqueSlug
+      // just suffixes the slug) — that is regenerate-post.ts territory.
+      const doneLocales = new Set(await listGroupLocales(body.generationGroupId));
+      const duplicates = (locales as string[]).filter(l => doneLocales.has(l as BlogLocale));
+      if (duplicates.length > 0) {
+        return NextResponse.json(
+          { error: `Locale(s) already exist in this group: ${duplicates.join(', ')} — use the regenerate workflow to re-draft them` },
+          { status: 409 }
+        );
+      }
+
+      // getByGroupId prefers the EN row, so a non-EN existingPost means the
+      // group has no EN post. The topic below is rebuilt verbatim from this
+      // row — generating "EN" from a localized title/keywords would produce
+      // an English post wearing Russian/Uzbek metadata.
+      if (existingPost.locale !== 'en' && (locales as string[]).includes('en')) {
+        return NextResponse.json(
+          { error: 'This group has no EN post to rebuild the topic from — recreate the group instead of continuing it' },
+          { status: 409 }
+        );
       }
 
       const pillar = SERVICE_PILLARS.find(p => p.id === existingPost.category);
@@ -118,6 +146,9 @@ export async function POST(request: NextRequest) {
       allContentImages = existingPost.contentImages ?? [];
       inlineImages = coverImage ? allContentImages.filter(img => img.url !== coverImage!.url) : allContentImages;
       metaDesc = existingPost.metaDescription ?? `${selectedTopic.title} — Expert insights from Softwhere.uz`;
+      // getByGroupId prefers the EN row, so a non-EN existingPost means the
+      // group has no EN post to anchor to.
+      if (existingPost.locale === 'en') enContent = existingPost.content;
 
       logger.info(`Continuing generation group ${generationGroupId} for locales: ${locales.join(', ')}`, undefined, 'BLOG');
     } else {
@@ -222,10 +253,6 @@ export async function POST(request: NextRequest) {
     // --- Generate per locale -------------------------------------------------
 
     const createdPosts = [];
-    // The EN body anchors the ru/uz generations to one outline/example/figures
-    // (locales previously diverged into different articles with 3-8× different
-    // price anchors). 'en' is first in the default locale order.
-    let enContent: string | undefined;
 
     for (const locale of locales as BlogLocale[]) {
       try {

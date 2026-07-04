@@ -59,7 +59,7 @@ Steps 1–4 run once per group; step 5 loops over locales. `en` is generated fir
 
 ### 1. Topic selection
 
-Four sources, resolved in the entry point (`route.ts:126-197`, `generate-post.ts:226-279`):
+Four sources, resolved in the entry point (`route.ts:155-238`, `generate-post.ts:257-330`):
 
 - **Source material** (`sourceUrl` or `sourceText`): `extractTextFromUrl` (SSRF-guarded, strips scripts/nav/footer, caps at `MAX_EXTRACTED_TEXT_LENGTH`) then `classifySourceContent` — an LLM JSON call that picks a `SERVICE_PILLARS` category, keywords, `PostFormat`, and image hints.
 - **Custom topic** (`customTopic`): normalized by a small LLM cleanup call, filed under `web-app-development` / `beginner-guide`.
@@ -109,7 +109,7 @@ When Kimi is unconfigured or cooled down, `generateWithWebSearch` returns `null`
 
 ### 4. Per-locale content production
 
-`producePostContent(opts)` (`pipeline.ts:108`) drafts and refines one locale's body. Returns `null` when nothing acceptable could be produced (the caller skips that locale rather than persist filler). Ordered stages:
+`producePostContent(opts)` (`pipeline.ts:126`) drafts and refines one locale's body. Returns `null` when nothing acceptable could be produced (the caller skips that locale rather than persist filler). Ordered stages:
 
 1. **Localize keywords first (ru/uz only).** `localizePostMeta` runs *before* drafting so the body is written against native search phrases — not the English keyword list (which used to splice raw `"website speed optimization"` into Russian prose). The same `localizedMeta` is threaded to `persistLocalePost` to avoid a second, drifting localization call.
 2. **Build the prompt.** `buildSourcePrompt` or `buildTopicPrompt` assembles a system persona (`buildSystemPrompt`) + a user prompt from the format blueprint, the facts block, the answer-first skeleton, internal-links block, image instructions, self-review checklist, and (for ru/uz) the EN anchor block.
@@ -119,22 +119,21 @@ When Kimi is unconfigured or cooled down, `generateWithWebSearch` returns `null`
 6. **Cross-model critique** (deep mode, OR Uzbek in fast mode — and only when both providers are configured). The critic is the *other* provider than the one that drafted (`drafted.provider === 'kimi' ? 'deepseek' : 'kimi'`) — same-model self-review reward-hacks its own weaknesses. Returns a JSON issue list applied surgically.
 7. **Native-editor proofread** (deep mode only). Fixes spelling/idiom errors deterministic lints can't catch (`сентяблю`, `mijordan`), preserving structure/URLs/numbers.
 8. **Deterministic normalization** — always, in order: `renderChartBlocks` → `normalizeInternalLinks` → (uz only) `normalizeUzbekApostrophes`.
-9. **Final gate.** Re-lint. If any `link` issues remain (fabricated citations that survived revision), **refuse the post** (`return null`). All other residual issues are soft warnings surfaced as `residualIssues`.
+9. **Final gate.** Re-lint. `link` issues at this point were introduced (or kept) by the critique/proofread re-emits — a refusal-only gate silently dropped the live RU post on 2026-07-03 over 2 links, so they are now **remediated in stages**: (a) deep mode only, one surgical link-removal revision, then re-normalize + re-lint; (b) `stripUnapprovedUrls` deterministically removes any survivors (`[text](url)` keeps its text; images, autolinks, and bare URLs are dropped); (c) refusal remains as the (unreachable) backstop. Invented sources still never ship — but the prose survives them. All other residual issues are soft warnings surfaced as `residualIssues`.
 
 ```ts
-// pipeline.ts — the one hard failure: fabricated sources are never published
+// pipeline.ts — fabricated sources are never published, but no longer cost the locale
 issues = lintContent(content, { locale, allowedUrls });
-const linkIssues = issues.filter(i => i.type === 'link');
-if (linkIssues.length > 0) {
-  logger.warn(`Refusing ${locale} content: ${linkIssues.length} unapproved URL(s) after revision`, ...);
-  return null;
-}
+let linkIssues = issues.filter(i => i.type === 'link');
+if (linkIssues.length > 0 && mode === 'deep') { /* one surgical link-removal revision → re-lint */ }
+if (linkIssues.length > 0) { content = stripUnapprovedUrls(content, allowedUrls); /* → re-lint */ }
+if (linkIssues.length > 0) return null; // backstop — unreachable after the strip
 return { content, provider: drafted.provider, residualIssues: issues, localizedMeta };
 ```
 
 ### 5. Persistence
 
-`persistLocalePost(opts)` (`pipeline.ts:305`):
+`persistLocalePost(opts)` (`pipeline.ts:361`):
 
 1. For ru/uz, use the pre-localized `localizedMeta` (or localize now as a fallback) for title/meta/keywords.
 2. For uz, apply `normalizeUzbekApostrophes` to title/meta/keywords so they match the body's glyphs (exact-match search fragments otherwise mismatch).
@@ -147,6 +146,7 @@ All three locale posts of one run share a `generationGroupId`, indexed by `blog_
 
 - **Route:** `uuidv4()` per call — or, in continuation mode, the `generationGroupId` supplied in the request body (topic/images/meta are then rebuilt from the existing group via `getByGroupId`).
 - **CLI scheduled runs:** a *deterministic* slot id `sched-<YYYY-MM-DD>-<am|pm>` (`scheduleSlotId`). A duplicate cron fire or a re-run after partial failure resumes the same group and generates only the locales still missing (`listGroupLocales` diff). `--force` opts out and mints a fresh `uuidv4`.
+- **CLI `--group <id>`:** resumes ANY existing group the same way, inheriting the group's publish/draft status (errors if the id matches no posts, if combined with `--force`, or when asked to fill EN into a group whose EN post is gone — the stored topic would be localized). This is the healing path for partial groups whose slot has passed — the slot id is wall-clock-derived, so a re-run outside the same UTC half-day starts a new topic instead. Exposed as the `group` input on the `generate-post.yml` dispatch; the admin panel's per-group **Generate <missing locales>** button does the same through the route's continuation mode (which likewise rejects already-present locales and EN-from-localized-topic rebuilds).
 
 The EN post is generated first; its outline and money figures become the **anchor** for ru/uz (`buildEnAnchorBlock`, `generator.ts:476`):
 
@@ -202,7 +202,7 @@ SEO topic catalog: `SERVICE_PILLARS` in `seo-topics.ts` — 14 pillars, each top
 - **Slop** — high-precision banned regexes per locale (`EN_BANNED` / `RU_BANNED` / `UZ_BANNED`; uz gets EN patterns too since English slop survives in mixed drafts), plus EN-only checks for `not just X but Y` overuse, `Additionally/Moreover/Furthermore` openers, em-dash density, and Title-Case headings.
 - **Language sanity** — Cyrillic/Latin ratio: ru must be ≥50% Cyrillic, uz must be <15% Cyrillic (Latin script), en <5%.
 - **Structure** — must start with a single `# ` H1.
-- **Link audit** — every external `http(s)` URL (outside code) must be in `allowedUrls` (fact sources + image URLs + `quickchart.io`) or an own-site hostname; anything else is flagged as `link` (likely fabricated). Hostname-based, so `evil.com/?x=softwhere.uz` doesn't pass.
+- **Link audit** — every external `http(s)` URL (outside code) must be in `allowedUrls` (fact sources + image URLs + `quickchart.io`) or an own-site hostname; anything else is flagged as `link` (likely fabricated). Hostname-based, so `evil.com/?x=softwhere.uz` doesn't pass. The audit is shared with the final gate via `findUnapprovedUrls`, and `stripUnapprovedUrls` is its deterministic remediation twin.
 
 `buildRevisionInstruction(issues)` turns issues into a surgical fix-only-these prompt.
 

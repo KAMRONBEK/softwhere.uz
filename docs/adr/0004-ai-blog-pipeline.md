@@ -11,7 +11,7 @@ Blog posts are AI-written but grounded: statistics must come from a fact sheet b
 | **Providers** | Kimi K2.6 (primary) → DeepSeek V4 Pro (fallback), both via the OpenAI-compatible `openai` SDK |
 | **Grounding** | Kimi server-side `$web_search` fact sheet + deterministic sources; no fact sheet ⇒ qualitative writing |
 | **Entry points** | admin route `/api/blog/generate` (`mode: 'fast'`), CLI `scripts/generate-post.ts` / `scripts/regenerate-post.ts` (`mode: 'deep'`) |
-| **Hard failure** | fabricated (unapproved) citation URLs — the post is refused |
+| **Hard failure** | fabricated (unapproved) citation URLs — revised away or stripped; refusal is the last-resort backstop |
 | **Client** | `src/core/ai.ts` |
 | **Live spec** | [`../blog-pipeline.md`](../blog-pipeline.md) |
 
@@ -63,10 +63,14 @@ Run every locale's body through one pipeline (`src/modules/blog/api/pipeline.ts`
 4. **Normalize + final gate.** Deterministic fixes run last: `renderChartBlocks`
    turns ` ```chart ` fences into QuickChart image URLs, `normalizeInternalLinks`
    repairs locale-relative links, and `normalizeUzbekApostrophes` unifies the UZ
-   apostrophe glyph. A final `lintContent` runs, and **any residual `link` issue
-   (an unapproved/fabricated URL) refuses the post** — everything else is a soft
-   warning. Accepted content is persisted via the repository (`persistLocalePost`
-   → `createPost`, see [ADR 0002](./0002-mongodb-to-neon-drizzle.md)).
+   apostrophe glyph. A final `lintContent` runs; residual `link` issues
+   (unapproved/fabricated URLs) are **remediated, not refused** (2026-07-04 —
+   a refusal-only gate cost a live RU locale over 2 links): one surgical
+   link-removal revision in deep mode, then a deterministic
+   `stripUnapprovedUrls`, with refusal kept only as the unreachable backstop.
+   Everything else is a soft warning. Accepted content is persisted via the
+   repository (`persistLocalePost` → `createPost`, see
+   [ADR 0002](./0002-mongodb-to-neon-drizzle.md)).
 
 **Two modes, one pipeline.** `mode: 'fast'` (admin route, `maxDuration = 300`) does
 draft → lint → one revision; `mode: 'deep'` (the CLI, run by CI) adds critique and
@@ -82,10 +86,11 @@ Kimi-only.
 
 ## Consequences
 
-- **Fabrication is the one unrecoverable error.** A post with invented citations is
-  dropped, not published. Truncated, under-length, or too-few-providers cases skip
-  the affected locale rather than ship filler; missing search degrades to
-  qualitative writing.
+- **Invented citations never ship — but no longer cost the locale.** Unapproved
+  URLs are revised away (deep mode) or deterministically stripped; the post is
+  dropped only if both somehow fail. Truncated, under-length, or
+  too-few-providers cases still skip the affected locale rather than ship
+  filler; missing search degrades to qualitative writing.
 - **Grounding depends on Kimi.** Web-search facts require a configured, non-cooled
   Kimi key. With only DeepSeek configured, posts are qualitative and the
   cross-model critique is skipped (`configuredProviders().length > 1`).

@@ -43,22 +43,23 @@ Args are parsed by hand (`parseArgs`): `--key value` sets an option; a bare `--k
 | `--sourceUrl <url>` | value | — | URL fetched via `extractTextFromUrl`; content classified into a topic. |
 | `--sourceText <str>` | value | — | Raw source text, trimmed to `MAX_SOURCE_TEXT_LENGTH`, then classified. |
 | `--locales <list>` | value | `en,ru,uz` | Comma list; only `en`/`ru`/`uz` survive filtering. Empty → exit 1. |
-| `--force` | flag / `--force true` | off | Ignore the per-slot idempotency check; mint a brand-new group id. |
-| `--publish <true\|false>` | value | (see below) | Force publish or draft, overriding the scheduled default. |
+| `--force` | flag / `--force true` | off | Ignore the per-slot idempotency check; mint a brand-new group id. Contradicts `--group` (exit 1 if both). |
+| `--publish <true\|false>` | value | (see below) | Force publish or draft, overriding the scheduled default. Ignored with `--group` (status is inherited). |
+| `--group <id>` | value | — | Resume an EXISTING `generationGroupId`: fill only its missing locales, reusing topic/images/meta and inheriting the group's publish/draft status. Exits 1 if the id matches no posts, if the value is missing, or when asked to fill EN into a group with no EN post. |
 
 **Topic resolution precedence:** resumed group topic → `--sourceUrl` → `--sourceText` → `--customTopic` → `--category` (a `random`/specific pool draw) → `smartSelectTopic()`.
 
-**Publish decision** (`generate-post.ts:158`):
+**Publish decision** (`generate-post.ts:177`):
 
 ```ts
-const publish = opts.publish === 'true' || (opts.publish !== 'false' && isScheduled);
+let publish = opts.publish === 'true' || (opts.publish !== 'false' && isScheduled);
 ```
 
-So scheduled runs (`GITHUB_EVENT_NAME=schedule`) publish directly unless `--publish false`; manual/local runs stay drafts unless `--publish true`.
+So scheduled runs (`GITHUB_EVENT_NAME=schedule`) publish directly unless `--publish false`; manual/local runs stay drafts unless `--publish true`. A `--group` heal then overrides this with the resumed group's own status — a filled-in locale never out-publishes its siblings.
 
 ### Idempotency (scheduled runs)
 
-When `GITHUB_EVENT_NAME=schedule` and `--force` is absent, the run uses a deterministic group id `sched-<YYYY-MM-DD>-<am|pm>` (`scheduleSlotId`). A duplicate cron fire for the same slot is a no-op; a re-run after partial failure resumes the same group and fills only the missing locales, reusing the stored topic, cover/content images, meta, and the EN body as the ru/uz anchor.
+When `GITHUB_EVENT_NAME=schedule` and `--force` is absent, the run uses a deterministic group id `sched-<YYYY-MM-DD>-<am|pm>` (`scheduleSlotId`) derived from the **current** wall clock. A duplicate cron fire for the same slot is a no-op; a re-run after partial failure resumes the same group and fills only the missing locales, reusing the stored topic, cover/content images, meta, and the EN body as the ru/uz anchor — but **only inside the same UTC half-day**; after the am/pm boundary a plain re-run starts a new topic under the current slot. Use `--group <id>` to heal a partial group reliably at any time.
 
 ### Environment
 
