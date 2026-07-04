@@ -14,10 +14,14 @@
  *   --sourceText <str>   Raw text to use as source material (max 5000 chars)
  *   --locales <list>     Comma-separated locales (default: en,ru,uz)
  *   --force              Ignore the per-slot idempotency check (scheduled runs)
+ *   --group <id>         Resume an EXISTING generationGroupId: reuse its
+ *                        topic/images/meta and generate only missing locales
  *
  * Scheduled runs (GITHUB_EVENT_NAME=schedule) use a deterministic group id
  * (sched-<date>-<am|pm>): a duplicate cron fire or a re-run after partial
  * failure resumes the same group and only generates the missing locales.
+ * That slot id is date-derived, so a NEXT-DAY re-run cannot heal a partial
+ * group — that is what --group is for.
  */
 
 import 'dotenv/config';
@@ -68,6 +72,14 @@ function parseArgs() {
     }
   }
 
+  // A bare `--group` (value forgotten) would silently fall through to a
+  // fresh uuid group and generate a brand-new topic — the exact accident
+  // the unknown-group guard below exists to prevent.
+  if (flags.has('group')) {
+    console.error('❌ --group requires a generationGroupId value');
+    process.exit(1);
+  }
+
   return {
     category: opts.category || '',
     customTopic: opts.customTopic || '',
@@ -79,6 +91,7 @@ function parseArgs() {
       .filter((l): l is BlogLocale => ALLOWED.includes(l as BlogLocale)),
     force: flags.has('force') || opts.force === 'true',
     publish: opts.publish || '',
+    group: opts.group || '',
   };
 }
 
@@ -150,39 +163,72 @@ async function main() {
     console.error('❌ No valid locales requested');
     process.exit(1);
   }
+  if (opts.group && opts.force) {
+    console.error('❌ --group and --force are contradictory: --force mints a NEW group, --group resumes an existing one');
+    process.exit(1);
+  }
 
   // Owner decision (2026-07-02): scheduled runs publish directly — the deep
   // pipeline's gates (grounded facts, link audit, lint, cross-model critique)
   // are the review. Manual dispatch defaults to publish too (workflow input);
   // bare local runs without --publish stay drafts for safe testing.
-  const publish = opts.publish === 'true' || (opts.publish !== 'false' && isScheduled);
-  console.log(publish ? '🚀 Mode: auto-publish' : '📝 Mode: drafts (review in admin)');
+  // Explicit --group heals override this below: a filled-in locale joins its
+  // group in the group's OWN status.
+  let publish = opts.publish === 'true' || (opts.publish !== 'false' && isScheduled);
 
   // --- Idempotency / continuation ------------------------------------------
   // Scheduled runs share one deterministic group per schedule slot: a
   // duplicate cron fire is a no-op, and a re-run after partial failure fills
   // only the missing locales. --force opts out and makes a brand-new group.
+  // --group resumes ANY existing group the same way — the healing path for
+  // partial groups whose slot has passed (the slot id is date-derived, so a
+  // next-day re-run alone can't reach them).
 
   const useSlotGroup = isScheduled && !opts.force;
-  const generationGroupId = useSlotGroup ? scheduleSlotId() : uuidv4();
+  const resumeGroupId = opts.group || (useSlotGroup ? scheduleSlotId() : null);
+  const generationGroupId = resumeGroupId ?? uuidv4();
   let existingTopic: TopicResult | null = null;
   let existingCover: ICoverImage | null = null;
   let existingImages: ICoverImage[] = [];
   let existingMeta: string | null = null;
   let locales = opts.locales;
 
-  if (useSlotGroup) {
-    const existing = await getByGroupId(generationGroupId);
+  if (resumeGroupId) {
+    const existing = await getByGroupId(resumeGroupId);
+    if (!existing && opts.group) {
+      // An explicit --group must name a real group — generating a fresh topic
+      // under a mistyped id would just create another orphan.
+      console.error(`❌ No posts found for group "${opts.group}" — check the generationGroupId`);
+      process.exit(1);
+    }
     if (existing) {
       // Drafts count as done — resume must not duplicate unreviewed drafts.
       const done = new Set(await listGroupLocales(generationGroupId));
       locales = opts.locales.filter(l => !done.has(l));
 
       if (locales.length === 0) {
-        const msg = `Slot group ${generationGroupId} already has all requested locales — nothing to do (dispatch with force=true for an extra post).`;
+        const msg = opts.group
+          ? `Group ${generationGroupId} already has all requested locales — nothing to do.`
+          : `Slot group ${generationGroupId} already has all requested locales — nothing to do (dispatch with force=true for an extra post).`;
         console.log(`✅ ${msg}`);
-        writeStepSummary(`### Post already generated for this slot\n${msg}`);
+        writeStepSummary(`### Nothing to generate\n${msg}`);
         process.exit(0);
+      }
+
+      // getByGroupId prefers the EN row, so a non-EN `existing` means the
+      // group has no EN post — its stored title/keywords are localized, and
+      // an "EN" post rebuilt from them would ship Russian/Uzbek metadata.
+      if (locales.includes('en') && existing.locale !== 'en') {
+        console.error(`❌ Group ${generationGroupId} has no EN post to rebuild the topic from — cannot fill EN. Recreate the group instead.`);
+        process.exit(1);
+      }
+
+      if (opts.group) {
+        // A healed locale must not out-publish its siblings: filling RU into
+        // a drafts group would put a lone published post live (and vice
+        // versa, a published group must not gain an invisible draft).
+        publish = existing.status === 'published';
+        console.log(`♻️  Inheriting group status: ${existing.status}`);
       }
 
       // Resume the interrupted group: reuse its topic, images, and meta.
@@ -205,6 +251,8 @@ async function main() {
       console.log(`♻️  Resuming group ${generationGroupId} for missing locales: ${locales.join(', ')}`);
     }
   }
+
+  console.log(publish ? '🚀 Mode: auto-publish' : '📝 Mode: drafts (review in admin)');
 
   // --- Resolve source material ----------------------------------------------
 
@@ -322,10 +370,10 @@ async function main() {
   const created: CreatedPost[] = [];
   const failed: string[] = [];
   // The EN body anchors ru/uz to one outline/example/figures. On a resumed
-  // slot the EN post may already be in the DB — reuse its content.
+  // group the EN post may already be in the DB — reuse its content.
   let enContent: string | undefined;
-  if (useSlotGroup) {
-    const existing = await getByGroupId(generationGroupId);
+  if (resumeGroupId) {
+    const existing = await getByGroupId(resumeGroupId);
     if (existing?.locale === 'en') enContent = existing.content;
   }
 

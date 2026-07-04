@@ -8,6 +8,8 @@ import { BlogPost, GenerationRequest, PostGroup } from '@/modules/admin/types';
 import { format } from 'date-fns';
 import React, { useCallback, useEffect, useState } from 'react';
 
+const ALL_LOCALES = ['en', 'ru', 'uz'] as const;
+
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [postGroups, setPostGroups] = useState<PostGroup[]>([]);
@@ -17,6 +19,7 @@ export default function AdminPostsPage() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(new Set());
+  const [fillingGroups, setFillingGroups] = useState<Set<string>>(new Set());
   const [genMode, setGenMode] = useState<'topic' | 'source'>('topic');
   const [generationForm, setGenerationForm] = useState<GenerationRequest>({
     category: 'auto',
@@ -177,6 +180,73 @@ export default function AdminPostsPage() {
       alert('Failed to generate posts');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  // Locales a generation group lacks. Ungrouped single posts are excluded:
+  // their synthetic group id is the post id, which the continuation API
+  // can't resolve to a topic.
+  const missingLocales = (group: PostGroup): string[] => {
+    if (!group.posts[0]?.generationGroupId) return [];
+    return ALL_LOCALES.filter(locale => !group.posts.some(p => p.locale === locale));
+  };
+
+  // Fill a group's missing locales via the generate API's continuation mode
+  // (reuses the group's topic/images/meta and anchors to its EN post). One
+  // locale per request — same 300s-budget reasoning as generatePosts above.
+  const generateMissing = async (group: PostGroup) => {
+    const missing = missingLocales(group);
+    if (missing.length === 0 || fillingGroups.has(group.generationGroupId)) return;
+
+    setFillingGroups(prev => new Set(prev).add(group.generationGroupId));
+    let createdCount = 0;
+    const failedLocales: string[] = [];
+    try {
+      for (const [index, locale] of missing.entries()) {
+        let succeeded = false;
+        try {
+          const response = await adminFetch('/api/blog/generate', {
+            method: 'POST',
+            body: JSON.stringify({ generationGroupId: group.generationGroupId, locales: [locale] }),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            createdCount += data.posts?.length ?? 0;
+            succeeded = true;
+          } else {
+            let message = `HTTP ${response.status}`;
+            try {
+              message = (await response.json()).error ?? message;
+            } catch {
+              /* non-JSON error body */
+            }
+            failedLocales.push(`${locale}: ${message}`);
+          }
+        } catch {
+          failedLocales.push(`${locale}: network error`);
+        }
+        // RU/UZ are anchored to the EN body — generating them after a failed
+        // EN would silently produce diverging, unanchored articles.
+        if (locale === 'en' && !succeeded) {
+          failedLocales.push(...missing.slice(index + 1).map(l => `${l}: skipped (needs the EN post as anchor)`));
+          break;
+        }
+      }
+
+      if (createdCount > 0) {
+        alert(
+          `Generated ${createdCount} missing post(s) as draft(s) — preview, then publish.${failedLocales.length > 0 ? `\nFailed: ${failedLocales.join('; ')}` : ''}`
+        );
+        fetchPosts();
+      } else {
+        alert(`Error: ${failedLocales.join('; ') || 'no posts generated'}`);
+      }
+    } finally {
+      setFillingGroups(prev => {
+        const next = new Set(prev);
+        next.delete(group.generationGroupId);
+        return next;
+      });
     }
   };
 
@@ -569,12 +639,56 @@ export default function AdminPostsPage() {
                         <AdminBadge variant='status' status={group.status}>
                           {group.status}
                         </AdminBadge>
+                        {missingLocales(group).length > 0 && (
+                          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[rgba(245,158,11,0.15)] text-amber-400'>
+                            missing:{' '}
+                            {missingLocales(group)
+                              .map(l => l.toUpperCase())
+                              .join(', ')}
+                          </span>
+                        )}
                         <span className='text-xs text-ember-muted'>{format(new Date(group.createdAt), 'MMM dd, yyyy')}</span>
                       </div>
                     </div>
 
                     {/* Group Actions */}
                     <div className='flex space-x-2'>
+                      {missingLocales(group).length > 0 && (
+                        <button
+                          onClick={() => generateMissing(group)}
+                          disabled={fillingGroups.has(group.generationGroupId)}
+                          className='inline-flex items-center px-3 py-1.5 border border-amber-500/40 text-xs font-medium rounded-md text-amber-400 bg-ember-surface hover:border-amber-400 focus:outline-none transition-colors disabled:opacity-50'
+                        >
+                          {fillingGroups.has(group.generationGroupId) ? (
+                            <>
+                              <svg className='animate-spin w-4 h-4 mr-1' fill='none' viewBox='0 0 24 24'>
+                                <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
+                                <path
+                                  className='opacity-75'
+                                  fill='currentColor'
+                                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                                ></path>
+                              </svg>
+                              Generating…
+                            </>
+                          ) : (
+                            <>
+                              <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                <path
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  strokeWidth='2'
+                                  d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
+                                ></path>
+                              </svg>
+                              Generate{' '}
+                              {missingLocales(group)
+                                .map(l => l.toUpperCase())
+                                .join(', ')}
+                            </>
+                          )}
+                        </button>
+                      )}
                       {group.status !== 'published' && (
                         <button
                           onClick={() => updateGroupStatus(group, 'published')}

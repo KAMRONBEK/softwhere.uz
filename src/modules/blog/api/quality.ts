@@ -95,6 +95,90 @@ function isOwnSiteUrl(url: string): boolean {
   }
 }
 
+/** External URLs in the body (original form, deduped) that are neither
+ *  internal nor in the allowed list — the fabricated-citation candidates. */
+export function findUnapprovedUrls(content: string, allowedUrls: Iterable<string>): string[] {
+  const allowed = [...new Set([...allowedUrls].map(normalizeUrl))];
+  const unapproved = new Set<string>();
+  for (const url of extractExternalUrls(content)) {
+    const norm = normalizeUrl(url);
+    if (isOwnSiteUrl(url)) continue;
+    // Prefix tolerance both ways: the URL regex stops at ')' so an allowed
+    // URL containing parentheses extracts as a strict prefix of itself.
+    const ok = allowed.some(a => norm === a || norm.startsWith(`${a}/`) || a.startsWith(norm));
+    if (!ok) unapproved.add(url);
+  }
+  return [...unapproved];
+}
+
+// Same code exclusion the audit applies (extractExternalUrls) — the strip
+// must never rewrite segments the audit never looked at.
+const CODE_SEGMENTS = /(```[\s\S]*?```|`[^`\n]*`)/g;
+
+// A full URL token. Superset of the audit's charset: one level of (...)
+// groups is swallowed so Wikipedia-style "..._(city)" URLs are handled as
+// one token instead of leaving a stray ")" behind after removal.
+const URL_TOKEN = /https?:\/\/(?:[^\s()\]>"']|\([^\s()]*\))+/g;
+
+/**
+ * Deterministically remove every unapproved external URL while keeping the
+ * surrounding prose: `[text](url)` collapses to its text, `![alt](url)`
+ * images, `(url)` citations, autolinks, and bare URLs are dropped. Code
+ * segments are untouched (the audit excludes them, so must the strip).
+ * Approval is decided per complete token — never by substring replacement,
+ * which corrupted allowed archive-style URLs embedding a flagged one.
+ * Last-resort remediation for the pipeline's final link gate — an uncited
+ * claim beats losing the whole locale, and the LLM revision pass (which can
+ * also drop the claim) runs first where wall-clock allows.
+ */
+export function stripUnapprovedUrls(content: string, allowedUrls: Iterable<string>): string {
+  const allowed = [...new Set([...allowedUrls].map(normalizeUrl))];
+  const approved = (url: string): boolean => {
+    const norm = normalizeUrl(url.replace(/[.,;:!?]+$/, ''));
+    if (isOwnSiteUrl(url)) return true;
+    return allowed.some(a => norm === a || norm.startsWith(`${a}/`) || a.startsWith(norm));
+  };
+  const firstUrlIn = (s: string): string | undefined => s.match(URL_TOKEN)?.[0];
+
+  return content
+    .split(CODE_SEGMENTS)
+    .map((part, i) => {
+      if (i % 2 === 1) return part; // code — leave untouched
+      return (
+        part
+          // Markdown images/links (target may contain one level of parens).
+          .replace(/!\[[^\]]*\]\((?:[^()]|\([^()]*\))*\)/g, m => {
+            const url = firstUrlIn(m);
+            return url && !approved(url) ? '' : m;
+          })
+          .replace(/\[([^\]]*)\]\((?:[^()]|\([^()]*\))*\)/g, (m, text: string) => {
+            const url = firstUrlIn(m.slice(text.length + 2));
+            return url && !approved(url) ? text : m;
+          })
+          // Autolinks.
+          .replace(/<(https?:\/\/[^>\s]+)>/g, (m, url: string) => (approved(url) ? m : ''))
+          // Parenthesized citations "(https://…)" — take the shell with the
+          // URL so no empty "()" is left in prose.
+          .replace(new RegExp(` ?\\(\\s*(${URL_TOKEN.source})\\s*\\)`, 'g'), (m, url: string) => (approved(url) ? m : ''))
+          // Bare URLs — matched as complete tokens, so a flagged URL that is
+          // a substring of a longer allowed one never damages it. Trailing
+          // punctuation belongs to the sentence and is kept.
+          .replace(URL_TOKEN, (m, ...rest) => {
+            const offset = rest[rest.length - 2] as number;
+            const whole = rest[rest.length - 1] as string;
+            // Skip tokens already inside a markdown construct kept above
+            // (their "](" or "<" prefix survived the earlier passes).
+            const before = whole.slice(Math.max(0, offset - 2), offset);
+            if (before.endsWith('(') || before.endsWith('<')) return m;
+            if (approved(m)) return m;
+            const trailing = m.match(/[.,;:!?]+$/)?.[0] ?? '';
+            return trailing;
+          })
+      );
+    })
+    .join('');
+}
+
 export function lintContent(content: string, opts: LintOptions): LintIssue[] {
   const issues: LintIssue[] = [];
   const words = content.split(/\s+/).filter(Boolean).length;
@@ -170,17 +254,7 @@ export function lintContent(content: string, opts: LintOptions): LintIssue[] {
   }
 
   // --- Link audit ----------------------------------------------------------
-  const allowed = new Set([...opts.allowedUrls].map(normalizeUrl));
-  const unapproved = new Set<string>();
-  for (const url of extractExternalUrls(content)) {
-    const norm = normalizeUrl(url);
-    if (isOwnSiteUrl(url)) continue;
-    // Prefix tolerance both ways: the URL regex stops at ')' so an allowed
-    // URL containing parentheses extracts as a strict prefix of itself.
-    const ok = [...allowed].some(a => norm === a || norm.startsWith(`${a}/`) || a.startsWith(norm));
-    if (!ok) unapproved.add(url);
-  }
-  for (const url of unapproved) {
+  for (const url of findUnapprovedUrls(content, opts.allowedUrls)) {
     issues.push({ type: 'link', detail: `External URL not in the verified source list (likely fabricated): ${url}` });
   }
 

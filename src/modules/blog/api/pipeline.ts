@@ -6,7 +6,8 @@
  *
  * Everything here degrades gracefully: no fact sheet → qualitative writing,
  * one provider configured → critique is skipped, revision fails → the draft
- * stands unless it still contains fabricated links (the one hard failure).
+ * stands, fabricated links → revised away (deep) or deterministically
+ * stripped rather than costing the locale.
  */
 
 import type { IBlogPost, ICoverImage } from '@/modules/blog/model/BlogPost';
@@ -29,7 +30,7 @@ import {
   type TopicResult,
   type SourceClassification,
 } from '@/modules/blog/api/generator';
-import { lintContent, buildRevisionInstruction, type LintIssue } from '@/modules/blog/api/quality';
+import { lintContent, buildRevisionInstruction, stripUnapprovedUrls, type LintIssue } from '@/modules/blog/api/quality';
 import { normalizeInternalLinks, normalizeUzbekApostrophes, renderChartBlocks } from '@/modules/blog/utils/normalize';
 import type { FactSheet } from '@/modules/blog/api/research';
 
@@ -84,6 +85,23 @@ function splitIncompleteTail(content: string): { body: string; fragment: string 
   const idx = content.lastIndexOf('\n\n');
   if (idx === -1) return { body: content, fragment: '' };
   return { body: content.slice(0, idx).trimEnd(), fragment: content.slice(idx).trim() };
+}
+
+/** Deterministic content normalization — must re-run after ANY full re-emit
+ *  by a model, since a revision regenerates chart fences/links/apostrophes. */
+function normalizeContent(content: string, locale: BlogLocale): string {
+  let out = renderChartBlocks(content);
+  out = normalizeInternalLinks(out);
+  return locale === 'uz' ? normalizeUzbekApostrophes(out) : out;
+}
+
+function buildLintRevisionPrompt(issues: LintIssue[], content: string): string {
+  return `${buildRevisionInstruction(issues)}
+
+DRAFT:
+---
+${content}
+---`;
 }
 
 function allowedUrlsFor(factSheet: FactSheet | undefined, images: ICoverImage[], source?: ProduceOptions['source']): string[] {
@@ -197,13 +215,13 @@ export async function producePostContent(opts: ProduceOptions): Promise<Produced
   let issues = lintContent(content, { locale, allowedUrls });
   if (issues.length > 0) {
     logger.info(`Lint found ${issues.length} issue(s) in ${locale} draft — revising`, undefined, CONTEXT);
-    const revisionPrompt = `${buildRevisionInstruction(issues)}
-
-DRAFT:
----
-${content}
----`;
-    const revised = await generateContentWithProvider(revisionPrompt, `blog-revise-${locale}`, undefined, system, extras);
+    const revised = await generateContentWithProvider(
+      buildLintRevisionPrompt(issues, content),
+      `blog-revise-${locale}`,
+      undefined,
+      system,
+      extras
+    );
     // A revision is a full re-emit bounded by the same completion cap — accept
     // it only when it is not itself truncated.
     if (revised && wordCount(revised.text) >= WORD_FLOOR && revised.finishReason !== 'length' && !looksTruncated(revised.text)) {
@@ -258,17 +276,51 @@ ${content}
   // image URLs (the model can't be trusted to URL-encode configs itself),
   // locale-relative internal links that 404 (`](uz/estimator)`), and the UZ
   // apostrophe glyph lottery (U+0027 vs U+2018 vs U+2019 in one document).
-  content = renderChartBlocks(content);
-  content = normalizeInternalLinks(content);
-  if (locale === 'uz') content = normalizeUzbekApostrophes(content);
+  content = normalizeContent(content, locale);
 
   // --- Final gate -----------------------------------------------------------
+  // Unapproved URLs here were introduced (or kept) by the critique/proofread
+  // revisions, which re-emit the whole post AFTER the lint-revision pass — a
+  // refusal-only gate silently dropped whole locales over 1-2 links (live RU
+  // loss, 2026-07-03). Remediate instead: one surgical link-removal revision
+  // (deep mode only — the fast route's 300s budget can't afford another
+  // body-length call), then a deterministic strip. Invented sources still
+  // never ship; now the prose survives them.
   issues = lintContent(content, { locale, allowedUrls });
-  const linkIssues = issues.filter(i => i.type === 'link');
+  let linkIssues = issues.filter(i => i.type === 'link');
+  if (linkIssues.length > 0 && mode === 'deep') {
+    logger.warn(`${linkIssues.length} unapproved URL(s) in final ${locale} content — requesting link-removal revision`, undefined, CONTEXT);
+    const revised = await generateContentWithProvider(
+      buildLintRevisionPrompt(linkIssues, content),
+      `blog-link-revise-${locale}`,
+      undefined,
+      system,
+      extras
+    );
+    if (revised && wordCount(revised.text) >= WORD_FLOOR && revised.finishReason !== 'length' && !looksTruncated(revised.text)) {
+      // Adopt the re-emit only if it actually reduced the link issues — the
+      // premise of this gate is that revisions can ignore link instructions,
+      // and swapping a known-good body for a re-roll with as many (or more)
+      // fabricated URLs would only widen what the strip below has to cut.
+      const candidate = normalizeContent(revised.text, locale);
+      const candidateIssues = lintContent(candidate, { locale, allowedUrls });
+      if (candidateIssues.filter(i => i.type === 'link').length < linkIssues.length) {
+        content = candidate;
+        issues = candidateIssues;
+        linkIssues = issues.filter(i => i.type === 'link');
+      }
+    }
+  }
   if (linkIssues.length > 0) {
-    // Fabricated citations survived a revision pass: refuse the post rather
-    // than publish invented sources. Everything else is a soft warning.
-    logger.warn(`Refusing ${locale} content: ${linkIssues.length} unapproved URL(s) after revision`, undefined, CONTEXT);
+    logger.warn(`Stripping ${linkIssues.length} unapproved URL(s) from ${locale} content`, undefined, CONTEXT);
+    content = stripUnapprovedUrls(content, allowedUrls);
+    issues = lintContent(content, { locale, allowedUrls });
+    linkIssues = issues.filter(i => i.type === 'link');
+  }
+  if (linkIssues.length > 0) {
+    // Should be unreachable (the strip removes every audited URL) — kept as
+    // the hard backstop so invented sources can never slip through.
+    logger.warn(`Refusing ${locale} content: ${linkIssues.length} unapproved URL(s) after remediation`, undefined, CONTEXT);
     return null;
   }
 

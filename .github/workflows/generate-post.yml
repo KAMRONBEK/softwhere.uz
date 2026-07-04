@@ -47,6 +47,11 @@ on:
         required: false
         type: string
         default: ''
+      group:
+        description: 'Existing generationGroupId to fill missing locales for (e.g. sched-2026-07-03-pm) — reuses its topic/images and skips locales that already exist'
+        required: false
+        type: string
+        default: ''
       force:
         description: 'Bypass the already-generated-this-slot check'
         required: false
@@ -109,6 +114,7 @@ jobs:
           INPUT_CUSTOM_TOPIC: ${{ github.event.inputs.customTopic }}
           INPUT_SOURCE_URL: ${{ github.event.inputs.sourceUrl }}
           INPUT_SOURCE_TEXT: ${{ github.event.inputs.sourceText }}
+          INPUT_GROUP: ${{ github.event.inputs.group }}
           INPUT_FORCE: ${{ github.event.inputs.force }}
           INPUT_PUBLISH: ${{ github.event.inputs.publish }}
         run: |
@@ -117,6 +123,7 @@ jobs:
             --customTopic "$INPUT_CUSTOM_TOPIC" \
             --sourceUrl "$INPUT_SOURCE_URL" \
             --sourceText "$INPUT_SOURCE_TEXT" \
+            --group "$INPUT_GROUP" \
             --locales "en,ru,uz" \
             ${INPUT_FORCE:+--force "$INPUT_FORCE"} \
             ${INPUT_PUBLISH:+--publish "$INPUT_PUBLISH"}
@@ -131,7 +138,7 @@ jobs:
             --title "Blog generation failed ($(date -u +%FT%H:%MZ))" \
             --body "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
 
-          Scheduled runs resume the same generation slot — re-running the workflow only generates the missing locales." \
+          Do NOT plain re-run this workflow: the slot id is derived from the CURRENT UTC date + am/pm, so a re-run outside the failed run's own half-day slot silently starts a NEW topic under the current slot. Instead, dispatch this workflow with group=<generationGroupId from the run summary> to fill exactly the missing locales, or use the admin panel's Generate button on the incomplete group." \
             || echo "::warning::Could not create failure issue"
 
       - name: Keepalive (reset 60-day schedule auto-disable)

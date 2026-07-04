@@ -26,7 +26,7 @@ env from `.env`.
 
 > **`environment: Production` must have no required reviewers or wait timers.** A scheduled
 > job would otherwise sit in "Waiting" and eventually fail (see the note at
-> `.github/workflows/generate-post.yml:74`). Workflow secrets are read from this environment.
+> `.github/workflows/generate-post.yml:79`). Workflow secrets are read from this environment.
 
 ---
 
@@ -46,7 +46,7 @@ Optional ones degrade gracefully when absent.
 | `API_SECRET` | optional | optional | — | Bearer token to bust the site's ISR caches right after writing (`POST /api/admin/revalidate`). Without it, new/updated posts surface within ~1 hour. |
 
 ¹ The scripts guard on **at least one** AI key: `MOONSHOT_API_KEY` **or** `KIMI_API_KEY` **or**
-`DEEPSEEK_API_KEY` (`scripts/generate-post.ts:46`, `scripts/regenerate-post.ts:42`). The
+`DEEPSEEK_API_KEY` (`scripts/generate-post.ts:50`, `scripts/regenerate-post.ts:42`). The
 workflows only wire `MOONSHOT_API_KEY` + `DEEPSEEK_API_KEY`; `KIMI_API_KEY` is an accepted alias
 in code but is not passed by the workflow env. Without `MOONSHOT_API_KEY`, generation falls back
 to DeepSeek and is **ungrounded** (no web-search facts).
@@ -57,7 +57,7 @@ what the audit flags.
 `GITHUB_TOKEN` is provided automatically by Actions (used as `github.token` for issue creation
 and the keepalive re-enable). `NEXT_PUBLIC_BASE_URL` is read by the scripts for building post
 URLs and the revalidate call; it is not set in the workflow env, so it falls back to
-`https://softwhere.uz` (`scripts/generate-post.ts:138`).
+`https://softwhere.uz` (`scripts/generate-post.ts:152`).
 
 ---
 
@@ -83,9 +83,19 @@ workflow_dispatch:
 ```
 
 Scheduled runs use a deterministic **slot group id** `sched-<YYYY-MM-DD>-<am|pm>`
-(`scripts/generate-post.ts:92`). A duplicate cron fire, or a re-run after a partial failure,
+(`scripts/generate-post.ts:105`). A duplicate cron fire, or a re-run after a partial failure,
 resumes the same slot and generates **only the missing locales** — reusing the slot's topic,
 images, and meta. Pass `force=true` to opt out and start a brand-new group.
+
+The slot id is derived from the **current** UTC date + am/pm, so that self-healing only works
+inside the failed run's own half-day slot — a re-run after the am/pm boundary (or the next day)
+silently starts a **new topic** under the current slot instead. To fill a partial group reliably,
+dispatch with `group=<generationGroupId>` — it resumes that group exactly like a slot resume
+(reuses topic/images/meta, skips locales that already exist, **inherits the group's
+publish/draft status**, errors if the id matches nothing, and refuses to fill EN when the group
+has no EN post to rebuild the topic from). `group` cannot be combined with `force`. The admin
+panel's per-group **Generate** button is the UI equivalent (route continuation mode, fast
+pipeline).
 
 ### Dispatch inputs
 
@@ -95,16 +105,18 @@ images, and meta. Pass `force=true` to opt out and start a brand-new group.
 | `customTopic` | string | `''` | Free-text topic; overrides `category`. Normalized by the model first. |
 | `sourceUrl` | string | `''` | URL fetched and used as source material; overrides topic selection. |
 | `sourceText` | string | `''` | Raw source text (truncated to `MAX_SOURCE_TEXT_LENGTH`); overrides topic selection. |
+| `group` | string | `''` | Existing `generationGroupId` to fill missing locales for; overrides topic selection (topic/images/meta AND publish status come from the group; `publish`/`force` inputs are ignored/rejected). |
 | `force` | boolean | `false` | Bypass the slot idempotency check → new group. |
 | `publish` | boolean | `true` | `true` publishes immediately; `false` saves drafts for review. |
 
-Precedence in the script (`scripts/generate-post.ts:209`+): resumed slot topic → `sourceUrl` →
+Precedence in the script (`scripts/generate-post.ts:257`+): resumed group topic → `sourceUrl` →
 `sourceText` → `customTopic` → `category`/`random` → smart auto-select.
 
-**Publish semantics** (`scripts/generate-post.ts:158`): `publish` is true when the input is
+**Publish semantics** (`scripts/generate-post.ts:177`): `publish` is true when the input is
 `'true'`, or when the input is not `'false'` **and** the run is scheduled. So scheduled runs
 auto-publish unless `publish=false`; a bare local run (`GITHUB_EVENT_NAME` unset, no `--publish`)
-stays as drafts.
+stays as drafts. A `group=<id>` dispatch overrides all of this and inherits the resumed group's
+own status — healed locales never out-publish their siblings.
 
 ### What the step runs
 
@@ -115,6 +127,7 @@ run: |
     --customTopic "$INPUT_CUSTOM_TOPIC" \
     --sourceUrl "$INPUT_SOURCE_URL" \
     --sourceText "$INPUT_SOURCE_TEXT" \
+    --group "$INPUT_GROUP" \
     --locales "en,ru,uz" \
     ${INPUT_FORCE:+--force "$INPUT_FORCE"} \
     ${INPUT_PUBLISH:+--publish "$INPUT_PUBLISH"}
@@ -123,8 +136,8 @@ run: |
 On success the script persists each locale via `persistLocalePost`, and (when publishing)
 pings IndexNow, requests ISR revalidation with `API_SECRET`, writes a `$GITHUB_STEP_SUMMARY`
 table, and sends a Telegram message. It **exits non-zero if any locale failed or nothing was
-created** (`scripts/generate-post.ts:446`) — safe, because the next scheduled run resumes the
-slot and fills only what's missing.
+created** (`scripts/generate-post.ts:494`) — safe, because a `group=<id>` dispatch (or a re-run
+inside the same UTC half-day slot) fills only what's missing.
 
 ### Concurrency, permissions, timeouts
 
@@ -149,6 +162,9 @@ gh workflow run generate-post.yml -f category=mobile-app-development -f publish=
 
 # Force an extra post from a custom topic, published immediately
 gh workflow run generate-post.yml -f customTopic="How much a Telegram bot costs in 2026" -f force=true
+
+# Fill the missing locales of a partial group (e.g. after a failed scheduled run)
+gh workflow run generate-post.yml -f group=sched-2026-07-03-pm
 ```
 
 Locally (writes to whatever `DATABASE_URL` points at; defaults to drafts):
@@ -315,8 +331,10 @@ npx tsx scripts/audit-posts.ts --json    # local, machine-readable
   as the source of truth for posts (the repo only holds the scripts/pipeline).
 - **Generate and regenerate share the `generate-post` concurrency group** on purpose — they must
   never run at the same time (shared DB + AI quotas). Audit uses its own `audit-posts` group.
-- **Failure = an open issue** for generate and regenerate (not audit). Re-dispatching with the
-  same slot/groups is the intended retry — it fills only what's missing / left untouched.
+- **Failure = an open issue** for generate and regenerate (not audit). For the generator, the
+  intended retry is dispatching with `group=<id>` (a plain re-run only resumes the slot inside
+  the same UTC half-day, and outside it silently generates a new topic). For regenerate,
+  re-dispatch with the same groups — failed locales left their posts untouched.
 - **Keepalive is generate-only.** The monthly audit and the scheduled generate both reset
   GitHub's 60-day auto-disable indirectly by running, but only `generate-post.yml` has an
   explicit `enable` step.
