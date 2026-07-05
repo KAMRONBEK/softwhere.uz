@@ -14,8 +14,8 @@ MCP up on a fresh machine.
 | `context7` | stdio | `npx -y @upstash/context7-mcp@latest` | nothing |
 | `playwright` | stdio | `npx -y @playwright/mcp@latest` | nothing |
 | `github` | stdio (Docker) | `docker run … ghcr.io/github/github-mcp-server` | Docker + `GITHUB_PERSONAL_ACCESS_TOKEN` |
-| `searchconsole-mcp` | stdio (local wrapper) | `yarn mcp:searchconsole` → `scripts/searchconsole-mcp.js` | `GSC_SERVICE_ACCOUNT_JSON_BASE64` |
-| `yandex-webmaster` | stdio (local wrapper) | `yarn mcp:yandex-webmaster` → `scripts/yandex-webmaster-mcp.js` | `YANDEX_WEBMASTER_TOKEN` (+ `YANDEX_WEBMASTER_HOST_URL`) |
+| `searchconsole-mcp` | stdio (local wrapper) | `node scripts/searchconsole-mcp.js` | `GSC_SERVICE_ACCOUNT_JSON_BASE64` |
+| `yandex-webmaster` | stdio (local wrapper) | `node scripts/yandex-webmaster-mcp.js` | `YANDEX_WEBMASTER_TOKEN` (+ `YANDEX_WEBMASTER_HOST_URL`) |
 
 Two config files declare these servers, one per client:
 
@@ -36,8 +36,8 @@ The two files are close but not identical. Do not assume one mirrors the other.
 | `context7` | `"type": "stdio"` + `command`/`args` | `command`/`args` (type inferred) |
 | `playwright` | `"type": "stdio"` + `command`/`args` | `command`/`args` (type inferred) |
 | **`github`** | **local Docker stdio** `ghcr.io/github/github-mcp-server` | **remote HTTP** `https://api.githubcopilot.com/mcp/` |
-| `searchconsole-mcp` | `yarn mcp:searchconsole` | `yarn mcp:searchconsole` |
-| `yandex-webmaster` | `yarn mcp:yandex-webmaster` | `yarn mcp:yandex-webmaster` |
+| `searchconsole-mcp` | `node scripts/searchconsole-mcp.js` | `node scripts/searchconsole-mcp.js` |
+| `yandex-webmaster` | `node scripts/yandex-webmaster-mcp.js` | `node scripts/yandex-webmaster-mcp.js` |
 
 The one that bites: **`github` is a different server in each client.** Claude Code runs GitHub's
 official server locally in Docker and needs a `GITHUB_PERSONAL_ACCESS_TOKEN` in the shell
@@ -96,12 +96,15 @@ client's environment). Cursor sidesteps all of this by using the hosted endpoint
 ### Custom local wrappers
 
 `searchconsole-mcp` and `yandex-webmaster` are the only servers written for this repo. Both are
-launched through `yarn` scripts that run a Node wrapper in `scripts/`:
+launched directly with `node` running a wrapper in `scripts/`. Launching via `node` (not `yarn`)
+avoids a Windows failure: `spawn()` cannot execute the `yarn`/`npx` `.cmd` shims without a shell, so
+a `yarn` launcher works on Ubuntu/macOS but fails on Windows with `ENOENT` (server → `Connection
+closed`).
 
 ```jsonc
-"searchconsole-mcp": { "type": "stdio", "command": "yarn", "args": ["mcp:searchconsole"], "env": {} },
+"searchconsole-mcp": { "type": "stdio", "command": "node", "args": ["scripts/searchconsole-mcp.js"], "env": {} },
 "yandex-webmaster":  {
-  "type": "stdio", "command": "yarn", "args": ["mcp:yandex-webmaster"],
+  "type": "stdio", "command": "node", "args": ["scripts/yandex-webmaster-mcp.js"],
   "env": { "YANDEX_WEBMASTER_HOST_URL": "https://softwhere.uz" }
 }
 ```
@@ -142,6 +145,7 @@ What it does, in order (`scripts/searchconsole-mcp.js`):
      cwd: projectRoot,
      env: { ...process.env, GOOGLE_APPLICATION_CREDENTIALS: credentialsPath },
      stdio: 'inherit',
+     shell: process.platform === 'win32', // npx is a .cmd shim; Windows needs a shell to launch it
    });
    ```
 
@@ -216,9 +220,11 @@ Relevant `package.json` scripts:
 
 - `yarn mcp` is the **one command you run manually** to (re)hydrate MCP secrets. It writes
   `.env.local` from Vercel's production env, then verifies.
-- `yarn mcp:searchconsole` / `yarn mcp:yandex-webmaster` are **invoked by the MCP client**, not by
-  you — they are the `command`/`args` in the config files. Each wrapper re-reads `.env.local` on
-  startup, so as long as `yarn mcp` has populated it, the servers pick the secrets up.
+- The wrappers `node scripts/searchconsole-mcp.js` / `node scripts/yandex-webmaster-mcp.js` are
+  **invoked by the MCP client**, not by you — they are the `command`/`args` in the config files.
+  (The `yarn mcp:searchconsole` / `yarn mcp:yandex-webmaster` package scripts still run the same
+  wrappers, handy for manual testing.) Each wrapper re-reads `.env.local` on startup, so as long as
+  `yarn mcp` has populated it, the servers pick the secrets up.
 - `.env.local` is git-ignored (`.gitignore` covers `.env*.local` and `.env*`); never commit it.
 - `dotenv` (dev dependency) is what the wrappers use to read `.env.local`.
 
@@ -285,6 +291,7 @@ in `.env.local` from a password manager and skip the pull.
 | `GSC_SERVICE_ACCOUNT_JSON_BASE64 must be a valid base64…` | Not base64, not JSON, or missing `client_email`/`private_key` | Re-encode a real service-account key with `base64 -w0` |
 | `github` tools missing in Claude Code | Docker not running or `GITHUB_PERSONAL_ACCESS_TOKEN` unset | Start Docker; export the token in the launching shell |
 | GSC/Yandex tools missing | Wrapper exited (bad/empty secret) | Run the wrapper directly (`yarn mcp:searchconsole`) to see the error |
+| GSC/Yandex server `Connection closed` on **Windows** | A `yarn`/`npx` `.cmd` shim was spawned without a shell → `ENOENT` (works on Ubuntu/macOS, not Windows) | Fixed in-repo: configs launch via `node scripts/…` and wrappers spawn `npx` with `shell` on Windows. Pull latest, then restart the client |
 
 ## Related docs
 
@@ -295,4 +302,4 @@ in `.env.local` from a password manager and skip the pull.
 - [testing/ai-playwright-suite.md](./testing/ai-playwright-suite.md) — E2E suite paired with the `playwright` server
 - [../README.md](../README.md) — project overview and scripts
 
-_Last verified against code: 2026-07-03._
+_Last verified against code: 2026-07-04._

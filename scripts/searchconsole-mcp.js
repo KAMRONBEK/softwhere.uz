@@ -55,6 +55,8 @@ const child = spawn('npx', ['-y', '@vmandic/searchconsole-mcp'], {
     GOOGLE_APPLICATION_CREDENTIALS: credentialsPath,
   },
   stdio: 'inherit',
+  // Windows: npx is a .cmd shim that spawn() can only launch through cmd.exe.
+  shell: process.platform === 'win32',
 });
 
 child.on('exit', (code, signal) => {

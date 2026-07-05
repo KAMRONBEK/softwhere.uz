@@ -28,6 +28,8 @@ const child = spawn('npx', ['-y', 'yandex-webmaster-mcp'], {
   cwd: projectRoot,
   env,
   stdio: 'inherit',
+  // Windows: npx is a .cmd shim that spawn() can only launch through cmd.exe.
+  shell: process.platform === 'win32',
 });
 
 child.on('exit', (code, signal) => {

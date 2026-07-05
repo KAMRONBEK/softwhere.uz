@@ -19,13 +19,13 @@
     },
     "searchconsole-mcp": {
       "type": "stdio",
-      "command": "yarn",
-      "args": ["mcp:searchconsole"]
+      "command": "node",
+      "args": ["scripts/searchconsole-mcp.js"]
     },
     "yandex-webmaster": {
       "type": "stdio",
-      "command": "yarn",
-      "args": ["mcp:yandex-webmaster"],
+      "command": "node",
+      "args": ["scripts/yandex-webmaster-mcp.js"],
       "env": {
         "YANDEX_WEBMASTER_HOST_URL": "https://softwhere.uz"
       }
