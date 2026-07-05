@@ -26,32 +26,19 @@
       ],
       "env": {}
     },
-    "github": {
-      "type": "stdio",
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "ghcr.io/github/github-mcp-server"
-      ],
-      "env": {}
-    },
     "searchconsole-mcp": {
       "type": "stdio",
-      "command": "yarn",
+      "command": "node",
       "args": [
-        "mcp:searchconsole"
+        "scripts/searchconsole-mcp.js"
       ],
       "env": {}
     },
     "yandex-webmaster": {
       "type": "stdio",
-      "command": "yarn",
+      "command": "node",
       "args": [
-        "mcp:yandex-webmaster"
+        "scripts/yandex-webmaster-mcp.js"
       ],
       "env": {
         "YANDEX_WEBMASTER_HOST_URL": "https://softwhere.uz"
