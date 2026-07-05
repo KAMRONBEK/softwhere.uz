@@ -1,9 +1,10 @@
 import type { ICoverImage } from '@/modules/blog/model/BlogPost';
-import { listRecentTopicInfo } from '@/modules/blog/model/posts.repository';
+import { listPublishedTitles, listRecentTopicInfo } from '@/modules/blog/model/posts.repository';
 import { safeGenerateContent, safeGenerateJSON } from '@/core/ai';
 import type { FactSheet } from '@/modules/blog/api/research';
 import { logger } from '@/core/logger';
 import { createSlug } from '@/shared/utils/slug';
+import { isSameTopicTitle } from '@/modules/blog/utils/similarity';
 import { clampMeta } from '@/modules/blog/utils/meta';
 import { assertFetchableUrl } from '@/shared/utils/security';
 import { SERVICE_PILLARS, getAllTopics, type SEOTopic, type PostFormat } from '@/modules/blog/data/seo-topics';
@@ -355,7 +356,12 @@ interface RecentPostInfo {
 }
 
 export async function smartSelectTopic(): Promise<TopicResult> {
-  const recentPosts = await listRecentTopicInfo(30);
+  const [recentPosts, existingTitles] = await Promise.all([listRecentTopicInfo(30), listPublishedTitles('en')]);
+
+  // Skip any topic already covered by a published post (title overlap) — not
+  // just one whose exact keyword is in the recent-30 window. That narrow window
+  // is what let the same topics regenerate as `-1` duplicate slugs (2026-07-04).
+  const isCovered = (title: string) => existingTitles.some(existing => isSameTopicTitle(title, existing));
 
   const usedKeywords = new Set(recentPosts.map((p: RecentPostInfo) => p.primaryKeyword).filter(Boolean));
   const recentFormats = recentPosts
@@ -373,7 +379,7 @@ export async function smartSelectTopic(): Promise<TopicResult> {
   const allTopics = getAllTopics();
 
   const scored = allTopics
-    .filter(t => !usedKeywords.has(t.primaryKeyword))
+    .filter(t => !usedKeywords.has(t.primaryKeyword) && !isCovered(t.title))
     .map(t => {
       const pillar = SERVICE_PILLARS.find(p => p.id === t.servicePillar);
       const weight = pillar?.weight ?? 1;
@@ -389,11 +395,16 @@ export async function smartSelectTopic(): Promise<TopicResult> {
     return pool[Math.floor(Math.random() * pool.length)].topic;
   }
 
-  const focusTopics = allTopics.filter(t => {
+  // Everything scored is covered/used: prefer an uncovered high-weight topic,
+  // then any uncovered topic, and only then fall back to the full pool.
+  const uncovered = allTopics.filter(t => !isCovered(t.title));
+  const focusTopics = uncovered.filter(t => {
     const pillar = SERVICE_PILLARS.find(p => p.id === t.servicePillar);
     return pillar && pillar.weight >= 2;
   });
-  return focusTopics[Math.floor(Math.random() * focusTopics.length)] ?? allTopics[0];
+  return (
+    focusTopics[Math.floor(Math.random() * focusTopics.length)] ?? uncovered[Math.floor(Math.random() * uncovered.length)] ?? allTopics[0]
+  );
 }
 
 // ---------------------------------------------------------------------------

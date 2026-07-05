@@ -67,3 +67,44 @@ export function normalizeUzbekApostrophes(text: string): string {
     })
     .join('');
 }
+
+/**
+ * Some drafts arrive with the ENTIRE post wrapped in one ```markdown … ```
+ * (or a bare ``` … ```) fence, which renders the whole article as a literal
+ * code block instead of prose (a live UZ post shipped this way, 2026-07). Strip
+ * that single document-level wrapper. A post with its OWN inner code fences is
+ * left untouched unless the wrapper is an explicit `markdown`/`md` fence, since
+ * removing a bare outer ``` could unbalance an inner block.
+ */
+export function unwrapDocumentFence(content: string): string {
+  const trimmed = content.trim();
+  const m = /^```([a-zA-Z0-9+-]*)[^\S\n]*\r?\n([\s\S]*?)\r?\n```$/.exec(trimmed);
+  if (!m) return content;
+  const lang = m[1].toLowerCase();
+  const inner = m[2];
+  const isMarkdownWrapper = lang === 'markdown' || lang === 'md' || lang === 'mdx';
+  // A bare/other-language fence is only safe to unwrap when the body has no
+  // fence of its own — otherwise the trailing ``` we removed may belong to it.
+  if (!isMarkdownWrapper && (lang !== '' || /^```/m.test(inner))) return content;
+  return inner.trim();
+}
+
+/**
+ * Remove a stray leading thematic break / hallucinated-frontmatter line (`---`,
+ * `***`, or `___`) some drafts emit directly above the H1. It renders as a
+ * spurious <hr> and, by displacing the leading `# Title`, defeats the reader
+ * page's duplicate-H1 stripper. Only the very first line is touched, so real
+ * in-body dividers are left alone.
+ */
+export function stripLeadingThematicBreak(content: string): string {
+  return content.replace(/^﻿?[^\S\n]*(?:-{3,}|\*{3,}|_{3,})[^\S\n]*\r?\n+(?=\s*#)/, '');
+}
+
+/**
+ * Strip a site-name suffix ("… | SoftWhere.uz Blog") a model baked into a
+ * title. The app appends its own " | SoftWhere.uz Blog", so a stored suffix
+ * doubles it in the <title>. Anchored to the end and case-insensitive.
+ */
+export function stripSiteNameSuffix(title: string): string {
+  return title.replace(/\s*[|｜–—-]\s*softwhere\.?\s*uz\b.*$/i, '').trim();
+}

@@ -31,7 +31,14 @@ import {
   type SourceClassification,
 } from '@/modules/blog/api/generator';
 import { lintContent, buildRevisionInstruction, stripUnapprovedUrls, type LintIssue } from '@/modules/blog/api/quality';
-import { normalizeInternalLinks, normalizeUzbekApostrophes, renderChartBlocks } from '@/modules/blog/utils/normalize';
+import {
+  normalizeInternalLinks,
+  normalizeUzbekApostrophes,
+  renderChartBlocks,
+  unwrapDocumentFence,
+  stripLeadingThematicBreak,
+  stripSiteNameSuffix,
+} from '@/modules/blog/utils/normalize';
 import type { FactSheet } from '@/modules/blog/api/research';
 
 const CONTEXT = 'BLOG';
@@ -90,7 +97,11 @@ function splitIncompleteTail(content: string): { body: string; fragment: string 
 /** Deterministic content normalization — must re-run after ANY full re-emit
  *  by a model, since a revision regenerates chart fences/links/apostrophes. */
 function normalizeContent(content: string, locale: BlogLocale): string {
-  let out = renderChartBlocks(content);
+  // Structural fixes first: unwrap a whole-document ```markdown fence and drop a
+  // stray leading `---`, so the H1 the reader page strips is the real first line.
+  let out = unwrapDocumentFence(content);
+  out = stripLeadingThematicBreak(out);
+  out = renderChartBlocks(out);
   out = normalizeInternalLinks(out);
   return locale === 'uz' ? normalizeUzbekApostrophes(out) : out;
 }
@@ -141,6 +152,9 @@ export async function producePostContent(opts: ProduceOptions): Promise<Produced
       primaryKeyword: topic.primaryKeyword,
       secondaryKeywords: topic.secondaryKeywords,
     });
+    // The localizer is told the app appends " | SoftWhere.uz Blog"; models
+    // sometimes bake it in anyway. Strip it before it reaches the title/slug.
+    localizedMeta.title = stripSiteNameSuffix(localizedMeta.title);
     promptTopic = {
       ...topic,
       title: localizedMeta.title,
@@ -383,6 +397,10 @@ export async function persistLocalePost(opts: PersistOptions): Promise<IBlogPost
     primaryKeyword = localized.primaryKeyword;
     secondaryKeywords = localized.secondaryKeywords;
   }
+
+  // Defensive: never persist a title carrying the site-name suffix the app
+  // appends itself (applies to EN too, whose title comes straight from topic).
+  title = stripSiteNameSuffix(title);
 
   if (locale === 'uz') {
     // Same glyph normalization the body got — meta/title/keywords must match

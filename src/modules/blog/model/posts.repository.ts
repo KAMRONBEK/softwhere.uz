@@ -335,6 +335,16 @@ export interface RecentTopicInfo {
   primaryKeyword?: string;
 }
 
+/** Every published title for a locale — lets topic selection skip a topic
+ *  that is already covered (not just one in the recent-30 window). */
+export async function listPublishedTitles(locale: Locale = 'en'): Promise<string[]> {
+  const rows = await db
+    .select({ title: blogPosts.title })
+    .from(blogPosts)
+    .where(and(eq(blogPosts.status, 'published'), eq(blogPosts.locale, locale)));
+  return rows.map(r => r.title);
+}
+
 /** Recent posts' topic metadata for a locale — drives smart topic rotation. */
 export async function listRecentTopicInfo(limit = 30, locale: Locale = 'en'): Promise<RecentTopicInfo[]> {
   const rows = await db
