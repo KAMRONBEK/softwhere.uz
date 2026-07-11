@@ -96,8 +96,8 @@ function parseArgs() {
 }
 
 // ---------------------------------------------------------------------------
-// Idempotency: deterministic group id per schedule slot. The workflow fires
-// twice a day (morning + evening UTC), so the slot is date + am/pm — a
+// Idempotency: deterministic group id per schedule slot. The slot is
+// date + am/pm (finer than the weekly cadence needs, but harmless) — a
 // duplicate cron fire is a no-op, and a re-run after partial failure resumes
 // the same slot's group and fills only the missing locales.
 // ---------------------------------------------------------------------------
