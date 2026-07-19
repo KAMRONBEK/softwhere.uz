@@ -4,6 +4,9 @@ import { logger } from '@/core/logger';
 
 const UNSPLASH_API = 'https://api.unsplash.com';
 const FETCH_TIMEOUT_MS = 5000;
+// One page of candidates, so a caller excluding photos it already uses has
+// alternatives to fall back on without paying for another request.
+const SEARCH_PAGE_SIZE = 10;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const MAX_UNSPLASH_CALLS = 20;
 
@@ -120,7 +123,15 @@ interface UnsplashPhoto {
   user: { name: string; links: { html: string } };
 }
 
-async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, 'keyword'> | null> {
+/**
+ * Search Unsplash for one landscape photo matching `keyword`.
+ *
+ * `excludeUrls` lets a caller skip photos it already uses. Searching a page of
+ * candidates rather than only the top hit matters for generic queries: the top
+ * result for "startup office" is stable, so a caller that re-queried hoping for
+ * a different photo got the same one every time.
+ */
+async function searchUnsplashImage(keyword: string, excludeUrls?: ReadonlySet<string>): Promise<Omit<ICoverImage, 'keyword'> | null> {
   const accessKey = process.env.UNSPLASH_ACCESS_KEY;
   if (!accessKey) {
     logger.warn('UNSPLASH_ACCESS_KEY not set — add it for cover images', undefined, 'UNSPLASH');
@@ -138,7 +149,7 @@ async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, '
 
     const params = new URLSearchParams({
       query: keyword,
-      per_page: '1',
+      per_page: String(SEARCH_PAGE_SIZE),
       orientation: 'landscape',
     });
 
@@ -164,10 +175,16 @@ async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, '
     }
 
     const data = await response.json();
-    const photo: UnsplashPhoto | undefined = data?.results?.[0];
+    const results: UnsplashPhoto[] = Array.isArray(data?.results) ? data.results : [];
+    const isComplete = (p: UnsplashPhoto | undefined): p is UnsplashPhoto =>
+      Boolean(p?.urls?.regular && p?.urls?.small && p?.user?.name && p?.user?.links?.html);
+    // Ranked order is preserved, so with nothing excluded this still picks the
+    // top hit — the same photo `per_page=1` used to return.
+    const photo = results.find(p => isComplete(p) && !excludeUrls?.has(p.urls.regular));
 
-    if (!photo?.urls?.regular || !photo?.urls?.small || !photo?.user?.name || !photo?.user?.links?.html) {
-      logger.warn('Unsplash returned no valid results', undefined, 'UNSPLASH');
+    if (!photo) {
+      const reason = results.some(isComplete) ? 'all results already in use' : 'no valid results';
+      logger.warn(`Unsplash: ${reason} for "${keyword}"`, undefined, 'UNSPLASH');
       return null;
     }
 
@@ -188,7 +205,11 @@ async function searchUnsplashImage(keyword: string): Promise<Omit<ICoverImage, '
  * When a curated keywordHint is provided (from SEO topic imageHints), uses it directly.
  * Otherwise falls back to AI keyword generation from the title.
  */
-export async function getCoverImageForTopic(title: string, keywordHint?: string): Promise<ICoverImage | null> {
+export async function getCoverImageForTopic(
+  title: string,
+  keywordHint?: string,
+  excludeUrls?: ReadonlySet<string>
+): Promise<ICoverImage | null> {
   try {
     let keyword: string;
 
@@ -208,7 +229,7 @@ export async function getCoverImageForTopic(title: string, keywordHint?: string)
 
     if (!keyword) return null;
 
-    const image = await searchUnsplashImage(keyword);
+    const image = await searchUnsplashImage(keyword, excludeUrls);
     if (image) return { ...image, keyword };
 
     return null;
@@ -238,8 +259,8 @@ export async function getImagesForPost(imageHints: string[], fallbackTitle: stri
       const keyword = sanitizeKeyword(hint);
       if (!keyword) continue;
 
-      const image = await searchUnsplashImage(keyword);
-      if (image && !usedUrls.has(image.url)) {
+      const image = await searchUnsplashImage(keyword, usedUrls);
+      if (image) {
         images.push({ ...image, keyword });
         usedUrls.add(image.url);
       }
