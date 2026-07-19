@@ -1,58 +1,100 @@
-# Handover — Blog + SEO audit (2026-07-05)
+# Handover — Blog + SEO audit (updated 2026-07-19)
 
-Everything below is **manual** work that couldn't be done from this environment
-(local `.env.local` has empty `""` placeholders for `DATABASE_URL` / AI keys — the
-DB is reachable only through the Neon MCP, and search-console/Yandex submissions
-have no write API here).
-
-Context: a full audit of all 113 blog posts + Google Search Console + Yandex
-Webmaster. Code + data fixes already shipped are summarized at the bottom.
+Everything below is **manual** work that can't be done from code or the
+read-only console APIs. Context: the 2026-07-05 content audit plus the
+2026-07-19 full GSC + Yandex audit and fix rollout (commit `03ec9d3` — legacy
+URL recovery, crawlable locale links, `/services/*` + `/privacy-policy` pages,
+sitemap 156→168 URLs; verified live).
 
 ---
 
 ## ✅ Manual TODO (in priority order)
 
-### 1. Confirm the deploy landed
-The sitemap + generator fixes are on `main` (and `dev`). Vercel should have
-auto-deployed. Verify:
-- `https://softwhere.uz/sitemap.xml` now lists **~102 blog URLs** (was 83) and
-  keeps updating as new posts publish (it self-refreshes hourly now).
+### 1. GSC Request Indexing — the single biggest remaining lever
 
-### 2. Regenerate the 3 truncated Uzbek posts
-They cut off mid-sentence (incomplete articles live now). Run the GitHub Actions
-**`regenerate-post`** workflow (Actions tab → Run workflow), once per group:
+Google dropped the legacy `-<timestamp>` URLs after seeing the redirects but
+has **never crawled the regenerated canonicals** (census 2026-07-19: 7 of 147
+blog URLs indexed; the rest "Discovered"/"unknown"; 0 rejected for quality).
+The sitemap is healthy and re-submitted; the only untried lever is the manual
+**URL Inspection → Request Indexing** button (quota ~10–12/day, resets daily).
 
-| Group id | Locale | Post |
-|---|---|---|
-| `3ffa276b-fcab-41f8-910e-307fb65009c4` | `uz` | 90-kun MVP roadmap |
-| `sched-2026-07-02-pm` | `uz` | Website-speed / sayt tezligini |
-| `sched-2026-07-03-am` | `uz` | biznesda avtomatlashtirish |
+How: [search.google.com/search-console](https://search.google.com/search-console)
+→ property `softwhere.uz` → paste the URL in the top search bar → wait for the
+inspection → **Request Indexing**. ~1–2 min per URL.
 
-Also worth re-checking (suspect tails / one fabricated-looking source
-"MSMCoreTech"): group `4c4d5931-…` locales `en,ru`, and `ae91ec01-…` locale `ru`.
+Ordered by 16-month demand (`scripts/data/lost-topics.json`) — one day per block:
 
-> The generator is now hardened, so regenerated posts won't come back truncated,
-> code-fenced, or with duplicate titles.
+**Day 1 — top EN canonicals + weakest pages** (`https://softwhere.uz` + path):
+`/en/blog/telegram-bot-security-protecting-your-business-and-users` (9.1k impr),
+`/en/blog/telegram-mini-apps-the-future-of-in-app-experiences` (8.4k),
+`/en/blog/complete-guide-to-telegram-bot-development-for-businesses` (6.9k),
+`/en/blog/telegram-mini-apps-vs-traditional-mobile-apps-which-should-you-choose` (2.4k),
+`/en` (Crawled–not-indexed since May 18),
+`/ru/services/web-development`, `/ru/services/telegram-bots`,
+`/ru/services/mobile-apps`,
+`/en/blog/pwa-vs-mobile-app` (480),
+`/en/blog/how-rag-can-transform-your-business-knowledge-base` (427).
 
-### 3. Resubmit the sitemap to both engines
-Google still indexes your **pre-migration `-<timestamp>` URLs** (one has 776
-impressions); the current clean URLs are "unknown to Google" until it re-reads
-the sitemap.
-- **Google Search Console** → Sitemaps → resubmit `https://softwhere.uz/sitemap.xml`.
-- **GSC** → URL Inspection → **Request Indexing** for your top ~10 clean blog URLs.
-- **Yandex** re-reads automatically; optionally submit a recrawl for the home +
-  top posts (quota 150/day).
+**Day 2 — RU siblings of the top 4 + next EN tier:**
+`/ru/blog/bezopasnost-telegram-botov-zashchita-biznesa-i-klientov`,
+`/ru/blog/telegram-mini-apps-budushchee-vstroennykh-servisov`,
+`/ru/blog/razrabotka-telegram-botov-dlya-biznesa-polnoe-rukovodstvo`,
+`/ru/blog/telegram-mini-apps-ili-mobilnye-prilozheniya-chto-vybrat`,
+`/en/blog/saas-architecture-technical-decisions-that-make-or-break-your-product` (386),
+`/en/blog/seo-friendly-web-development-technical-best-practices` (336),
+`/en/blog/mobile-application-cost-in-2025` (266),
+`/en/blog/how-automation-saved-20-hoursweek-a-real-business-case` (247),
+`/en/blog/web-development-trends-that-will-shape-2026` (227),
+`/uz/services/web-development`.
 
-### 4. Yandex Webmaster settings (UI-only, no API)
-- Set the site **region** → Uzbekistan / Tashkent (fixes `NO_REGIONS`; big for
-  local ranking).
-- Add the business to **Yandex Business / Sprav** (fixes `NOT_IN_SPRAV`).
-- Optional: add a **Yandex Metrika** counter for better crawl signals.
+**Day 3 — UZ siblings of the top 4 + remaining new pages:**
+`/uz/blog/telegram-bot-xavfsizligi-biznesni-himoya-qilish`,
+`/uz/blog/telegram-mini-apps-kelajakdagi-ilova-tajribalari-softwhereuz-blog`,
+`/uz/blog/telegram-bot-yaratish-toliq-qollanma-biznes-uchun`,
+`/uz/blog/telegram-mini-app-va-oddiy-ilovalar-qaysi-yaxshiroq`,
+`/uz/services/mobile-apps`, `/uz/services/telegram-bots`,
+`/en/services/web-development`, `/en/services/mobile-apps`,
+`/en/services/telegram-bots`, `/uz/privacy-policy`.
 
-### 5. (Optional) locale-less `/blog/<slug>` 404s
-Yandex probes `https://softwhere.uz/blog/<slug>` (no `/uz|ru|en`) → 404 (24 and
-climbing). Low value. If you want them recovered, add a redirect in `src/proxy.ts`
-for non-locale `/blog/*` → `/<default-locale>/blog/*`.
+Notes: don't request the legacy `-<timestamp>` URLs (they 308 now; Google
+re-verifies redirects on its own). Repeating a request for the same URL does
+nothing. Expect inspection states to flip within days but impressions to lag
+**2–4 weeks**. Monitor weekly: GSC → Indexing → Pages, and the sitemap's
+"indexed" count (was 0/156 on 2026-07-19). If URLs start landing in
+"Crawled – currently not indexed" *after* being requested, that becomes a
+content-quality signal — revisit before requesting more.
+
+### 2. Yandex console settings — region + Sprav
+
+See **[docs/yandex-setup.md](./docs/yandex-setup.md)** for the step-by-step
+(assign Tashkent region, register in Yandex Business/Sprav, optional
+important-pages monitoring, and how to verify via the MCP). Clears the two
+diagnostics Yandex itself flags (`NO_REGIONS`, `NOT_IN_SPRAV`).
+
+### 3. (From the 2026-07-05 content audit — still open if not done)
+Regenerate the 3 truncated Uzbek posts via the **`regenerate-post`** workflow
+(groups `3ffa276b-…`/uz, `sched-2026-07-02-pm`/uz, `sched-2026-07-03-am`/uz)
+and re-check suspect tails in `4c4d5931-…` (en,ru) and `ae91ec01-…` (ru).
+
+### 4. Optional
+- Set `BLOG_AUTHOR_NAME` in Vercel env — switches blog JSON-LD author from
+  Organization to a named Person (E-E-A-T; the only lever for Article rich
+  results).
+- Backlinks: ask partners/clients for links to `https://softwhere.uz`
+  (Yandex knows ~3 backlinks; SQI 0).
+
+---
+
+## Done on 2026-07-19 (no action needed)
+
+- All code fixes from the GSC+Yandex audit shipped and verified live
+  (commit `03ec9d3`): legacy/renamed/deleted URL redirects (51-entry alias map
+  + any-locale fallback), locale-less path redirects, crawlable language
+  switcher, homepage latest-posts links, `/services/*` + `/privacy-policy`
+  pages, brand titles, hreflang Link-header fix.
+- Sitemap resubmitted to Google (downloaded 09:57 UTC, 0 errors).
+- 30 URLs submitted to Yandex recrawl (top canonicals, new pages, fixed
+  legacy URLs).
 
 ---
 
