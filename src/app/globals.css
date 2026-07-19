@@ -61,6 +61,20 @@ html {
   --glass-shadow: 0 2px 20px rgba(120, 50, 20, 0.1);
   --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), inset 0 0 16px 0 rgba(255, 255, 255, 0.2);
   --glass-blur: blur(30px) saturate(160%);
+
+  /* Blog chart series slots (fixed order, never cycled) + chart chrome.
+     Validated against the light surface (#ffffff) with the dataviz palette
+     checks: lightness band, chroma floor, CVD ΔE ≥ 8 on adjacent AND ring
+     (doughnut wrap) pairs, normal-vision ΔE ≥ 15, contrast ≥ 3:1. Keep the
+     order and re-validate if any hex changes. */
+  --chart-1: #dd450a;
+  --chart-2: #00897a;
+  --chart-3: #c47a2e;
+  --chart-4: #3572d9;
+  --chart-5: #578b24;
+  --chart-6: #c1518f;
+  --chart-grid: #f0e6dc;
+  --chart-axis: #e6d2c2;
 }
 
 html.dark {
@@ -99,6 +113,17 @@ html.dark {
   --glass-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
   --glass-highlight: inset 0 1px 0 0 rgba(255, 180, 120, 0.08), inset 0 0 18px 0 rgba(255, 120, 60, 0.05);
   --glass-blur: blur(30px) saturate(150%);
+
+  /* Blog chart slots re-stepped for the dark surface (#181009) — same hues,
+     same fixed order, separately validated (see :root note). */
+  --chart-1: #f2500f;
+  --chart-2: #17a292;
+  --chart-3: #c98127;
+  --chart-4: #5b8fe4;
+  --chart-5: #7ea43f;
+  --chart-6: #cd66a2;
+  --chart-grid: #2a1b10;
+  --chart-axis: #3a2616;
 }
 
 body {
@@ -243,4 +268,200 @@ html.dark .react-international-phone-country-selector-dropdown {
   .container {
     width: 95%;
   }
+}
+
+/* ============================================================
+   BLOG CHART (src/modules/blog/components/BlogChart.tsx)
+   Theme-aware chart chrome: marks wear the --chart-* slots,
+   text wears text tokens, grid/axis are recessive hairlines.
+   ============================================================ */
+.blog-chart {
+  margin: 2rem 0;
+}
+.blog-chart .bc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.25rem 0.875rem;
+}
+.blog-chart .bc-measure {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 0.875rem;
+}
+.blog-chart .bc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1.25rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+}
+.blog-chart .bc-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+.blog-chart .bc-key {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  flex: none;
+}
+.blog-chart .bc-key-line {
+  width: 1rem;
+  height: 3px;
+  border-radius: 2px;
+  flex: none;
+}
+.blog-chart .bc-legend-label {
+  min-width: 0;
+}
+.blog-chart .bc-legend-val {
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Horizontal bars */
+.blog-chart .bc-cat {
+  margin-bottom: 0.875rem;
+}
+.blog-chart .bc-cat:last-of-type {
+  margin-bottom: 0;
+}
+.blog-chart .bc-cat-label {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  margin-bottom: 0.3125rem;
+}
+.blog-chart .bc-row {
+  display: flex;
+  align-items: center;
+  padding-right: 4.25rem; /* reserves the value gutter; bar % excludes it */
+  margin-bottom: 2px; /* surface gap between grouped bars */
+}
+.blog-chart .bc-bar {
+  height: 14px;
+  flex: none;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0; /* rounded data-end, square at the baseline */
+}
+.blog-chart .bc-row:hover .bc-bar {
+  filter: brightness(1.08);
+}
+/* Missing value: holds the row's height so the rhythm is kept, paints nothing
+   (a zero-width .bc-bar would still show its 2px min-width and read as 0). */
+.blog-chart .bc-bar-none {
+  height: 14px;
+  flex: none;
+}
+.blog-chart .bc-val {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Line chart (SVG) */
+.blog-chart .bc-scroll {
+  overflow-x: auto;
+}
+
+/* Both scroll regions are keyboard-focusable so their overflow can be reached
+   without a pointer; give that focus a visible ring. */
+.blog-chart .bc-scroll:focus-visible,
+.blog-chart .bc-table-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.blog-chart .bc-col .bc-tip {
+  visibility: hidden;
+}
+.blog-chart .bc-col:hover .bc-tip,
+.blog-chart .bc-col:focus-within .bc-tip {
+  visibility: visible;
+}
+.blog-chart .bc-hit {
+  outline: none;
+}
+
+/* Doughnut */
+.blog-chart .bc-donut {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem 2rem;
+}
+.blog-chart .bc-donut .bc-legend-col {
+  flex: 1 1 240px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4375rem;
+  margin: 0;
+}
+.blog-chart .bc-donut .bc-legend-col .bc-legend-label {
+  flex: 1;
+}
+.blog-chart .bc-slice:hover {
+  filter: brightness(1.07);
+}
+
+/* Data table twin */
+.blog-chart .bc-details {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.625rem;
+}
+.blog-chart .bc-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  width: fit-content;
+}
+.blog-chart .bc-details summary:hover {
+  /* --accent measures 4.26:1 on the light card, under the 4.5:1 AA floor for
+     this 13px text; --accent-text is the theme's accent-as-text token (5.40:1). */
+  color: var(--accent-text);
+}
+.blog-chart .bc-table-wrap {
+  overflow-x: auto;
+  margin-top: 0.625rem;
+  padding-bottom: 0.25rem;
+}
+.blog-chart .bc-table {
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.blog-chart .bc-table-caption {
+  caption-side: top;
+  text-align: left;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding-bottom: 0.375rem;
+}
+.blog-chart .bc-table th,
+.blog-chart .bc-table td {
+  border: 1px solid var(--border);
+  padding: 0.375rem 0.625rem;
+  color: var(--text);
+  text-align: left;
+  font-weight: 400;
+}
+.blog-chart .bc-table thead th {
+  background: var(--surface2);
+  font-weight: 600;
+}
+.blog-chart .bc-table .bc-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }

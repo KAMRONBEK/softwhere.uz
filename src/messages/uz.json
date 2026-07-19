@@ -483,7 +483,12 @@
     },
     "readingTime": "daqiqa o'qish",
     "relatedArticles": "Tegishli maqolalar",
-    "readMoreArticles": "Ko'proq maqolalar o'qish"
+    "readMoreArticles": "Ko'proq maqolalar o'qish",
+    "chart": {
+      "viewData": "Grafik ma'lumotlari",
+      "category": "Kategoriya",
+      "value": "Qiymat"
+    }
   },
   "footer": {
     "phoneLabel": "Telefon",

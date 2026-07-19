@@ -483,7 +483,12 @@
     },
     "readingTime": "min read",
     "relatedArticles": "Related Articles",
-    "readMoreArticles": "Read More Articles"
+    "readMoreArticles": "Read More Articles",
+    "chart": {
+      "viewData": "View chart data",
+      "category": "Category",
+      "value": "Value"
+    }
   },
   "footer": {
     "phoneLabel": "Phone",

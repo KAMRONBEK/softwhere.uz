@@ -13,7 +13,9 @@ import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
+import BlogChart from '@/modules/blog/components/BlogChart';
 import BlogPostClient from '@/modules/blog/components/BlogPostClient';
+import { parseQuickChartSrc } from '@/modules/blog/utils/chart';
 import { resolveLegacyAlias } from '@/modules/blog/model/legacy-aliases';
 import * as postsRepo from '@/modules/blog/model/posts.repository';
 import { CoverImage } from '@/shared/types';
@@ -307,6 +309,15 @@ async function RelatedPosts({ category, currentId, locale }: { category?: string
   );
 }
 
+// Does this markdown node contain an <img> at any depth? Used to keep the
+// image/chart <figure> out of a <p>, which is invalid HTML.
+function containsImage(node: unknown): boolean {
+  const el = node as { type?: string; tagName?: string; children?: unknown[] } | undefined;
+  if (!el) return false;
+  if (el.type === 'element' && el.tagName === 'img') return true;
+  return Array.isArray(el.children) && el.children.some(containsImage);
+}
+
 // ---------------------------------------------------------------------------
 // Page component
 // ---------------------------------------------------------------------------
@@ -500,7 +511,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                         {children}
                       </h3>
                     ),
-                    p: ({ children }) => <p className='text-lg text-ember-text leading-relaxed mb-6 font-light'>{children}</p>,
+                    p: ({ node, children }) => {
+                      // Markdown images are inline, so a `![…](…)` line arrives
+                      // wrapped in a paragraph — but our img override renders a
+                      // <figure> (and charts a whole card), which is invalid
+                      // inside <p> and triggers hydration errors. Use a styled
+                      // <div> for any paragraph containing an image. The search
+                      // is recursive: an image can sit under a link or emphasis
+                      // (`[![alt](src)](href)`), not just as a direct child.
+                      const Tag = containsImage(node) ? 'div' : 'p';
+                      return <Tag className='text-lg text-ember-text leading-relaxed mb-6 font-light'>{children}</Tag>;
+                    },
                     ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ul>,
                     ol: ({ children }) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ol>,
                     li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
@@ -538,30 +559,49 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                         </a>
                       );
                     },
-                    img: ({ src, alt }) => (
-                      <figure className='my-8'>
-                        {/* The pipeline only emits Unsplash images (allow-listed in
+                    img: ({ src, alt }) => {
+                      // Stored charts are QuickChart PNG URLs (white background,
+                      // default Chart.js styling). Decode the config back out of
+                      // the URL and render a themed SVG/HTML chart instead; the
+                      // PNG stays as the fallback for anything unparseable.
+                      const chart = typeof src === 'string' ? parseQuickChartSrc(src) : null;
+                      if (chart) {
+                        return (
+                          <BlogChart
+                            chart={chart}
+                            caption={alt || ''}
+                            locale={locale}
+                            viewDataLabel={t('chart.viewData')}
+                            categoryLabel={t('chart.category')}
+                            valueLabel={t('chart.value')}
+                          />
+                        );
+                      }
+                      return (
+                        <figure className='my-8'>
+                          {/* The pipeline only emits Unsplash images (allow-listed in
                             next.config), so serve them through next/image for AVIF/WebP
                             + responsive sizing; keep a plain-<img> fallback for any
                             other host (next/image would 400 on non-allow-listed hosts).
                             The 16:9 wrapper reserves space to eliminate layout shift (CLS). */}
-                        <span className='relative block w-full overflow-hidden rounded-lg' style={{ aspectRatio: '16 / 9' }}>
-                          {typeof src === 'string' && src.startsWith('https://images.unsplash.com/') ? (
-                            <Image src={src} alt={alt || ''} fill className='object-cover' sizes='(max-width: 768px) 100vw, 768px' />
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={src}
-                              alt={alt || ''}
-                              loading='lazy'
-                              decoding='async'
-                              className='absolute inset-0 h-full w-full object-cover'
-                            />
-                          )}
-                        </span>
-                        {alt && <figcaption className='text-center text-sm text-ember-muted mt-2'>{alt}</figcaption>}
-                      </figure>
-                    ),
+                          <span className='relative block w-full overflow-hidden rounded-lg' style={{ aspectRatio: '16 / 9' }}>
+                            {typeof src === 'string' && src.startsWith('https://images.unsplash.com/') ? (
+                              <Image src={src} alt={alt || ''} fill className='object-cover' sizes='(max-width: 768px) 100vw, 768px' />
+                            ) : (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={src}
+                                alt={alt || ''}
+                                loading='lazy'
+                                decoding='async'
+                                className='absolute inset-0 h-full w-full object-cover'
+                              />
+                            )}
+                          </span>
+                          {alt && <figcaption className='text-center text-sm text-ember-muted mt-2'>{alt}</figcaption>}
+                        </figure>
+                      );
+                    },
                     table: ({ children }) => (
                       <div className='overflow-x-auto my-6'>
                         <table className='min-w-full border-collapse border border-ember-border text-base'>{children}</table>
