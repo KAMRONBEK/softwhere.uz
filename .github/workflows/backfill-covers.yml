@@ -1,0 +1,52 @@
+name: Backfill Blog Covers
+
+# Fills in cover images for published posts that have none. The generator
+# treats the cover as optional — when Unsplash is unreachable (missing key,
+# rate limit, API error) the post is stored without one — so a batch generated
+# during such a window ends up cover-less and shows the gradient placeholder.
+#
+# Runs here rather than locally because UNSPLASH_ACCESS_KEY lives in the
+# Production environment secrets. Manual trigger only: it writes to the
+# database, and there is nothing to gain from running it on a schedule.
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Write to the database (unchecked = dry-run report only)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: backfill-covers
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Backfill cover images
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          # Keyword generation goes through the AI provider chain; without a
+          # key it falls back to deriving keywords from the title.
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: npx tsx scripts/backfill-covers.ts ${{ inputs.apply && '--apply' || '' }}
