@@ -15,6 +15,11 @@ on:
         description: 'Write to the database (unchecked = dry-run report only)'
         type: boolean
         default: false
+      groups:
+        description: 'Optional: comma-separated generationGroupIds to retry (blank = every post missing a cover)'
+        type: string
+        required: false
+        default: ''
 
 concurrency:
   group: backfill-covers
@@ -49,4 +54,16 @@ jobs:
           # key it falls back to deriving keywords from the title.
           MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: npx tsx scripts/backfill-covers.ts ${{ inputs.apply && '--apply' || '' }}
+          # Passed as env, not interpolated into the command: a `${{ }}` splice
+          # of free-text input into `run:` is a shell-injection vector.
+          APPLY: ${{ inputs.apply }}
+          GROUPS: ${{ inputs.groups }}
+        run: |
+          # Build argv as an array and turn whitespace in the id list into
+          # commas: unquoted "a, b" would word-split and the script would see
+          # only "a", while "a b" should mean two ids, not one fused token.
+          args=()
+          [ "$APPLY" = "true" ] && args+=(--apply)
+          groups=$(printf '%s' "$GROUPS" | tr -s '[:space:]' ',')
+          [ -n "$groups" ] && args+=("--groups=$groups")
+          npx tsx scripts/backfill-covers.ts "${args[@]}"
