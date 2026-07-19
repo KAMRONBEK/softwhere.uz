@@ -483,7 +483,12 @@
     },
     "readingTime": "мин чтения",
     "relatedArticles": "Похожие статьи",
-    "readMoreArticles": "Читать больше статей"
+    "readMoreArticles": "Читать больше статей",
+    "chart": {
+      "viewData": "Данные графика",
+      "category": "Категория",
+      "value": "Значение"
+    }
   },
   "footer": {
     "phoneLabel": "Телефон",
