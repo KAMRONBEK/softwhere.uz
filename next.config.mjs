@@ -15,6 +15,13 @@ const nextConfig = {
     // far-from-region visitors (biggest slow cohort: China -> hkg1 edge).
     inlineCss: true,
   },
+  async redirects() {
+    return [
+      // Dotted paths bypass the middleware matcher, so the locale-less feed
+      // needs its redirect here rather than in src/proxy.ts.
+      { source: '/feed.xml', destination: '/uz/feed.xml', permanent: true },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

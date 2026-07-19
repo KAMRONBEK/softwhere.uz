@@ -4,15 +4,18 @@ import { trackEvent } from '@/shared/utils/analytics';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import Logo from '../../../../public/icons/logo.svg';
 import css from './style.module.css';
 
 function Footer() {
   const t = useTranslations('footer');
+  const params = useParams();
+  const locale = (params?.locale as string) || 'uz';
 
   return (
     <footer className={`${css.footer} container`}>
-      <Link href='/'>
+      <Link href={`/${locale}`}>
         <Image className={css.logo} src={Logo} alt='' />
       </Link>
       <div className='grid lg:grid-cols-4 sm:grid-cols-2 sm:gap-2 lg:gap-0'>
@@ -92,8 +95,26 @@ function Footer() {
         </div>
       </div>
 
+      <nav aria-label={t('servicesNavLabel')} className='flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-sm'>
+        <Link href={`/${locale}/services/web-development`} className='hover:opacity-70'>
+          {t('servicesWeb')}
+        </Link>
+        <Link href={`/${locale}/services/mobile-apps`} className='hover:opacity-70'>
+          {t('servicesMobile')}
+        </Link>
+        <Link href={`/${locale}/services/telegram-bots`} className='hover:opacity-70'>
+          {t('servicesBots')}
+        </Link>
+        <Link href={`/${locale}/blog`} className='hover:opacity-70'>
+          {t('blogLink')}
+        </Link>
+      </nav>
+
       <p className={css.copyright}>
-        {t('rights')} {t('privacyPolicy')}
+        {t('rights')}{' '}
+        <Link href={`/${locale}/privacy-policy`} className='hover:underline underline-offset-2'>
+          {t('privacyPolicy')}
+        </Link>
       </p>
       <p className={css.copyright}>
         {t('developedBy')}{' '}

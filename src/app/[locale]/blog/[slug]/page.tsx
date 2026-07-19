@@ -14,6 +14,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 import BlogPostClient from '@/modules/blog/components/BlogPostClient';
+import { resolveLegacyAlias } from '@/modules/blog/model/legacy-aliases';
 import * as postsRepo from '@/modules/blog/model/posts.repository';
 import { CoverImage } from '@/shared/types';
 import { validateLocale } from '@/core/auth';
@@ -55,6 +56,9 @@ const getBlogPost = cache(async (rawSlug: string, locale: string): Promise<BlogP
   return postsRepo.getPublishedBySlugFlexible(slug, validLocale);
 });
 
+// Swallows DB errors: used only for the canonical/hreflang computation of a
+// FOUND post, where degraded metadata beats a 500. The legacy resolver must
+// NOT use this — see the strict lookups below.
 const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Promise<PostLocaleSlug | null> => {
   try {
     const normalizedLocale = validateLocale(locale, 'en');
@@ -65,9 +69,42 @@ const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Pr
   }
 });
 
-// Legacy-URL recovery: when a slug isn't found, an old pre-Neon URL of the form
-// `<root>-<timestamp>` whose root matches a live post 301s to that post instead
-// of 404ing — preserving the accumulated search authority of the old URL.
+// Strict lookups for the legacy resolver: a DB error must propagate (uncached
+// 500, retried on the next request) — swallowing it to null would mint a
+// notFound() that ISR caches for an hour on a URL that has a live 308 target.
+const getCanonicalForLocaleStrict = cache(async (locale: 'en' | 'ru' | 'uz', slugRoot: string) =>
+  postsRepo.getCanonicalForLocale(locale, slugRoot)
+);
+
+const getCanonicalAnyLocaleCached = cache(async (slugRoot: string) => postsRepo.getCanonicalAnyLocale(slugRoot));
+
+const getPublishedSlugMeta = cache(async (slug: string, locale?: 'en' | 'ru' | 'uz') => postsRepo.getPublishedSlugMeta(slug, locale));
+
+// A redirect target found in one locale is swapped for the requested locale's
+// generation-group sibling when one exists, so /ru legacy URLs land on the RU
+// post rather than the EN one the root lookup found.
+async function preferRequestedLocale(match: postsRepo.CanonicalMatch, requestedLocale: 'en' | 'ru' | 'uz'): Promise<PostLocaleSlug> {
+  if (match.locale !== requestedLocale && match.generationGroupId) {
+    try {
+      const sibling = await postsRepo.getPublishedGroupSibling(match.generationGroupId, requestedLocale);
+      if (sibling) return sibling;
+    } catch {
+      /* fall through to the found locale */
+    }
+  }
+  return { slug: match.slug, locale: match.locale };
+}
+
+// Legacy-URL recovery: when a slug isn't found, resolve the old URL to a live
+// post and 308 to it instead of 404ing — preserving the accumulated search
+// authority. Resolution order:
+//   1. curated alias map (Cyrillic/localized-era roots, renamed topics, and
+//      posts deleted in the Jul 2026 duplicate cleanup),
+//   2. same-locale slug-root match (pinned `<root>-<timestamp>` URLs),
+//   3. any-locale slug-root match (only EN slugs were pinned by the backfill;
+//      ru/uz legacy URLs resolve via the EN root, preferring the requested
+//      locale's group sibling),
+//   4. `-N` duplicate-collision suffixes left behind by deleted posts.
 // Returns the redirect path, or null when there is no live post to recover to.
 async function legacyRedirectTarget(locale: string, rawSlug: string): Promise<string | null> {
   let slug = rawSlug;
@@ -76,9 +113,35 @@ async function legacyRedirectTarget(locale: string, rawSlug: string): Promise<st
   } catch {
     /* keep the raw slug */
   }
-  const canonical = await getCanonicalPostForLocale(locale, slug);
-  if (!canonical || canonical.slug === slug) return null;
-  return `/${canonical.locale}/blog/${encodeURIComponent(canonical.slug)}`;
+  const requestedLocale = validateLocale(locale, 'en');
+  const slugRoot = getSlugRoot(slug);
+  const pathFor = (target: PostLocaleSlug): string | null =>
+    target.slug === slug && target.locale === locale ? null : `/${target.locale}/blog/${encodeURIComponent(target.slug)}`;
+
+  const alias = resolveLegacyAlias(slugRoot);
+  if (alias) {
+    // Re-check the target is still published before trusting the static map.
+    const meta = await getPublishedSlugMeta(alias.slug, alias.locale);
+    if (meta) return pathFor(await preferRequestedLocale(meta, requestedLocale));
+  }
+
+  const canonical = await getCanonicalForLocaleStrict(requestedLocale, slugRoot);
+  if (canonical && canonical.slug !== slug) {
+    return `/${canonical.locale}/blog/${encodeURIComponent(canonical.slug)}`;
+  }
+
+  const anyLocale = await getCanonicalAnyLocaleCached(slugRoot);
+  if (anyLocale && anyLocale.slug !== slug) {
+    return pathFor(await preferRequestedLocale(anyLocale, requestedLocale));
+  }
+
+  if (/-\d{1,2}$/.test(slug)) {
+    const base = slug.replace(/-\d{1,2}$/, '');
+    const meta = (await getPublishedSlugMeta(base, requestedLocale)) ?? (await getPublishedSlugMeta(base));
+    if (meta) return pathFor(await preferRequestedLocale(meta, requestedLocale));
+  }
+
+  return null;
 }
 
 const getGroupSiblings = cache(async (generationGroupId: string): Promise<PostLocaleSlug[]> => {
@@ -122,7 +185,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   if (!post) {
-    // Recover legacy `<root>-<timestamp>` URLs with a 301 before giving up.
+    // Recover legacy/renamed URLs with a 308 before giving up.
     const target = await legacyRedirectTarget(locale, slug);
     if (target) permanentRedirect(target);
     // Throw notFound() HERE, not only in the page body: metadata resolves
@@ -256,14 +319,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const tCat = await getTranslations('blog.categories');
 
   if (!post) {
-    // Recover legacy `<root>-<timestamp>` URLs with a 301 before 404ing.
+    // Recover legacy/renamed URLs with a 308 before 404ing.
     const target = await legacyRedirectTarget(locale, slug);
     if (target) permanentRedirect(target);
     notFound();
   }
 
   if (post.locale !== locale) {
-    permanentRedirect(`/${post.locale}/blog/${encodeURIComponent(post.slug)}`);
+    // Prefer the requested locale's group sibling so naive locale swaps (the
+    // language-switcher anchors) land on the localized article instead of
+    // 308ing back to the same post via its own locale. No loop risk: a
+    // sibling carrying the requested slug would have exact-matched above.
+    const target = await preferRequestedLocale(
+      { slug: post.slug, locale: post.locale, generationGroupId: post.generationGroupId },
+      validateLocale(locale, 'en')
+    );
+    permanentRedirect(`/${target.locale}/blog/${encodeURIComponent(target.slug)}`);
   }
 
   // RU/UZ read day-first ('3 июля 2026'); 'MMMM dd, yyyy' is English-only order.
