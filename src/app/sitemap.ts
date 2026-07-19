@@ -14,7 +14,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = ENV.BASE_URL;
   const locales = ['uz', 'ru', 'en'] as const;
 
-  const staticPages = ['', '/blog', '/estimator'];
+  const staticPages = [
+    '',
+    '/blog',
+    '/estimator',
+    '/services/web-development',
+    '/services/mobile-apps',
+    '/services/telegram-bots',
+    '/privacy-policy',
+  ];
 
   const staticUrls: MetadataRoute.Sitemap = [
     // No bare-root (`baseUrl`) entry: it 308-redirects to `/uz`, so listing it

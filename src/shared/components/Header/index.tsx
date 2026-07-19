@@ -7,7 +7,7 @@ import { logger } from '@/core/logger';
 import { trackEvent } from '@/shared/utils/analytics';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import RuFlag from '../../../../public/icons/Russia (RU).svg';
@@ -27,6 +27,13 @@ type LanguageSwitcherProps = {
 function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherProps) {
   const [open, setOpen] = useState<boolean>(false);
   const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Naive same-path locale swap. For blog posts the target slug belongs to
+  // another locale; the server 308s it to the requested locale's group
+  // sibling (or the post's own locale when none exists), so the link is
+  // always crawlable and correct without a lookup.
+  const hrefFor = (target: string) => (pathname ? pathname.replace(/^\/(en|ru|uz)(?=\/|$)/, `/${target}`) : `/${target}`);
 
   useEffect(() => {
     if (!open) return;
@@ -82,15 +89,22 @@ function LanguageSwitcher({ lang, label, menuId, onChange }: LanguageSwitcherPro
       <ul id={menuId} className={`${css.content} ${open ? css.contentOpen : ''}`}>
         {options.map(option => (
           <li key={option.id}>
-            <button
-              type='button'
+            <a
+              href={hrefFor(option.id)}
               className={`${css.langOption} ${lang === option.id ? css.activeLang : ''}`}
               aria-current={lang === option.id}
-              onClick={() => handleSelect(option.id)}
+              onClick={event => {
+                // Modified/middle clicks (new tab etc.) use the href; plain
+                // clicks keep SPA behavior — JS resolves the exact blog
+                // sibling via the related-post API. Crawlers follow the href.
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                handleSelect(option.id);
+              }}
             >
               <Image src={option.flag} alt={''} />
               <p>{option.label}</p>
-            </button>
+            </a>
           </li>
         ))}
       </ul>
@@ -215,7 +229,7 @@ function Header() {
   return (
     <header className={`${css.header} ${!isHeaderVisible ? css.headerHidden : ''}`}>
       <div className={css.inner}>
-        <Link href='/' className={css.brand}>
+        <Link href={`/${lang}`} className={css.brand}>
           <Image src={Logo} alt='' className={css.logo} />
           <span className={css.wordmark}>softwhere</span>
         </Link>

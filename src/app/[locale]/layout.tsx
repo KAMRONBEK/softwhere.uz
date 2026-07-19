@@ -80,10 +80,18 @@ function StructuredData({ locale }: { locale: string }) {
   const schemas = [
     {
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      // ProfessionalService (address-free — no public street address exists)
+      // feeds local-intent ranking signals alongside the base Organization.
+      '@type': ['Organization', 'ProfessionalService'],
       name: 'SoftWhere.uz',
       url: ENV.BASE_URL,
       logo: `${ENV.BASE_URL}/icons/logo.svg`,
+      email: 'kamuranbek98@gmail.com',
+      areaServed: [
+        { '@type': 'Country', name: 'Uzbekistan' },
+        { '@type': 'City', name: 'Tashkent' },
+      ],
+      knowsLanguage: ['uz', 'ru', 'en'],
       sameAs: [SOCIAL_LINKS.TELEGRAM, SOCIAL_LINKS.INSTAGRAM],
       contactPoint: {
         '@type': 'ContactPoint',

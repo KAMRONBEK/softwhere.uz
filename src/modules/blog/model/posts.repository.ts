@@ -145,6 +145,42 @@ export async function getCanonicalForLocale(locale: Locale, slugRoot: string): P
   return rows[0] ?? null;
 }
 
+export interface CanonicalMatch {
+  slug: string;
+  locale: Locale;
+  generationGroupId?: string;
+}
+
+/**
+ * Any-locale variant of getCanonicalForLocale. The 2026-07 backfill pinned
+ * only the EN slug of each recovered topic to its legacy root, so a ru/uz
+ * legacy `<root>-<timestamp>` URL can only resolve through the EN post; the
+ * caller then prefers the requested locale's group sibling.
+ */
+export async function getCanonicalAnyLocale(slugRoot: string): Promise<CanonicalMatch | null> {
+  const pattern = `^${escapeRegexLiteral(slugRoot)}(-[0-9]{10,})?$`;
+  const rows = await db
+    .select({ slug: blogPosts.slug, locale: blogPosts.locale, generationGroupId: blogPosts.generationGroupId })
+    .from(blogPosts)
+    .where(and(eq(blogPosts.status, 'published'), sql`${blogPosts.slug} ~ ${pattern}`))
+    .orderBy(asc(blogPosts.createdAt))
+    .limit(1);
+  return rows[0] ? { slug: rows[0].slug, locale: rows[0].locale, generationGroupId: rows[0].generationGroupId ?? undefined } : null;
+}
+
+/** Lightweight published lookup (slug [+ locale]) for redirect resolution. */
+export async function getPublishedSlugMeta(slug: string, locale?: Locale): Promise<CanonicalMatch | null> {
+  const where = locale
+    ? and(eq(blogPosts.slug, slug), eq(blogPosts.locale, locale), eq(blogPosts.status, 'published'))
+    : and(eq(blogPosts.slug, slug), eq(blogPosts.status, 'published'));
+  const rows = await db
+    .select({ slug: blogPosts.slug, locale: blogPosts.locale, generationGroupId: blogPosts.generationGroupId })
+    .from(blogPosts)
+    .where(where)
+    .limit(1);
+  return rows[0] ? { slug: rows[0].slug, locale: rows[0].locale, generationGroupId: rows[0].generationGroupId ?? undefined } : null;
+}
+
 /** All published posts in a generation group (for hreflang siblings). */
 export async function getGroupSiblings(generationGroupId: string): Promise<LocaleSlug[]> {
   return db
