@@ -35,6 +35,7 @@ on `main`, not aspirational plans. Each ends with a `_Last verified against code
 | [frontend.md](./frontend.md) | UI architecture: layouts, the shared component library, homepage section composition, theming/tokens, fonts, AOS, and how sections consume i18n + data. |
 | [auth-and-admin.md](./auth-and-admin.md) | Admin auth (Neon Auth session + role gate for humans, Bearer `API_SECRET` for machines) and the leads/posts admin UI behind it. |
 | [seo.md](./seo.md) | Search visibility: dynamic sitemap, robots, per-locale RSS, edge OG images, JSON-LD, canonical/hreflang, slugs, reading time, IndexNow, and Search Console / Yandex over MCP. |
+| [yandex-setup.md](./yandex-setup.md) | Owner-only Yandex console actions: assign the Tashkent region (`NO_REGIONS`) and register in Yandex Business/Sprav (`NOT_IN_SPRAV`), with verification steps over the MCP. |
 
 ## API & interfaces
 
