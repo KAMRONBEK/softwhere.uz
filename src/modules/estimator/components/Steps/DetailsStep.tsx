@@ -42,10 +42,10 @@ export default function DetailsStep({ input, onDesignChange, onLanguagesChange, 
         </div>
       )}
 
-      <div className='grid md:grid-cols-2 gap-7'>
+      <div className='grid md:grid-cols-2 xl:grid-cols-1 gap-7'>
         <div>
           <StepLabel hint={t('languagesHint')}>{t('languagesTitle')}</StepLabel>
-          <div className='flex gap-1.5'>
+          <div className='flex flex-wrap gap-1.5'>
             {[1, 2, 3].map(n => (
               <SegmentedPill key={n} selected={input.languages === n} onClick={() => onLanguagesChange(n)}>
                 {tx(`langCount.${n}`)}
@@ -56,7 +56,7 @@ export default function DetailsStep({ input, onDesignChange, onLanguagesChange, 
 
         <div>
           <StepLabel>{t('urgencyTitle')}</StepLabel>
-          <div className='flex gap-1.5'>
+          <div className='flex flex-wrap gap-1.5'>
             {URGENCIES.map(urgency => (
               <SegmentedPill key={urgency} selected={input.urgency === urgency} onClick={() => onUrgencyChange(urgency)}>
                 {tx(`urgency.${urgency}`)}

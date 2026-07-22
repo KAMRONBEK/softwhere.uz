@@ -216,7 +216,7 @@ export default function Wizard() {
   const railItems = [...STEPS.map(id => ({ id, label: tx(`step.${id}`) })), { id: 'result', label: t('step.result') }];
 
   return (
-    <div className='page-layout container mx-auto pb-28 lg:pb-16'>
+    <div className='page-layout container mx-auto pb-28 xl:pb-16'>
       {/* Header */}
       <div className='text-center max-w-2xl mx-auto mb-10'>
         <div className='uppercase tracking-[0.2em] text-xs font-bold text-ember-accent mb-3'>{t('eyebrow')}</div>
@@ -225,9 +225,9 @@ export default function Wizard() {
       </div>
 
       {/* 3-column wizard */}
-      <div className='grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)_320px] gap-6 lg:gap-7 items-start'>
+      <div className='grid grid-cols-1 xl:grid-cols-[240px_minmax(0,1fr)_320px] gap-6 xl:gap-7 items-start'>
         {/* Step rail */}
-        <aside className='hidden lg:flex flex-col gap-1.5 lg:sticky lg:top-28'>
+        <aside className='hidden xl:flex flex-col gap-1.5 xl:sticky xl:top-28'>
           {railItems.map((item, i) => {
             const active = i === step;
             const done = i < step;
@@ -260,7 +260,7 @@ export default function Wizard() {
 
         {/* Step body */}
         <div className='rounded-3xl border border-ember-border p-5 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'>
-          <div className='lg:hidden text-sm text-ember-muted mb-3'>
+          <div className='xl:hidden text-sm text-ember-muted mb-3'>
             {isResultStep ? t('step.result') : t('stepProgress', { current: step + 1, total: STEPS.length })}
           </div>
 
@@ -286,7 +286,7 @@ export default function Wizard() {
             <>
               {renderStep()}
 
-              <div className='hidden lg:flex justify-between items-center mt-8 pt-6 border-t border-ember-border'>
+              <div className='hidden xl:flex justify-between items-center mt-8 pt-6 border-t border-ember-border'>
                 {step > 0 ? (
                   <button
                     type='button'
@@ -323,7 +323,7 @@ export default function Wizard() {
 
       {/* Mobile sticky bottom bar: live range + primary action, always thumb-reachable */}
       {!isResultStep && (
-        <div className='lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-ember-border bg-[color:var(--surface)]/95 backdrop-blur px-4 py-3'>
+        <div className='xl:hidden fixed bottom-0 inset-x-0 z-40 border-t border-ember-border bg-[color:var(--surface)]/95 backdrop-blur px-4 py-3'>
           <div className='flex items-center justify-between gap-3 max-w-xl mx-auto'>
             <div className='min-w-0'>
               <div className='text-[11px] uppercase tracking-wide font-bold text-ember-muted'>{t('liveEstimate')}</div>
