@@ -4,11 +4,16 @@ import { BLOG_CONFIG, ENV } from '@/core/constants';
 import { logger } from '@/core/logger';
 import { getSlugRoot } from '@/shared/utils/slug';
 
-// ISR: regenerate at most once an hour so newly published posts enter the
+// ISR: regenerate at most once every 6h so newly published posts enter the
 // sitemap without a redeploy. Without this the metadata route is prerendered
 // once at build time and frozen — new posts stay absent until the next deploy.
-// Matches the `revalidate = 3600` on the blog list/post/feed routes.
-export const revalidate = 3600;
+//
+// Deliberately still time-based (unlike the blog routes, which are now
+// `revalidate = false`): this is a single low-traffic route, so the DB cost is
+// a handful of wake-ups a day, and it keeps the self-healing property that
+// stops the sitemap re-freezing if the /api/admin/revalidate call ever fails.
+// Publishes still purge it immediately via revalidatePath('/sitemap.xml').
+export const revalidate = 21600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = ENV.BASE_URL;

@@ -90,19 +90,27 @@ function setOutput(key: string, value: string): void {
   }
 }
 
-/** Best-effort ISR cache bust so recovered posts appear immediately. */
-async function requestRevalidate(): Promise<boolean> {
+/** ISR cache bust so recovered posts appear. The blog routes are
+ *  `revalidate = false` (see blog/[slug]/page.tsx), so this is the only thing
+ *  that surfaces them — there is no hourly window to fall back on. */
+async function requestRevalidate(attempts = 3): Promise<boolean> {
   const secret = process.env.API_SECRET;
   if (!secret) return false;
-  try {
-    const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${secret}` },
-    });
-    return res.ok;
-  } catch {
-    return false;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${secret}` },
+      });
+      if (res.ok) return true;
+      // 4xx is a config problem (bad secret) — retrying will not fix it.
+      if (res.status < 500) return false;
+    } catch {
+      /* network blip — fall through to the retry */
+    }
+    if (attempt < attempts) await new Promise(r => setTimeout(r, attempt * 3000));
   }
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -245,11 +253,15 @@ async function main() {
   if (allCreated.length > 0) {
     await pingIndexNow(allCreated.map(p => p.url));
     const revalidated = await requestRevalidate();
-    console.log(
-      revalidated
-        ? '\n📣 IndexNow pinged, caches revalidated — posts are live.'
-        : '\n📣 IndexNow pinged (cache bust skipped/failed — visible within ~1h).'
-    );
+    if (revalidated) {
+      console.log('\n📣 IndexNow pinged, caches revalidated — posts are live.');
+    } else {
+      // No time-based window backs this up — see requestRevalidate above.
+      console.log(
+        '\n::error::IndexNow pinged, but cache revalidation failed — recovered posts are NOT visible. ' +
+          'Check the API_SECRET secret, then POST /api/admin/revalidate.'
+      );
+    }
   }
 
   // Recount so the workflow knows when to stop scheduling itself.

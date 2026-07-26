@@ -6,7 +6,22 @@ import { logger } from '@/core/logger';
 
 // One RSS 2.0 feed per locale (/en/feed.xml, /ru/feed.xml, /uz/feed.xml).
 // Feeds matter for answer-engine/aggregator ingestion and freshness signals.
-export const revalidate = 3600;
+//
+// Daily window rather than hourly: publishes purge these immediately via
+// revalidatePath(`/${locale}/feed.xml`), so the window is only a safety net
+// against a missed cache bust. Three routes at 1h expiry was enough steady DB
+// traffic to keep the Neon compute off its 5-min scale-to-zero timer.
+export const revalidate = 86400;
+
+// Without this the `[locale]` segment makes the route render on demand, so
+// every CDN miss became a DB read (~72/day) and each one held the Neon compute
+// up for its full 5-min idle timeout. Enumerating the three locales lets Next
+// prerender + ISR-cache them, so revalidatePath() controls freshness instead.
+// Note: the explicit Cache-Control below keeps this handler dynamic, so the
+// s-maxage there is what actually caps origin (and DB) hits at ~3/day.
+export function generateStaticParams() {
+  return [{ locale: 'uz' }, { locale: 'ru' }, { locale: 'en' }];
+}
 
 const CHANNEL_TITLE: Record<string, string> = {
   en: 'SoftWhere.uz Blog',
@@ -61,7 +76,9 @@ ${items}
     return new NextResponse(xml, {
       headers: {
         'Content-Type': 'application/rss+xml; charset=utf-8',
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+        // Matches the ISR window above; an hourly s-maxage would pull the
+        // origin (and the DB) awake every hour regardless of the route cache.
+        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
       },
     });
   } catch (error) {
