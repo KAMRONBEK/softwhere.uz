@@ -25,10 +25,17 @@ import { ENV, BLOG_CONFIG } from '@/core/constants';
 import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
 import { jetbrainsMono } from '@/shared/fonts';
 
-// ISR: render posts on demand and cache for an hour. generateStaticParams
+// ISR: render posts on demand and cache indefinitely. generateStaticParams
 // returns [] so nothing is prerendered at build time (no build-time DB), and
 // dynamicParams lets any slug render + cache on first request.
-export const revalidate = 3600;
+//
+// `false` (not a time window) on purpose: post bodies only change when the
+// generator writes, and every write busts this route via revalidatePath +
+// revalidateTag('blog-posts') in /api/admin/revalidate. A time window here is
+// pure cost — with ~150 post/locale pages, hourly expiry meant crawlers forced
+// a DB read every couple of minutes, so the Neon compute never hit its 5-min
+// scale-to-zero idle timer and burned the whole free-tier CU-hour budget.
+export const revalidate = false;
 export const dynamicParams = true;
 
 export function generateStaticParams() {

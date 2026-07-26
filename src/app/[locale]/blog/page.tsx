@@ -8,8 +8,9 @@ import { validateLocale } from '@/core/auth';
 import { safeJsonLd } from '@/shared/utils/security';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
 
-// ISR: re-render at most once an hour; writes bust the 'blog-posts' tag.
-export const revalidate = 3600;
+// ISR: cache until a write busts the 'blog-posts' tag (see the note in
+// blog/[slug]/page.tsx — time-based expiry kept the Neon compute awake).
+export const revalidate = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -54,7 +55,8 @@ const getPublishedPosts = unstable_cache(
     }
   },
   ['published-posts'],
-  { tags: ['blog-posts'], revalidate: 3600 }
+  // Tag-only invalidation: no time window, so an idle site never wakes the DB.
+  { tags: ['blog-posts'] }
 );
 
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {

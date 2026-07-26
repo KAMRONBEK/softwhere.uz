@@ -122,20 +122,28 @@ interface CreatedPost {
   warnings: number;
 }
 
-/** Best-effort ISR cache bust on the live site (Bearer API_SECRET). Without
- *  it, freshly published posts appear on the list/feeds within ~1 hour. */
-async function requestRevalidate(): Promise<boolean> {
+/** ISR cache bust on the live site (Bearer API_SECRET). The blog list/post
+ *  routes are `revalidate = false` (see blog/[slug]/page.tsx) to keep the Neon
+ *  compute asleep, so this call is the ONLY thing that surfaces a new post —
+ *  there is no hourly window to fall back on. Retried before giving up. */
+async function requestRevalidate(attempts = 3): Promise<boolean> {
   const secret = process.env.API_SECRET;
   if (!secret) return false;
-  try {
-    const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${secret}` },
-    });
-    return res.ok;
-  } catch {
-    return false;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${secret}` },
+      });
+      if (res.ok) return true;
+      // 4xx is a config problem (bad secret) — retrying will not fix it.
+      if (res.status < 500) return false;
+    } catch {
+      /* network blip — fall through to the retry */
+    }
+    if (attempt < attempts) await new Promise(r => setTimeout(r, attempt * 3000));
   }
+  return false;
 }
 
 function writeStepSummary(markdown: string): void {
@@ -440,11 +448,17 @@ async function main() {
     console.log('\n📣 Notifying search engines + busting caches...');
     await pingIndexNow(created.map(p => p.url));
     const revalidated = await requestRevalidate();
-    console.log(
-      revalidated
-        ? '   ✅ Site caches revalidated — posts are live now'
-        : '   ⚠️ Cache revalidation skipped/failed (set API_SECRET secret for instant visibility) — posts appear within ~1h'
-    );
+    if (revalidated) {
+      console.log('   ✅ Site caches revalidated — posts are live now');
+    } else {
+      // The blog routes are `revalidate = false`, so there is no time window
+      // that will heal this: without a successful bust the posts stay invisible
+      // until the next successful publish or a redeploy.
+      console.log(
+        '::error::Cache revalidation failed — new posts are NOT visible on the site. ' +
+          'Check the API_SECRET secret, then POST /api/admin/revalidate to publish them.'
+      );
+    }
   }
 
   // --- Report -----------------------------------------------------------------
