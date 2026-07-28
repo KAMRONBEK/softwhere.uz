@@ -3,6 +3,7 @@ import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Wizard } from '@/modules/estimator/components';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { buildOgUrl } from '@/core/og';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -11,6 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   const title = `${tEstimator('title')} | SoftWhere.uz`;
   const description = tCta('description');
+  const ogImageUrl = await buildOgUrl({ title, locale });
 
   return {
     title,
@@ -24,13 +26,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       type: 'website',
       // Page metadata shallow-replaces the layout's openGraph, so re-declare the
       // dynamic OG card here or the estimator would have no og:image.
-      images: [{ url: `${ENV.BASE_URL}/api/og?title=${encodeURIComponent(title)}&locale=${locale}`, width: 1200, height: 630 }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${ENV.BASE_URL}/api/og?title=${encodeURIComponent(title)}&locale=${locale}`],
+      images: [ogImageUrl],
     },
     // Own canonical so /uz/estimator no longer inherits the home canonical and
     // becomes independently indexable.

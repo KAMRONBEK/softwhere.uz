@@ -246,7 +246,9 @@ async function main() {
       try {
         const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${process.env.API_SECRET}` },
+          headers: { Authorization: `Bearer ${process.env.API_SECRET}`, 'Content-Type': 'application/json' },
+          // Target only the rewritten posts — an empty list purges EVERY post page.
+          body: JSON.stringify({ paths: updated.map(p => `/${p.locale}/blog/${p.slug}`) }),
         });
         console.log(res.ok ? '   ✅ Site caches revalidated' : `   ⚠️ Revalidate returned ${res.status}`);
       } catch {

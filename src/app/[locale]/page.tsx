@@ -12,8 +12,10 @@ import Projects from '@/shared/components/sections/Projects';
 import Contact from '@/shared/components/sections/Contact';
 import EstimatorCTA from '@/shared/components/sections/EstimatorCTA';
 
-// ISR: the latest-posts block refreshes hourly (and on 'blog-posts' tag busts).
-export const revalidate = 3600;
+// ISR: publishes bust the 'blog-posts' tag, which re-renders this page and
+// keeps the latest-posts block fresh — the time window is only a safety net,
+// so keep it long. Hourly re-renders here were a measurable Fluid CPU cost.
+export const revalidate = 86400;
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = (await params) as { locale: Locale };

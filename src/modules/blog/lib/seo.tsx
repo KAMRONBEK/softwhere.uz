@@ -2,6 +2,7 @@ import { CoverImage } from '@/shared/types';
 import { safeJsonLd } from '@/shared/utils/security';
 import { clampMeta } from '@/modules/blog/utils/meta';
 import { ENV } from '@/core/constants';
+import { buildOgUrl } from '@/core/og';
 
 export interface BlogPost {
   _id: string;
@@ -112,7 +113,8 @@ export function parseFAQPairs(content: string): Array<{ q: string; a: string }> 
   return pairs.slice(0, 10);
 }
 
-export function BlogPostSchema({ post }: { post: BlogPost }) {
+// Async server component: the OG fallback URL must be HMAC-signed (core/og.ts).
+export async function BlogPostSchema({ post }: { post: BlogPost }) {
   const baseUrl = ENV.BASE_URL;
   const locale = post.locale;
   const description = extractDescription(post.content, post.metaDescription, locale);
@@ -131,7 +133,7 @@ export function BlogPostSchema({ post }: { post: BlogPost }) {
       '@type': 'BlogPosting',
       headline: post.title,
       description,
-      image: post.coverImage?.url || `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${locale}`,
+      image: post.coverImage?.url || (await buildOgUrl({ title: post.title, locale })),
       author,
       publisher: {
         '@type': 'Organization',

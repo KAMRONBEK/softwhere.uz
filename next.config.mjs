@@ -14,11 +14,14 @@ const nextConfig = {
     // render-blocking stylesheet requests. Each round trip costs ~300ms+ for
     // far-from-region visitors (biggest slow cohort: China -> hkg1 edge).
     inlineCss: true,
+    // Blog posts prerender at build via generateStaticParams (each render hits
+    // Neon); retry transient DB blips instead of failing the whole deploy.
+    staticGenerationRetryCount: 3,
   },
   async redirects() {
     return [
-      // Dotted paths bypass the middleware matcher, so the locale-less feed
-      // needs its redirect here rather than in src/proxy.ts.
+      // Routing-layer redirect (zero function compute — cheaper than the
+      // middleware 308 the locale-less feed would otherwise get).
       { source: '/feed.xml', destination: '/uz/feed.xml', permanent: true },
     ];
   },

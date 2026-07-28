@@ -4,6 +4,7 @@ import ScrollToTop from '@/shared/components/ScrollToTop';
 import TelegramChat from '@/shared/components/TelegramChat';
 import ThemeProvider from '@/shared/components/ThemeProvider';
 import { BlogProvider } from '@/modules/blog/context/BlogContext';
+import { buildOgUrl } from '@/core/og';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
@@ -38,6 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'metadata' });
   const title = t('title');
   const description = t('description');
+  const ogImageUrl = await buildOgUrl({ title, locale });
 
   return {
     title,
@@ -49,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       siteName: 'SoftWhere.uz',
       locale,
       type: 'website',
-      images: [{ url: `${ENV.BASE_URL}/api/og?title=${encodeURIComponent(title)}&locale=${locale}`, width: 1200, height: 630 }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
