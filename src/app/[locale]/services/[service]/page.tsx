@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { buildOgUrl } from '@/core/og';
 import { safeJsonLd } from '@/shared/utils/security';
 
 // Commercial landing pages for the estimator's strongest categories. Slugs are
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const title = t('metaTitle');
   const description = t('metaDescription');
   const url = `${ENV.BASE_URL}/${locale}/services/${service}`;
+  const ogImageUrl = await buildOgUrl({ title: t('h1'), locale });
 
   return {
     title,
@@ -54,13 +56,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       siteName: 'SoftWhere.uz',
       locale,
       type: 'website',
-      images: [{ url: `${ENV.BASE_URL}/api/og?title=${encodeURIComponent(t('h1'))}&locale=${locale}`, width: 1200, height: 630 }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [`${ENV.BASE_URL}/api/og?title=${encodeURIComponent(t('h1'))}&locale=${locale}`],
+      images: [ogImageUrl],
     },
     alternates: {
       canonical: url,

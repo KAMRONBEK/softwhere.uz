@@ -125,15 +125,18 @@ interface CreatedPost {
 /** ISR cache bust on the live site (Bearer API_SECRET). The blog list/post
  *  routes are `revalidate = false` (see blog/[slug]/page.tsx) to keep the Neon
  *  compute asleep, so this call is the ONLY thing that surfaces a new post —
- *  there is no hourly window to fall back on. Retried before giving up. */
-async function requestRevalidate(attempts = 3): Promise<boolean> {
+ *  there is no hourly window to fall back on. Retried before giving up.
+ *  Passing the written post paths keeps the bust targeted — omitting them
+ *  purges EVERY post page, which re-renders the whole blog on Fluid CPU. */
+async function requestRevalidate(paths: string[], attempts = 3): Promise<boolean> {
   const secret = process.env.API_SECRET;
   if (!secret) return false;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${secret}` },
+        headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths }),
       });
       if (res.ok) return true;
       // 4xx is a config problem (bad secret) — retrying will not fix it.
@@ -447,7 +450,7 @@ async function main() {
   if (publish && created.length > 0) {
     console.log('\n📣 Notifying search engines + busting caches...');
     await pingIndexNow(created.map(p => p.url));
-    const revalidated = await requestRevalidate();
+    const revalidated = await requestRevalidate(created.map(p => `/${p.locale}/blog/${p.slug}`));
     if (revalidated) {
       console.log('   ✅ Site caches revalidated — posts are live now');
     } else {

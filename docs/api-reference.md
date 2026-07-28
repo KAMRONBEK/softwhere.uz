@@ -504,11 +504,11 @@ Deletes a post by id and busts blog caches.
 
 `src/app/api/admin/revalidate/route.ts`
 
-Busts all blog ISR caches so new/edited posts surface immediately. Called by the GitHub Actions generator (Bearer `API_SECRET`) after auto-publishing, and usable from the admin session. Revalidates the `blog-posts` tag, the blog list/detail pages, each per-locale `feed.xml`, and `sitemap.xml`.
+Busts blog ISR caches so new/edited posts surface immediately. Called by the GitHub Actions generator (Bearer `API_SECRET`) after auto-publishing, and usable from the admin session. Always revalidates the `blog-posts` tag, the blog list pages, each per-locale `feed.xml`, and `sitemap.xml`.
 
-**Request body** — none.
+**Request body** (optional) — `{ "paths": ["/uz/blog/<slug>", ...] }`. When given, only those post pages are revalidated (paths must match `/{en|ru|uz}/blog/<slug>`, max 100). Without it, **every** post page is purged (`revalidatePath('/[locale]/blog/[slug]', 'page')`), which re-renders the whole blog on Fluid CPU as crawlers return — scripts should always send their written paths.
 
-**Success `200`** — `{ "success": true }`.
+**Success `200`** — `{ "success": true, "targeted": <number of targeted paths> }`.
 
 **Errors** — `401`; `500 { "error": "Revalidation failed" }`.
 
@@ -557,10 +557,11 @@ Generates a 1200×630 PNG social card via `next/og` `ImageResponse` (returns an 
 | `title` | Card title; defaults to `SoftWhere.uz - Mobile App & Web Development`. Font size shrinks over 50 chars. |
 | `locale` | `en`/`ru`/`uz` (default `en`); selects the localized subtitle. |
 | `image` | Optional background. **Only `images.unsplash.com` over https is allowed** (SSRF guard); anything else falls back to the brand gradient. |
+| `sig` | HMAC signature over `title`+`locale`+`image` (see `src/core/og.ts`). **Required whenever `title` or `image` is present** — each unique URL is a ~2.6s satori render, so unsigned free-form input was an unbounded CPU surface. Unsigned/invalid → `308` to `/api/og?locale=<locale>` (the bounded default card). Bare or locale-only requests need no signature. Fail-open when `API_SECRET` is unset (local dev). |
 
-Loads a Noto Sans glyph subset from Google Fonts so Cyrillic titles don't render as tofu. Cache-Control is aggressive (`immutable, max-age=31536000`) **only** when the proper font loaded; otherwise `max-age=3600` so a fallback render isn't pinned for a year.
+Metadata builders must construct these URLs with `buildOgUrl()` from `src/core/og.ts` — never by hand. Loads a Noto Sans glyph subset from Google Fonts so Cyrillic titles don't render as tofu. Cache-Control is aggressive (`immutable, max-age=31536000`) **only** when the proper font loaded; otherwise `max-age=3600` so a fallback render isn't pinned for a year.
 
-**Success `200`** — `Content-Type: image/png`.
+**Success `200`** — `Content-Type: image/png`. **`308`** — unsigned/invalid `sig` (see above), long-cached.
 
 **Error** — `500` plain-text `Failed to generate image` (returned as a `Response`, not JSON).
 

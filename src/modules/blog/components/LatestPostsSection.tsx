@@ -13,11 +13,14 @@ const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
 // Shares the 'blog-posts' tag with the blog listing so admin writes bust both.
 // No catch INSIDE the cached fn: a thrown error is never persisted (a failed
 // background refresh keeps the previous good entry), while a returned []
-// would be cached as a success for an hour and hide the section.
+// would be cached as a success for a day and hide the section.
+// The window here also CLAMPS the homepage route's `revalidate` — keep it in
+// sync with `revalidate = 86400` in app/[locale]/page.tsx. Freshness comes
+// from the tag bust on publish, not this window.
 const getLatestPosts = unstable_cache(
   async (locale: string): Promise<PostSummary[]> => listPublished(validateLocale(locale, 'en'), 3),
   ['home-latest-posts'],
-  { tags: ['blog-posts'], revalidate: 3600 }
+  { tags: ['blog-posts'], revalidate: 86400 }
 );
 
 /**

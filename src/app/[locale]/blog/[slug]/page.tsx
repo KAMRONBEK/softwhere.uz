@@ -20,26 +20,40 @@ import { resolveLegacyAlias } from '@/modules/blog/model/legacy-aliases';
 import * as postsRepo from '@/modules/blog/model/posts.repository';
 import { CoverImage } from '@/shared/types';
 import { validateLocale } from '@/core/auth';
+import { logger } from '@/core/logger';
+import { buildOgUrl } from '@/core/og';
 import { getSlugRoot } from '@/shared/utils/slug';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
 import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
 import { jetbrainsMono } from '@/shared/fonts';
 
-// ISR: render posts on demand and cache indefinitely. generateStaticParams
-// returns [] so nothing is prerendered at build time (no build-time DB), and
-// dynamicParams lets any slug render + cache on first request.
+// ISR: prerender every published post at build time, cache indefinitely.
 //
 // `false` (not a time window) on purpose: post bodies only change when the
-// generator writes, and every write busts this route via revalidatePath +
+// generator writes, and every write busts its paths via revalidatePath +
 // revalidateTag('blog-posts') in /api/admin/revalidate. A time window here is
 // pure cost — with ~150 post/locale pages, hourly expiry meant crawlers forced
 // a DB read every couple of minutes, so the Neon compute never hit its 5-min
 // scale-to-zero idle timer and burned the whole free-tier CU-hour budget.
+//
+// Build-time prerender (vs the earlier on-demand `return []`): every deploy
+// cold-starts the ISR cache, so on-demand meant crawlers re-rendered all
+// posts on Fluid CPU (~0.5s each) after each deploy — and kept Neon awake
+// while doing it. At build the same renders cost free build minutes and one
+// warm Neon burst. If the DB is unreachable at build we fall back to [] —
+// exactly the old on-demand behavior (dynamicParams covers every slug), and
+// `staticGenerationRetryCount` in next.config.mjs absorbs transient blips.
 export const revalidate = false;
 export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return [] as { slug: string }[];
+export async function generateStaticParams({ params }: { params: { locale: string } }): Promise<{ slug: string }[]> {
+  try {
+    const posts = await postsRepo.listPublished(params.locale as PostLocaleSlug['locale']);
+    return posts.map(p => ({ slug: p.slug }));
+  } catch (error) {
+    logger.warn('generateStaticParams: DB unreachable — falling back to on-demand ISR', error, 'BLOG');
+    return [];
+  }
 }
 
 interface PostLocaleSlug {
@@ -228,6 +242,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
   languageAlternates['x-default'] = languageAlternates[BLOG_CONFIG.DEFAULT_LOCALE] || canonicalUrl;
 
+  const ogImageUrl = await buildOgUrl({
+    title: post.title,
+    locale: post.locale,
+    ...(post.coverImage?.url ? { image: post.coverImage.url } : {}),
+  });
+
   return {
     title: `${post.title} | SoftWhere.uz Blog`,
     description,
@@ -245,26 +265,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       url: canonicalUrl,
       siteName: 'SoftWhere.uz',
       locale: post.locale,
-      images: [
-        {
-          url: post.coverImage?.url
-            ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}&image=${encodeURIComponent(post.coverImage.url)}`
-            : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}`,
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description,
-      images: [
-        post.coverImage?.url
-          ? `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}&image=${encodeURIComponent(post.coverImage.url)}`
-          : `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}&locale=${post.locale}`,
-      ],
+      images: [ogImageUrl],
     },
     robots: isCanonicalVariant && !localeMismatch ? { index: true, follow: true } : { index: false, follow: true },
     alternates: {

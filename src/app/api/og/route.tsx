@@ -1,5 +1,7 @@
 import { ImageResponse } from 'next/og';
 
+import { verifyOgSignature } from '@/core/og';
+
 export const runtime = 'edge';
 
 /**
@@ -28,15 +30,38 @@ async function loadFontSubset(text: string, weight: 400 | 700): Promise<ArrayBuf
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const title = url.searchParams.get('title') || 'SoftWhere.uz - Mobile App & Web Development';
+    const rawTitle = url.searchParams.get('title');
+    const title = rawTitle || 'SoftWhere.uz - Mobile App & Web Development';
     const localeParam = url.searchParams.get('locale');
     const locale = localeParam && ['en', 'ru', 'uz'].includes(localeParam) ? localeParam : 'en';
+    const rawImageParam = url.searchParams.get('image');
+
+    // Every UNIQUE URL is a fresh ~2.6s satori render, so free-form params are
+    // an unbounded CPU surface. Only URLs signed by our metadata builders (see
+    // core/og.ts) get a custom render; anything else 308s to the locale's
+    // default brand image — one cacheable URL instead of infinitely many.
+    // Bare/locale-only requests need no signature (3 bounded URLs).
+    if (rawTitle !== null || rawImageParam !== null) {
+      const valid = await verifyOgSignature(
+        { title: rawTitle ?? '', locale: localeParam ?? '', image: rawImageParam ?? undefined },
+        url.searchParams.get('sig')
+      );
+      if (!valid) {
+        return new Response(null, {
+          status: 308,
+          headers: {
+            Location: `${url.origin}/api/og?locale=${locale}`,
+            'Cache-Control': 'public, immutable, no-transform, max-age=31536000',
+          },
+        });
+      }
+    }
 
     // Only allow background images from hosts we control / trust. The param is
     // fetched server-side by Satori, so an arbitrary URL would turn this into an
     // open proxy / SSRF vector. Anything else falls back to the gradient.
     const ALLOWED_IMAGE_HOSTS = ['images.unsplash.com'];
-    const rawImage = url.searchParams.get('image');
+    const rawImage = rawImageParam;
     let imageUrl: string | null = null;
     if (rawImage) {
       try {

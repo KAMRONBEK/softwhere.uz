@@ -92,15 +92,17 @@ function setOutput(key: string, value: string): void {
 
 /** ISR cache bust so recovered posts appear. The blog routes are
  *  `revalidate = false` (see blog/[slug]/page.tsx), so this is the only thing
- *  that surfaces them — there is no hourly window to fall back on. */
-async function requestRevalidate(attempts = 3): Promise<boolean> {
+ *  that surfaces them — there is no hourly window to fall back on.
+ *  Targeted paths only — an empty list would purge EVERY post page. */
+async function requestRevalidate(paths: string[], attempts = 3): Promise<boolean> {
   const secret = process.env.API_SECRET;
   if (!secret) return false;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       const res = await fetch(`${baseUrl()}/api/admin/revalidate`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${secret}` },
+        headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paths }),
       });
       if (res.ok) return true;
       // 4xx is a config problem (bad secret) — retrying will not fix it.
@@ -252,7 +254,7 @@ async function main() {
   // Publish side effects: notify search engines + bust the site's ISR caches.
   if (allCreated.length > 0) {
     await pingIndexNow(allCreated.map(p => p.url));
-    const revalidated = await requestRevalidate();
+    const revalidated = await requestRevalidate(allCreated.map(p => `/${p.locale}/blog/${p.slug}`));
     if (revalidated) {
       console.log('\n📣 IndexNow pinged, caches revalidated — posts are live.');
     } else {
