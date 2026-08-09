@@ -9,7 +9,17 @@ export type CurrencyCode = 'USD' | 'UZS' | 'KZT' | 'RUB' | 'EUR';
 const CURRENCIES: CurrencyCode[] = ['USD', 'UZS', 'KZT', 'RUB', 'EUR'];
 const STORAGE_KEY = 'estimator-currency';
 
-const INTL_LOCALES: Record<string, string> = { ru: 'ru-RU', uz: 'uz-UZ', en: 'en-US' };
+/**
+ * Number-formatting locale per UI language.
+ *
+ * `uz` deliberately formats through `ru-RU`, not `uz-UZ`: Node's ICU renders
+ * `uz-UZ` USD as "4 000 US$" while Chrome renders "$ 4,000", so every Uzbek
+ * visitor — the site's default locale — got a React hydration mismatch and a
+ * re-render of the price the moment the page came alive. Node and Chrome agree
+ * character-for-character on `ru-RU` ("4 000 $"), which is also the grouping
+ * Uzbek uses.
+ */
+const INTL_LOCALES: Record<string, string> = { ru: 'ru-RU', uz: 'ru-RU', en: 'en-US' };
 
 /** Converted amounts get 3 significant digits — "5 100 000 сум" reads honest,
  *  "5 083 214 сум" reads fake, and a fixed step would zero out small values. */

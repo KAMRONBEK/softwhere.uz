@@ -1,10 +1,26 @@
 'use client';
 
 import { getEstimate } from '@/modules/estimator/api';
-import { applySubtype, defaultInputFor } from '@/modules/estimator/data/catalog';
 import type { DesignStatus, EstimatorInput, MobileApproach, Platform, ProjectType, Tier, Urgency } from '@/modules/estimator/types';
 import { calculateEstimate } from '@/modules/estimator/utils/estimator';
 import { sanitizeEstimatorInput } from '@/modules/estimator/utils/sanitize';
+import {
+  initialInput,
+  selectProjectType,
+  selectSubtype,
+  setApproach,
+  setAutoTech,
+  setDescription,
+  setDesign,
+  setLanguages,
+  setScreens,
+  setTier,
+  setUrgency,
+  toggleFeature,
+  toggleIntegration,
+  togglePlatform,
+  toggleTech,
+} from '@/modules/estimator/utils/wizardState';
 import { trackEvent } from '@/shared/utils/analytics';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -18,6 +34,22 @@ const STEPS: StepId[] = ['type', 'scope', 'features', 'integrations', 'tech', 'd
 
 const STORAGE_KEY = 'estimator-state-v2';
 
+/**
+ * Identity of a configuration for AI-caching purposes. The id arrays are built
+ * in click order, so `['push','search']` and `['search','push']` are the same
+ * project — sorting them stops "untick, re-tick" from looking like a brand new
+ * configuration and re-rolling the AI's numbers.
+ */
+function configKey(input: EstimatorInput, locale: string): string {
+  return JSON.stringify({
+    ...input,
+    features: [...input.features].sort(),
+    integrations: [...input.integrations].sort(),
+    techStack: [...input.techStack].sort(),
+    locale,
+  });
+}
+
 export default function Wizard() {
   const t = useTranslations('estimator');
   const tx = t as unknown as (key: string) => string;
@@ -25,7 +57,7 @@ export default function Wizard() {
   const { currency, setCurrency, format, available } = useCurrency();
 
   const [step, setStep] = useState(0);
-  const [input, setInput] = useState<EstimatorInput>(() => defaultInputFor('mobile'));
+  const [input, setInput] = useState<EstimatorInput>(initialInput);
   const [aiState, setAiState] = useState<AiState>({ status: 'loading' });
 
   const startedRef = useRef(false);
@@ -33,6 +65,11 @@ export default function Wizard() {
   const completedKeyRef = useRef('');
   const aiFetchKeyRef = useRef('');
   const aiAbortRef = useRef<AbortController | null>(null);
+  // One AI answer per configuration, for the life of the page. Re-entering the
+  // result step used to fire a fresh paid call, so an unchanged project came
+  // back with a different "AI second opinion" every time — and ten of those
+  // inside a minute tripped the endpoint's own rate limit.
+  const aiCacheRef = useRef(new Map<string, AiState>());
 
   const resultIndex = STEPS.length;
   const isResultStep = step >= resultIndex;
@@ -54,7 +91,9 @@ export default function Wizard() {
         const restored = sanitizeEstimatorInput(parsed.input);
         if (restored) {
           setInput(restored);
-          if (Number.isInteger(parsed.step) && (parsed.step as number) >= 0 && (parsed.step as number) < resultIndex) {
+          // `<= resultIndex`: someone who reloads while reading their estimate
+          // should get their estimate back, not the Details form.
+          if (Number.isInteger(parsed.step) && (parsed.step as number) >= 0 && (parsed.step as number) <= resultIndex) {
             setStep(parsed.step as number);
           }
         }
@@ -71,7 +110,7 @@ export default function Wizard() {
   useEffect(() => {
     if (!hydratedRef.current) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ input, step: Math.min(step, resultIndex - 1) }));
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ input, step: Math.min(step, resultIndex) }));
     } catch {
       /* storage full/blocked — persistence is best-effort */
     }
@@ -81,7 +120,13 @@ export default function Wizard() {
   // is already on screen, so this is pure enrichment (never blocks the UX).
   useEffect(() => {
     if (!isResultStep) return;
-    const key = JSON.stringify({ input, locale });
+    const key = configKey(input, locale);
+
+    const cached = aiCacheRef.current.get(key);
+    if (cached) {
+      setAiState(cached);
+      return;
+    }
     if (aiFetchKeyRef.current === key) return;
     aiFetchKeyRef.current = key;
 
@@ -92,13 +137,10 @@ export default function Wizard() {
     setAiState({ status: 'loading' });
     getEstimate(input, locale, controller.signal).then(res => {
       if (controller.signal.aborted) return;
-      if (res.success && res.data?.ai) {
-        setAiState({ status: 'ready', ai: res.data.ai });
-        trackEvent('estimator_ai', { status: 'ok' });
-      } else {
-        setAiState({ status: 'unavailable' });
-        trackEvent('estimator_ai', { status: res.success ? 'unavailable' : 'error' });
-      }
+      const next: AiState = res.success && res.data?.ai ? { status: 'ready', ai: res.data.ai } : { status: 'unavailable' };
+      aiCacheRef.current.set(key, next);
+      setAiState(next);
+      trackEvent('estimator_ai', { status: next.status === 'ready' ? 'ok' : res.success ? 'unavailable' : 'error' });
     });
 
     return () => {
@@ -109,10 +151,15 @@ export default function Wizard() {
     };
   }, [isResultStep, input, locale]);
 
-  const update = (patch: Partial<EstimatorInput> | ((prev: EstimatorInput) => EstimatorInput)) => {
+  /**
+   * Single entry point for state changes: every transition is a pure reducer
+   * from `utils/wizardState`, so the wizard can never build an input the
+   * pricing formula would silently ignore.
+   */
+  const update = (transition: (prev: EstimatorInput) => EstimatorInput) => {
     // Compute the next value eagerly so the start event carries the type the
     // user actually picked (not the pre-click default, which skews to 'mobile').
-    const next = typeof patch === 'function' ? patch(input) : { ...input, ...patch };
+    const next = transition(input);
     if (!startedRef.current) {
       startedRef.current = true;
       trackEvent('estimator_start', { projectType: next.projectType, locale });
@@ -134,39 +181,9 @@ export default function Wizard() {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleTypeSelect = (type: ProjectType) => {
-    if (type === input.projectType) return;
-    update(prev => ({ ...defaultInputFor(type), description: prev.description }));
-  };
-
-  const handleSubtypeSelect = (subtype: string) => update(prev => applySubtype(prev, subtype));
-
-  const handleTogglePlatform = (platform: Platform) =>
-    update(prev => {
-      const has = prev.platforms.includes(platform);
-      // Never allow zero platforms — the engine would silently price "both".
-      if (has && prev.platforms.length === 1) return prev;
-      return { ...prev, platforms: has ? prev.platforms.filter(p => p !== platform) : [...prev.platforms, platform] };
-    });
-
-  const handleToggle = (field: 'features' | 'integrations') => (id: string) =>
-    update(prev => ({
-      ...prev,
-      [field]: prev[field].includes(id) ? prev[field].filter(x => x !== id) : [...prev[field], id],
-    }));
-
-  const handleToggleTech = (id: string) =>
-    update(prev => ({
-      ...prev,
-      autoTech: false,
-      techStack: prev.techStack.includes(id) ? prev.techStack.filter(x => x !== id) : [...prev.techStack, id],
-    }));
-
-  const handleAutoTech = () => update(prev => ({ ...prev, autoTech: !prev.autoTech, techStack: [] }));
-
   const handleReset = () => {
     setStep(0);
-    setInput(defaultInputFor('mobile'));
+    setInput(initialInput());
     setAiState({ status: 'loading' });
     aiFetchKeyRef.current = '';
     completedKeyRef.current = '';
@@ -181,31 +198,37 @@ export default function Wizard() {
   const renderStep = () => {
     switch (STEPS[step]) {
       case 'type':
-        return <TypeStep input={input} onTypeSelect={handleTypeSelect} onSubtypeSelect={handleSubtypeSelect} />;
+        return (
+          <TypeStep
+            input={input}
+            onTypeSelect={(type: ProjectType) => update(prev => selectProjectType(prev, type))}
+            onSubtypeSelect={(subtype: string) => update(prev => selectSubtype(prev, subtype))}
+          />
+        );
       case 'scope':
         return (
           <ScopeStep
             input={input}
-            onTogglePlatform={handleTogglePlatform}
-            onApproachChange={(approach: MobileApproach) => update({ approach })}
-            onTierChange={(tier: Tier) => update({ tier })}
-            onScreensChange={screens => update({ screens })}
+            onTogglePlatform={(platform: Platform) => update(prev => togglePlatform(prev, platform))}
+            onApproachChange={(approach: MobileApproach) => update(prev => setApproach(prev, approach))}
+            onTierChange={(tier: Tier) => update(prev => setTier(prev, tier))}
+            onScreensChange={screens => update(prev => setScreens(prev, screens))}
           />
         );
       case 'features':
-        return <FeaturesStep input={input} onToggleFeature={handleToggle('features')} />;
+        return <FeaturesStep input={input} format={format} onToggleFeature={id => update(prev => toggleFeature(prev, id))} />;
       case 'integrations':
-        return <IntegrationsStep input={input} onToggleIntegration={handleToggle('integrations')} />;
+        return <IntegrationsStep input={input} format={format} onToggleIntegration={id => update(prev => toggleIntegration(prev, id))} />;
       case 'tech':
-        return <TechStep input={input} onAutoTech={handleAutoTech} onToggleTech={handleToggleTech} />;
+        return <TechStep input={input} onAutoTech={() => update(setAutoTech)} onToggleTech={id => update(prev => toggleTech(prev, id))} />;
       case 'details':
         return (
           <DetailsStep
             input={input}
-            onDesignChange={(design: DesignStatus) => update({ design })}
-            onLanguagesChange={languages => update({ languages })}
-            onUrgencyChange={(urgency: Urgency) => update({ urgency })}
-            onDescriptionChange={description => update({ description })}
+            onDesignChange={(design: DesignStatus) => update(prev => setDesign(prev, design))}
+            onLanguagesChange={languages => update(prev => setLanguages(prev, languages))}
+            onUrgencyChange={(urgency: Urgency) => update(prev => setUrgency(prev, urgency))}
+            onDescriptionChange={description => update(prev => setDescription(prev, description))}
           />
         );
       default:
@@ -227,7 +250,7 @@ export default function Wizard() {
       {/* 3-column wizard */}
       <div className='grid grid-cols-1 xl:grid-cols-[240px_minmax(0,1fr)_320px] gap-6 xl:gap-7 items-start'>
         {/* Step rail */}
-        <aside className='hidden xl:flex flex-col gap-1.5 xl:sticky xl:top-28'>
+        <aside data-testid='step-rail' className='hidden xl:flex flex-col gap-1.5 xl:sticky xl:top-28'>
           {railItems.map((item, i) => {
             const active = i === step;
             const done = i < step;
@@ -259,7 +282,10 @@ export default function Wizard() {
         </aside>
 
         {/* Step body */}
-        <div className='rounded-3xl border border-ember-border p-5 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'>
+        <div
+          data-testid='step-body'
+          className='rounded-3xl border border-ember-border p-5 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'
+        >
           <div className='xl:hidden text-sm text-ember-muted mb-3'>
             {isResultStep ? t('step.result') : t('stepProgress', { current: step + 1, total: STEPS.length })}
           </div>
@@ -280,6 +306,7 @@ export default function Wizard() {
               currency={currency}
               available={available}
               setCurrency={setCurrency}
+              onBack={() => gotoStep(resultIndex - 1)}
               onReset={handleReset}
             />
           ) : (
@@ -323,11 +350,14 @@ export default function Wizard() {
 
       {/* Mobile sticky bottom bar: live range + primary action, always thumb-reachable */}
       {!isResultStep && (
-        <div className='xl:hidden fixed bottom-0 inset-x-0 z-40 border-t border-ember-border bg-[color:var(--surface)]/95 backdrop-blur px-4 py-3'>
+        <div
+          data-testid='mobile-bar'
+          className='xl:hidden fixed bottom-0 inset-x-0 z-40 border-t border-ember-border bg-[color:var(--surface)]/95 backdrop-blur px-4 py-3'
+        >
           <div className='flex items-center justify-between gap-3 max-w-xl mx-auto'>
             <div className='min-w-0'>
               <div className='text-[11px] uppercase tracking-wide font-bold text-ember-muted'>{t('liveEstimate')}</div>
-              <div className='font-display font-extrabold text-ember-accent text-lg leading-tight truncate'>
+              <div data-testid='live-range' className='font-display font-extrabold text-ember-accent text-lg leading-tight truncate'>
                 {format(estimate.cost.min)} – {format(estimate.cost.max)}
               </div>
             </div>

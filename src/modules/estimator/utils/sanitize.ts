@@ -1,5 +1,6 @@
 import { FEATURE_BY_ID, INTEGRATION_BY_ID, SERVICES, TECH_BY_ID, getService, getSubtype } from '@/modules/estimator/data/catalog';
 import type { DesignStatus, EstimatorInput, MobileApproach, Platform, ProjectType, Tier, Urgency } from '@/modules/estimator/types';
+import { normalizeInput } from '@/modules/estimator/utils/wizardState';
 
 export const MAX_DESCRIPTION_LENGTH = 600;
 
@@ -19,6 +20,12 @@ function idList(value: unknown, known: Map<string, unknown>, max = 60): string[]
  * the catalog and silently drops unknown ids (a stale client after a catalog
  * change must degrade, not error). Returns null only when the payload is not
  * even shaped like an estimator input.
+ *
+ * The whitelisting here is about *types* (is this a string? a known id?); the
+ * cross-field rules (ids actually offered for this project type, screens within
+ * the subtype's bounds, platforms only for mobile) come from `normalizeInput`,
+ * the same function the wizard applies on the client — so the price the user
+ * saw and the price the API recomputes are computed from an identical input.
  */
 export function sanitizeEstimatorInput(raw: unknown): EstimatorInput | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -59,10 +66,10 @@ export function sanitizeEstimatorInput(raw: unknown): EstimatorInput | null {
           .slice(0, MAX_DESCRIPTION_LENGTH)
       : '';
 
-  return {
+  return normalizeInput({
     projectType,
     subtype,
-    platforms: projectType === 'mobile' ? (platforms.length ? platforms : (['ios', 'android'] as Platform[])) : [],
+    platforms,
     approach,
     tier,
     screens,
@@ -74,5 +81,5 @@ export function sanitizeEstimatorInput(raw: unknown): EstimatorInput | null {
     languages,
     urgency,
     description,
-  };
+  });
 }

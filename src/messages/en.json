@@ -271,7 +271,7 @@
     "resultHeading": "Here's your honest range.",
     "resultSub": "Built from real Central Asia market rates — not inflated placeholders.",
     "estimateRange": "Estimated budget",
-    "rateBasis": "blended rate ${rate}/hour (design + development + QA + PM)",
+    "rateBasis": "blended rate {rate}/hour (design + development + QA + PM)",
     "timeframe": "Timeline",
     "supportCost": "Support (optional)",
     "perMonth": "/mo",

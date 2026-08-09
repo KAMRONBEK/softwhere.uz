@@ -16,6 +16,7 @@ type Props = {
   currency: CurrencyCode;
   available: CurrencyCode[];
   setCurrency: (c: CurrencyCode) => void;
+  onBack: () => void;
   onReset: () => void;
 };
 
@@ -33,7 +34,7 @@ function ConfidenceBadge({ level }: { level: AiRefinement['confidence'] }) {
   );
 }
 
-export default function ResultPanel({ input, estimate, aiState, format, currency, available, setCurrency, onReset }: Props) {
+export default function ResultPanel({ input, estimate, aiState, format, currency, available, setCurrency, onBack, onReset }: Props) {
   const t = useTranslations('estimator');
   const tx = t as unknown as (key: string) => string;
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -51,14 +52,17 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
       {/* Hero range */}
       <div className='rounded-2xl border border-ember-accent p-6 bg-[linear-gradient(150deg,rgba(255,91,30,0.12),var(--surface))]'>
         <div className='text-ember-muted text-sm font-semibold mb-1.5'>{t('estimateRange')}</div>
-        <div className='font-display text-[34px] sm:text-[42px] font-extrabold text-ember-accent leading-none'>
+        <div data-testid='result-range' className='font-display text-[34px] sm:text-[42px] font-extrabold text-ember-accent leading-none'>
           {format(estimate.cost.min)} – {format(estimate.cost.max)}
         </div>
         <div className='text-ember-muted text-sm mt-3'>
-          ≈ {estimate.hours.min}–{estimate.hours.max} {t('hoursShort')} · {t('rateBasis', { rate: estimate.rate })}
+          {/* The rate follows the selected currency: "$14/hour" under a UZS total
+              is two currencies in one sentence. */}
+          ≈ {estimate.hours.min}–{estimate.hours.max} {t('hoursShort')} · {t('rateBasis', { rate: format(estimate.rate) })}
         </div>
-        {/* The desktop sidebar owns the switcher; on mobile this is the only one. */}
-        <div className='lg:hidden mt-4 pt-4 border-t border-ember-border'>
+        {/* The desktop sidebar owns the switcher — and it only exists from `xl`,
+            so this one has to cover everything below that, not below `lg`. */}
+        <div className='xl:hidden mt-4 pt-4 border-t border-ember-border'>
           <CurrencySwitcher currency={currency} available={available} onCurrencyChange={setCurrency} />
         </div>
       </div>
@@ -66,7 +70,7 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
       <div className='grid grid-cols-2 gap-3.5'>
         <div className='rounded-2xl border border-ember-border p-5 bg-ember-surface'>
           <div className='text-ember-muted text-sm font-semibold mb-1.5'>{t('timeframe')}</div>
-          <div className='font-display text-2xl sm:text-3xl font-extrabold text-ember-text'>
+          <div data-testid='result-weeks' className='font-display text-2xl sm:text-3xl font-extrabold text-ember-text'>
             {t('weeksRange', { min: estimate.weeks.min, max: estimate.weeks.max })}
           </div>
         </div>
@@ -94,7 +98,7 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
 
       {/* AI refinement */}
       {aiState.status !== 'unavailable' && (
-        <div className='rounded-2xl border border-ember-border bg-ember-surface p-5'>
+        <div data-testid='ai-block' className='rounded-2xl border border-ember-border bg-ember-surface p-5'>
           <div className='flex items-center justify-between gap-3 mb-3'>
             <h3 className='font-display font-bold text-ember-text flex items-center gap-2'>🤖 {t('aiTitle')}</h3>
             {aiState.status === 'ready' && <ConfidenceBadge level={aiState.ai.confidence} />}
@@ -107,7 +111,7 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
             </div>
           ) : (
             <div className='space-y-3'>
-              <div className='font-display text-xl font-extrabold text-ember-text'>
+              <div data-testid='ai-range' className='font-display text-xl font-extrabold text-ember-text'>
                 {format(aiState.ai.cost.min)} – {format(aiState.ai.cost.max)}
                 <span className='text-sm text-ember-muted font-semibold ml-2'>
                   · {t('weeksRange', { min: aiState.ai.weeks.min, max: aiState.ai.weeks.max })}
@@ -174,7 +178,9 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
             </div>
             <div className='flex items-center justify-between gap-3'>
               <span className='text-ember-muted'>{t('breakdownRate')}</span>
-              <span className='font-semibold text-ember-text'>${estimate.rate}/h</span>
+              <span className='font-semibold text-ember-text'>
+                {format(estimate.rate)}/{t('hoursShort')}
+              </span>
             </div>
             <p className='text-xs text-ember-muted pt-2 leading-relaxed'>{t('breakdownNote')}</p>
           </div>
@@ -223,7 +229,16 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
       {/* Lead capture — AFTER the fully-visible result, never gating it */}
       <LeadForm input={input} ai={aiState.status === 'ready' ? aiState.ai : null} />
 
-      <div className='flex justify-center'>
+      {/* Below xl there is no step rail, so without this the only way out of the
+          result is "Start over" — which throws the whole configuration away. */}
+      <div className='flex flex-wrap justify-center items-center gap-x-5 gap-y-3'>
+        <button
+          type='button'
+          onClick={onBack}
+          className='px-6 py-2.5 rounded-full border border-ember-border text-ember-text text-sm font-semibold hover:border-ember-accent transition-colors cursor-pointer'
+        >
+          ← {t('back')}
+        </button>
         <button
           type='button'
           onClick={onReset}

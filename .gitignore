@@ -8,6 +8,8 @@
 
 # testing
 /coverage
+# estimator suite output: JSON reports + per-story screenshots
+/test-results/
 
 # next.js
 /.next/

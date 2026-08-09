@@ -1,27 +1,36 @@
 'use client';
 
-import { BLENDED_RATE, TIER_MULTIPLIER } from '@/modules/estimator/constants';
-import { FEATURE_CATEGORIES, effectiveFeatureHours, featuresFor, getSubtype } from '@/modules/estimator/data/catalog';
+import { FEATURE_CATEGORIES, featuresFor, getSubtype } from '@/modules/estimator/data/catalog';
 import type { EstimatorInput } from '@/modules/estimator/types';
+import { marginalCost } from '@/modules/estimator/utils/estimator';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 import { StepLabel, ToggleChip } from '../ui';
 
 type Props = {
   input: EstimatorInput;
+  /** Currency-aware formatter — chips must not quote USD next to a UZS total. */
+  format: (amountUsd: number) => string;
   onToggleFeature: (id: string) => void;
 };
 
-export default function FeaturesStep({ input, onToggleFeature }: Props) {
+export default function FeaturesStep({ input, format, onToggleFeature }: Props) {
   const t = useTranslations('estimator');
   const tx = t as unknown as (key: string) => string;
   const available = featuresFor(input.projectType);
   const popular = new Set(getSubtype(input.projectType, input.subtype).popular);
-  const tierMult = TIER_MULTIPLIER[input.tier] ?? 1;
 
-  const priceHint = (id: string): string => {
-    const cost = effectiveFeatureHours(input.projectType, input.subtype, id) * BLENDED_RATE * tierMult;
-    return `+$${(Math.round(cost / 10) * 10).toLocaleString('en-US')}`;
-  };
+  // What each chip really costs in the *current* configuration — the tier,
+  // design, language and platform multipliers all land on feature hours, so a
+  // hint that ignored them was wrong by 25–60% and moved the range by an amount
+  // the user could not predict.
+  const hints = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const feature of featuresFor(input.projectType)) {
+      map.set(feature.id, `+${format(Math.round(marginalCost(input, 'features', feature.id) / 10) * 10)}`);
+    }
+    return map;
+  }, [input, format]);
 
   return (
     <div>
@@ -49,7 +58,7 @@ export default function FeaturesStep({ input, onToggleFeature }: Props) {
                         )}
                       </>
                     }
-                    hint={priceHint(f.id)}
+                    hint={hints.get(f.id)}
                   />
                 ))}
               </div>

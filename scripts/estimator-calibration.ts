@@ -8,12 +8,12 @@
  * Adjust constants in src/modules/estimator/constants.ts until every row
  * lands inside (or sensibly near) its target band.
  */
-import { applySubtype, defaultInputFor } from '../src/modules/estimator/data/catalog';
 import type { EstimatorInput, ProjectType } from '../src/modules/estimator/types';
 import { calculateEstimate } from '../src/modules/estimator/utils/estimator';
+import { initialInput, selectSubtype } from '../src/modules/estimator/utils/wizardState';
 
 function scenario(type: ProjectType, subtype: string, patch: Partial<EstimatorInput> = {}): EstimatorInput {
-  return { ...applySubtype(defaultInputFor(type), subtype), ...patch };
+  return { ...selectSubtype(initialInput(type), subtype), ...patch };
 }
 
 const CASES: { label: string; target: string; input: EstimatorInput }[] = [

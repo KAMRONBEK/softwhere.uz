@@ -1,21 +1,34 @@
 'use client';
 
-import { BLENDED_RATE } from '@/modules/estimator/constants';
 import { INTEGRATION_GROUPS, integrationsFor } from '@/modules/estimator/data/catalog';
 import type { EstimatorInput } from '@/modules/estimator/types';
+import { marginalCost } from '@/modules/estimator/utils/estimator';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 import TechIcon from '../TechIcon';
 import { StepLabel, ToggleChip } from '../ui';
 
 type Props = {
   input: EstimatorInput;
+  /** Currency-aware formatter — chips must not quote USD next to a UZS total. */
+  format: (amountUsd: number) => string;
   onToggleIntegration: (id: string) => void;
 };
 
-export default function IntegrationsStep({ input, onToggleIntegration }: Props) {
+export default function IntegrationsStep({ input, format, onToggleIntegration }: Props) {
   const t = useTranslations('estimator');
   const tx = t as unknown as (key: string) => string;
   const available = integrationsFor(input.projectType);
+
+  // Same rule as the features step: quote what this chip actually moves the
+  // estimate by (integrations are fixed effort, but urgency still scales them).
+  const hints = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const integration of integrationsFor(input.projectType)) {
+      map.set(integration.id, `+${format(Math.round(marginalCost(input, 'integrations', integration.id) / 10) * 10)}`);
+    }
+    return map;
+  }, [input, format]);
 
   return (
     <div>
@@ -35,7 +48,7 @@ export default function IntegrationsStep({ input, onToggleIntegration }: Props) 
                     onClick={() => onToggleIntegration(i.id)}
                     icon={<TechIcon icon={i.icon} flag={i.flag} label={tx(`integration.${i.id}`)} />}
                     label={tx(`integration.${i.id}`)}
-                    hint={`+$${(Math.round((i.hours * BLENDED_RATE) / 10) * 10).toLocaleString('en-US')}`}
+                    hint={hints.get(i.id)}
                   />
                 ))}
               </div>

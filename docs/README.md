@@ -52,6 +52,7 @@ on `main`, not aspirational plans. Each ends with a `_Last verified against code
 | [scripts.md](./scripts.md) | The `scripts/*.ts` tsx tools (generate-post, regenerate-post, audit-posts, estimator-calibration, screenshot-homepage) and the `package.json` yarn scripts. |
 | [mcp.md](./mcp.md) | Model Context Protocol setup for Claude Code and Cursor — every configured server, the two custom local wrappers, the env-sync flow, and from-scratch setup. |
 | [testing/ai-playwright-suite.md](./testing/ai-playwright-suite.md) | 92 grounded end-to-end cases for AI-driven Playwright testing. |
+| [../tests/estimator/README.md](../tests/estimator/README.md) | The executable estimator suites — `yarn test:estimator` — covering catalogue integrity, pricing invariants, wizard navigation, client/server parity, and ~30 browser user stories. |
 
 ## Design history (context, not current spec)
 

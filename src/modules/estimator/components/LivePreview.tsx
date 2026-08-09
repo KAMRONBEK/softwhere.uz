@@ -31,10 +31,13 @@ export default function LivePreview({ estimate, input, format, currency, availab
   const tx = t as unknown as (key: string) => string;
 
   return (
-    <aside className='hidden xl:block rounded-3xl border border-ember-border bg-ember-surface p-6 xl:sticky xl:top-28'>
+    <aside
+      data-testid='live-preview'
+      className='hidden xl:block rounded-3xl border border-ember-border bg-ember-surface p-6 xl:sticky xl:top-28'
+    >
       <div className='uppercase tracking-[0.16em] text-[11px] font-bold text-ember-accent mb-4'>{t('liveEstimate')}</div>
 
-      <div className='font-display text-[30px] font-extrabold text-ember-accent leading-tight mb-1'>
+      <div data-testid='live-range' className='font-display text-[30px] font-extrabold text-ember-accent leading-tight mb-1'>
         {format(estimate.cost.min)} – {format(estimate.cost.max)}
       </div>
       <div className='text-ember-muted text-[13px] mb-6'>
