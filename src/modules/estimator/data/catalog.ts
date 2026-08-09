@@ -734,10 +734,6 @@ export function defaultInputFor(type: ProjectType): EstimatorInput {
   };
 }
 
-/** Applied when the subtype changes: keep user picks, merge in new populars. */
-export function applySubtype(input: EstimatorInput, subtypeId: string): EstimatorInput {
-  const def = getSubtype(input.projectType, subtypeId);
-  const validFeatureIds = new Set(featuresFor(input.projectType).map(f => f.id));
-  const merged = Array.from(new Set([...input.features, ...def.popular])).filter(id => validFeatureIds.has(id));
-  return { ...input, subtype: subtypeId, screens: def.defaultScreens, features: merged };
-}
+// Subtype/type switching lives in `utils/wizardState.ts` (selectSubtype /
+// selectProjectType) — it needs to know which features the user chose versus
+// which the previous subtype pre-ticked, which is state logic, not catalog data.

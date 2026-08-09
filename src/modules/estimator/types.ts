@@ -47,6 +47,12 @@ export interface BreakdownLine {
 export interface EstimateResult {
   hours: Range;
   cost: Range;
+  /**
+   * Unrounded mid-point cost in USD (hours × rate), before the display range,
+   * the friendly rounding and the subtype floor. The stable quantity to diff
+   * when showing what one option adds — see `marginalCost()`.
+   */
+  midCost: number;
   weeks: Range;
   /** Optional monthly support retainer, USD/month. */
   supportMonthly: number;

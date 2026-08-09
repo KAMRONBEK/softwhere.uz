@@ -24,7 +24,14 @@ export default function ScopeStep({ input, onTogglePlatform, onApproachChange, o
   const isMobile = input.projectType === 'mobile';
   const bothPlatforms = input.platforms.length !== 1;
 
-  const nativeExtra = Math.round(((bothPlatforms ? MOBILE_FACTOR.native_both : MOBILE_FACTOR.native_single) - 1) * 100);
+  // What switching to native costs *from here* — i.e. against cross-platform at
+  // the same platform count, not against an abstract 1.0. On a single platform
+  // the old "-1" form advertised +12% for a change that really adds ~19%.
+  const nativeExtra = Math.round(
+    ((bothPlatforms ? MOBILE_FACTOR.native_both / MOBILE_FACTOR.cross_both : MOBILE_FACTOR.native_single / MOBILE_FACTOR.cross_single) -
+      1) *
+      100
+  );
 
   return (
     <div className='space-y-7'>
@@ -93,7 +100,9 @@ export default function ScopeStep({ input, onTogglePlatform, onApproachChange, o
             <input
               id='screens'
               type='range'
-              min={1}
+              // Everything up to `includedScreens` is already paid for by the
+              // base — starting the slider there keeps every position meaningful.
+              min={Math.max(1, def.includedScreens)}
               max={def.maxScreens}
               value={input.screens}
               aria-label={t('screensTitle')}

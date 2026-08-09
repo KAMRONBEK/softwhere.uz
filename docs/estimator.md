@@ -11,7 +11,8 @@ Canonical "how it works today" reference for the estimator: the multi-step wizar
 | Steps UI | `src/modules/estimator/components/Steps/*` | `TypeStep`, `ScopeStep`, `FeaturesStep`, `IntegrationsStep`, `TechStep`, `DetailsStep` |
 | Catalog (data) | `src/modules/estimator/data/catalog.ts` | 6 services, 30 subtypes, 45 features, 30 integrations, 51 tech |
 | Pricing constants | `src/modules/estimator/constants.ts` | Blended rate, multipliers, velocity bands, AI clamps |
-| Formula (pure) | `src/modules/estimator/utils/estimator.ts` | `calculateEstimate()` + `clampAiRange()` — runs client **and** server |
+| Formula (pure) | `src/modules/estimator/utils/estimator.ts` | `calculateEstimate()`, `marginalCost()`, `clampAiRange()` — runs client **and** server |
+| Wizard transitions (pure) | `src/modules/estimator/utils/wizardState.ts` | Every state change as a pure reducer + `normalizeInput()`, the canonical-state rule |
 | Input sanitizer | `src/modules/estimator/utils/sanitize.ts` | `sanitizeEstimatorInput()` — whitelists every enum against the catalog |
 | Owner summary | `src/modules/estimator/utils/leadSummary.ts` | `buildLeadSummaryLines()` — English, for Telegram/admin |
 | Estimate API | `src/app/api/estimate/route.ts` | `POST` — formula + clamped AI refinement |
@@ -19,6 +20,7 @@ Canonical "how it works today" reference for the estimator: the multi-step wizar
 | Currency API | `src/app/api/currency/rates/route.ts` | `GET` — USD-base FX rates, 24h cache |
 | AI client | `src/core/ai.ts` | Kimi K2.6 → DeepSeek chain over the OpenAI SDK |
 | Calibration | `scripts/estimator-calibration.ts` | `yarn tsx scripts/estimator-calibration.ts` |
+| Tests | `tests/estimator/**` | `yarn test:estimator` — see [`../tests/estimator/README.md`](../tests/estimator/README.md) |
 
 **Design principle baked into the flow:** the local formula range renders instantly and the AI pass + lead form are pure enrichment layered *after* it. The estimate is **never gated** behind contact info.
 
@@ -54,11 +56,11 @@ Per-step responsibilities:
 
 | Step | Component | Edits | Notable behavior |
 |---|---|---|---|
-| type | `TypeStep` | `projectType`, `subtype` | Type switch → `defaultInputFor(type)` (keeps only `description`); subtype switch → `applySubtype` (keeps user features, merges new populars) |
+| type | `TypeStep` | `projectType`, `subtype` | Type switch → `selectProjectType` (keeps tier/design/languages/urgency/description/integrations and any feature or technology the new service also offers); subtype switch → `selectSubtype` (re-seeds that subtype's populars, keeps the user's own picks) |
 | scope | `ScopeStep` | `platforms`, `approach`, `tier`, `screens` | Platform/approach shown only for `mobile`; screens slider shown only when `hasScreens()`; never allows zero platforms |
-| features | `FeaturesStep` | `features[]` | Chips grouped by `FEATURE_CATEGORIES`; per-chip `+$` hint = `effectiveFeatureHours × rate × tierMult` (an approximation of the full multiplier chain) |
-| integrations | `IntegrationsStep` | `integrations[]` | Chips grouped by `INTEGRATION_GROUPS`; hint = `hours × rate` (integrations are fixed effort) |
-| tech | `TechStep` | `techStack[]`, `autoTech` | "Agency picks" toggle clears `techStack`; picking any tech sets `autoTech=false`. Tech is **informational** — it does not change the formula (the mobile *approach* multiplier does) |
+| features | `FeaturesStep` | `features[]` | Chips grouped by `FEATURE_CATEGORIES`; per-chip `+$` hint = `marginalCost()` — the exact change this chip makes to the estimate in the current configuration, in the selected currency |
+| integrations | `IntegrationsStep` | `integrations[]` | Chips grouped by `INTEGRATION_GROUPS`; hint = `marginalCost()` (fixed effort, but urgency still scales it) |
+| tech | `TechStep` | `techStack[]`, `autoTech` | "Agency picks" is a selection that clears `techStack`; `autoTech` is *derived* (`techStack.length === 0`) so it can never contradict the chips. Tech is **informational** — it does not change the formula (the mobile *approach* multiplier does) |
 | details | `DetailsStep` | `design`, `languages`, `urgency`, `description` | Design shown only when `hasScreens()`; description capped at `MAX_DESCRIPTION_LENGTH` (600) |
 
 Result step renders `ResultPanel`, which shows the hero range, timeframe, monthly support, suggested team, the AI block, an expandable breakdown, included/excluded/terms, and the `LeadForm`.
@@ -66,8 +68,9 @@ Result step renders `ResultPanel`, which shows the hero range, timeframe, monthl
 ### Client state & persistence
 
 - **Live estimate** is `useMemo(() => calculateEstimate(input), [input])` — recomputes on every selection and feeds both `LivePreview` (sticky desktop sidebar) and the mobile sticky bottom bar.
-- **Session persistence:** `sessionStorage['estimator-state-v2']` stores `{ input, step }`. On mount the stored blob is re-run through `sanitizeEstimatorInput` (same sanitizer the API uses), so stale/garbled state degrades to defaults instead of crashing. `hydratedRef`/`StrictMode` guards prevent the persist effect from overwriting the restore.
-- **AI fetch** fires in an effect once the result step is reached, keyed on `JSON.stringify({ input, locale })` to dedupe, with an `AbortController` that cancels an in-flight request when the input changes or the user leaves the step.
+- **Every transition is a pure reducer** from `utils/wizardState.ts` (`selectProjectType`, `selectSubtype`, `togglePlatform`, `toggleFeature`, …). Each ends with `normalizeInput()`, which projects the input onto the canonical valid state for its service — ids the service actually offers, screens inside the subtype's bounds, platforms only for mobile, `autoTech` derived from the stack. This is what makes `A → B → A` return to the same price, and it is the same function `sanitizeEstimatorInput` ends with, so client and server can never price the same state differently.
+- **Session persistence:** `sessionStorage['estimator-state-v2']` stores `{ input, step }` (including the result step, so a reload keeps the estimate on screen). On mount the stored blob is re-run through `sanitizeEstimatorInput` (same sanitizer the API uses), so stale/garbled state degrades to defaults instead of crashing. `hydratedRef`/`StrictMode` guards prevent the persist effect from overwriting the restore.
+- **AI fetch** fires in an effect once the result step is reached, keyed on a canonical `configKey(input, locale)` (the id arrays are sorted, so "untick then re-tick" is not a new configuration), with an `AbortController` that cancels an in-flight request when the input changes or the user leaves the step. Answers are cached per key for the life of the page: re-entering the result step reuses the previous answer instead of paying for a second call that would print a different number for an unchanged project.
 - **Analytics** (`trackEvent`, typed in `src/shared/utils/analytics.ts`): `estimator_start`, `estimator_complete`, `estimator_ai {status: 'ok'|'unavailable'|'error'}`, `estimator_lead_submit`.
 
 ## The catalog
@@ -145,9 +148,9 @@ Step-by-step (matches the numbered comments in the source):
 4. **Integrations.** Added as **fixed effort after** the multipliers — a Payme hookup is the same job at any tier.
 5. **Urgency.** `effortHours` (pre-urgency, rounded) is captured for the calendar; then `hours = round(hours × urgencyMult)`. Urgency scales **cost**; the timeline has its own separate factor (step 7).
 6. **Money range with subtype floor.** `roundMoney` rounds outward to friendly steps (50/100/250/500 by magnitude). `cost.min = max(round(mid×0.85), minPrice)`; `cost.max = round(max(mid×1.3, minPrice×1.3))`. Displayed `hours` are re-anchored so `hours × rate` still reconciles with the floored cost.
-7. **Timeline.** Derived from **pre-urgency** `effortHours` and a velocity band (`velocityFor`), then scaled by `URGENCY_WEEKS_FACTOR` (rush **compresses**, flexible stretches). `weeks.max` is at least `weeks.min + 1` (no fake-precise "2–2 weeks").
-8. **Support retainer.** `max(SUPPORT_MONTHLY_MIN, round(mid × 0.1 / 12 / 5) × 5)` — first-year support ≈ 10% of dev cost as a monthly figure.
-9. **Team.** Derived for credibility framing: always PM; designer unless `design === 'ready'`; `devs` vs `dev` by hours; QA unless tier is `mvp`. Emitted as i18n keys (`team.pm`, …).
+7. **Timeline.** Derived from **pre-urgency** `effortHours` via `weeksForEffort()`, then scaled by `URGENCY_WEEKS_FACTOR` (rush **compresses**, flexible stretches; rush rounds *down* so the premium buys visible calendar). `weeksForEffort` divides by the velocity band but never returns less than a smaller project would take — a raw `hours / velocityFor(hours)` is not monotonic and made the schedule jump *down* at 120/400/900 h. `weeks.max` is at least `weeks.min + 1` (no fake-precise "2–2 weeks").
+8. **Support retainer.** `max(SUPPORT_MONTHLY_MIN, round(effortHours × rate × 0.1 / 12 / 5) × 5)` — first-year support ≈ 10% of dev cost as a monthly figure, off **pre-urgency** effort (a rush deadline is a one-off delivery premium, not a permanently pricier app).
+9. **Team.** Derived for credibility framing: always PM; designer unless `design === 'ready'`; `devs` vs `dev` by **pre-urgency** effort (so flipping the urgency pill never appears to hire someone); QA unless tier is `mvp`. Emitted as i18n keys (`team.pm`, …).
 
 ### Constants (`constants.ts`)
 
@@ -164,9 +167,13 @@ Step-by-step (matches the numbered comments in the source):
 | `SUPPORT_RATE_YEARLY` / `SUPPORT_MONTHLY_MIN` | `0.1` / `$40` |
 | `VELOCITY` | `≤120h→30 · ≤400h→45 · ≤900h→70 · else 95` (effective h/week) |
 | `MIN_WEEKS` | `1` |
-| `AI_CLAMP` | `costMin 0.6× · costMax 1.6× · weeksMin 0.5× · weeksMax 2.0×` |
+| `AI_CLAMP` | `costMin 0.6× · costMax 1.6× · weeksMin 0.5× · weeksMax 2.0× · minSpread 1.15×` |
 
-`EstimateResult` (`types.ts`) returns `hours`, `cost`, `weeks` (all `{min,max}` Ranges), `supportMonthly`, `rate`, `team[]`, `breakdown[]`, and the combined `multiplier` (rounded, shown in the "How we calculated" accordion).
+`EstimateResult` (`types.ts`) returns `hours`, `cost`, `weeks` (all `{min,max}` Ranges), `midCost` (the unrounded mid-point, before the range/rounding/floor), `supportMonthly`, `rate`, `team[]`, `breakdown[]`, and the combined `multiplier` (rounded, shown in the "How we calculated" accordion).
+
+### `marginalCost(input, field, id)`
+
+What one feature or integration really adds, in USD: `midCost` with the option minus `midCost` without it. The step chips quote this. The previous hint (`hours × rate × tier`) ignored the design, language, mobile and urgency multipliers, so a chip promising "+$140" moved the range by $200+ and every chip was wrong by a different amount — the most common form of "the pricing is all over the place".
 
 ## Input sanitization
 
@@ -176,6 +183,7 @@ Step-by-step (matches the numbered comments in the source):
 - Whitelists every enum (`tier`, `design`, `urgency`, `approach`, `platforms`) against fixed sets, falling back to sane defaults (`mvp`, `custom`, `normal`, `cross`).
 - Falls back `subtype` to the service's first subtype if unknown.
 - Drops **unknown ids** from `features`/`integrations`/`techStack` via `idList()` (each checked against its catalog `Map`, deduped, capped at 60) — a stale client after a catalog change degrades instead of erroring.
+- Finishes with **`normalizeInput()`** — the same canonical-state function the wizard applies after every click. That is what drops ids the *service* does not offer (a `courier_tracking` on a Telegram bot), clamps screens to the current subtype, and derives `autoTech`. Without it the server could store and notify a configuration the price never included.
 - Clamps `screens` to `[1, maxScreens]` (or `0` when `maxScreens === 0`) and `languages` to `[1,3]`.
 - For `mobile`, defaults empty `platforms` to `['ios','android']`; for non-mobile forces `platforms: []`.
 - Strips control chars from `description` and truncates to `MAX_DESCRIPTION_LENGTH` (600).
@@ -200,7 +208,7 @@ Route config: `export const maxDuration = 60` (the AI call can take ~30–45s; t
 
 ### `clampAiRange`
 
-`clampAiRange(ai, formula)` (in `utils/estimator.ts`) keeps the AI from wildly contradicting the on-screen formula: cost is clamped to `[0.6×formula.min, 1.6×formula.max]`, weeks to `[0.5×min, 2.0×max]` (`AI_CLAMP`), swapped if inverted, friendly-rounded without rounding back through the enforced floor, and given the same "never N–N weeks" guard.
+`clampAiRange(ai, formula)` (in `utils/estimator.ts`) keeps the AI from wildly contradicting the on-screen formula: cost is clamped to `[0.6×formula.min, 1.6×formula.max]`, weeks to `[0.5×min, 2.0×max]` (`AI_CLAMP`), swapped if inverted, friendly-rounded without rounding back through the enforced floor, and given the same "never N–N weeks" guard. Two further guards exist because this band renders directly under the formula band: it is pulled to **overlap** the formula range (two disjoint ranges read as the site contradicting itself) and widened to at least `AI_CLAMP.minSpread`, so it can never render as "$2,400 – $2,400".
 
 ### AI client (`src/core/ai.ts`)
 
@@ -243,6 +251,21 @@ Returns `{ base, rates }` (USD-base). In-memory cached for 24h. Uses the paid `v
 
 `CurrencyCode` = `USD | UZS | KZT | RUB | EUR`. The hook fetches rates on mount, defaults to `USD`, and restores the saved `localStorage['estimator-currency']` **only once that currency's rate exists** (applying "UZS" while rates are still `{USD:1}` would mislabel USD amounts ~12,000×). `format(amountUsd)` converts, rounds to 3 significant digits (`roundForCurrency` — "5 100 000 сум" reads honest, "5 083 214" reads fake), and formats via `Intl.NumberFormat` in the UI locale. `available` only offers currencies that actually have a fetched rate. `CurrencySwitcher` is rendered in both `LivePreview` (desktop sidebar) and `ResultPanel` (mobile).
 
+## Tests
+
+`tests/estimator/` holds two suites — see [`../tests/estimator/README.md`](../tests/estimator/README.md):
+
+```bash
+yarn test:estimator:logic   # ~1,000 pure-logic checks (catalogue, formula, navigation, parity)
+yarn test:estimator:e2e     # ~30 browser user stories + a screenshot each (needs `yarn dev`)
+yarn test:estimator         # both
+```
+
+The logic suite is the regression guard for the navigation bug: it asserts that
+for every service, every `A → B → A` subtype path and every
+`type → other → type` path returns to the identical price, and that no control
+ever moves the price the wrong way.
+
 ## Calibration
 
 `scripts/estimator-calibration.ts` prints `calculateEstimate` output for ~15 canonical market scenarios next to their Tashkent-market target bands. Run it after touching `constants.ts` or `catalog.ts`:
@@ -281,4 +304,4 @@ With **no AI keys configured**, `/api/estimate` still returns `{ formula, ai: nu
 - [`./database.md`](./database.md) — Neon/Drizzle schema, including the `leads` table.
 - [`../README.md`](../README.md) — project overview.
 
-_Last verified against code: 2026-07-03._
+_Last verified against code: 2026-08-09._

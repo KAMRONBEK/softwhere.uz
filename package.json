@@ -25,7 +25,10 @@
     "env:pull:local:production": "npx vercel env pull .env.local --environment production --yes",
     "mcp": "yarn env:pull:local:production && node scripts/verify-mcp-env.js",
     "mcp:searchconsole": "node scripts/searchconsole-mcp.js",
-    "mcp:yandex-webmaster": "node scripts/yandex-webmaster-mcp.js"
+    "mcp:yandex-webmaster": "node scripts/yandex-webmaster-mcp.js",
+    "test:estimator": "tsx tests/estimator/logic.ts && tsx tests/estimator/e2e.ts",
+    "test:estimator:logic": "tsx tests/estimator/logic.ts",
+    "test:estimator:e2e": "tsx tests/estimator/e2e.ts"
   },
   "dependencies": {
     "@neondatabase/auth": "^0.4.2-beta",

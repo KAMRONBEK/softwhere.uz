@@ -88,4 +88,6 @@ export const AI_CLAMP = {
   costMaxFactor: 1.6, // AI max may not exceed 160% of formula max
   weeksMinFactor: 0.5,
   weeksMaxFactor: 2.0,
+  /** Narrowest AI band we will render: a "$2,400 – $2,400 range" is a point estimate in disguise. */
+  minSpread: 1.15,
 } as const;

@@ -271,7 +271,7 @@
     "resultHeading": "Sizning halol narx oralig'ingiz.",
     "resultSub": "Markaziy Osiyo bozorining real narxlari asosida — sun'iy oshirishlarsiz.",
     "estimateRange": "Taxminiy byudjet",
-    "rateBasis": "aralash stavka ${rate}/soat (dizayn + dasturlash + QA + PM)",
+    "rateBasis": "aralash stavka {rate}/soat (dizayn + dasturlash + QA + PM)",
     "timeframe": "Muddat",
     "supportCost": "Qo'llab-quvvatlash (ixtiyoriy)",
     "perMonth": "/oy",
