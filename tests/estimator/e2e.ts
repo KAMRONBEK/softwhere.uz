@@ -41,6 +41,10 @@ const SHOTS = path.join(RESULTS_DIR, 'screenshots');
 const DESKTOP = { width: 1440, height: 950 };
 const MOBILE = { width: 390, height: 844 };
 
+/** A deployed target hydrates slower than localhost — give React more room. */
+const REMOTE = !/^https?:\/\/(localhost|127\.0\.0\.1)/.test(BASE);
+const SETTLE_MS = REMOTE ? 450 : 140;
+
 const STORAGE_KEY = 'estimator-state-v2';
 
 const CANNED_AI = {
@@ -101,12 +105,18 @@ class Estimator {
 
   async open(locale = 'en'): Promise<void> {
     await this.page.goto(`${BASE}/${locale}/estimator`, { waitUntil: 'domcontentloaded' });
-    await this.page.getByTestId('step-body').waitFor({ state: 'visible', timeout: 20_000 });
+    await this.page.getByTestId('step-body').waitFor({ state: 'visible', timeout: 30_000 });
+    // Server-rendered markup is clickable before React is listening; wait for
+    // the wizard to prove it is alive rather than guessing at a delay.
+    await this.until('hydrated', async () => {
+      const raw = await this.page.evaluate(key => sessionStorage.getItem(key), STORAGE_KEY);
+      return Boolean(raw && JSON.parse(raw).input?.projectType);
+    }, 30_000);
     await this.settle();
   }
 
   async settle(): Promise<void> {
-    await this.page.waitForTimeout(SLOW || 140);
+    await this.page.waitForTimeout(SLOW || SETTLE_MS);
   }
 
   /** Poll until a condition holds — for waiting on hydration after a reload. */
@@ -286,6 +296,9 @@ async function story(
 /* ------------------------------------------------------------------ */
 
 async function main(): Promise<number> {
+  // Start clean, or a `-FAILED` screenshot from a previous run reads as a
+  // failure in this one.
+  fs.rmSync(SHOTS, { recursive: true, force: true });
   fs.mkdirSync(SHOTS, { recursive: true });
 
   const reachable = await fetch(`${BASE}/en/estimator`)
