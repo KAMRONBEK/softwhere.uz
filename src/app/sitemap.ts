@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { listForSitemap } from '@/modules/blog/model/posts.repository';
 import { BLOG_CONFIG, ENV } from '@/core/constants';
 import { logger } from '@/core/logger';
@@ -57,6 +58,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const posts = await listForSitemap();
 
+    // A zero-row read does NOT throw: it would fall through the success path
+    // below and render the static-only sitemap anyway, logging nothing at all.
+    // That is the same broken output as the catch, minus any trace of it. This
+    // site always has published posts, so an empty result is a failure.
+    if (posts.length === 0) {
+      throw new Error('listForSitemap() returned zero published posts');
+    }
+
     const canonicalByCluster = new Map<string, (typeof posts)[number]>();
     for (const post of posts) {
       const clusterKey = `${post.locale}:${getSlugRoot(post.slug)}`;
@@ -106,7 +115,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...staticUrls, ...blogUrls];
   } catch (error) {
-    logger.error('Failed to generate dynamic sitemap URLs, serving static-only sitemap', error, 'SEO');
-    return staticUrls;
+    logger.error('Failed to generate dynamic sitemap URLs', error, 'SEO');
+
+    // Returning `staticUrls` here used to be the failure mode itself. A metadata
+    // route cannot set a status code, so a static-only list is a *successful*
+    // render — Next persists it in the ISR cache for the full `revalidate`
+    // window above, and every crawler that fetches in those 6h reads a valid,
+    // error-free sitemap asserting the blog has no posts. That is exactly what
+    // happened: Yandex recorded 21 URLs on 2026-07-30 and Google on 2026-08-04,
+    // while the live sitemap had 174. Nothing purges it early either — the only
+    // revalidatePath('/sitemap.xml') fires on publish.
+    //
+    // So at request time, throw. Next's response cache re-inserts the previous
+    // (good) entry with a shortened 3–30s revalidate window and rethrows, so the
+    // last correct sitemap keeps being served and regeneration is retried within
+    // seconds of the DB coming back — instead of a wrong one sticking for 6h.
+    // (`staticGenerationRetryCount` in next.config.mjs only ever applied to
+    // renders that throw, so catching here had also disabled it.)
+    if (process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD) {
+      // Build time still degrades rather than breaking the deploy: the same
+      // failure already makes generateStaticParams fall back to on-demand ISR
+      // (see [locale]/blog/[slug]/page.tsx), and this sitemap is replaced by the
+      // first successful revalidation.
+      logger.warn('Static-only sitemap prerendered for this build — blog URLs unavailable (see the error above)', undefined, 'SEO');
+      return staticUrls;
+    }
+    throw error;
   }
 }
