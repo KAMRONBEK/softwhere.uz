@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 interface TrackedCTALinkProps {
   href: string;
-  type: 'get_started' | 'view_work' | 'estimate';
+  type: 'get_started' | 'view_work' | 'estimate' | 'service';
   slug: string;
   className?: string;
   children: React.ReactNode;

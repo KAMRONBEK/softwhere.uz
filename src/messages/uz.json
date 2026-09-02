@@ -377,6 +377,10 @@
       "title": "ERP & CRM",
       "description": "Kompaniyaning barcha operatsion jarayonlarini markaziy ma'lumotlar bazasiga ulab, u sizning biznesingizni raqamlarda ko'rish imkonini beradi."
     },
+    "service7": {
+      "title": "Telegram botlar",
+      "description": "Buyurtma qabul qiladigan, mijozlarga javob beradigan va to'lovni chat ichida yopadigan botlar hamda Mini App'lar. Telegram — O'zbekistonda mijozlar bilan asosiy aloqa kanali."
+    },
     "eyebrow": "Biz nima qilamiz"
   },
   "discuss": {
