@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { CoverImage } from '@/shared/types';
 import { safeJsonLd } from '@/shared/utils/security';
 import { clampMeta } from '@/modules/blog/utils/meta';
@@ -120,8 +121,10 @@ export async function BlogPostSchema({ post }: { post: BlogPost }) {
   const description = extractDescription(post.content, post.metaDescription, locale);
   const keywords = getKeywords(post);
   const articleSection = post.category ? (PILLAR_LABELS[post.category] ?? 'Technology') : 'Technology';
-  // E-E-A-T: use a real named Person author when BLOG_AUTHOR_NAME is set
-  // (Google rewards Person authors); otherwise fall back to the Organization.
+  // Use a real named Person author when BLOG_AUTHOR_NAME is set; otherwise fall
+  // back to the Organization. Note: Google does not rank Person authors above
+  // Organization authors — only set this once a byline is actually visible on
+  // the rendered page, or it is invisible markup describing nobody.
   const authorName = process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR;
   const author = authorName
     ? { '@type': 'Person', name: authorName, url: `${baseUrl}/${locale}#contact` }
@@ -154,12 +157,16 @@ export async function BlogPostSchema({ post }: { post: BlogPost }) {
     },
   ];
 
+  // Breadcrumbs are the only rich result this site earns, so the labels have to
+  // match the page's language — hardcoded English showed up on /uz and /ru SERPs.
+  const tNav = await getTranslations({ locale, namespace: 'header' });
+
   schemas.push({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `${baseUrl}/${locale}` },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${baseUrl}/${locale}/blog` },
+      { '@type': 'ListItem', position: 1, name: tNav('home'), item: `${baseUrl}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: tNav('blog'), item: `${baseUrl}/${locale}/blog` },
       { '@type': 'ListItem', position: 3, name: post.title },
     ],
   });

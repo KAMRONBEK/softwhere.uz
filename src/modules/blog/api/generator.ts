@@ -653,7 +653,7 @@ export async function localizePostMeta(
   en: { title: string; metaDescription: string; primaryKeyword: string; secondaryKeywords: string[] }
 ): Promise<LocalizedMeta> {
   const langName = LANG_NAME[locale];
-  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep the title UNDER 60 characters with the primary keyword front-loaded (the page appends a " | SoftWhere.uz Blog" suffix, and search engines truncate longer titles). Write the metaDescription as 140-160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
+  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep the title UNDER 60 characters with the primary keyword front-loaded (search engines truncate longer titles). Write the metaDescription as 140-160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
 {"title":"...","metaDescription":"...","primaryKeyword":"...","secondaryKeywords":["...","..."]}
 
 English title: "${en.title}"
