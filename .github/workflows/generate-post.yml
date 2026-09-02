@@ -4,8 +4,10 @@ on:
   schedule:
     # Weekly: Monday 06:17 UTC (11:17 Tashkent). Off the top of the hour on
     # purpose — GitHub delays/skips schedules at :00 peaks.
-    # Runs use the code on `main`. Scheduled posts PUBLISH automatically
-    # (owner decision); dispatch with publish=false to get drafts instead.
+    # Runs use the code on `main`. Scheduled posts are saved as DRAFTS for
+    # review in /admin/posts — see the publish decision in
+    # scripts/generate-post.ts, which is what actually governs a scheduled run
+    # (the `publish` input below only reaches the script on workflow_dispatch).
     - cron: '17 6 * * 1'
   workflow_dispatch:
     inputs:
