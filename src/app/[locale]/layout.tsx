@@ -4,7 +4,6 @@ import ScrollToTop from '@/shared/components/ScrollToTop';
 import TelegramChat from '@/shared/components/TelegramChat';
 import ThemeProvider from '@/shared/components/ThemeProvider';
 import { BlogProvider } from '@/modules/blog/context/BlogContext';
-import { buildOgUrl } from '@/core/og';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
@@ -13,7 +12,7 @@ import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server
 import { Inter, Sora, Manrope } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import React from 'react';
-import { ENV, BLOG_CONFIG, SOCIAL_LINKS } from '@/core/constants';
+import { ENV, SOCIAL_LINKS } from '@/core/constants';
 import { safeJsonLd } from '@/shared/utils/security';
 
 // Inter stays loaded with the Cyrillic subset so RU/UZ text always has full
@@ -39,34 +38,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: 'metadata' });
   const title = t('title');
   const description = t('description');
-  const ogImageUrl = await buildOgUrl({ title, locale });
 
+  // Only site-wide defaults belong here. openGraph/twitter/alternates used to
+  // live in this layout, but Next merges page metadata shallowly: any route
+  // that set `title` without also setting `twitter` inherited the HOMEPAGE's
+  // og/twitter card and the homepage canonical. /uz/blog and /uz/privacy-policy
+  // were both emitting the homepage's twitter:title. Those fields now live in
+  // src/app/[locale]/page.tsx, which is the page they actually describe.
   return {
     title,
     description,
-    openGraph: {
-      title,
-      description,
-      url: `${ENV.BASE_URL}/${locale}`,
-      siteName: 'SoftWhere.uz',
-      locale,
-      type: 'website',
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-    },
-    alternates: {
-      canonical: `${ENV.BASE_URL}/${locale}`,
-      languages: {
-        'x-default': `${ENV.BASE_URL}/${BLOG_CONFIG.DEFAULT_LOCALE}`,
-        uz: `${ENV.BASE_URL}/uz`,
-        ru: `${ENV.BASE_URL}/ru`,
-        en: `${ENV.BASE_URL}/en`,
-      },
-    },
     icons: {
       icon: [
         { url: '/favicon-256.png', sizes: '256x256', type: 'image/png' },
@@ -78,13 +59,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-function StructuredData({ locale }: { locale: string }) {
+function StructuredData() {
   const schemas = [
     {
       '@context': 'https://schema.org',
-      // ProfessionalService (address-free — no public street address exists)
-      // feeds local-intent ranking signals alongside the base Organization.
-      '@type': ['Organization', 'ProfessionalService'],
+      // Plain Organization: schema.org deprecated ProfessionalService, and
+      // local-intent ranking comes from a Business Profile, not from markup.
+      '@type': 'Organization',
       name: 'SoftWhere.uz',
       url: ENV.BASE_URL,
       logo: `${ENV.BASE_URL}/icons/logo.svg`,
@@ -107,7 +88,7 @@ function StructuredData({ locale }: { locale: string }) {
       '@type': 'WebSite',
       name: 'SoftWhere.uz',
       url: ENV.BASE_URL,
-      inLanguage: [locale, 'uz', 'ru', 'en'],
+      inLanguage: ['uz', 'ru', 'en'],
       publisher: { '@type': 'Organization', name: 'SoftWhere.uz' },
     },
   ];
@@ -144,7 +125,7 @@ export default async function RootLayout({ children, params }: Props) {
     <html lang={locale} className={`${inter.variable} ${sora.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          <StructuredData locale={locale} />
+          <StructuredData />
           <NextIntlClientProvider messages={messages}>
             <BlogProvider>
               <Header />

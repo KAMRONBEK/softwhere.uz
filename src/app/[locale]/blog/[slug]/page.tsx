@@ -27,6 +27,28 @@ import { ENV, BLOG_CONFIG } from '@/core/constants';
 import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
 import { jetbrainsMono } from '@/shared/fonts';
 
+// Routes a post's pillar to the commercial page that answers it, so every post
+// in a mapped category emits one in-body link to a real service page. Before
+// this, the only site-wide links to /services/* were footer boilerplate, and
+// Googlebot left all six service URLs "Discovered - currently not indexed".
+//
+// Only confident mappings are listed: an off-topic link is worth less than no
+// link, since anchor relevance is the whole point. Categories left out
+// (ai-solutions, maintenance-support, ui-ux-design, cybersecurity,
+// project-rescue, outsourcing) keep the original #contact CTA.
+type ServiceLinkKey = 'link_webDevelopment' | 'link_mobileApps' | 'link_telegramBots';
+
+const SERVICE_BY_CATEGORY: Record<string, { slug: string; labelKey: ServiceLinkKey }> = {
+  'mobile-app-development': { slug: 'mobile-apps', labelKey: 'link_mobileApps' },
+  'web-app-development': { slug: 'web-development', labelKey: 'link_webDevelopment' },
+  'telegram-bot-development': { slug: 'telegram-bots', labelKey: 'link_telegramBots' },
+  'business-automation': { slug: 'telegram-bots', labelKey: 'link_telegramBots' },
+  ecommerce: { slug: 'web-development', labelKey: 'link_webDevelopment' },
+  'saas-development': { slug: 'web-development', labelKey: 'link_webDevelopment' },
+  'crm-development': { slug: 'web-development', labelKey: 'link_webDevelopment' },
+  'mvp-startup': { slug: 'web-development', labelKey: 'link_webDevelopment' },
+};
+
 // ISR: prerender every published post at build time, cache indefinitely.
 //
 // `false` (not a time window) on purpose: post bodies only change when the
@@ -249,7 +271,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   });
 
   return {
-    title: `${post.title} | SoftWhere.uz Blog`,
+    // No " | SoftWhere.uz Blog" suffix: it added 19 chars to titles already
+    // running a 73.5-char median, pushing 92% of posts past the length Google
+    // leaves unrewritten. The brand is carried by openGraph.siteName instead.
+    title: post.title,
     description,
     keywords: keywords.join(', '),
     // Keep the meta author consistent with the JSON-LD Person author when
@@ -342,6 +367,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const post = await getBlogPost(slug, locale);
   const t = await getTranslations('blog');
   const tCat = await getTranslations('blog.categories');
+  const tSvc = await getTranslations('servicePages.common');
+  const tNav = await getTranslations('header');
 
   if (!post) {
     // Recover legacy/renamed URLs with a 308 before 404ing.
@@ -361,6 +388,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     );
     permanentRedirect(`/${target.locale}/blog/${encodeURIComponent(target.slug)}`);
   }
+
+  const relatedService = post.category ? SERVICE_BY_CATEGORY[post.category] : undefined;
 
   // RU/UZ read day-first ('3 июля 2026'); 'MMMM dd, yyyy' is English-only order.
   const formattedDate = format(new Date(post.createdAt), locale === 'en' ? 'MMMM dd, yyyy' : 'd MMMM yyyy', {
@@ -387,13 +416,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
             <ol className='flex items-center space-x-2 text-sm text-ember-muted'>
               <li>
                 <Link href={`/${locale}`} className='hover:text-ember-accent transition-colors'>
-                  Home
+                  {tNav('home')}
                 </Link>
               </li>
               <li>›</li>
               <li>
                 <Link href={`/${locale}/blog`} className='hover:text-ember-accent transition-colors'>
-                  Blog
+                  {tNav('blog')}
                 </Link>
               </li>
               <li>›</li>
@@ -642,13 +671,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                   <h3 className='text-2xl font-bold mb-4'>{t('cta.title')}</h3>
                   <p className='text-lg mb-6 max-w-2xl mx-auto opacity-90'>{t('cta.description')}</p>
                   <div className='flex flex-col sm:flex-row gap-4 justify-center'>
+                    {/* Primary CTA is the service page that answers this post's
+                        pillar; posts in an unmapped category keep #contact. */}
                     <TrackedCTALink
-                      href={`/${locale}#contact`}
-                      type='get_started'
+                      href={relatedService ? `/${locale}/services/${relatedService.slug}` : `/${locale}#contact`}
+                      type={relatedService ? 'service' : 'get_started'}
                       slug={post.slug}
                       className='inline-flex items-center px-6 py-3 bg-white text-ember-accent font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300'
                     >
-                      {t('cta.getStarted')}
+                      {relatedService ? tSvc(relatedService.labelKey) : t('cta.getStarted')}
                       <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                         <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5l7 7-7 7'></path>
                       </svg>
