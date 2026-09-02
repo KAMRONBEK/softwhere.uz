@@ -238,7 +238,9 @@ async function main() {
       // group has no EN post — its stored title/keywords are localized, and
       // an "EN" post rebuilt from them would ship Russian/Uzbek metadata.
       if (locales.includes('en') && existing.locale !== 'en') {
-        console.error(`❌ Group ${generationGroupId} has no EN post to rebuild the topic from — cannot fill EN. Recreate the group instead.`);
+        console.error(
+          `❌ Group ${generationGroupId} has no EN post to rebuild the topic from — cannot fill EN. Recreate the group instead.`
+        );
         process.exit(1);
       }
 
