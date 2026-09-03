@@ -1,3 +1,4 @@
+import { getTranslations } from 'next-intl/server';
 import { CoverImage } from '@/shared/types';
 import { safeJsonLd } from '@/shared/utils/security';
 import { clampMeta } from '@/modules/blog/utils/meta';
@@ -82,36 +83,8 @@ export const PILLAR_LABELS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Structured data: BlogPosting + optional FAQ / HowTo
+// Structured data: BlogPosting + BreadcrumbList (no FAQPage on purpose — see docs/seo.md)
 // ---------------------------------------------------------------------------
-
-export function parseFAQPairs(content: string): Array<{ q: string; a: string }> {
-  const pairs: Array<{ q: string; a: string }> = [];
-  const lines = content.split('\n');
-  let currentQ = '';
-  let currentA = '';
-
-  for (const line of lines) {
-    const questionMatch = line.match(/^#{1,3}\s+(.+\?)\s*$/);
-    if (questionMatch) {
-      if (currentQ && currentA.trim()) {
-        pairs.push({ q: currentQ, a: currentA.trim().slice(0, 300) });
-      }
-      currentQ = questionMatch[1];
-      currentA = '';
-    } else if (currentQ) {
-      const clean = line
-        .replace(/^[-*]\s+/, '')
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .trim();
-      if (clean) currentA += (currentA ? ' ' : '') + clean;
-    }
-  }
-  if (currentQ && currentA.trim()) {
-    pairs.push({ q: currentQ, a: currentA.trim().slice(0, 300) });
-  }
-  return pairs.slice(0, 10);
-}
 
 // Async server component: the OG fallback URL must be HMAC-signed (core/og.ts).
 export async function BlogPostSchema({ post }: { post: BlogPost }) {
@@ -120,8 +93,10 @@ export async function BlogPostSchema({ post }: { post: BlogPost }) {
   const description = extractDescription(post.content, post.metaDescription, locale);
   const keywords = getKeywords(post);
   const articleSection = post.category ? (PILLAR_LABELS[post.category] ?? 'Technology') : 'Technology';
-  // E-E-A-T: use a real named Person author when BLOG_AUTHOR_NAME is set
-  // (Google rewards Person authors); otherwise fall back to the Organization.
+  // Use a real named Person author when BLOG_AUTHOR_NAME is set; otherwise fall
+  // back to the Organization. Note: Google does not rank Person authors above
+  // Organization authors — only set this once a byline is actually visible on
+  // the rendered page, or it is invisible markup describing nobody.
   const authorName = process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR;
   const author = authorName
     ? { '@type': 'Person', name: authorName, url: `${baseUrl}/${locale}#contact` }
@@ -154,31 +129,19 @@ export async function BlogPostSchema({ post }: { post: BlogPost }) {
     },
   ];
 
+  // Breadcrumbs are the only rich result this site earns, so the labels have to
+  // match the page's language — hardcoded English showed up on /uz and /ru SERPs.
+  const tNav = await getTranslations({ locale, namespace: 'header' });
+
   schemas.push({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `${baseUrl}/${locale}` },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${baseUrl}/${locale}/blog` },
+      { '@type': 'ListItem', position: 1, name: tNav('home'), item: `${baseUrl}/${locale}` },
+      { '@type': 'ListItem', position: 2, name: tNav('blog'), item: `${baseUrl}/${locale}/blog` },
       { '@type': 'ListItem', position: 3, name: post.title },
     ],
   });
-
-  // FAQ schema for faq-format posts
-  if (post.postFormat === 'faq' || post.postFormat === 'myth-buster') {
-    const faqPairs = parseFAQPairs(post.content);
-    if (faqPairs.length >= 3) {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: faqPairs.map(({ q, a }) => ({
-          '@type': 'Question',
-          name: q,
-          acceptedAnswer: { '@type': 'Answer', text: a },
-        })),
-      });
-    }
-  }
 
   return (
     <>

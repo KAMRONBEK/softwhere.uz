@@ -14,7 +14,7 @@ This is the canonical reference for the generation pipeline. Every claim below i
 | Web-search grounding | Kimi-only (`$web_search` builtin); DeepSeek has no search path |
 | Locales | `en` first (anchors the others), then `ru`, `uz`; linked by `generationGroupId` |
 | Persistence | Single `blog_posts` table via the repository layer (`src/modules/blog/model/posts.repository.ts`) — routes never touch Drizzle directly |
-| Cron | GitHub Actions `generate-post.yml`, twice daily 06:17 / 18:17 UTC, runs the CLI in `deep` mode and auto-publishes |
+| Cron | GitHub Actions `generate-post.yml`, twice daily 06:17 / 18:17 UTC, runs the CLI in `deep` mode and saves **drafts** for review |
 | Duplicate detection | Topic rotation + slug uniqueness live in the pipeline; near-duplicate title/content/cover detection is a SEPARATE read-only audit (`scripts/audit-posts.ts`), not the generator |
 
 ## Module map

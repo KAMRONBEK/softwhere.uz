@@ -102,7 +102,8 @@ Kimi-only.
   plus `DATABASE_URL`. Machine runs authenticate via the `API_SECRET` bearer of
   [ADR 0003](./0003-admin-auth-neon-auth.md).
 - **Scheduling reality:** `.github/workflows/generate-post.yml` runs **twice daily**
-  (06:17 & 18:17 UTC) and auto-publishes; a companion `regenerate-post.yml` does
+  (06:17 & 18:17 UTC) and saves drafts (changed 2026-09-02; was auto-publish);
+  a companion `regenerate-post.yml` does
   in-place deep-mode regeneration. (The header comment in `pipeline.ts` still says
   "weekly" — the workflow schedule is the source of truth.)
 

@@ -20,10 +20,11 @@ on:
         required: false
         type: boolean
         default: false
-  schedule:
-    # Hourly at :42 — off the top of the hour (GitHub delays :00 schedules) and
-    # away from generate-post.yml's :17 runs, so the two never stack Unsplash usage.
-    - cron: '42 * * * *'
+  # Schedule removed 2026-09-02. This was a ONE-TIME recovery that has served
+  # its purpose, and the cron was only ever disabled through the GitHub UI —
+  # a fresh clone, a re-enable, or the workflow's own keepalive would have
+  # resumed hourly publishing of AI posts into a blog we are now consolidating.
+  # To run it again: dispatch it manually.
 
 # Never overlap a previous backfill run (protects the shared Unsplash budget).
 concurrency:

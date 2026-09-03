@@ -102,8 +102,9 @@ export function stripLeadingThematicBreak(content: string): string {
 
 /**
  * Strip a site-name suffix ("… | SoftWhere.uz Blog") a model baked into a
- * title. The app appends its own " | SoftWhere.uz Blog", so a stored suffix
- * doubles it in the <title>. Anchored to the end and case-insensitive.
+ * title. The page <title> is the bare post title (the brand comes from
+ * openGraph.siteName), so a stored suffix only wastes title length and shows
+ * up in SERPs. Anchored to the end and case-insensitive.
  */
 export function stripSiteNameSuffix(title: string): string {
   return title.replace(/\s*[|｜–—-]\s*softwhere\.?\s*uz\b.*$/i, '').trim();

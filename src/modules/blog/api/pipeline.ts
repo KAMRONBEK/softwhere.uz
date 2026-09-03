@@ -152,8 +152,9 @@ export async function producePostContent(opts: ProduceOptions): Promise<Produced
       primaryKeyword: topic.primaryKeyword,
       secondaryKeywords: topic.secondaryKeywords,
     });
-    // The localizer is told the app appends " | SoftWhere.uz Blog"; models
-    // sometimes bake it in anyway. Strip it before it reaches the title/slug.
+    // Models sometimes bake a " | SoftWhere.uz Blog" suffix into the title even
+    // though the page renders the bare title. Strip it before it reaches the
+    // title/slug.
     localizedMeta.title = stripSiteNameSuffix(localizedMeta.title);
     promptTopic = {
       ...topic,

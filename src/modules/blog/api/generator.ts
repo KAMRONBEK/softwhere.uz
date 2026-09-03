@@ -402,9 +402,19 @@ export async function smartSelectTopic(): Promise<TopicResult> {
     const pillar = SERVICE_PILLARS.find(p => p.id === t.servicePillar);
     return pillar && pillar.weight >= 2;
   });
-  return (
-    focusTopics[Math.floor(Math.random() * focusTopics.length)] ?? uncovered[Math.floor(Math.random() * uncovered.length)] ?? allTopics[0]
+  const picked = focusTopics[Math.floor(Math.random() * focusTopics.length)] ?? uncovered[Math.floor(Math.random() * uncovered.length)];
+  if (picked) return picked;
+
+  // Pool exhausted: every topic is already covered. The old `?? allTopics[0]`
+  // silently re-picked topic #1, so the run produced a near-duplicate of an
+  // existing post with no signal that anything was wrong. Say so loudly — the
+  // caller still gets a topic, but the exhaustion is now visible in the run log.
+  logger.warn(
+    `Topic pool exhausted (${allTopics.length} topics, all covered) — falling back to the first topic; add topics or prune coverage`,
+    undefined,
+    'BLOG'
   );
+  return allTopics[0];
 }
 
 // ---------------------------------------------------------------------------
@@ -653,7 +663,7 @@ export async function localizePostMeta(
   en: { title: string; metaDescription: string; primaryKeyword: string; secondaryKeywords: string[] }
 ): Promise<LocalizedMeta> {
   const langName = LANG_NAME[locale];
-  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep the title UNDER 60 characters with the primary keyword front-loaded (the page appends a " | SoftWhere.uz Blog" suffix, and search engines truncate longer titles). Write the metaDescription as 140-160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
+  const prompt = `Localize this blog metadata into ${langName} for a software company's blog. Adapt naturally (NOT word-for-word). Keep the title UNDER 60 characters with the primary keyword front-loaded (search engines truncate longer titles). Write the metaDescription as 140-160 characters. Translate the SEO keywords to the phrases a ${langName}-speaking user would actually type into search. Return ONLY JSON:
 {"title":"...","metaDescription":"...","primaryKeyword":"...","secondaryKeywords":["...","..."]}
 
 English title: "${en.title}"
@@ -667,7 +677,7 @@ English secondaryKeywords: ${JSON.stringify(en.secondaryKeywords)}`;
       const p = JSON.parse(raw);
       const str = (v: unknown, fallback: string) => (typeof v === 'string' && v.trim() ? v.trim().replace(/^"|"$/g, '') : fallback);
       const title = str(p.title, en.title);
-      if (title.length > 65) logger.warn(`Localized ${locale} title exceeds 60 chars (${title.length}): "${title}"`, undefined, 'BLOG');
+      if (title.length > 65) logger.warn(`Localized ${locale} title exceeds 65 chars (${title.length}): "${title}"`, undefined, 'BLOG');
       return {
         title,
         metaDescription: clampMeta(str(p.metaDescription, en.metaDescription)),

@@ -1,7 +1,7 @@
 import { logger } from '@/core/logger';
 import { createPost, listForAdmin, slugTaken } from '@/modules/blog/model/posts.repository';
 import { requireAdmin } from '@/core/auth';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { pathsForPost, revalidateBlogCaches } from '@/modules/blog/utils/revalidate';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
@@ -74,14 +74,9 @@ export async function POST(request: NextRequest) {
       generationGroupId: generationGroupId ?? null,
     });
 
-    // Bust the blog ISR caches so published changes show up (list via tag,
-    // detail pages via path).
-    try {
-      revalidateTag('blog-posts', 'max');
-      revalidatePath('/[locale]/blog/[slug]', 'page');
-    } catch (e) {
-      logger.error('Failed to revalidate blog caches', e, 'API');
-    }
+    // Bust the blog ISR caches so the new post — and its siblings' hreflang
+    // sets, the feeds and the sitemap — show up without waiting for a window.
+    revalidateBlogCaches(await pathsForPost(created), 'API');
 
     return NextResponse.json(
       {

@@ -133,10 +133,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // (`staticGenerationRetryCount` in next.config.mjs only ever applied to
     // renders that throw, so catching here had also disabled it.)
     if (process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD) {
-      // Build time still degrades rather than breaking the deploy: the same
-      // failure already makes generateStaticParams fall back to on-demand ISR
-      // (see [locale]/blog/[slug]/page.tsx), and this sitemap is replaced by the
-      // first successful revalidation.
+      // Build time degrades rather than breaking the deploy, because this route
+      // heals itself within the 6h window above. Note the asymmetry:
+      // [locale]/blog/page.tsx has no window (revalidate = false), so a DB
+      // outage during the same build fails the deploy there instead — this
+      // branch only ever ships for a mid-build blip after the blog index has
+      // already rendered. [locale]/blog/[slug] likewise degrades, to on-demand
+      // ISR, because its generateStaticParams fallback is harmless.
       logger.warn('Static-only sitemap prerendered for this build — blog URLs unavailable (see the error above)', undefined, 'SEO');
       return staticUrls;
     }

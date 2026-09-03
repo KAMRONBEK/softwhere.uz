@@ -206,7 +206,7 @@ Renders the selected post: title, created date, locale + status badges, optional
 | `DELETE /api/admin/posts/{id}` | same | Delete a post |
 | `POST /api/admin/revalidate` | `src/app/api/admin/revalidate/route.ts` | Bust blog ISR caches (list, detail, feeds, sitemap) |
 
-Every post-write handler busts the blog ISR caches (revalidate the `blog-posts` tag + the blog detail path) after a successful mutation — the `[id]` route (`PUT`/`PATCH`/`DELETE`) via a shared `invalidateBlogCache()` helper, the create `POST` inlines the same two calls — and `PATCH`/`PUT` await `pingIndexNow(...)` when the resulting status is `published`. `revalidate` is also the endpoint the GitHub Actions generator hits with `Bearer API_SECRET` after auto-publishing. Data access goes exclusively through the repository layer (`posts.repository.ts`, `leads.repository.ts`) — handlers never touch Drizzle directly.
+Every post-write handler busts the blog ISR caches after a successful mutation through one shared helper, `revalidateBlogCaches()` in `src/modules/blog/utils/revalidate.ts`: the `blog-posts` tag, the written post's path plus its published locale siblings and category-mates (`pathsForPost()` — sibling pages embed the slug in their hreflang alternates, and category-mates bake it into their related-articles cards), the blog list, the three feeds and `/sitemap.xml`. The `[id]` route (`PUT`/`PATCH`/`DELETE`) also purges the pre-edit path when a slug or locale moves, and `PATCH`/`PUT` await `pingIndexNow(...)` when the resulting status is `published`. `revalidate` is also the endpoint the GitHub Actions generator hits with `Bearer API_SECRET` after auto-publishing. Data access goes exclusively through the repository layer (`posts.repository.ts`, `leads.repository.ts`) — handlers never touch Drizzle directly.
 
 ## Secret admin entry gesture
 
@@ -268,4 +268,4 @@ See `security.md` for the site-wide threat model and hardening checklist.
 - [environment.md](./environment.md)
 - [Project README](../README.md)
 
-_Last verified against code: 2026-07-03._
+_Last verified against code: 2026-09-03._

@@ -179,13 +179,21 @@ async function main() {
     process.exit(1);
   }
 
-  // Owner decision (2026-07-02): scheduled runs publish directly — the deep
-  // pipeline's gates (grounded facts, link audit, lint, cross-model critique)
-  // are the review. Manual dispatch defaults to publish too (workflow input);
-  // bare local runs without --publish stay drafts for safe testing.
+  // Reversed 2026-09-02: scheduled runs now produce DRAFTS. The pipeline's
+  // automated gates are not a substitute for a human read — the 2026-08-31
+  // scheduled run hit a locale parse failure and published the Russian post
+  // under the English title, H1, meta description and slug, live and
+  // sitemapped, and nothing caught it because nothing looked.
+  //
+  // This line is the ONLY place the scheduled default can change. The
+  // workflow's `publish` input cannot: on a `schedule` event
+  // github.event.inputs is empty, so `${INPUT_PUBLISH:+--publish "..."}`
+  // omits the flag entirely and this expression decides. Manual dispatch is
+  // unaffected — it passes --publish true from the workflow input default.
+  //
   // Explicit --group heals override this below: a filled-in locale joins its
   // group in the group's OWN status.
-  let publish = opts.publish === 'true' || (opts.publish !== 'false' && isScheduled);
+  let publish = opts.publish === 'true';
 
   // --- Idempotency / continuation ------------------------------------------
   // Scheduled runs share one deterministic group per schedule slot: a
@@ -230,7 +238,9 @@ async function main() {
       // group has no EN post — its stored title/keywords are localized, and
       // an "EN" post rebuilt from them would ship Russian/Uzbek metadata.
       if (locales.includes('en') && existing.locale !== 'en') {
-        console.error(`❌ Group ${generationGroupId} has no EN post to rebuild the topic from — cannot fill EN. Recreate the group instead.`);
+        console.error(
+          `❌ Group ${generationGroupId} has no EN post to rebuild the topic from — cannot fill EN. Recreate the group instead.`
+        );
         process.exit(1);
       }
 

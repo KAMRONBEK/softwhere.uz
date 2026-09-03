@@ -45,7 +45,7 @@ export default async function RootLayout({ children, params }: Props) {
   const { locale } = (await params) as { locale: Locale };
   if (!hasLocale(['en', 'ru', 'uz'] as const, locale)) notFound();
   setRequestLocale(locale);          // enables static rendering (else next-intl reads headers())
-  const messages = await getMessages();
+  const messages = pickMessages(await getMessages(), CLIENT_MESSAGE_NAMESPACES); // only what the client tree reads — see i18n.md
 
   return (
     <html lang={locale} className={`${inter.variable} ${sora.variable} ${manrope.variable}`} suppressHydrationWarning>
@@ -368,7 +368,9 @@ Two i18n access patterns:
 - **`useTranslations(namespace)`** (from `next-intl`) — the synchronous hook, which next-intl supports
   in **both** server and client components. `Hero` and `Projects` use it as server components (no
   `'use client'`); `Contact`, `ProjectSlider`, `Header`, and `Footer` use it as client components,
-  which get their messages from the `NextIntlClientProvider` in the layout.
+  which get their messages from the `NextIntlClientProvider` in the layout — only the
+  `CLIENT_MESSAGE_NAMESPACES` subset (`src/core/messages.ts`); anything else must come from a nested
+  provider on the page (see [i18n.md → What reaches the browser](./i18n.md#what-reaches-the-browser)).
 
 ```tsx
 // Async server section
@@ -409,7 +411,8 @@ feedback. Its phone-input theming lives in the `.contact-form` / `.estimator-pho
   render.
 - **Server vs client i18n:** the async `getTranslations` is `await`ed; the `useTranslations` hook works
   in **both** server and client components (`Hero`/`Projects` use it server-side). Client components
-  additionally rely on the layout's `NextIntlClientProvider`.
+  additionally rely on a `NextIntlClientProvider`: the layout's, which ships only the
+  `CLIENT_MESSAGE_NAMESPACES` subset, or a nested page-level one for anything else (see i18n.md).
 
 ## Related docs
 

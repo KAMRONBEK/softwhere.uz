@@ -4,22 +4,19 @@ import { requireAdmin } from '@/core/auth';
 import { logger } from '@/core/logger';
 import { ENV } from '@/core/constants';
 import { pingIndexNow } from '@/modules/blog/utils/indexnow';
-import { revalidatePath, revalidateTag } from 'next/cache';
+import { pathsForPost, postPath, revalidateBlogCaches } from '@/modules/blog/utils/revalidate';
 import { NextRequest, NextResponse } from 'next/server';
 
 type PostPatch = Partial<Pick<NewBlogPost, 'title' | 'slug' | 'content' | 'status' | 'locale'>>;
 
-// Bust the blog ISR caches after a successful write. revalidateTag busts the
-// list page's tagged data query; revalidatePath busts the statically-rendered
-// blog detail pages (which use per-request cache(), not a tag) so an edit /
-// unpublish propagates immediately instead of after the 1h timer.
-function invalidateBlogCache(): void {
-  try {
-    revalidateTag('blog-posts', 'max');
-    revalidatePath('/[locale]/blog/[slug]', 'page');
-  } catch (e) {
-    logger.error('Failed to revalidate blog caches', e, 'API');
-  }
+// Every write purges the post (old and new URL if the slug/locale moved), its
+// locale siblings (their hreflang alternates embed this slug) and its
+// category-mates (their "related articles" cards can show this post) — a
+// bounded set, instead of every post on the site as the previous purge did.
+async function purgeAfterWrite(before: { locale: string; slug: string }, after: Parameters<typeof pathsForPost>[0]): Promise<void> {
+  const paths = await pathsForPost(after);
+  const oldPath = postPath(before.locale, before.slug);
+  revalidateBlogCaches(paths.includes(oldPath) ? paths : [oldPath, ...paths], 'API');
 }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -111,7 +108,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     logger.info(`Post ${id} updated successfully`, undefined, 'API');
 
-    invalidateBlogCache();
+    await purgeAfterWrite(existingPost, updatedPost);
 
     // On publish (or a published post's URL/content change), ping IndexNow so
     // Yandex/Bing pick the URL up within minutes. Awaited: fire-and-forget
@@ -164,13 +161,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ error: 'Invalid locale value' }, { status: 400 });
     }
 
+    const existingPost = await getById(id);
+    if (!existingPost) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
     const updatedPost = await updateById(id, patch);
 
     if (!updatedPost) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    invalidateBlogCache();
+    await purgeAfterWrite(existingPost, updatedPost);
 
     // The admin UI publishes via PATCH {status:'published'} — this is the real
     // publish path, so ping IndexNow here. Awaited: a fire-and-forget promise
@@ -201,13 +203,22 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: 'Invalid post ID' }, { status: 400 });
     }
 
+    const existingPost = await getById(id);
+    if (!existingPost) {
+      return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+    }
+
+    // Resolve the siblings BEFORE the row is gone: their hreflang sets drop
+    // this locale and must re-render, and the sitemap must lose the URL now,
+    // not after its 6h window.
+    const paths = await pathsForPost(existingPost);
     const deleted = await deleteById(id);
 
     if (!deleted) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    invalidateBlogCache();
+    revalidateBlogCaches(paths, 'API');
 
     return NextResponse.json({
       success: true,
