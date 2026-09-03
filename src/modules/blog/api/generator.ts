@@ -677,7 +677,7 @@ English secondaryKeywords: ${JSON.stringify(en.secondaryKeywords)}`;
       const p = JSON.parse(raw);
       const str = (v: unknown, fallback: string) => (typeof v === 'string' && v.trim() ? v.trim().replace(/^"|"$/g, '') : fallback);
       const title = str(p.title, en.title);
-      if (title.length > 65) logger.warn(`Localized ${locale} title exceeds 60 chars (${title.length}): "${title}"`, undefined, 'BLOG');
+      if (title.length > 65) logger.warn(`Localized ${locale} title exceeds 65 chars (${title.length}): "${title}"`, undefined, 'BLOG');
       return {
         title,
         metaDescription: clampMeta(str(p.metaDescription, en.metaDescription)),

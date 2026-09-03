@@ -83,36 +83,8 @@ export const PILLAR_LABELS: Record<string, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Structured data: BlogPosting + optional FAQ / HowTo
+// Structured data: BlogPosting + BreadcrumbList (no FAQPage on purpose — see docs/seo.md)
 // ---------------------------------------------------------------------------
-
-export function parseFAQPairs(content: string): Array<{ q: string; a: string }> {
-  const pairs: Array<{ q: string; a: string }> = [];
-  const lines = content.split('\n');
-  let currentQ = '';
-  let currentA = '';
-
-  for (const line of lines) {
-    const questionMatch = line.match(/^#{1,3}\s+(.+\?)\s*$/);
-    if (questionMatch) {
-      if (currentQ && currentA.trim()) {
-        pairs.push({ q: currentQ, a: currentA.trim().slice(0, 300) });
-      }
-      currentQ = questionMatch[1];
-      currentA = '';
-    } else if (currentQ) {
-      const clean = line
-        .replace(/^[-*]\s+/, '')
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .trim();
-      if (clean) currentA += (currentA ? ' ' : '') + clean;
-    }
-  }
-  if (currentQ && currentA.trim()) {
-    pairs.push({ q: currentQ, a: currentA.trim().slice(0, 300) });
-  }
-  return pairs.slice(0, 10);
-}
 
 // Async server component: the OG fallback URL must be HMAC-signed (core/og.ts).
 export async function BlogPostSchema({ post }: { post: BlogPost }) {
@@ -170,22 +142,6 @@ export async function BlogPostSchema({ post }: { post: BlogPost }) {
       { '@type': 'ListItem', position: 3, name: post.title },
     ],
   });
-
-  // FAQ schema for faq-format posts
-  if (post.postFormat === 'faq' || post.postFormat === 'myth-buster') {
-    const faqPairs = parseFAQPairs(post.content);
-    if (faqPairs.length >= 3) {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: faqPairs.map(({ q, a }) => ({
-          '@type': 'Question',
-          name: q,
-          acceptedAnswer: { '@type': 'Answer', text: a },
-        })),
-      });
-    }
-  }
 
   return (
     <>

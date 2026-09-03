@@ -210,6 +210,18 @@ export async function getRelatedByCategory(category: string, locale: Locale, exc
   return rows.map(r => ({ title: r.title, slug: r.slug, coverImage: r.coverImage ?? undefined }));
 }
 
+/**
+ * Every published post in a category, all locales: the pages whose
+ * "related articles" cards can mention a post in that category. Used to
+ * scope cache purges after a write (see blog/utils/revalidate.ts).
+ */
+export async function listPublishedByCategory(category: string): Promise<LocaleSlug[]> {
+  return db
+    .select({ slug: blogPosts.slug, locale: blogPosts.locale })
+    .from(blogPosts)
+    .where(and(eq(blogPosts.category, category), eq(blogPosts.status, 'published')));
+}
+
 /** All published posts, minimal columns, oldest first — for the sitemap. */
 export interface FeedPost {
   title: string;
