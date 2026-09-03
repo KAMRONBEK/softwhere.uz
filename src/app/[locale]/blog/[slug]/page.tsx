@@ -68,6 +68,10 @@ const SERVICE_BY_CATEGORY: Record<string, { slug: string; labelKey: ServiceLinkK
 export const revalidate = false;
 export const dynamicParams = true;
 
+// A DB outage here degrades to on-demand ISR (dynamicParams = true), which is
+// harmless: the pages render on first request. The blog INDEX page cannot
+// degrade (no time window), so the same outage fails the build there first —
+// see [locale]/blog/page.tsx.
 export async function generateStaticParams({ params }: { params: { locale: string } }): Promise<{ slug: string }[]> {
   try {
     const posts = await postsRepo.listPublished(params.locale as PostLocaleSlug['locale']);
@@ -116,7 +120,8 @@ const getCanonicalPostForLocale = cache(async (locale: string, slug: string): Pr
 
 // Strict lookups for the legacy resolver: a DB error must propagate (uncached
 // 500, retried on the next request) — swallowing it to null would mint a
-// notFound() that ISR caches for an hour on a URL that has a live 308 target.
+// notFound() that ISR caches indefinitely (revalidate = false) on a URL that
+// has a live 308 target.
 const getCanonicalForLocaleStrict = cache(async (locale: 'en' | 'ru' | 'uz', slugRoot: string) =>
   postsRepo.getCanonicalForLocale(locale, slugRoot)
 );
