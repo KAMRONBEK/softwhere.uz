@@ -63,6 +63,7 @@ the canonical doc wins.
 |-----|--------|
 | [estimator-v2.md](./estimator-v2.md), [estimator-section-plan.md](./estimator-section-plan.md) | Earlier estimator design notes. **Some numbers are stale** (catalog counts, AI-pass budget); see [estimator.md](./estimator.md) for the current implementation. |
 | [blog-review-2026-07.md](./blog-review-2026-07.md) | A point-in-time content review. |
+| [seo-measurement-2026-09.md](./seo-measurement-2026-09.md) | Index-recovery baseline (GSC, 12 commercial URLs, leads), dated gates, retired metrics, owner checklist. Re-record on the dates it names. |
 
 ## Conventions
 
