@@ -1,12 +1,13 @@
 import { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
-import { Locale } from 'next-intl';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Locale, NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import BlogListClient, { BlogPostSummary } from '@/modules/blog/components/BlogListClient';
 import { listPublished } from '@/modules/blog/model/posts.repository';
 import { validateLocale } from '@/core/auth';
 import { safeJsonLd } from '@/shared/utils/security';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { pickMessages } from '@/core/messages';
 
 // ISR: cache until a write busts the 'blog-posts' tag (see the note in
 // blog/[slug]/page.tsx — time-based expiry kept the Neon compute awake).
@@ -45,15 +46,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+// No try/catch on purpose: this runs INSIDE unstable_cache with no time
+// window, so catching a DB error into `[]` cached an EMPTY blog index until the
+// next publish. Without it: on a cold cache the render throws, Next serves the
+// error page and caches nothing, so the next request retries; after a publish
+// purge (revalidateTag('blog-posts', 'max') is stale-while-revalidate) a
+// failed refresh keeps serving the previous good list — stale beats empty, and
+// the next purge retries. Zero rows stays a legitimate empty state (a locale
+// can have no posts); never throw on an empty result.
+//
+// Unlike src/app/sitemap.ts, this deliberately does NOT degrade at build time:
+// the sitemap has a 6h window to heal itself, this page has none, so a
+// degraded prerender would be served until the next publish. A build that
+// cannot reach the DB should fail, not ship an empty blog.
 const getPublishedPosts = unstable_cache(
-  async (locale: string): Promise<BlogPostSummary[]> => {
-    try {
-      const validLocale = validateLocale(locale, 'en');
-      return await listPublished(validLocale);
-    } catch {
-      return [];
-    }
-  },
+  async (locale: string): Promise<BlogPostSummary[]> => listPublished(validateLocale(locale, 'en')),
   ['published-posts'],
   // Tag-only invalidation: no time window, so an idle site never wakes the DB.
   { tags: ['blog-posts'] }
@@ -64,6 +71,8 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'blog' });
   const posts = await getPublishedPosts(locale);
+  // The list is the only client tree that reads `blog`; see src/core/messages.ts.
+  const clientMessages = pickMessages(await getMessages(), ['blog']);
 
   const blogSchema = {
     '@context': 'https://schema.org',
@@ -84,7 +93,9 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
           <h1 className='text-4xl font-bold font-display text-ember-text leading-tight tracking-tight mb-6'>{t('title')}</h1>
           <p className='text-ember-muted text-base font-medium leading-5 tracking-tight max-w-2xl mx-auto'>{t('description')}</p>
         </header>
-        <BlogListClient posts={posts} locale={locale} />
+        <NextIntlClientProvider messages={clientMessages}>
+          <BlogListClient posts={posts} locale={locale} />
+        </NextIntlClientProvider>
       </div>
     </div>
   );
