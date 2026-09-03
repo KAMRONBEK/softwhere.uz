@@ -12,7 +12,7 @@ Everything is Next.js App Router file-conventions or route handlers. Base URL co
 | Robots | `src/app/robots.ts` | `/robots.txt` — allow/disallow rules + sitemap ref |
 | RSS feed | `src/app/[locale]/feed.xml/route.ts` | `/{locale}/feed.xml` — RSS 2.0, one per locale |
 | OG image | `src/app/api/og/route.tsx` | `/api/og` — 1200×630 PNG (edge runtime) |
-| Post JSON-LD | `src/modules/blog/lib/seo.tsx` | `BlogPosting` + `BreadcrumbList` (+ `FAQPage`) |
+| Post JSON-LD | `src/modules/blog/lib/seo.tsx` | `BlogPosting` + `BreadcrumbList` |
 | Site JSON-LD | `src/app/[locale]/layout.tsx` | `Organization` + `WebSite`; home metadata |
 | Post metadata | `src/app/[locale]/blog/[slug]/page.tsx` | canonical, hreflang, OG/Twitter, robots index rules, reading time |
 | Blog-list metadata | `src/app/[locale]/blog/page.tsx` | canonical/hreflang, RSS `alternates.types`, `CollectionPage` JSON-LD |
@@ -51,7 +51,7 @@ if (!currentCanonical || new Date(post.createdAt) < new Date(currentCanonical.cr
 }
 ```
 
-The whole dynamic block is wrapped in `try/catch`: on any DB error it logs (`logger.error(..., 'SEO')`) and returns **static-only** URLs rather than failing the sitemap.
+The whole dynamic block is wrapped in `try/catch`: on a DB error it logs (`logger.error(..., 'SEO')`) and then **throws at request time** — Next keeps serving the last good sitemap and retries within seconds — but returns **static-only** URLs at build time so a mid-build blip does not break the deploy. The blog index page (`src/app/[locale]/blog/page.tsx`), which has no revalidate window, fails the build on the same outage first.
 
 ## Robots — `src/app/robots.ts`
 
@@ -63,7 +63,7 @@ The whole dynamic block is wrapped in `try/catch`: on any DB error it logs (`log
 
 ## Per-locale RSS feed — `src/app/[locale]/feed.xml/route.ts`
 
-One RSS 2.0 feed per locale at `/{locale}/feed.xml` (`/uz/feed.xml`, `/ru/feed.xml`, `/en/feed.xml`). `revalidate = 3600`. The locale is normalized with `validateLocale(rawLocale, 'en')`.
+One RSS 2.0 feed per locale at `/{locale}/feed.xml` (`/uz/feed.xml`, `/ru/feed.xml`, `/en/feed.xml`). `revalidate = 86400`. The locale is normalized with `validateLocale(rawLocale, 'en')`.
 
 Despite the `.xml` name and `xmlns:atom` declaration, this is **RSS 2.0**, not a separate Atom document — the Atom namespace is used only for the `<atom:link rel="self">` self-reference. There is no standalone Atom feed.
 
@@ -73,7 +73,7 @@ Content comes from `listForFeed(locale, 20)` (newest 20 published posts, that lo
 <atom:link href="${baseUrl}/${locale}/feed.xml" rel="self" type="application/rss+xml"/>
 ```
 
-Response: `Content-Type: application/rss+xml; charset=utf-8`, `Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400`. On error it logs and returns `500 Feed unavailable`. The feed is advertised to crawlers from the blog-list page via `alternates.types['application/rss+xml']` (`src/app/[locale]/blog/page.tsx`).
+Response: `Content-Type: application/rss+xml; charset=utf-8`, `Cache-Control: public, s-maxage=86400, stale-while-revalidate=604800`. On error it logs and returns `500 Feed unavailable`. The feed is advertised to crawlers from the blog-list page via `alternates.types['application/rss+xml']` (`src/app/[locale]/blog/page.tsx`).
 
 ## OG image — `src/app/api/og/route.tsx`
 
@@ -100,13 +100,11 @@ Three emitters, all serialized through `safeJsonLd()` (`src/shared/utils/securit
 `<BlogPostSchema post={post} />` (rendered inside the post page) always emits:
 
 - **`BlogPosting`** — `headline`, `description` (`extractDescription`), `image` (cover image or `/api/og`), `author`, `publisher`, `datePublished`/`dateModified`, `mainEntityOfPage`, `articleSection` (mapped via `PILLAR_LABELS`, default `Technology`), `keywords` (`getKeywords`), `wordCount` (whitespace-split count), `inLanguage`, `isPartOf` (the `Blog`).
-- **`BreadcrumbList`** — Home › Blog › post title.
+- **`BreadcrumbList`** — Home › Blog › post title, with the labels localised from the `header` namespace (breadcrumbs are the only rich result this site earns, and most clicks are Uzbek).
 
-Conditionally:
+There is deliberately no `FAQPage` emitter: Google restricted FAQ rich results to well-known government and health sites in August 2023, so the markup never produced anything for this site and was dead weight on every FAQ-format post.
 
-- **`FAQPage`** — only when `postFormat` is `faq` or `myth-buster` **and** `parseFAQPairs()` finds ≥ 3 Q/A pairs. `parseFAQPairs` treats any `#`–`###` heading ending in `?` as a question, accumulates following lines as the answer (capped 300 chars), max 10 pairs.
-
-**Author (E-E-A-T).** When `BLOG_AUTHOR_NAME` or `NEXT_PUBLIC_BLOG_AUTHOR` is set, the author is a `Person` (Google rewards named authors); otherwise it falls back to the `Organization`. The same identity is mirrored into the page's `authors` metadata.
+**Author (E-E-A-T).** When `BLOG_AUTHOR_NAME` or `NEXT_PUBLIC_BLOG_AUTHOR` is set, the author is a `Person`; otherwise it falls back to the `Organization`. The same identity is mirrored into the page's `authors` metadata. Only set the variable once a byline is visibly rendered on the post: Google does not rank `Person` authors above `Organization` authors, and a `Person` node naming someone who appears nowhere on the page is invisible markup describing nobody.
 
 ```tsx
 const authorName = process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR;
@@ -202,6 +200,10 @@ Not SEO endpoints, but they shape crawl/render quality:
 - `experimental.inlineCss: true` inlines the global CSS into the HTML — a latency/LCP win for far-from-region visitors (Core Web Vitals feed ranking).
 - next-intl is wired via `createNextIntlPlugin('./src/core/i18n.ts')`.
 
+## Measurement log
+
+Dated operational state (index-state tables, baselines, gates, owner checklist) lives in dated files, not here: [seo-measurement-2026-09.md](./seo-measurement-2026-09.md) is the current one. Re-record it on the dates it names.
+
 ## Related docs
 
 - [blog-pipeline.md](./blog-pipeline.md) — how posts (and their `metaDescription`, keywords, cover images, `generationGroupId`) are generated.
@@ -212,4 +214,4 @@ Not SEO endpoints, but they shape crawl/render quality:
 - [database.md](./database.md) — the `blog_posts` table and repository layer feeding every generator here.
 - [../README.md](../README.md) — project overview.
 
-_Last verified against code: 2026-07-03._
+_Last verified against code: 2026-09-03._

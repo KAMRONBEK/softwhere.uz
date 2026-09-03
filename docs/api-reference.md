@@ -452,7 +452,7 @@ Lists **all** posts (any status), newest first, without `content` (`listForAdmin
 
 `src/app/api/admin/posts/route.ts`
 
-Creates a blog post, then busts the blog ISR caches (`revalidateTag('blog-posts')`, `revalidatePath('/[locale]/blog/[slug]')`).
+Creates a blog post, then busts the blog ISR caches through the shared `revalidateBlogCaches()` helper (`blog-posts` tag, the new post's path plus its locale siblings and category-mates, the blog list, feeds, sitemap).
 
 **Request body** — required: `title`, `slug`, `content`, `status` (`draft`|`published`), `locale` (`en`|`ru`|`uz`); optional: `generationGroupId`.
 
@@ -578,4 +578,4 @@ Metadata builders must construct these URLs with `buildOgUrl()` from `src/core/o
 - [architecture.md](./architecture.md) — the core → shared → modules → app layering.
 - [Project README](../README.md)
 
-_Last verified against code: 2026-07-03._
+_Last verified against code: 2026-09-03._

@@ -42,6 +42,40 @@
   background: linear-gradient(90deg, rgba(255, 91, 30, 0.09), transparent);
 }
 
+/* Rows that map to a real service page are links; the rest stay plain divs. */
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.rowLink:hover .rowTitle,
+.rowLink:focus-visible .rowTitle {
+  color: var(--accent);
+}
+
+.rowLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.rowLink .arrow {
+  transition: transform 0.25s ease;
+}
+
+.rowLink:hover .arrow {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowLink .arrow {
+    transition: none;
+  }
+
+  .rowLink:hover .arrow {
+    transform: none;
+  }
+}
+
 .num {
   font-family: var(--font-sora), var(--font-inter), 'Segoe UI', sans-serif;
   font-size: 15px;

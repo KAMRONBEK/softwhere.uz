@@ -171,9 +171,9 @@ Posts are rows in the `blog_posts` table, written through `src/modules/blog/mode
   npx tsx scripts/generate-post.ts --category mobile-app-development --locales en,ru,uz
   ```
 
-  Flags (from `scripts/generate-post.ts`): `--category <id>` (a service pillar, or `random`), `--customTopic <str>` (overrides category), `--sourceUrl <url>`, `--sourceText <str>` (max 5000 chars), `--locales <list>` (default `en,ru,uz`), `--force` (ignore the per-slot idempotency check; bare `--force` works), `--publish true` (a **value** flag, not bare — local/manual runs stay drafts unless you pass `--publish true`; scheduled runs publish unless you pass `--publish false`).
+  Flags (from `scripts/generate-post.ts`): `--category <id>` (a service pillar, or `random`), `--customTopic <str>` (overrides category), `--sourceUrl <url>`, `--sourceText <str>` (max 5000 chars), `--locales <list>` (default `en,ru,uz`), `--force` (ignore the per-slot idempotency check; bare `--force` works), `--publish true` (a **value** flag, not bare — nothing publishes unless you pass `--publish true`, scheduled runs included).
 
-- **GitHub Actions:** the `Generate Blog Post` workflow (`.github/workflows/generate-post.yml`) runs on a schedule (twice daily, `17 6` / `17 18` UTC) and via `workflow_dispatch` with inputs `category`, `customTopic`, `sourceUrl`, `sourceText`, `force`, `publish`. Scheduled runs publish automatically; dispatch with `publish=false` for drafts.
+- **GitHub Actions:** the `Generate Blog Post` workflow (`.github/workflows/generate-post.yml`) runs on a schedule (twice daily, `17 6` / `17 18` UTC) and via `workflow_dispatch` with inputs `category`, `customTopic`, `sourceUrl`, `sourceText`, `force`, `publish`. Scheduled runs save drafts for review in `/admin/posts`; a manual dispatch publishes by default (`publish=true`).
 
 - **API:** `POST /api/blog/generate` (`src/app/api/blog/generate/route.ts`) for programmatic generation.
 
