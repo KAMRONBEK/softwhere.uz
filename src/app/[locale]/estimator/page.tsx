@@ -1,17 +1,20 @@
 import type { Metadata } from 'next';
-import { Locale } from 'next-intl';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Locale, NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { Wizard } from '@/modules/estimator/components';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
+import { pickMessages } from '@/core/messages';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
-  const tEstimator = await getTranslations({ locale, namespace: 'estimator' });
-  const tCta = await getTranslations({ locale, namespace: 'estimatorCTA' });
+  const t = await getTranslations({ locale, namespace: 'estimator' });
 
-  const title = `${tEstimator('title')} | SoftWhere.uz`;
-  const description = tCta('description');
+  // A commercial title/description with a price token. The live title was
+  // "Loyiha kalkulyatori | SoftWhere.uz" — nothing to rank for. Phrased so it
+  // does not collide with the service pages, which own "veb-sayt yaratish".
+  const title = t('metaTitle');
+  const description = t('metaDescription');
   const ogImageUrl = await buildOgUrl({ title, locale });
 
   return {
@@ -51,5 +54,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function EstimatorPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = (await params) as { locale: Locale };
   setRequestLocale(locale);
-  return <Wizard />;
+  // The wizard is the only client tree that reads `estimator` (11–16KB), so it
+  // gets its own provider instead of the layout shipping it on every page.
+  const messages = pickMessages(await getMessages(), ['estimator']);
+  return (
+    <NextIntlClientProvider messages={messages}>
+      <Wizard />
+    </NextIntlClientProvider>
+  );
 }

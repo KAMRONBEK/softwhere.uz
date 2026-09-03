@@ -13,6 +13,7 @@ import { Inter, Sora, Manrope } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import React from 'react';
 import { ENV, SOCIAL_LINKS } from '@/core/constants';
+import { CLIENT_MESSAGE_NAMESPACES, pickMessages } from '@/core/messages';
 import { safeJsonLd } from '@/shared/utils/security';
 
 // Inter stays loaded with the Cyrillic subset so RU/UZ text always has full
@@ -119,7 +120,12 @@ export default async function RootLayout({ children, params }: Props) {
   // Enables static rendering: without this next-intl reads headers() and the
   // whole tree opts into dynamic rendering.
   setRequestLocale(locale);
-  const messages = await getMessages();
+  // Only the namespaces the layout's client tree reads go to the browser. The
+  // full bundle (30–48KB per locale, servicePages/privacy/estimator included)
+  // used to be serialised into every page, so every blog post carried the
+  // service-page copy for nothing. Pages with extra client needs nest their own provider
+  // (src/core/messages.ts, docs/i18n.md).
+  const messages = pickMessages(await getMessages(), CLIENT_MESSAGE_NAMESPACES);
 
   return (
     <html lang={locale} className={`${inter.variable} ${sora.variable} ${manrope.variable}`} suppressHydrationWarning>
