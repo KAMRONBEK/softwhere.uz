@@ -141,11 +141,13 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
             <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-6'>{tc('pricingTitle')}</h2>
             <div className='bg-ember-surface rounded-lg border border-ember-border divide-y divide-ember-border'>
               {Array.from({ length: PRICE_ROW_COUNT[service as ServiceSlug] }, (_, i) => (
-                <div key={i} className='flex items-center justify-between gap-4 p-5'>
+                <div key={i} className='flex flex-wrap items-center justify-between gap-x-4 gap-y-1 p-5'>
                   {/* Row counts differ per service (mobile has only the MVP
                       anchor), so these keys can't be statically typed. */}
                   <span className='text-ember-text font-medium'>{t(`price${i + 1}Name` as never)}</span>
-                  <span className='text-ember-accent font-semibold whitespace-nowrap'>{t(`price${i + 1}Range` as never)}</span>
+                  <span className='text-ember-accent font-semibold whitespace-nowrap ml-auto text-right'>
+                    {t(`price${i + 1}Range` as never)}
+                  </span>
                 </div>
               ))}
             </div>

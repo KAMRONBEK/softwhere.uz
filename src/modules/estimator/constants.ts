@@ -10,6 +10,10 @@
  *   · Fixed-price sanity targets: landing $300–700 · corporate $800–1,500 ·
  *     e-commerce $1.2–3k · Telegram order bot $400–700 · Mini App $0.9–3k ·
  *     mobile MVP $3–8k · custom CRM $5–10k.
+ *   · The service pages (messages `servicePages.*.priceNRange`) quote the same
+ *     bands in so'm, rounded at the September 2026 rate (1 USD ≈ 11,800 UZS).
+ *     Re-check them when the rate moves >10% — a stale so'm price costs more
+ *     trust than no price.
  */
 
 /** Effective blended hourly rate (design+dev+QA+PM averaged), USD. */
