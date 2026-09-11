@@ -58,7 +58,7 @@ The whole dynamic block is wrapped in `try/catch`: on a DB error it logs (`logge
 `MetadataRoute.Robots` served at `/robots.txt`:
 
 - `allow: ['/', '/api/og']` — `/api/og` must stay crawlable because `og:image` and the `BlogPosting` JSON-LD point at it; Google can't use robots-blocked images.
-- `disallow: ['/admin/', '/*/admin/', '/api/', '/_next/']` — admin is locale-prefixed (`/uz/admin/...`), so both shapes are blocked.
+- `disallow: ['/admin/', '/*/admin/', '/api/']` — admin is locale-prefixed (`/uz/admin/...`), so both shapes are blocked. `/_next/` is deliberately **not** disallowed: blocking it hides the CSS/JS Google needs to render the page (see the comment in `src/app/robots.ts`). Do not "restore" it.
 - `sitemap: ${ENV.BASE_URL}/sitemap.xml`.
 
 ## Per-locale RSS feed — `src/app/[locale]/feed.xml/route.ts`
