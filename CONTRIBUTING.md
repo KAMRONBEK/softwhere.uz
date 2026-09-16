@@ -23,11 +23,12 @@ There is **no test runner script** in `package.json`. Playwright is a devDepende
 
 ## 1. Local setup
 
-Prerequisites (per `README.md`): Node.js 18+ (CI uses Node 22 — see `.github/workflows/generate-post.yml`), Yarn, a Neon Postgres database, and optionally a DeepSeek API key for AI features.
+Prerequisites (per `README.md`): Node.js 24 (pinned by `package.json` `engines` `24.x` and `.nvmrc`; CI reads the same `.nvmrc` — see `.github/workflows/generate-post.yml`), Yarn, a Neon Postgres database, and optionally a DeepSeek API key for AI features. Yarn 1 enforces the `engines` field, so on any other Node version `yarn install` and every `yarn <script>` fail with `The engine "node" is incompatible with this module` — run `nvm use` first (`nvm alias default 24` makes it stick for new shells).
 
 ```bash
 git clone https://github.com/KAMRONBEK/softwhere.uz.git
 cd softwhere.uz
+nvm use        # Node 24 from .nvmrc
 yarn install
 cp env.example .env.local
 ```

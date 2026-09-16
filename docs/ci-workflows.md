@@ -19,10 +19,11 @@ the script it runs, and how to run it by hand.
 | Regenerate Blog Posts | `.github/workflows/regenerate-post.yml` | Manual dispatch only | `scripts/regenerate-post.ts` | Yes (updates rows in place) | Issue on failure, Telegram, backup artifacts |
 | Blog Audit | `.github/workflows/audit-posts.yml` | Monthly cron + manual dispatch | `scripts/audit-posts.ts` | No (read-only) | Step summary only |
 
-Common shape across all three: `ubuntu-latest`, `environment: Production`, Node 22 with
-the `yarn` cache, `yarn install --frozen-lockfile`, then `npx tsx scripts/<name>.ts`. All
-require `DATABASE_URL`. Every script calls `import 'dotenv/config'`, so a local run reads
-env from `.env`.
+Common shape across all three: `ubuntu-latest`, `environment: Production`, Node 24 (read
+from `.nvmrc` via `node-version-file`, so CI tracks the repo pin) with the `yarn` cache,
+`yarn install --frozen-lockfile`, then `npx tsx scripts/<name>.ts`. All require
+`DATABASE_URL`. Every script calls `import 'dotenv/config'`, so a local run reads env from
+`.env`.
 
 > **`environment: Production` must have no required reviewers or wait timers.** A scheduled
 > job would otherwise sit in "Waiting" and eventually fail (see the note at
@@ -218,7 +219,7 @@ non-zero if any group/locale failed.
 ```yaml
 - name: Upload backups of replaced rows
   if: always()
-  uses: actions/upload-artifact@v4
+  uses: actions/upload-artifact@v7
   with:
     name: regen-backups-${{ github.run_id }}
     path: |
