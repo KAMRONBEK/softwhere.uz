@@ -16,6 +16,7 @@ High-signal orientation for AI coding agents (Claude Code / Cursor) working in `
 | i18n | `next-intl` v4 | locales `uz` (default), `ru`, `en`; middleware `src/proxy.ts`; messages `src/messages/*.json` |
 | Auth | Neon Auth (Better Auth, beta) + Bearer `API_SECRET` | `src/core/neonAuth.ts`, `src/core/auth.ts` → see `docs/auth-and-admin.md` |
 | Layering | `core → shared → modules → app` | enforced by `eslint-plugin-boundaries` in `eslint.config.mjs` |
+| Node | Node.js 24 (`24.x`) | `package.json#engines` + `.nvmrc`; Vercel honors `engines` over the dashboard setting. Run `nvm use` first — Yarn 1 refuses to install or run scripts on any other major |
 | Package manager | Yarn 1.x | `package.json#packageManager` |
 
 ## Golden rules

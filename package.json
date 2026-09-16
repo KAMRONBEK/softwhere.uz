@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@types/aos": "^3.0.7",
-    "@types/node": "^20.17.32",
+    "@types/node": "^24.13.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/react-slick": "^0.23.13",
@@ -79,6 +79,9 @@
     "tailwindcss": "^3.3.0",
     "tsx": "^4.21.0",
     "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": "24.x"
   },
   "packageManager": "yarn@1.22.19+sha512.ff4579ab459bb25aa7c0ff75b62acebe576f6084b36aa842971cf250a5d8c6cd3bc9420b22ce63c7f93a0857bc6ef29291db39c3e7a23aab5adfd5a4dd6c5d71"
 }
