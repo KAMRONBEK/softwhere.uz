@@ -10,6 +10,7 @@ runtime model, env-pull commands, health checks, and the `db:push` schema flow.
 |---|---|---|
 | Host | Vercel (linked project `softwhere-uz`) | `.vercel/repo.json` |
 | Framework | Next.js 16 App Router (`next@^16.1.6`) | `package.json` |
+| Node.js | 24 (`24.x`) — Vercel honors this over the dashboard setting | `package.json` (`engines`), `.nvmrc` |
 | Package manager | Yarn 1.22 (`yarn@1.22.19`) | `package.json` (`packageManager`) |
 | Build command | `next build` (`yarn build`) | `package.json` `scripts.build` |
 | Start command | `next start` (`yarn start`) | `package.json` `scripts.start` |
@@ -45,10 +46,27 @@ On Vercel, the platform runs `next build` for you on every push; you rarely run
 `yarn build` / `yarn start` by hand except to reproduce a production build locally
 (see [Run a production-like build locally](#run-a-production-like-build-locally)).
 
-Node version is **not** pinned in the repo — there is no `engines` field, `.nvmrc`,
-or `.node-version`. CI standardizes on Node 22 (`.github/workflows/audit-posts.yml`,
-`node-version: '22'`); match that locally and let Vercel use its project-level Node
-setting.
+Node is pinned to **24** in two places, and both must move together on a major bump:
+
+- **`package.json` `"engines": { "node": "24.x" }`** — what Vercel builds and runs
+  Node.js functions with. It overrides the *Node.js Version* chosen in the Vercel
+  project settings, so the dashboard value is ignored while `engines` is set (the
+  dashboard was also switched from 20.x to 24.x on 2026-09-16, ahead of Vercel's
+  2026-10-01 Node 20 cutoff).
+- **`.nvmrc` (`24`)** — what local `nvm use` picks up, and what CI reads: every
+  workflow's `setup-node` step uses `node-version-file: '.nvmrc'` instead of a
+  hard-coded version.
+
+**Gotcha — Yarn 1 enforces `engines`.** On any other Node version, `yarn install` and
+every `yarn <script>` (`yarn dev`, `yarn build`, `yarn lint`, …) refuse to start — e.g.
+on Node 22:
+
+```text
+error softwhere.uz@0.1.0: The engine "node" is incompatible with this module. Expected version "24.x". Got "22.22.3"
+```
+
+Run `nvm use` in the repo before any `yarn` command; `nvm alias default 24` makes new
+shells start on 24 so it sticks.
 
 ## `vercel.json` — function limits & regions
 
