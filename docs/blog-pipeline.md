@@ -259,7 +259,7 @@ Always applied before the final gate:
 - **Schedule:** `17 6 * * *` and `17 18 * * *` (twice daily, 06:17 / 18:17 UTC = 11:17 / 23:17 Tashkent). Off-the-hour to dodge GitHub's :00 scheduling delays.
 
   > Note: a code comment in `pipeline.ts` calls this "the weekly GitHub Action" — that comment is stale; the workflow is twice-daily.
-- **Run:** checkout `main` → Node 22 → `yarn install --frozen-lockfile` → `npx tsx scripts/generate-post.ts --locales "en,ru,uz"` with dispatch inputs threaded through.
+- **Run:** checkout `main` → Node 24 (from `.nvmrc`) → `yarn install --frozen-lockfile` → `npx tsx scripts/generate-post.ts --locales "en,ru,uz"` with dispatch inputs threaded through.
 - **Secrets/env:** `DATABASE_URL`, `MOONSHOT_API_KEY`, `DEEPSEEK_API_KEY`, `UNSPLASH_ACCESS_KEY`, optional `TG_BOT_TOKEN`/`TG_CHAT_ID`, optional `API_SECRET`.
 - **Concurrency:** `group: generate-post` — a manual dispatch can't overlap a scheduled run.
 - **Resilience:** opens a GitHub issue on failure; a keepalive step re-enables the workflow to reset the 60-day auto-disable timer.

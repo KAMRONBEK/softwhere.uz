@@ -75,7 +75,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 24 — pinned by `.nvmrc` and `package.json` `engines` (`24.x`); run `nvm use` first, since Yarn refuses to install or run scripts on any other version
 - Yarn
 - Neon (serverless Postgres) — free tier is fine
 - An AI API key for blog generation (Kimi/Moonshot primary, or DeepSeek) — optional
@@ -92,6 +92,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 2. **Install dependencies**
 
    ```bash
+   nvm use        # Node 24 from .nvmrc
    yarn install
    ```
 
