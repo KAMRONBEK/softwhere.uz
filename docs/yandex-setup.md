@@ -26,7 +26,7 @@ queries from Uzbekistan.
 
 ## 2. Register in Yandex Business / Sprav (`NOT_IN_SPRAV`)
 
-1. Go to [Yandex Business](https://business.yandex.com) (Яндекс Бизнес,
+1. Go to [Yandex Business](https://yandex.ru/sprav/) (Яндекс Бизнес,
    formerly Справочник / sprav.yandex.ru) and add the organization.
 2. Fill the card with the **same NAP** (name / address / phone) the site shows:
    - Name: **Softwhere** (site brand: SoftWhere.uz)
