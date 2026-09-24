@@ -65,6 +65,12 @@ the canonical doc wins.
 | [blog-review-2026-07.md](./blog-review-2026-07.md) | A point-in-time content review. |
 | [seo-measurement-2026-09.md](./seo-measurement-2026-09.md) | Index-recovery baseline (GSC, 12 commercial URLs, leads), dated gates, retired metrics, owner checklist. Re-record on the dates it names. |
 
+## Ideas (proposals, not current behavior)
+
+| Doc | What it covers |
+|-----|----------------|
+| [ideas/](./ideas/README.md) | Researched ideas for later (September 2026): leads inbox and two-way email, a people-first blog engine, the estimator remake for two markets, project rooms for prospects and clients, an AI assistant, trust and growth, and what the own server enables. Exempt from "grounded, not aspirational"; when an idea is built, document it in the normal docs. |
+
 ## Conventions
 
 - **Grounded, not aspirational.** Docs describe on-disk behavior. If a doc and the code disagree,
