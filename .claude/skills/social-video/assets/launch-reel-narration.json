@@ -1,0 +1,33 @@
+{
+  "voice": "af_heart",
+  "speed": 1.0,
+  "fps": 30,
+  "designEnd": 25.0,
+  "scenes": [
+    { "A": 0.0, "B": 2.6, "lead": 0.75, "tail": 0.35, "say": ["This is SoftWhere."] },
+    { "A": 2.6, "B": 6.6, "lead": 0.5, "tail": 0.5, "say": ["We build mobile apps with AI built in."] },
+    {
+      "A": 6.6,
+      "B": 13.0,
+      "lead": 1.0,
+      "tail": 0.6,
+      "say": ["Like Talim AI.", "Ask it for a quiz, and it answers from your own material."]
+    },
+    {
+      "A": 13.0,
+      "B": 18.6,
+      "lead": 0.7,
+      "tail": 0.6,
+      "say": ["Our sales lead is in California.", "Our engineers are in Tashkent.", "You review in the morning, and we ship overnight."]
+    },
+    {
+      "A": 18.6,
+      "B": 21.5,
+      "lead": 0.45,
+      "tail": 0.6,
+      "say": ["You own the code from day one.", "You see a demo every week.", "And you get twelve months of bug fixes."],
+      "align": [19.0, 19.7, 20.4]
+    },
+    { "A": 21.5, "B": 25.0, "lead": 0.9, "tail": 1.8, "say": ["Book a thirty-minute call at softwhere dot app."] }
+  ]
+}

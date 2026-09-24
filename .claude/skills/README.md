@@ -9,7 +9,7 @@ Claude Code loads every skill in this folder automatically, locally and in Claud
 | `softwhere-proposal` | Drafts proposals, quotes and SOWs with SoftWhere's offers, prices and terms.                                                                                                                                                 |
 | `case-study-writer`  | Turns a project into an honest case study or portfolio entry.                                                                                                                                                                |
 | `softwhere-social`   | LinkedIn and X posts, short-video scripts and content calendars. Add real posts to `softwhere-social/references/voice-samples.md` so it matches your voice.                                                                  |
-| `social-video`       | Renders short social videos (MP4) from an HTML animation with free tools. Includes the 25-second launch reel as a template.                                                                                                  |
+| `social-video`       | Renders short social videos (MP4) from an HTML animation with free tools, with an optional AI narrator. Includes the launch reel as a template.                                                                              |
 
 ## Using the business skills outside this repo
 
