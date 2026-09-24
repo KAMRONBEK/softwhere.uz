@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SoftWhere launch reel</title>
+    <style>
+      @font-face {
+        font-family: 'Bricolage';
+        src: url('fonts/bricolage-grotesque-latin-wght-normal.woff2') format('woff2');
+        font-weight: 200 800;
+      }
+      @font-face {
+        font-family: 'Hanken';
+        src: url('fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      :root {
+        --orange: #fe4502;
+        --paper: #f3f4f6;
+        --ink: #101216;
+        --ember: #2b1206;
+        --cream: #f6efea;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--orange);
+      }
+      body {
+        font-family: 'Hanken', sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+      .layer {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      .mask {
+        overflow: hidden;
+        display: block;
+      }
+      .mask > span {
+        display: block;
+        will-change: transform;
+      }
+      .big {
+        font-family: 'Bricolage', sans-serif;
+        font-weight: 800;
+        letter-spacing: -0.045em;
+        line-height: 0.9;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- S1 + S6 share the orange ground -->
+    <div class="layer" id="s1" style="background: var(--orange); display: flex; align-items: center; justify-content: center">
+      <div id="s1lock" style="display: flex; align-items: center; gap: 34px">
+        <svg id="s1mark" width="190" height="190" viewBox="-70 0 1328 1328" aria-hidden="true">
+          <path
+            fill="#101216"
+            d="M123.03 273.47c-6.21,5.05 -11.92,9.95 -21.32,18.09 -30.29,31.71 -82.08,67.32 -98.79,195.52 -23.5,180.31 98.84,278.88 232.1,352.72 68.09,37.73 100.48,65.33 200.02,-23.2 -41.71,-24.65 -181.01,-106.31 -225.64,-138.38 -81.42,-58.5 -112.7,-164.4 -53.75,-254.78 43.32,-66.4 139.45,-110.3 206.14,-156.12 73.11,-50.23 144.25,-93.8 215.76,-142.58 22.25,10.32 127.25,72.97 146.99,84.04 -26.1,20.28 -178.76,114.15 -217.6,139.85 -98.17,70.42 -311.62,158.41 -137.78,257.11 37.34,21.45 74.27,44.2 110.66,64.74 66.11,37.31 178.36,98.05 233.79,130.79 -22.88,13.81 -261.17,166.06 -309.37,198.32 -30.24,20.48 -121.35,60.05 -88.07,150.71 16.83,48.62 85.71,79.32 136.16,108.73 177.49,103.47 172.29,84.04 338.25,-25.1 94.8,-62.35 211.39,-129.85 296,-198.25l13.56 -14.02c115.94,-118.28 112.21,-290.52 13.65,-418.21 -43.96,-56.96 -105.68,-85.36 -169.85,-122.2 -49.29,-27.550 -96.62,-56.26 -194.97,33.47 45.33,22.37 186.02,96.83 232.08,134.07 88.32,67.82 113.78,154.29 55.71,252.71 -32.83,56.45 -146.29,117.39 -205.83,156.63 -61.35,40.44 -166.47,111.29 -223.64,151.44 -36.43,-22.04 -97.58,-58.65 -127.69,-77.51l-14.16 -10.26 13.38 -10.84c31.58,-22.8 75.38,-50.67 103.13,-69.88 72.17,-49.95 291.75,-169.85 300.76,-218.13 14.59,-78.1 -82.73,-113.39 -177.2,-167.25 -35.07,-20 -201.74,-118.730 -221.81,-131.19 19.35,-14.6 256.8,-166.02 297.91,-193.62 54.47,-36.57 112.1,-62.12 94.71,-144.2 -12.67,-59.8 -81.49,-84.18 -127.21,-112.68 -179,-111.61 -171.81,-87.83 -336.8,10.57 -45.14,26.92 -101.39,64.5 -144.31,94.96 -26.69,18.94 -121.81,78.07 -144.96,93.94z"
+          ></path>
+        </svg>
+        <div class="mask" style="height: 150px">
+          <span id="s1word" class="big" style="font-size: 150px; line-height: 1">softwhere</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 + S3: paper ground -->
+    <div class="layer" id="s2" style="background: var(--paper)">
+      <div id="s2text" style="position: absolute; left: 84px; right: 84px; top: 520px">
+        <div class="mask"><span id="h1" class="big" style="font-size: 200px">Mobile apps</span></div>
+        <div class="mask"><span id="h2" class="big" style="font-size: 200px">with AI</span></div>
+        <div class="mask"><span id="h3" class="big" style="font-size: 200px; color: var(--orange)">built in.</span></div>
+        <p id="h4" style="margin-top: 64px; font-size: 54px; line-height: 1.3; font-weight: 500; max-width: 820px; color: #3b414b">
+          iOS and Android apps, and the AI features inside them.
+        </p>
+      </div>
+
+      <div id="s3cap" style="position: absolute; left: 84px; right: 84px; top: 170px">
+        <p class="big" style="font-size: 88px; line-height: 0.98; letter-spacing: -0.035em">AI that answers from your own material.</p>
+      </div>
+      <div
+        id="s3phone"
+        style="
+          position: absolute;
+          left: 300px;
+          top: 560px;
+          width: 480px;
+          height: 1040px;
+          border: 16px solid var(--ink);
+          border-radius: 76px;
+          overflow: hidden;
+          background: #fff;
+          box-shadow: 0 40px 90px rgba(16, 18, 22, 0.25);
+        "
+      >
+        <img src="talim-ai.webp" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block" />
+      </div>
+      <div
+        id="b1"
+        style="
+          position: absolute;
+          right: 70px;
+          top: 1040px;
+          max-width: 640px;
+          padding: 30px 38px;
+          border-radius: 44px 44px 12px 44px;
+          background: var(--ink);
+          color: #fff;
+          font-size: 44px;
+          line-height: 1.25;
+          font-weight: 500;
+        "
+      >
+        Make a 5-question quiz from chapter 3
+      </div>
+      <div
+        id="dots"
+        style="
+          position: absolute;
+          left: 70px;
+          top: 1250px;
+          padding: 30px 36px;
+          border-radius: 44px 44px 44px 12px;
+          background: #fff;
+          display: flex;
+          gap: 14px;
+          box-shadow: 0 20px 50px rgba(16, 18, 22, 0.15);
+        "
+      >
+        <i class="d" style="width: 18px; height: 18px; border-radius: 50%; background: #8a919c; display: block"></i>
+        <i class="d" style="width: 18px; height: 18px; border-radius: 50%; background: #8a919c; display: block"></i>
+        <i class="d" style="width: 18px; height: 18px; border-radius: 50%; background: #8a919c; display: block"></i>
+      </div>
+      <div
+        id="b2"
+        style="
+          position: absolute;
+          left: 70px;
+          top: 1250px;
+          max-width: 680px;
+          padding: 30px 38px;
+          border-radius: 44px 44px 44px 12px;
+          background: #fff;
+          font-size: 44px;
+          line-height: 1.25;
+          font-weight: 500;
+          box-shadow: 0 20px 50px rgba(16, 18, 22, 0.15);
+        "
+      >
+        Here are 5 questions, using only your PDF.
+      </div>
+      <p id="s3label" style="position: absolute; left: 84px; right: 84px; top: 1690px; font-size: 40px; font-weight: 600; color: #3b414b">
+        Talim AI, built by SoftWhere
+      </p>
+    </div>
+
+    <!-- S4: two time zones -->
+    <div class="layer" id="s4">
+      <div
+        id="s4top"
+        style="position: absolute; left: 0; top: 0; width: 1080px; height: 960px; background: var(--orange); padding: 150px 84px 0"
+      >
+        <p style="font-size: 50px; font-weight: 600">San Francisco</p>
+        <p id="clockA" class="big" style="font-size: 300px; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; margin-top: 20px">
+          08:58
+        </p>
+        <p style="font-size: 54px; font-weight: 500; margin-top: 40px; max-width: 860px; line-height: 1.25">
+          You review yesterday's build over coffee.
+        </p>
+      </div>
+      <div
+        id="s4bot"
+        style="
+          position: absolute;
+          left: 0;
+          top: 960px;
+          width: 1080px;
+          height: 960px;
+          background: var(--ember);
+          color: var(--cream);
+          padding: 150px 84px 0;
+        "
+      >
+        <p style="font-size: 50px; font-weight: 600">Tashkent</p>
+        <p
+          id="clockB"
+          class="big"
+          style="font-size: 300px; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; margin-top: 20px; color: var(--orange)"
+        >
+          20:58
+        </p>
+        <p style="font-size: 54px; font-weight: 500; margin-top: 40px; max-width: 860px; line-height: 1.25">
+          Our engineers ship the next one.
+        </p>
+      </div>
+    </div>
+
+    <!-- S5: promises -->
+    <div class="layer" id="s5" style="background: var(--paper)">
+      <div style="position: absolute; left: 84px; right: 84px; top: 470px; display: flex; flex-direction: column; gap: 90px">
+        <div class="mask"><span id="p1" class="big" style="font-size: 118px; line-height: 1">You own the code from day one.</span></div>
+        <div class="mask"><span id="p2" class="big" style="font-size: 118px; line-height: 1">A demo every week.</span></div>
+        <div class="mask"><span id="p3" class="big" style="font-size: 118px; line-height: 1">12 months of bug fixes.</span></div>
+      </div>
+    </div>
+
+    <!-- S6: call to action -->
+    <div
+      class="layer"
+      id="s6"
+      style="background: var(--orange); display: flex; flex-direction: column; justify-content: center; padding: 0 84px"
+    >
+      <svg id="s6mark" width="170" height="170" viewBox="-70 0 1328 1328" aria-hidden="true"><use href="#s1mark"></use></svg>
+      <div class="mask" style="margin-top: 70px">
+        <span id="s6url" class="big" style="font-size: 128px; line-height: 1.05">softwhere.app</span>
+      </div>
+      <p id="s6cta" style="margin-top: 56px; font-size: 60px; font-weight: 600">Book a 30-minute call</p>
+      <p id="s6sub" style="margin-top: 22px; font-size: 46px; font-weight: 500; color: #3a1a0c; max-width: 860px; line-height: 1.3">
+        Mobile apps with AI built in, from California and Tashkent.
+      </p>
+    </div>
+
+    <script>
+      const $ = id => document.getElementById(id);
+      const clamp = x => Math.max(0, Math.min(1, x));
+      const seg = (t, a, b) => clamp((t - a) / (b - a));
+      const outC = x => 1 - Math.pow(1 - x, 3);
+      const inOut = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+      const outBack = x => {
+        const c1 = 1.4,
+          c3 = c1 + 1;
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+      };
+      function show(el, on) {
+        el.style.visibility = on ? 'visible' : 'hidden';
+      }
+      function rise(el, p) {
+        el.style.transform = `translateY(${(1 - outC(p)) * 105}%)`;
+      }
+
+      // s6 reuses the logo path: copy it in instead of <use> for reliability
+      (() => {
+        const src = $('s1mark').innerHTML;
+        $('s6mark').innerHTML = src.replace('#101216', '#101216');
+      })();
+
+      window.render = function (t) {
+        // S1: logo lock-up (0-2.6)
+        show($('s1'), t < 2.9 || t >= 21.4);
+        const m = outBack(seg(t, 0.1, 0.9));
+        $('s1mark').style.transform = `scale(${0.55 + 0.45 * m}) rotate(${(1 - m) * -30}deg)`;
+        $('s1mark').style.opacity = seg(t, 0.05, 0.35);
+        rise($('s1word'), seg(t, 0.8, 1.5));
+        $('s1lock').style.visibility = t < 3 ? 'visible' : 'hidden';
+
+        // S2: paper wipe up (2.6-3.1), headline, then out (6.6-7.1)
+        show($('s2'), t >= 2.6 && t < 13.6);
+        const w2 = inOut(seg(t, 2.6, 3.1));
+        $('s2').style.clipPath = `inset(${(1 - w2) * 100}% 0 0 0)`;
+        rise($('h1'), seg(t, 2.95, 3.55));
+        rise($('h2'), seg(t, 3.25, 3.85));
+        rise($('h3'), seg(t, 3.55, 4.15));
+        $('h4').style.opacity = outC(seg(t, 4.5, 5.1));
+        $('h4').style.transform = `translateY(${(1 - outC(seg(t, 4.5, 5.1))) * 30}px)`;
+        const out2 = inOut(seg(t, 6.6, 7.2));
+        $('s2text').style.transform = `translateY(${-out2 * 260}px)`;
+        $('s2text').style.opacity = 1 - out2;
+
+        // S3: phone and chat (7.0-13.0)
+        const ph = outC(seg(t, 7.0, 7.9));
+        $('s3phone').style.transform = `translateY(${(1 - ph) * 1300}px) rotate(${(1 - ph) * 6 - 2}deg)`;
+        $('s3phone').style.visibility = t >= 7.0 ? 'visible' : 'hidden';
+        $('s3cap').style.opacity = outC(seg(t, 7.5, 8.1));
+        $('s3cap').style.transform = `translateY(${(1 - outC(seg(t, 7.5, 8.1))) * 40}px)`;
+        const b1 = outBack(seg(t, 8.5, 8.9));
+        $('b1').style.transform = `scale(${0.6 + 0.4 * b1})`;
+        $('b1').style.transformOrigin = '100% 100%';
+        $('b1').style.opacity = seg(t, 8.5, 8.65);
+        const typing = t >= 9.2 && t < 10.1;
+        $('dots').style.opacity = typing ? 1 : 0;
+        [...document.querySelectorAll('.d')].forEach((d, i) => {
+          d.style.transform = `translateY(${Math.sin(t * 9 - i * 0.9) * 6}px)`;
+        });
+        const b2 = outBack(seg(t, 10.1, 10.5));
+        $('b2').style.transform = `scale(${0.6 + 0.4 * b2})`;
+        $('b2').style.transformOrigin = '0% 100%';
+        $('b2').style.opacity = seg(t, 10.1, 10.25);
+        $('s3label').style.opacity = outC(seg(t, 10.8, 11.4));
+
+        // S4: two time zones (13.0-18.6)
+        show($('s4'), t >= 13.0 && t < 19.2);
+        $('s4top').style.transform = `translateX(${(1 - inOut(seg(t, 13.0, 13.6))) * -100}%)`;
+        $('s4bot').style.transform = `translateX(${(1 - inOut(seg(t, 13.1, 13.7))) * 100}%)`;
+        const tick = t < 14.4 ? 0 : t < 15.3 ? 1 : 2;
+        $('clockA').textContent = ['08:58', '08:59', '09:00'][tick];
+        $('clockB').textContent = ['20:58', '20:59', '21:00'][tick];
+        const pulse = tick === 2 ? 1 + 0.06 * Math.sin(Math.PI * seg(t, 15.3, 15.7)) : 1;
+        $('clockA').style.transform = $('clockB').style.transform = `scale(${pulse})`;
+        $('clockA').style.transformOrigin = $('clockB').style.transformOrigin = '0 60%';
+
+        // S5: promises (18.6-21.6)
+        show($('s5'), t >= 18.6 && t < 22.0);
+        const w5 = inOut(seg(t, 18.6, 19.1));
+        $('s5').style.clipPath = `inset(0 0 ${(1 - w5) * 100}% 0)`;
+        rise($('p1'), seg(t, 19.0, 19.6));
+        rise($('p2'), seg(t, 19.7, 20.3));
+        rise($('p3'), seg(t, 20.4, 21.0));
+
+        // S6: call to action (21.5-25)
+        show($('s6'), t >= 21.5);
+        const w6 = inOut(seg(t, 21.5, 22.0));
+        $('s6').style.clipPath = `inset(${(1 - w6) * 100}% 0 0 0)`;
+        const m6 = outBack(seg(t, 21.9, 22.6));
+        $('s6mark').style.transform = `scale(${0.5 + 0.5 * m6})`;
+        $('s6mark').style.transformOrigin = '0 50%';
+        rise($('s6url'), seg(t, 22.2, 22.8));
+        $('s6cta').style.opacity = outC(seg(t, 22.9, 23.4));
+        $('s6sub').style.opacity = outC(seg(t, 23.2, 23.7));
+        $('s1').style.visibility = t < 2.9 ? 'visible' : 'hidden';
+      };
+      window.render(0);
+    </script>
+  </body>
+</html>
