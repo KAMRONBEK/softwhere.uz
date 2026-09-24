@@ -1,0 +1,16 @@
+[
+  { "bar": 1, "beat": 0, "text": "Got an app idea?" },
+  { "bar": 2, "beat": 0, "text": "We build it." },
+  { "bar": 3, "beat": 0.5, "text": "For iPhone and Android." },
+  { "bar": 5, "beat": 0, "text": "With AI inside." },
+  { "bar": 6, "beat": 2, "text": "Not bolted on." },
+  { "bar": 10, "beat": 0, "text": "You sleep." },
+  { "bar": 10, "beat": 2, "text": "We ship." },
+  { "bar": 11, "beat": 1, "text": "California to Tashkent. Around the clock." },
+  { "bar": 13, "beat": 0, "text": "Fixed price.", "speed": 1.3 },
+  { "bar": 13, "beat": 2, "text": "Weekly demos.", "speed": 1.3 },
+  { "bar": 14, "beat": 0, "text": "You own the code.", "speed": 1.3 },
+  { "bar": 14, "beat": 2, "text": "A year of bug fixes.", "speed": 1.3 },
+  { "bar": 15, "beat": 1, "text": "SoftWhere." },
+  { "bar": 15, "beat": 3, "text": "Book a call at softwhere dot app." }
+]
