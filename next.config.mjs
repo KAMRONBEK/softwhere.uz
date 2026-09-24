@@ -23,6 +23,22 @@ const nextConfig = {
       // Routing-layer redirect (zero function compute — cheaper than the
       // middleware 308 the locale-less feed would otherwise get).
       { source: '/feed.xml', destination: '/uz/feed.xml', permanent: true },
+      // softwhere.app is a brand-protection alias for the global (English)
+      // audience, not a second site: 308 every path to softwhere.uz so no
+      // duplicate content is served. Locale-prefixed paths and root files keep
+      // their path; everything else lands on /en instead of the /uz default.
+      {
+        source: '/:keep(uz|ru|en|robots\\.txt|sitemap\\.xml)/:rest*',
+        has: [{ type: 'host', value: '(?:www\\.)?softwhere\\.app' }],
+        destination: 'https://softwhere.uz/:keep/:rest*',
+        permanent: true,
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: '(?:www\\.)?softwhere\\.app' }],
+        destination: 'https://softwhere.uz/en/:path*',
+        permanent: true,
+      },
     ];
   },
 };
