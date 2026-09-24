@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SoftWhere reel</title>
+    <style>
+      @font-face {
+        font-family: 'Bricolage';
+        src: url('fonts/bricolage-grotesque-latin-wght-normal.woff2') format('woff2');
+        font-weight: 200 800;
+      }
+      @font-face {
+        font-family: 'Hanken';
+        src: url('fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      @font-face {
+        font-family: 'JBMono';
+        src: url('fonts/jetbrains-mono-latin-500-normal.woff2') format('woff2');
+        font-weight: 500;
+      }
+      :root {
+        --or: #fe4502;
+        --ink: #101216;
+        --paper: #f3f4f6;
+        --ember: #2b1206;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--or);
+      }
+      body {
+        font-family: 'Hanken', sans-serif;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+      }
+      #cam {
+        position: absolute;
+        inset: 0;
+        transform-origin: 50% 50%;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        display: none;
+      }
+      .big {
+        font-family: 'Bricolage', sans-serif;
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        line-height: 0.86;
+        white-space: nowrap;
+      }
+      .abs {
+        position: absolute;
+      }
+      .pill {
+        position: absolute;
+        padding: 22px 36px;
+        border-radius: 999px;
+        font-family: 'Bricolage';
+        font-weight: 700;
+        font-size: 50px;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+      }
+      #grain {
+        position: absolute;
+        inset: -200px;
+        pointer-events: none;
+        opacity: 0.14;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+      }
+      #flash {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #leak {
+        position: absolute;
+        inset: -300px;
+        pointer-events: none;
+        mix-blend-mode: screen;
+        opacity: 0;
+        background: radial-gradient(closest-side at 30% 40%, rgba(255, 170, 90, 0.9), rgba(254, 69, 2, 0.35) 45%, transparent 70%);
+      }
+      canvas {
+        position: absolute;
+        inset: 0;
+      }
+      .code {
+        font-family: 'JBMono', monospace;
+        font-size: 34px;
+        line-height: 1.55;
+        white-space: pre;
+        color: #c9ced8;
+      }
+      .k {
+        color: #ff8a57;
+      }
+      .s {
+        color: #9fd6a8;
+      }
+      .f {
+        color: #8cb7ff;
+      }
+      .c {
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cam">
+      <!-- S1 hook -->
+      <section class="scene" id="s1" style="background: var(--or)">
+        <div class="abs" style="left: 80px; top: 430px; display: flex; flex-direction: column; gap: 6px" id="hookStack">
+          <span class="big w1" style="font-size: 270px; display: block">Got</span>
+          <span class="big w1" style="font-size: 270px; display: block">an</span>
+          <span class="big w1" style="font-size: 270px; display: block">app</span>
+          <span class="big w1" style="font-size: 270px; display: block">idea?</span>
+        </div>
+        <div id="s1b" class="abs" style="inset: 0; background: var(--ink); visibility: hidden">
+          <div class="abs" style="left: 80px; top: 560px; display: flex; flex-direction: column; gap: 14px" id="buildStack">
+            <span class="big w2" style="font-size: 300px; color: var(--paper); display: block">We</span>
+            <span class="big w2" style="font-size: 300px; color: var(--paper); display: block">build</span>
+            <span class="big w2" style="font-size: 300px; color: var(--or); display: block">it.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- S2 phone -->
+      <section class="scene" id="s2" style="background: var(--paper); perspective: 1800px">
+        <div
+          id="ring"
+          class="abs"
+          style="left: 90px; top: 410px; width: 900px; height: 900px; border-radius: 50%; border: 48px solid var(--or)"
+        ></div>
+        <div
+          id="ring2"
+          class="abs"
+          style="left: 240px; top: 560px; width: 600px; height: 600px; border-radius: 50%; background: rgba(254, 69, 2, 0.12)"
+        ></div>
+        <div
+          id="phone"
+          class="abs"
+          style="
+            left: 300px;
+            top: 380px;
+            width: 480px;
+            height: 1040px;
+            border-radius: 78px;
+            border: 18px solid var(--ink);
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 60px 120px rgba(16, 18, 22, 0.35);
+            transform-style: preserve-3d;
+          "
+        >
+          <img src="talim-ai.webp" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block" />
+          <div
+            id="glare"
+            class="abs"
+            style="inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.55) 45%, transparent 60%)"
+          ></div>
+        </div>
+        <div class="pill tag" style="left: 40px; top: 470px; background: var(--ink); color: var(--paper)">iOS</div>
+        <div class="pill tag" style="left: 760px; top: 600px; background: var(--or); color: var(--ink)">Android</div>
+        <div class="pill tag" style="left: 30px; top: 900px; background: var(--or); color: var(--ink)">Flutter</div>
+        <div class="pill tag" style="left: 640px; top: 1040px; background: var(--ink); color: var(--paper)">React Native</div>
+        <div class="pill tag" style="left: 60px; top: 1300px; background: var(--ink); color: var(--paper)">Swift</div>
+        <div class="pill tag" style="left: 720px; top: 1400px; background: var(--or); color: var(--ink)">Kotlin</div>
+        <div id="s2cap" class="abs big" style="left: 80px; top: 150px; font-size: 120px">Both stores.</div>
+        <div id="s2lab" class="abs" style="left: 80px; top: 1580px; font-size: 40px; font-weight: 600; color: #3b414b">
+          Talim AI, built by SoftWhere
+        </div>
+      </section>
+
+      <!-- S3 AI -->
+      <section class="scene" id="s3" style="background: var(--ink)">
+        <div
+          id="orb1"
+          class="abs"
+          style="
+            width: 700px;
+            height: 700px;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, rgba(254, 69, 2, 0.55), transparent);
+            filter: blur(20px);
+          "
+        ></div>
+        <div
+          id="orb2"
+          class="abs"
+          style="
+            width: 520px;
+            height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, rgba(255, 138, 87, 0.35), transparent);
+            filter: blur(20px);
+          "
+        ></div>
+        <div id="s3cap" class="abs big" style="left: 80px; top: 210px; font-size: 210px; color: var(--paper)">AI inside.</div>
+        <div
+          id="q"
+          class="abs"
+          style="
+            right: 70px;
+            top: 720px;
+            max-width: 760px;
+            padding: 40px 48px;
+            border-radius: 56px 56px 14px 56px;
+            background: var(--or);
+            color: var(--ink);
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1.2;
+          "
+        >
+          Make a quiz from chapter 3
+        </div>
+        <div
+          id="dots"
+          class="abs"
+          style="
+            left: 70px;
+            top: 1000px;
+            padding: 40px 44px;
+            border-radius: 56px 56px 56px 14px;
+            background: #23262d;
+            display: flex;
+            gap: 18px;
+          "
+        >
+          <i class="dot" style="width: 22px; height: 22px; border-radius: 50%; background: #9aa1ad; display: block"></i
+          ><i class="dot" style="width: 22px; height: 22px; border-radius: 50%; background: #9aa1ad; display: block"></i
+          ><i class="dot" style="width: 22px; height: 22px; border-radius: 50%; background: #9aa1ad; display: block"></i>
+        </div>
+        <div
+          id="a"
+          class="abs"
+          style="
+            left: 70px;
+            top: 1000px;
+            max-width: 820px;
+            padding: 40px 48px;
+            border-radius: 56px 56px 56px 14px;
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 56px;
+            font-weight: 600;
+            line-height: 1.2;
+          "
+        >
+          Done. 5 questions, only from your PDF.
+        </div>
+        <div id="s3b" class="abs big" style="left: 80px; top: 1480px; font-size: 150px; color: var(--or)">Not bolted on.</div>
+      </section>
+
+      <!-- S4 build-up -->
+      <section class="scene" id="s4" style="background: #0b0d11">
+        <div class="abs" style="inset: 0; perspective: 1600px; isolation: isolate; overflow: hidden">
+          <div id="editor" class="abs" style="left: -120px; top: -200px; width: 1320px; height: 2400px; transform-origin: 50% 40%">
+            <div id="codeScroll" class="code abs" style="left: 160px; top: 0"></div>
+          </div>
+        </div>
+        <div
+          id="ship"
+          class="abs"
+          style="left: 80px; right: 80px; top: 1320px; padding: 48px; border-radius: 40px; background: #101216; border: 2px solid #2a2e36"
+        >
+          <div style="display: flex; justify-content: space-between; align-items: baseline">
+            <span class="big" style="font-size: 96px; color: var(--paper)">Shipping</span>
+            <span id="pct" class="big" style="font-size: 120px; color: var(--or); font-variant-numeric: tabular-nums">0%</span>
+          </div>
+          <div style="margin-top: 34px; height: 44px; border-radius: 22px; background: #23262d; overflow: hidden">
+            <div id="bar" style="height: 100%; width: 0; background: var(--or); border-radius: 22px"></div>
+          </div>
+        </div>
+        <div id="black" class="abs" style="inset: 0; background: #000; opacity: 0"></div>
+      </section>
+
+      <!-- S5 drop -->
+      <section class="scene" id="s5" style="background: var(--or)">
+        <div
+          id="stripes"
+          class="abs"
+          style="inset: -600px; background: repeating-linear-gradient(-35deg, rgba(16, 18, 22, 0.07) 0 60px, transparent 60px 140px)"
+        ></div>
+        <div id="shipped" class="abs big" style="left: 0; right: 0; top: 760px; text-align: center; font-size: 250px">Shipped.</div>
+        <div id="sleep" class="abs" style="inset: 0; background: var(--ink); visibility: hidden">
+          <div id="sleepT" class="abs big" style="left: 0; right: 0; top: 790px; text-align: center; font-size: 205px; color: var(--paper)">
+            You sleep.
+          </div>
+        </div>
+        <div id="wship" class="abs" style="inset: 0; background: var(--or); visibility: hidden">
+          <div id="wshipT" class="abs big" style="left: 0; right: 0; top: 780px; text-align: center; font-size: 230px; color: var(--ink)">
+            We ship.
+          </div>
+        </div>
+      </section>
+
+      <!-- S6 time zones -->
+      <section class="scene" id="s6" style="background: var(--ink)">
+        <svg id="globe" class="abs" style="left: 90px; top: 360px" width="900" height="900" viewBox="-450 -450 900 900">
+          <circle r="400" fill="none" stroke="#2F333B" stroke-width="3"></circle>
+          <g id="mer" fill="none" stroke="#2F333B" stroke-width="2"></g>
+          <g fill="none" stroke="#2F333B" stroke-width="2">
+            <ellipse rx="400" ry="120"></ellipse>
+            <ellipse rx="380" ry="115" cy="-150"></ellipse>
+            <ellipse rx="380" ry="115" cy="150"></ellipse>
+            <ellipse rx="300" ry="80" cy="-270"></ellipse>
+            <ellipse rx="300" ry="80" cy="270"></ellipse>
+          </g>
+          <path id="arc" d="M -260 -40 Q 0 -420 250 -110" fill="none" stroke="#FE4502" stroke-width="10" stroke-linecap="round"></path>
+          <circle id="traveler" r="16" fill="#FE4502"></circle>
+          <circle id="pA" cx="-260" cy="-40" r="18" fill="#F3F4F6"></circle>
+          <circle id="pB" cx="250" cy="-110" r="18" fill="#F3F4F6"></circle>
+          <circle id="pAr" cx="-260" cy="-40" r="18" fill="none" stroke="#F3F4F6" stroke-width="4"></circle>
+          <circle id="pBr" cx="250" cy="-110" r="18" fill="none" stroke="#F3F4F6" stroke-width="4"></circle>
+        </svg>
+        <div id="lA" class="abs" style="left: 60px; top: 1190px; color: var(--paper)">
+          <div style="font-size: 46px; font-weight: 600">California</div>
+          <div id="cA" class="big" style="font-size: 150px; color: var(--paper); font-variant-numeric: tabular-nums">09:00</div>
+        </div>
+        <div id="lB" class="abs" style="right: 60px; top: 1190px; color: var(--paper); text-align: right">
+          <div style="font-size: 46px; font-weight: 600">Tashkent</div>
+          <div id="cB" class="big" style="font-size: 150px; color: var(--or); font-variant-numeric: tabular-nums">21:00</div>
+        </div>
+        <div id="s6cap" class="abs big" style="left: 80px; top: 170px; font-size: 124px; color: var(--paper)">Around the clock.</div>
+      </section>
+
+      <!-- S7 promises -->
+      <section class="scene" id="s7">
+        <div class="card abs" style="inset: 0; background: var(--paper)">
+          <div class="abs big ct" style="left: 80px; top: 760px; font-size: 190px; color: var(--ink); white-space: normal; width: 920px">
+            Fixed price.
+          </div>
+        </div>
+        <div class="card abs" style="inset: 0; background: var(--ink)">
+          <div class="abs big ct" style="left: 80px; top: 700px; font-size: 190px; color: var(--or); white-space: normal; width: 920px">
+            A demo every week.
+          </div>
+        </div>
+        <div class="card abs" style="inset: 0; background: var(--or)">
+          <div class="abs big ct" style="left: 80px; top: 700px; font-size: 190px; color: var(--ink); white-space: normal; width: 920px">
+            You own the code.
+          </div>
+        </div>
+        <div class="card abs" style="inset: 0; background: var(--paper)">
+          <div class="abs big ct" style="left: 80px; top: 700px; font-size: 190px; color: var(--ink); white-space: normal; width: 920px">
+            12 months of bug fixes.
+          </div>
+        </div>
+      </section>
+
+      <!-- S8 end -->
+      <section class="scene" id="s8" style="background: var(--or)">
+        <svg id="logo" class="abs" style="left: 365px; top: 430px" width="350" height="350" viewBox="-70 0 1328 1328">
+          <path id="logoPath" fill="#101216"></path>
+        </svg>
+        <div id="word" class="abs big" style="left: 0; right: 0; top: 860px; text-align: center; font-size: 190px">softwhere</div>
+        <div id="url" class="abs" style="left: 0; right: 0; top: 1090px; text-align: center; font-size: 64px; font-weight: 700">
+          softwhere.app
+        </div>
+        <div
+          id="cta"
+          class="pill"
+          style="left: 50%; top: 1250px; background: var(--ink); color: var(--paper); font-size: 58px; padding: 30px 56px"
+        >
+          Book a 30-min call
+        </div>
+      </section>
+
+      <div id="leak"></div>
+      <canvas id="fx" width="1080" height="1920"></canvas>
+    </div>
+    <div id="grain"></div>
+    <div id="flash"></div>
+
+    <script>
+      const LOGO =
+        'M123.03 273.47c-6.21,5.05 -11.92,9.95 -21.32,18.09 -30.29,31.71 -82.08,67.32 -98.79,195.52 -23.5,180.31 98.84,278.88 232.1,352.72 68.09,37.73 100.48,65.33 200.02,-23.2 -41.71,-24.65 -181.01,-106.31 -225.64,-138.38 -81.42,-58.5 -112.7,-164.4 -53.75,-254.78 43.32,-66.4 139.45,-110.3 206.14,-156.12 73.11,-50.23 144.25,-93.8 215.76,-142.58 22.25,10.32 127.25,72.97 146.99,84.04 -26.1,20.28 -178.76,114.15 -217.6,139.85 -98.17,70.42 -311.62,158.41 -137.78,257.11 37.34,21.45 74.27,44.2 110.66,64.74 66.11,37.31 178.36,98.05 233.79,130.79 -22.88,13.81 -261.17,166.06 -309.37,198.32 -30.24,20.48 -121.35,60.05 -88.07,150.71 16.83,48.62 85.71,79.32 136.16,108.73 177.49,103.47 172.29,84.04 338.25,-25.1 94.8,-62.35 211.39,-129.85 296,-198.25l13.56 -14.02c115.94,-118.28 112.21,-290.52 13.65,-418.21 -43.96,-56.96 -105.68,-85.36 -169.85,-122.2 -49.29,-27.55 -96.62,-56.26 -194.97,33.47 45.33,22.37 186.02,96.83 232.08,134.07 88.32,67.82 113.78,154.29 55.71,252.71 -32.83,56.45 -146.29,117.39 -205.83,156.63 -61.35,40.44 -166.47,111.29 -223.64,151.44 -36.43,-22.04 -97.58,-58.65 -127.69,-77.51l-14.16 -10.26 13.38 -10.84c31.58,-22.8 75.38,-50.67 103.13,-69.88 72.17,-49.95 291.75,-169.85 300.76,-218.13 14.59,-78.1 -82.73,-113.39 -177.2,-167.25 -35.07,-20 -201.74,-118.73 -221.81,-131.19 19.35,-14.6 256.8,-166.02 297.91,-193.62 54.47,-36.57 112.1,-62.12 94.71,-144.2 -12.67,-59.8 -81.49,-84.18 -127.21,-112.68 -179,-111.61 -171.81,-87.83 -336.8,10.57 -45.14,26.92 -101.39,64.5 -144.31,94.96 -26.69,18.94 -121.81,78.07 -144.96,93.94z';
+      document.getElementById('logoPath').setAttribute('d', LOGO);
+
+      // ---------- timing (128 BPM, 16 bars = 30 s; matches music.py)
+      const BEAT = 60 / 128,
+        BAR = 4 * BEAT;
+      const T = (bar, beat = 0) => (bar - 1) * BAR + beat * BEAT;
+      const $ = id => document.getElementById(id);
+      const clamp = x => Math.max(0, Math.min(1, x));
+      const seg = (t, a, b) => clamp((t - a) / (b - a));
+      const expo = x => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+      const back = x => {
+        const c = 1.9;
+        return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2);
+      };
+      const inOut = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+      const inCub = x => x * x * x;
+      const lerp = (a, b, x) => a + (b - a) * x;
+      const nz = (t, s) => Math.sin(t * 91.7 + s * 13.1) * 0.5 + Math.sin(t * 57.3 + s * 7.7) * 0.3 + Math.sin(t * 131.9 + s * 3.3) * 0.2;
+      function hash(i) {
+        const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+        return x - Math.floor(x);
+      }
+
+      // slam-in: big scale down to 1 with blur and an RGB split on the way in
+      function slam(el, t, t0, { from = 2.6, dur = 0.24, rot = 0, rgb = true, color } = {}) {
+        const p = seg(t, t0, t0 + dur),
+          e = expo(p);
+        const on = t >= t0;
+        el.style.visibility = on ? 'visible' : 'hidden';
+        if (!on) return;
+        const s = lerp(from, 1, e);
+        el.style.transform = `scale(${s}) rotate(${(1 - e) * rot}deg)`;
+        el.style.filter = p < 1 ? `blur(${(1 - e) * 18}px)` : 'none';
+        el.style.opacity = clamp(p * 4);
+        const k = 1 - seg(t, t0, t0 + 0.18);
+        el.style.textShadow = rgb && k > 0 ? `${-14 * k}px 0 rgba(0,210,255,.85), ${14 * k}px 0 rgba(255,0,90,.85)` : 'none';
+      }
+      function show(el, on) {
+        el.style.visibility = on ? 'visible' : 'hidden';
+      }
+
+      // ---------- camera: beat bounce + impacts
+      const IMPACTS = [
+        [0, 0.35],
+        [T(1, 1), 0.3],
+        [T(1, 2), 0.3],
+        [T(1, 3), 0.45],
+        [T(2), 0.5],
+        [T(2, 1), 0.35],
+        [T(2, 2), 0.5],
+        [T(3), 1.1],
+        [T(6), 0.4],
+        [T(9), 2.4],
+        [T(10), 0.8],
+        [T(10, 2), 0.8],
+        [T(13), 0.6],
+        [T(13, 2), 0.6],
+        [T(14), 0.6],
+        [T(14, 2), 0.6],
+        [T(15), 1.6],
+      ];
+      function camera(t) {
+        let sx = 0,
+          sy = 0,
+          rot = 0;
+        for (const [ti, a] of IMPACTS) {
+          const d = t - ti;
+          if (d < 0 || d > 0.6) continue;
+          const k = a * Math.exp(-d * 9);
+          sx += nz(t, ti) * 38 * k;
+          sy += nz(t, ti + 5) * 38 * k;
+          rot += nz(t, ti + 9) * 1.4 * k;
+        }
+        if (t > T(7) && t < T(9) - 0.24) {
+          const k = Math.pow(seg(t, T(7), T(9)), 2) * 0.6;
+          sx += nz(t, 1) * 30 * k;
+          sy += nz(t, 2) * 30 * k;
+        }
+        const inBeat = ((t % BEAT) + BEAT) % BEAT;
+        const bump = t >= T(3) ? 1 + 0.018 * Math.exp(-inBeat * 14) : 1;
+        const build = t > T(7) && t < T(9) ? 1 + 0.12 * inCub(seg(t, T(7), T(9))) : 1;
+        $('cam').style.transform = `translate(${sx}px,${sy}px) rotate(${rot}deg) scale(${bump * build})`;
+      }
+
+      // ---------- particles (deterministic)
+      const ctx = $('fx').getContext('2d');
+      const BURSTS = [
+        { t0: T(3), x: 540, y: 1420, n: 26, cols: ['#101216', '#FE4502'], sp: 900, g: 2600, size: 16 },
+        { t0: T(6), x: 300, y: 1060, n: 34, cols: ['#FE4502', '#FFB38A', '#F3F4F6'], sp: 1100, g: 400, size: 12, star: true },
+        { t0: T(9), x: 540, y: 880, n: 70, cols: ['#101216', '#F3F4F6', '#FFD2BC'], sp: 1900, g: 1800, size: 26 },
+        { t0: T(15), x: 540, y: 600, n: 46, cols: ['#101216', '#F3F4F6'], sp: 1500, g: 1600, size: 20 },
+      ];
+      const RINGS = [
+        [T(9), 540, 880, '#F3F4F6'],
+        [T(15), 540, 600, '#101216'],
+        [T(3), 540, 1420, '#FE4502'],
+      ];
+      function particles(t) {
+        ctx.clearRect(0, 0, 1080, 1920);
+        for (const [t0, x, y, c] of RINGS) {
+          const d = t - t0;
+          if (d < 0 || d > 0.7) continue;
+          const p = d / 0.7;
+          ctx.strokeStyle = c;
+          ctx.globalAlpha = 1 - p;
+          ctx.lineWidth = 40 * (1 - p) + 2;
+          ctx.beginPath();
+          ctx.arc(x, y, 40 + 900 * expo(p), 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        BURSTS.forEach((b, bi) => {
+          const d = t - b.t0;
+          if (d < 0 || d > 1.6) return;
+          for (let i = 0; i < b.n; i++) {
+            const r1 = hash(bi * 100 + i),
+              r2 = hash(bi * 100 + i + 50),
+              r3 = hash(bi * 100 + i + 77);
+            const ang = r1 * Math.PI * 2,
+              sp = b.sp * (0.35 + 0.65 * r2);
+            const px = b.x + Math.cos(ang) * sp * d * Math.exp(-d * 1.2);
+            const py = b.y + Math.sin(ang) * sp * d * Math.exp(-d * 1.2) + 0.5 * b.g * d * d;
+            const life = 1 - seg(d, 0.6 + r3 * 0.6, 1.4 + r3 * 0.2);
+            if (life <= 0) continue;
+            ctx.globalAlpha = life;
+            ctx.fillStyle = b.cols[i % b.cols.length];
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(d * (4 + r3 * 10) * (r1 > 0.5 ? 1 : -1));
+            const s = b.size * (0.5 + r2);
+            if (b.star) {
+              ctx.beginPath();
+              for (let k = 0; k < 8; k++) {
+                const rr = k % 2 ? s * 0.35 : s;
+                ctx.lineTo(Math.cos((k * Math.PI) / 4) * rr, Math.sin((k * Math.PI) / 4) * rr);
+              }
+              ctx.fill();
+            } else ctx.fillRect(-s / 2, -s / 2, s, s * (0.6 + r3 * 0.8));
+            ctx.restore();
+          }
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      // ---------- code content for the build-up
+      const CODE = [
+        ['c', '// quiz.ts'],
+        ['k', 'import ', 'f', '{ generate }', 'k', ' from ', 's', "'./ai'"],
+        [''],
+        ['k', 'export async function ', 'f', 'makeQuiz', '', '(pdf: Doc) {'],
+        ['', '  const chunks = ', 'f', 'split', '', '(pdf, { size: 800 })'],
+        ['', '  const ctx = ', 'k', 'await ', 'f', 'search', '', '(chunks, topic)'],
+        ['', '  return ', 'f', 'generate', '', '({ ctx, questions: 5 })'],
+        ['', '}'],
+        [''],
+        ['c', '// App.tsx'],
+        ['k', 'export default function ', 'f', 'App', '', '() {'],
+        ['', '  const [quiz, setQuiz] = ', 'f', 'useState', '', '(null)'],
+        ['', '  return <', 'f', 'Screen', '', ' title=', 's', '"Chapter 3"', '', '>'],
+        ['', '    <', 'f', 'QuizCard', '', ' data={quiz} />'],
+        ['', '  </', 'f', 'Screen', '', '>'],
+        ['', '}'],
+        [''],
+        ['c', '$ yarn test'],
+        ['s', '  PASS  quiz.test.ts'],
+        ['s', '  PASS  app.test.tsx'],
+        ['c', '$ eas build --platform all'],
+        ['s', '  iOS build finished'],
+        ['s', '  Android build finished'],
+        [''],
+      ];
+      (function fillCode() {
+        const lines = [];
+        for (let r = 0; r < 5; r++)
+          for (const L of CODE) {
+            let h = '';
+            for (let i = 0; i < L.length; i += 2) {
+              const cls = L[i],
+                txt = (L[i + 1] || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+              h += cls ? `<span class="${cls}">${txt}</span>` : txt;
+            }
+            lines.push(h);
+          }
+        $('codeScroll').innerHTML = lines.join('\n');
+      })();
+
+      // ---------- the frame
+      window.render = function (t) {
+        const S = [
+          ['s1', 0, T(3)],
+          ['s2', T(3) - 0.05, T(5)],
+          ['s3', T(5) - 0.12, T(7)],
+          ['s4', T(7) - 0.1, T(9)],
+          ['s5', T(9), T(11)],
+          ['s6', T(11) - 0.12, T(13)],
+          ['s7', T(13) - 0.12, T(15)],
+          ['s8', T(15) - 0.3, 99],
+        ];
+        for (const [id, a, b] of S) $(id).style.display = t >= a && t < b ? 'block' : 'none';
+        camera(t);
+        particles(t);
+
+        // grain + flash + light leak
+        $('grain').style.transform =
+          `translate(${(hash(Math.floor(t * 30)) - 0.5) * 200}px,${(hash(Math.floor(t * 30) + 9) - 0.5) * 200}px)`;
+        const fl = Math.max(
+          t >= T(9) ? 1 - seg(t, T(9), T(9) + 0.12) : 0,
+          t >= T(3) ? 0.7 * (1 - seg(t, T(3), T(3) + 0.08)) : 0,
+          t >= T(15) ? 0.6 * (1 - seg(t, T(15), T(15) + 0.1)) : 0
+        );
+        $('flash').style.opacity = fl;
+        const leakOn = [T(5), T(11), T(15)].map(t0 => Math.sin(Math.PI * seg(t, t0 - 0.15, t0 + 0.7))).reduce((a, b) => Math.max(a, b), 0);
+        $('leak').style.opacity = leakOn * 0.8;
+        $('leak').style.transform = `translateX(${lerp(-300, 400, (t * 0.9) % 1)}px)`;
+
+        // S1 hook
+        if (t < T(3)) {
+          const w1 = document.querySelectorAll('.w1');
+          [0, 1, 2, 3].forEach(i => slam(w1[i], t, T(1, i) + 0.001, { rot: i % 2 ? 6 : -6 }));
+          const out = expo(seg(t, T(2), T(2) + 0.2));
+          $('hookStack').style.transform = `translateY(${-out * 1500}px)`;
+          $('hookStack').style.filter = out > 0 && out < 1 ? `blur(${10 * (1 - out)}px)` : 'none';
+          show($('s1b'), t >= T(2));
+          const w2 = document.querySelectorAll('.w2');
+          [0, 1, 2].forEach(i => slam(w2[i], t, T(2, i) + 0.001, { from: 3, rot: i === 2 ? -10 : 4 }));
+          const zt = inCub(seg(t, T(2, 3.1), T(3)));
+          $('buildStack').style.transform = `scale(${1 + zt * 11})`;
+          $('buildStack').style.transformOrigin = '20% 80%';
+          $('buildStack').style.opacity = 1 - seg(t, T(2, 3.6), T(3));
+        }
+
+        // S2 phone drop + tags
+        if (t >= T(3) - 0.05 && t < T(5)) {
+          const d = seg(t, T(3) - 0.05, T(3) + 0.3),
+            e = back(d);
+          const sw = seg(t, T(4, 3), T(5));
+          const float = Math.sin((t - T(3)) * 2.2);
+          $('phone').style.transform =
+            `translateY(${(1 - e) * -1500}px) rotateX(${(1 - e) * 60 + 6 + float * 3}deg) rotateY(${-14 + float * 10 + inOut(sw) * 180}deg) rotateZ(${(1 - e) * -25 - 3}deg) scale(${lerp(0.75, 1, e) * (d < 1 ? 1 : 1 - 0.05 * Math.exp(-(t - T(3) - 0.3) * 12))})`;
+          $('glare').style.transform = `translateX(${lerp(-600, 600, seg(t, T(3, 1), T(4)))}px)`;
+          $('ring').style.transform = `rotate(${(t - T(3)) * 40}deg) scale(${back(seg(t, T(3), T(3) + 0.45))})`;
+          $('ring2').style.transform = `scale(${1 + 0.06 * Math.sin((t - T(3)) * 7)})`;
+          document.querySelectorAll('.tag').forEach((el, i) => {
+            const t0 = T(3, 1) + i * BEAT;
+            const p = back(seg(t, t0, t0 + 0.3));
+            el.style.visibility = t >= t0 ? 'visible' : 'hidden';
+            el.style.transform = `scale(${p}) rotate(${(i % 2 ? 1 : -1) * (6 + 3 * Math.sin(t * 2 + i))}deg) translateY(${Math.sin(t * 1.7 + i) * 14}px)`;
+          });
+          slam($('s2cap'), t, T(3) + 0.05, { from: 1.8, rgb: false });
+          $('s2lab').style.opacity = seg(t, T(3, 2), T(3, 3));
+          const whipX = inCub(sw) * -1300;
+          $('s2').style.transform = `translateX(${whipX}px) skewX(${sw * 12}deg)`;
+          $('s2').style.filter = sw > 0 ? `blur(${sw * 14}px)` : 'none';
+        }
+
+        // S3 AI chat
+        if (t >= T(5) - 0.12 && t < T(7)) {
+          const inn = expo(seg(t, T(5) - 0.12, T(5) + 0.18));
+          $('s3').style.transform = `translateX(${(1 - inn) * 1200}px) skewX(${(1 - inn) * -10}deg)`;
+          $('s3').style.filter = inn < 1 ? `blur(${(1 - inn) * 14}px)` : 'none';
+          $('orb1').style.transform = `translate(${200 + Math.sin(t * 0.9) * 220}px,${300 + Math.cos(t * 0.7) * 260}px)`;
+          $('orb2').style.transform = `translate(${520 + Math.cos(t * 1.1) * 200}px,${1250 + Math.sin(t * 0.8) * 200}px)`;
+          slam($('s3cap'), t, T(5) + 0.01, { from: 2.2 });
+          const q = back(seg(t, T(5, 1), T(5, 1) + 0.3));
+          show($('q'), t >= T(5, 1));
+          $('q').style.transform = `scale(${q})`;
+          $('q').style.transformOrigin = '100% 100%';
+          const typing = t >= T(5, 2) && t < T(6);
+          show($('dots'), typing);
+          $('dots').style.transform = `scale(${back(seg(t, T(5, 2), T(5, 2) + 0.25))})`;
+          document.querySelectorAll('.dot').forEach((d, i) => (d.style.transform = `translateY(${Math.sin(t * 12 - i * 0.9) * 9}px)`));
+          const a = back(seg(t, T(6), T(6) + 0.32));
+          show($('a'), t >= T(6));
+          $('a').style.transform = `scale(${a})`;
+          $('a').style.transformOrigin = '0% 100%';
+          slam($('s3b'), t, T(6, 2), { from: 2.4, rot: -4 });
+        }
+
+        // S4 code rush + shipping bar
+        if (t >= T(7) - 0.1 && t < T(9)) {
+          const p = seg(t, T(7), T(9) - 0.24);
+          const scroll = 2600 * Math.pow(p, 2.2) + 120 * p;
+          $('codeScroll').style.transform = `translateY(${-scroll}px)`;
+          $('editor').style.transform = `rotateX(${24 - 6 * p}deg) rotateZ(${-8 + 3 * p}deg) scale(${1.05 + 0.1 * p})`;
+          $('editor').style.filter = `blur(${Math.pow(p, 3) * 6}px)`;
+          const pct = Math.min(100, Math.round(100 * inCub(Math.min(1, p * 1.04))));
+          $('pct').textContent = pct + '%';
+          $('bar').style.width = pct + '%';
+          $('ship').style.transform = `translateY(${(1 - expo(seg(t, T(7), T(7) + 0.35))) * 700}px) scale(${pct === 100 ? 1.04 : 1})`;
+          $('ship').style.boxShadow = pct === 100 ? '0 0 120px rgba(254,69,2,.65)' : 'none';
+          $('black').style.opacity = t >= T(9) - 0.24 ? 1 : 0;
+        }
+
+        // S5 drop
+        if (t >= T(9) && t < T(11)) {
+          $('stripes').style.transform = `translateX(${((t - T(9)) * 420) % 170}px)`;
+          slam($('shipped'), t, T(9) + 0.001, { from: 3.4, dur: 0.28, rot: -8 });
+          const pulse = 1 + 0.05 * Math.exp(-((t - T(9)) % BEAT) * 12);
+          if (t > T(9) + 0.3) $('shipped').style.transform = `scale(${pulse})`;
+          show($('sleep'), t >= T(10));
+          slam($('sleepT'), t, T(10) + 0.001, { from: 2.2 });
+          const sIn = expo(seg(t, T(10) - 0.08, T(10) + 0.12));
+          $('sleep').style.clipPath = `inset(0 0 ${(1 - sIn) * 100}% 0)`;
+          show($('wship'), t >= T(10, 2));
+          slam($('wshipT'), t, T(10, 2) + 0.001, { from: 2.2, rot: 5 });
+          const wIn = expo(seg(t, T(10, 2) - 0.08, T(10, 2) + 0.12));
+          $('wship').style.clipPath = `inset(${(1 - wIn) * 100}% 0 0 0)`;
+        }
+
+        // S6 globe + arc + clocks
+        if (t >= T(11) - 0.12 && t < T(13)) {
+          const inn = expo(seg(t, T(11) - 0.12, T(11) + 0.3));
+          $('s6').style.transform = `scale(${lerp(1.5, 1, inn)})`;
+          $('s6').style.opacity = inn;
+          const spin = (t - T(11)) * 1.4;
+          let mer = '';
+          for (let i = 0; i < 6; i++) {
+            const ph = spin + (i * Math.PI) / 6;
+            mer += `<ellipse rx="${Math.abs(Math.cos(ph)) * 400}" ry="400"></ellipse>`;
+          }
+          $('mer').innerHTML = mer;
+          const ap = inOut(seg(t, T(11, 1), T(12)));
+          const arc = $('arc'),
+            L = arc.getTotalLength();
+          arc.style.strokeDasharray = L;
+          arc.style.strokeDashoffset = L * (1 - ap);
+          const loop = (t - T(12)) / (BAR * 0.9);
+          const tp = t < T(12) ? ap : ((loop % 1) + 1) % 1;
+          const pt = arc.getPointAtLength(L * tp);
+          $('traveler').setAttribute('cx', pt.x);
+          $('traveler').setAttribute('cy', pt.y);
+          $('traveler').style.opacity = t > T(11, 1) ? 1 : 0;
+          [
+            ['pAr', 0],
+            ['pBr', 0.5],
+          ].forEach(([id, off]) => {
+            const r = (t * 1.3 + off) % 1;
+            $(id).setAttribute('r', 18 + r * 60);
+            $(id).style.opacity = 1 - r;
+          });
+          slam($('lA'), t, T(11, 1), { from: 1.6, rgb: false });
+          slam($('lB'), t, T(11, 2), { from: 1.6, rgb: false });
+          const roll = (el, t0, final) => {
+            const k = seg(t, t0, t0 + 0.5);
+            el.textContent =
+              k < 1
+                ? String(Math.floor(hash(Math.floor(t * 30) + final.length) * 24)).padStart(2, '0') +
+                  ':' +
+                  String(Math.floor(hash(Math.floor(t * 30) + 7) * 60)).padStart(2, '0')
+                : final;
+          };
+          roll($('cA'), T(11, 1), '09:00');
+          roll($('cB'), T(11, 2), '21:00');
+          slam($('s6cap'), t, T(12), { from: 2 });
+        }
+
+        // S7 promise cards
+        if (t >= T(13) - 0.12 && t < T(15)) {
+          const cards = document.querySelectorAll('.card'),
+            texts = document.querySelectorAll('.ct');
+          const starts = [T(13), T(13, 2), T(14), T(14, 2)];
+          cards.forEach((c, i) => {
+            const t0 = starts[i],
+              end = i < 3 ? starts[i + 1] : T(15);
+            const on = t >= t0 - 0.12 && t < end + 0.02;
+            show(c, on);
+            const p = expo(seg(t, t0 - 0.12, t0 + 0.1)),
+              dir = i % 2 ? -1 : 1;
+            c.style.transform = `translateX(${(1 - p) * 1150 * dir}px) skewX(${(1 - p) * 14 * dir}deg)`;
+            c.style.zIndex = i + 1;
+            slam(texts[i], t, t0 + 0.02, { from: 1.9, rot: dir * 5 });
+          });
+        }
+
+        // S8 logo end card, then clear back to the opening frame for the loop
+        if (t >= T(15) - 0.3) {
+          const inn = seg(t, T(15) - 0.3, T(15));
+          $('s8').style.clipPath = `circle(${expo(inn) * 150}% at 50% 40%)`;
+          const lp = back(seg(t, T(15), T(15) + 0.4));
+          const out = inCub(seg(t, T(16, 2.5), T(17) - 0.05));
+          $('logo').style.transform = `scale(${lp * (1 - out)}) rotate(${(1 - expo(seg(t, T(15), T(15) + 0.6))) * -360}deg)`;
+          slam($('word'), t, T(15, 1), { from: 2.4 });
+          slam($('url'), t, T(15, 2), { from: 1.6, rgb: false });
+          const cp = back(seg(t, T(15, 3), T(15, 3) + 0.35));
+          show($('cta'), t >= T(15, 3));
+          const pulse = t > T(16) ? 1 + 0.05 * Math.exp(-((t - T(16)) % BEAT) * 10) : 1;
+          $('cta').style.transform = `translateX(-50%) scale(${cp * pulse})`;
+          for (const id of ['word', 'url', 'cta']) $(id).style.opacity = Math.min(parseFloat($(id).style.opacity || 1), 1 - out);
+        }
+      };
+      window.render(0);
+    </script>
+  </body>
+</html>

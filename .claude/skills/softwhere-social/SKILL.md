@@ -40,7 +40,7 @@ If `references/voice-samples.md` contains real posts from the person posting, ma
 - A shot list: what the camera or screen shows, second by second
 - On-screen captions for every spoken line (most people watch muted)
 - Real faces or real product screens. No AI avatars; buyers trust real people.
-- Default to no background music, since the founders prefer to avoid it. Use voice, natural sound and captions. Confirm with the user if unsure.
+- Music: an original track from the `social-video` skill (no copyright claims), or trending audio added inside the Instagram or TikTok app when posting. Never paste in a commercial song.
 - End on one clear action and the web address.
 
 **Carousel:** six to eight slides, one sentence each, the last slide the action.

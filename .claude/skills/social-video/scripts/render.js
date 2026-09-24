@@ -42,6 +42,9 @@ function ffmpegPath() {
   const errors = [];
   p.on('pageerror', e => errors.push(e.message));
   await p.goto('file://' + page, { waitUntil: 'load' });
+  // Load every declared face up front: fonts used only in later scenes would otherwise load lazily
+  // and the first frames that need them would be captured with a fallback font.
+  await p.evaluate(() => Promise.all([...document.fonts].map(f => f.load().catch(() => null))));
   await p.evaluate(() => document.fonts.ready);
   const failed = await p.evaluate(() => [...document.fonts].filter(f => f.status !== 'loaded').map(f => f.family));
   if (failed.length) console.warn('Fonts not loaded:', failed.join(', '));
