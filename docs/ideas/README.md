@@ -25,6 +25,7 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 | [05-ai-assistant.md](./05-ai-assistant.md)                   | A narrow, grounded site assistant (start with a cached knowledge pack, add RAG later) and an AI scoping assistant that turns an idea into a brief                                                                             |
 | [06-growth-and-trust.md](./06-growth-and-trust.md)           | Clutch reviews, real people, time-zone widget, trust page; two free tools worth building; safe comparison pages; PostHog set up properly; a founder newsletter                                                                |
 | [07-own-server.md](./07-own-server.md)                       | What the Hetzner server enables: background jobs (pg-boss), Coolify, Cloudflare in front, small self-hosted tools, and what never to self-host                                                                                |
+| [08-instagram-assistant.md](./08-instagram-assistant.md)     | Claude on SoftWhere's Instagram through Meta's official API: a draft-then-auto DM assistant with human takeover, comment-to-DM funnels, and a human-approved queue that publishes reels, posts and stories on schedule        |
 
 ## Recommended order
 
@@ -43,13 +44,14 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 8. **Two-way email** from the admin, with threaded replies and the follow-up sequence ([01](./01-leads-inbox-and-email.md)).
 9. **App store readiness checker**, the first free tool ([06](./06-growth-and-trust.md)).
 10. **New blog pipeline** running at two strong English posts and one or two local posts a month ([02](./02-blog-engine.md)).
+11. **Instagram:** a draft-mode DM assistant (Claude drafts, a founder approves) with human takeover, the "comment ESTIMATE" funnel, then scheduled publishing from an approved content queue ([08](./08-instagram-assistant.md)).
 
 ### Later: when there are enough prospects to justify it
 
-11. **Project rooms**, created from the estimator's email step. Try a free tool (Aligned or Dock) with the first prospects before building ([04](./04-project-rooms.md)).
-12. **Site assistant** with guardrails and a golden test set, then the **scoping assistant** ([05](./05-ai-assistant.md)).
-13. **Monthly app health report** for care-plan clients ([04](./04-project-rooms.md)).
-14. **Shariah checklist for fintech features** with the scholar's review; first quarterly data report from estimator data ([06](./06-growth-and-trust.md), [02](./02-blog-engine.md)).
+12. **Project rooms**, created from the estimator's email step. Try a free tool (Aligned or Dock) with the first prospects before building ([04](./04-project-rooms.md)).
+13. **Site assistant** with guardrails and a golden test set, then the **scoping assistant** ([05](./05-ai-assistant.md)).
+14. **Monthly app health report** for care-plan clients ([04](./04-project-rooms.md)).
+15. **Shariah checklist for fintech features** with the scholar's review; first quarterly data report from estimator data ([06](./06-growth-and-trust.md), [02](./02-blog-engine.md)).
 
 ## Decisions only the founders can make
 
