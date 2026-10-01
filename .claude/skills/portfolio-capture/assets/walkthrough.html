@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Walkthrough</title>
+    <!-- build.py writes config.js next to this file: window.WT = { ...walkthrough.json, clip: {...} } -->
+    <script src="config.js"></script>
+    <style>
+      @font-face {
+        font-family: 'Bricolage';
+        src: url('fonts/bricolage-grotesque-latin-wght-normal.woff2') format('woff2');
+        font-weight: 200 800;
+      }
+      @font-face {
+        font-family: 'Hanken';
+        src: url('fonts/hanken-grotesk-latin-wght-normal.woff2') format('woff2');
+        font-weight: 100 900;
+      }
+      :root {
+        --orange: #fe4502;
+        --ink: #101216;
+        --paper: #f3f4f6;
+        --ember: #2b1206;
+        --bg: var(--paper);
+        --fg: var(--ink);
+        --muted: #5b6270;
+      }
+      body.dark {
+        --bg: var(--ink);
+        --fg: var(--paper);
+        --muted: #9aa1ad;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'Hanken', system-ui, sans-serif;
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+      #glow {
+        position: absolute;
+        width: 1400px;
+        height: 1400px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(254, 69, 2, 0.22), rgba(254, 69, 2, 0) 62%);
+        pointer-events: none;
+      }
+      /* Text column */
+      #text {
+        position: absolute;
+      }
+      #category {
+        font-size: 26px;
+        font-weight: 600;
+        color: var(--orange);
+        letter-spacing: 0.01em;
+      }
+      #title {
+        font-family: 'Bricolage', sans-serif;
+        font-weight: 800;
+        line-height: 0.98;
+        letter-spacing: -0.02em;
+        margin-top: 14px;
+      }
+      #caption {
+        position: relative;
+        margin-top: 48px;
+        min-height: 240px;
+      }
+      .cap {
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-family: 'Bricolage', sans-serif;
+        font-weight: 600;
+        line-height: 1.12;
+        letter-spacing: -0.01em;
+      }
+      #dots {
+        display: flex;
+        gap: 10px;
+        margin-top: 28px;
+      }
+      #dots i {
+        display: block;
+        height: 6px;
+        width: 26px;
+        border-radius: 3px;
+        background: currentColor;
+        opacity: 0.18;
+      }
+      #dots i.on {
+        background: var(--orange);
+        opacity: 1;
+        width: 44px;
+      }
+      #foot {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 20px;
+        color: var(--muted);
+      }
+      #foot b {
+        font-family: 'Bricolage', sans-serif;
+        font-size: 30px;
+        color: var(--fg);
+        letter-spacing: -0.02em;
+      }
+      /* Devices */
+      #deviceWrap {
+        position: absolute;
+        transform-origin: 50% 50%;
+      }
+      .device {
+        position: relative;
+        background: #0b0b0d;
+        box-shadow:
+          0 40px 90px rgba(16, 18, 22, 0.28),
+          0 0 0 2px rgba(255, 255, 255, 0.06) inset;
+      }
+      .screen {
+        position: absolute;
+        overflow: hidden;
+        background: #000;
+      }
+      .screen img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+      .island {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #000;
+        border-radius: 999px;
+      }
+      .bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 18px;
+        background: #e9eaee;
+        border-bottom: 1px solid #d5d7dd;
+      }
+      .bar i {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        display: block;
+      }
+      .bar .url {
+        margin-left: 18px;
+        flex: 1;
+        max-width: 560px;
+        height: 30px;
+        border-radius: 8px;
+        background: #fff;
+        color: #5b6270;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        padding: 0 14px;
+      }
+      /* End card */
+      #end {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--ink);
+        color: var(--paper);
+        opacity: 0;
+      }
+      #end .logo {
+        font-family: 'Bricolage', sans-serif;
+        font-weight: 800;
+        font-size: 120px;
+        letter-spacing: -0.03em;
+      }
+      #end .logo span {
+        color: var(--orange);
+      }
+      #end .site {
+        margin-top: 18px;
+        font-size: 36px;
+        color: #c9ccd3;
+      }
+      #end .label {
+        margin-top: 36px;
+        font-size: 22px;
+        color: #8e95a1;
+        max-width: 1100px;
+        text-align: center;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <div id="glow"></div>
+      <div id="text">
+        <div id="category"></div>
+        <h1 id="title"></h1>
+        <div id="caption"></div>
+        <div id="dots"></div>
+      </div>
+      <div id="deviceWrap"></div>
+      <div id="foot"></div>
+      <div id="end">
+        <div class="logo">soft<span>where</span></div>
+        <div class="site"></div>
+        <div class="label"></div>
+      </div>
+    </div>
+    <script>
+      const W = window.WT;
+      const VW = innerWidth,
+        VH = innerHeight;
+      const vertical = VH > VW;
+      if (W.theme === 'dark') document.body.classList.add('dark');
+      const INTRO = W.intro ?? 2.4,
+        OUTRO = W.outro ?? 3;
+      const CLIP = W.clip; // { dir, count, fps, w, h, duration }
+      const TOTAL = INTRO + CLIP.duration + OUTRO;
+      window.TOTAL = TOTAL;
+      const $ = id => document.getElementById(id);
+      const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+      const seg = (t, a, b) => clamp((t - a) / (b - a));
+      const ease = x => 1 - Math.pow(1 - x, 3);
+      const inOut = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+      // ---------- Layout ----------
+      const device = W.device || 'iphone';
+      const aspect = CLIP.w / CLIP.h;
+      let dev, screen, devW, devH;
+      {
+        const maxH = vertical ? VH * 0.52 : VH * 0.84;
+        const maxW = vertical ? VW * 0.86 : VW * 0.58;
+        const d = document.createElement('div');
+        d.className = 'device';
+        const s = document.createElement('div');
+        s.className = 'screen';
+        const img = document.createElement('img');
+        img.id = 'frame';
+        s.appendChild(img);
+        d.appendChild(s);
+        if (device === 'browser') {
+          const barH = 46;
+          let sw = maxW,
+            sh = sw / aspect;
+          if (sh + barH > maxH) {
+            sh = maxH - barH;
+            sw = sh * aspect;
+          }
+          devW = sw;
+          devH = sh + barH;
+          Object.assign(d.style, { width: devW + 'px', height: devH + 'px', borderRadius: '14px', overflow: 'hidden' });
+          Object.assign(s.style, { left: 0, top: barH + 'px', width: sw + 'px', height: sh + 'px' });
+          const bar = document.createElement('div');
+          bar.className = 'bar';
+          bar.style.height = barH + 'px';
+          bar.innerHTML =
+            '<i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="url"></div>';
+          bar.querySelector('.url').textContent = W.url || 'app.example.com';
+          d.appendChild(bar);
+        } else {
+          const bezel = device === 'android' ? 12 : 16;
+          let sh = maxH - 2 * bezel,
+            sw = sh * aspect;
+          if (sw + 2 * bezel > maxW) {
+            sw = maxW - 2 * bezel;
+            sh = sw / aspect;
+          }
+          devW = sw + 2 * bezel;
+          devH = sh + 2 * bezel;
+          const r = device === 'android' ? 0.075 * devW : 0.14 * devW;
+          Object.assign(d.style, { width: devW + 'px', height: devH + 'px', borderRadius: r + 'px' });
+          Object.assign(s.style, {
+            left: bezel + 'px',
+            top: bezel + 'px',
+            width: sw + 'px',
+            height: sh + 'px',
+            borderRadius: r - bezel + 'px',
+          });
+          const isl = document.createElement('div');
+          isl.className = 'island';
+          if (device === 'android')
+            Object.assign(isl.style, { width: sw * 0.045 + 'px', height: sw * 0.045 + 'px', top: bezel + sw * 0.03 + 'px' });
+          else Object.assign(isl.style, { width: sw * 0.3 + 'px', height: sw * 0.085 + 'px', top: bezel + sw * 0.03 + 'px' });
+          if (W.island !== false) d.appendChild(isl);
+        }
+        $('deviceWrap').appendChild(d);
+        dev = d;
+        screen = s;
+      }
+      const dw = $('deviceWrap');
+      const text = $('text');
+      const pad = vertical ? 80 : 120;
+      if (vertical) {
+        const devTop = VH * 0.2;
+        Object.assign(dw.style, { left: (VW - devW) / 2 + 'px', top: devTop + 'px' });
+        Object.assign(text.style, { left: pad + 'px', top: '96px', width: VW - 2 * pad + 'px' });
+        $('title').style.fontSize = '84px';
+        Object.assign($('caption').style, {
+          position: 'absolute',
+          top: devTop + devH + 70 - 96 + 'px',
+          marginTop: 0,
+          width: VW - 2 * pad + 'px',
+        });
+        Object.assign($('dots').style, { position: 'absolute', top: devTop + devH + 40 - 96 + 'px', marginTop: 0 });
+        Object.assign($('foot').style, { left: pad + 'px', bottom: '64px' });
+      } else {
+        const right = VW - pad - devW;
+        Object.assign(dw.style, { left: right + 'px', top: (VH - devH) / 2 + 'px' });
+        const colW = right - pad - 80;
+        Object.assign(text.style, { left: pad + 'px', top: VH * 0.2 + 'px', width: colW + 'px' });
+        $('title').style.fontSize = (W.titleSize || (W.title.length > 18 ? 76 : 96)) + 'px';
+        Object.assign($('foot').style, { left: pad + 'px', bottom: '64px' });
+      }
+      $('glow').style.left = (vertical ? VW / 2 - 700 : VW - pad - devW / 2 - 700) + 'px';
+      $('glow').style.top = (vertical ? VH * 0.2 + devH / 2 - 700 : VH / 2 - 700) + 'px';
+
+      $('category').textContent = W.category || '';
+      $('title').textContent = W.title;
+      // Shrink the title until no word overflows the column (long single words can't wrap).
+      {
+        const t = $('title');
+        let size = parseFloat(t.style.fontSize) || 96;
+        while (t.scrollWidth > t.clientWidth + 1 && size > 36) {
+          size -= 2;
+          t.style.fontSize = size + 'px';
+        }
+      }
+      $('foot').innerHTML = '<b>softwhere</b><span></span>';
+      $('foot').querySelector('span').textContent = W.label || '';
+      document.querySelector('#end .site').textContent = W.site || 'softwhere.app';
+      document.querySelector('#end .label').textContent = W.label || '';
+
+      const segs = (W.segments || []).map(s => ({ ...s }));
+      const capEls = segs.map(s => {
+        const el = document.createElement('div');
+        el.className = 'cap';
+        el.style.fontSize = (vertical ? 52 : 48) + 'px';
+        el.style.width = '100%';
+        el.textContent = s.caption || '';
+        $('caption').appendChild(el);
+        return el;
+      });
+      segs.forEach(() => $('dots').appendChild(document.createElement('i')));
+
+      // ---------- Frame loading ----------
+      const img = $('frame');
+      let shown = -1;
+      async function showFrame(i) {
+        i = Math.max(1, Math.min(CLIP.count, i));
+        if (i === shown) return;
+        shown = i;
+        img.src = CLIP.dir + '/' + String(i).padStart(5, '0') + '.jpg';
+        try {
+          await img.decode();
+        } catch (e) {}
+      }
+
+      // ---------- Render ----------
+      window.render = async t => {
+        const ct = t - INTRO; // clip time
+        // Intro: text first, then the device slides in.
+        const a = ease(seg(t, 0.1, 1.0));
+        text.style.opacity = a;
+        text.style.transform = `translateY(${(1 - a) * 30}px)`;
+        const d = ease(seg(t, 0.9, INTRO));
+        // Zoom: the active segment's zoom eases in and out.
+        let zs = 1,
+          zx = 0.5,
+          zy = 0.5;
+        segs.forEach(s => {
+          if (!s.zoom) return;
+          const k = inOut(seg(ct, s.from, s.from + 0.8)) * (1 - inOut(seg(ct, s.to - 0.8, s.to)));
+          if (k > 0) {
+            zs = 1 + (s.zoom.scale - 1) * k;
+            zx = 0.5 + (s.zoom.x - 0.5) * k;
+            zy = 0.5 + (s.zoom.y - 0.5) * k;
+          }
+        });
+        // Zoom happens inside the screen, so the frame never moves over the text.
+        img.style.transformOrigin = `${zx * 100}% ${zy * 100}%`;
+        img.style.transform = `scale(${zs})`;
+        dw.style.transform = `translateY(${(1 - d) * 80}px) scale(${0.94 + 0.06 * d})`;
+        dw.style.opacity = d;
+
+        // Captions: fade in and out within each segment.
+        segs.forEach((s, i) => {
+          const k = seg(ct, s.from, s.from + 0.45) * (1 - seg(ct, s.to - 0.35, s.to));
+          capEls[i].style.opacity = k;
+          capEls[i].style.transform = `translateY(${(1 - seg(ct, s.from, s.from + 0.45)) * 16}px)`;
+          $('dots').children[i].classList.toggle('on', ct >= s.from && ct < s.to);
+        });
+
+        // End card.
+        const e = ease(seg(t, TOTAL - OUTRO, TOTAL - OUTRO + 0.6));
+        $('end').style.opacity = e;
+        $('end').style.transform = `scale(${1.03 - 0.03 * e})`;
+
+        await showFrame(Math.floor(clamp(ct, 0, CLIP.duration) * CLIP.fps) + 1);
+      };
+      window.render(0);
+    </script>
+  </body>
+</html>

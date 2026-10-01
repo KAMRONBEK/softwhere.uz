@@ -1,0 +1,16 @@
+{
+  "url": "http://localhost:3000",
+  "viewport": "desktop",
+  "colorScheme": "light",
+  "pause": 700,
+  "steps": [
+    { "goto": "/en", "label": "Home", "pause": 1500 },
+    { "screenshot": "01-home" },
+    { "scroll": 900, "pause": 1200 },
+    { "scroll": 900, "pause": 1200 },
+    { "hover": "header >> text=Estimate", "label": "Open the estimator" },
+    { "click": "header >> text=Estimate", "pause": 2000 },
+    { "screenshot": "02-estimator" },
+    { "scroll": 500, "pause": 1500 }
+  ]
+}

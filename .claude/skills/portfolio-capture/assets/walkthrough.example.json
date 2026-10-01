@@ -1,0 +1,29 @@
+{
+  "title": "Online banking app",
+  "category": "Fintech, iOS and Android",
+  "label": "Anonymised. Built by our lead mobile engineer in a previous role; recorded with demo data.",
+  "device": "iphone",
+  "format": "landscape",
+  "theme": "light",
+  "site": "softwhere.app",
+  "clip": "rec/ios/clip.mp4",
+  "clipStart": 1.0,
+  "intro": 2.4,
+  "outro": 3,
+  "redact": [{ "x": 0.06, "y": 0.06, "w": 0.3, "h": 0.05, "from": 0, "to": 12 }],
+  "segments": [
+    { "from": 1.5, "to": 6.5, "caption": "Sign-up with identity checks in under a minute." },
+    {
+      "from": 7.0,
+      "to": 13.0,
+      "caption": "Cards, balances and recent payments on one screen.",
+      "zoom": { "x": 0.5, "y": 0.35, "scale": 1.3 }
+    },
+    {
+      "from": 13.5,
+      "to": 19.0,
+      "caption": "Instant transfers with a clear confirmation step.",
+      "say": "Transfers are instant, with a clear confirmation step."
+    }
+  ]
+}

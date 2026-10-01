@@ -1,0 +1,31 @@
+# Example Maestro flow for a walkthrough recording. Run it with:
+#   record-mobile.sh ios flow.yaml rec/ios
+# Docs: https://docs.maestro.dev
+# Keep the pace human: viewers need a moment on each screen, so add waits.
+appId: com.example.app # the bundle id (iOS) or package name (Android)
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: 'Welcome'
+    timeout: 15000
+- waitForAnimationToEnd
+- takeScreenshot: 01-welcome
+- tapOn: 'Get started'
+- waitForAnimationToEnd
+- tapOn:
+    id: 'phone-input'
+- inputText: '+1 555 0100'
+- tapOn: 'Continue'
+- extendedWaitUntil:
+    visible: 'Home'
+    timeout: 15000
+- swipe:
+    direction: UP
+    duration: 900
+- waitForAnimationToEnd
+- takeScreenshot: 02-home
+- tapOn: 'Book a ride'
+- waitForAnimationToEnd
+- takeScreenshot: 03-booking
+- back

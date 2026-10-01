@@ -9,9 +9,15 @@ Buyers in the US and Europe check what agencies claim. Clutch verifies reviews b
 
 ## Step 1: Which tier is this project?
 
-- **Built by SoftWhere:** a client paid SoftWhere, or it's SoftWhere's own product (for example DriveMe and DriveMe Driver, Talim AI). Full case study allowed.
-- **Our engineers have shipped:** the work was done by a team member while employed or contracted at another company (for example WorkAxle, Truck Me, Swish Sports, HeyAll). Never present the company as SoftWhere's client or use its logo as a client logo. Write it on the person's profile or in a clearly labelled "where our engineers have shipped" section, naming the person's real role ("[Name], lead mobile engineer on the WorkAxle app"). Remind the user to check the person's employment agreement before naming the product or using screenshots.
-- **Not showcased:** interest-based finance and conventional insurance work (for example Netevia, Nestegg, Asia Insurance, ASCON). The founders decided these appear only as past employment in personal bios, not in the portfolio. If the user asks to showcase one, point this out.
+- **Built by SoftWhere:** a client paid SoftWhere, or it's SoftWhere's own product (for example DriveMe and DriveMe Driver, Talim AI). Full case study allowed. If the client is under an NDA, show it only after the client agrees in writing; anonymise it if they ask ("a premium chauffeur service in Tashkent").
+- **Our engineers have shipped:** the work was done by a team member while employed or contracted at another company (for example WorkAxle, Truck Me, Swish Sports, HeyAll). Never present the company as SoftWhere's client or use its logo as a client logo. Two ways to show it:
+  - On the person's profile or in a clearly labelled "where our engineers have shipped" section, naming the person's real role ("[Name], lead mobile engineer on the WorkAxle app").
+  - **Anonymised** (founders' decision, October 2026): a generic name ("Workforce scheduling app"), no logo, colours or real data, only screens that were public, labelled "Anonymised. Built by [Name / our lead engineer] in a previous role." Never run or copy the former employer's code to make these; record the public app with demo data or build a concept demo instead.
+  - Remind the user to check the confidentiality and return-of-materials clauses of the employment agreement first: an NDA can cover screens and features, not just the name.
+- **Concept demo:** for work that was internal, unreleased, or only exists as a former employer's code, SoftWhere rebuilds a demo with new branding, fake data and its own code. Label it "Concept demo"; never imply it shipped to a client.
+- **Interest-based finance and conventional insurance** (for example Netevia, Nestegg, Asia Insurance, ASCON): the founders decided in October 2026 these may appear only as **anonymised skill showcases**. Describe the capability ("secure onboarding and identity checks", "card management", "instant transfers"), not the business model, and never offer this kind of work: the client policy still declines it, and the page must not contradict that. Suggest the founders confirm this with their scholar.
+
+For videos and screenshots of any of these, use the `portfolio-capture` skill.
 
 ## Step 2: Gather the facts
 
