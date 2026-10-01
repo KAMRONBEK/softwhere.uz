@@ -27,6 +27,20 @@ function loadPlaywright() {
   }
 }
 
+// A project's own playwright package can expect a browser build that isn't downloaded;
+// fall back to CHROMIUM or the Chromium preinstalled in Claude Code on the web.
+async function launch(chromium) {
+  if (process.env.CHROMIUM) return chromium.launch({ executablePath: process.env.CHROMIUM });
+  try {
+    return await chromium.launch();
+  } catch (e) {
+    const fs = require('fs');
+    const fallback = '/opt/pw-browsers/chromium';
+    if (fs.existsSync(fallback)) return chromium.launch({ executablePath: fallback });
+    throw e;
+  }
+}
+
 function ffmpegPath() {
   if (process.env.FFMPEG) return process.env.FFMPEG;
   return execSync('python3 -c "import imageio_ffmpeg as f; print(f.get_ffmpeg_exe())"').toString().trim();
@@ -37,7 +51,7 @@ function ffmpegPath() {
   const width = Number(arg('width', 1080));
   const height = Number(arg('height', 1920));
   const { chromium } = loadPlaywright();
-  const browser = await chromium.launch();
+  const browser = await launch(chromium);
   const p = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   const errors = [];
   p.on('pageerror', e => errors.push(e.message));
