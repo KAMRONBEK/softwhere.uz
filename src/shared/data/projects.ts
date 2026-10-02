@@ -4,6 +4,8 @@ import { Project } from '@/shared/types';
 // requires `id` to equal array position + 1. English descriptions come from
 // kamuran.dev (the founder's portfolio); ru/uz for the newer international
 // projects are translations of those originals.
+// Interest-based banking, lending and insurance projects sit at the end
+// (founders' decision, 2026-10-02): shown as regular portfolio items, but last.
 export const projects: Project[] = [
   {
     id: 1,
@@ -34,21 +36,6 @@ export const projects: Project[] = [
   },
   {
     id: 3,
-    name: 'Netevia',
-    description: {
-      uz: "Onlayn-banking mobil ilovasi — hisoblarni boshqarish, to'lovlar va moliyaviy xizmatlar istalgan joyda, bitta ilovada.",
-      ru: 'Мобильное приложение онлайн-банкинга — управление счетами, платежи и финансовые сервисы в одном приложении, где бы вы ни были.',
-      en: 'Online banking mobile application providing seamless digital banking experiences — account management, transactions, and financial services on the go.',
-    },
-    technology: 'React Native / TypeScript / REST APIs / iOS / Android',
-    location: 'USA',
-    type: 'FinTech',
-    playMarket: 'https://play.google.com/store/apps/details?id=com.neteviacard.card',
-    appStore: 'https://apps.apple.com/us/app/netevia/id1625351334',
-    website: 'https://netevia.com/',
-  },
-  {
-    id: 4,
     name: 'Truck Me',
     description: {
       uz: "Yuk mashinalari uchun servis topish ilovasi — yaqin atrofdagi ishonchli ta'mirlash, texnik xizmat va moliyalash yechimlarini tez toping, 24/7 qo'llab-quvvatlash bilan.",
@@ -62,7 +49,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/us/app/truck-me/id6754442584',
   },
   {
-    id: 5,
+    id: 4,
     name: 'VBrato & SwishSportsApp',
     description: {
       uz: 'Real vaqtdagi chat, ilova ichidagi xaridlar va boy media imkoniyatlariga ega krossplatforma sport va ijtimoiy mobil ilovalar.',
@@ -76,7 +63,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/us/app/swish-sports/id1551295361',
   },
   {
-    id: 6,
+    id: 5,
     name: 'HeyAll',
     description: {
       uz: "HeyAll, ikki xil maqsadga xizmat qiluvchi va ularni uzluksiz bog'laydigan ilova. Bir tomondan, bu xostlar uchun o'z tadbirlarini rejalashtirish uchun ilova bo'lsa, boshqa tomondan, bu tadbirlarda ishlaydigan yetkazib beruvchilar uchun dastur.",
@@ -89,7 +76,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/au/app/heyall/id1590498767',
   },
   {
-    id: 7,
+    id: 6,
     name: 'WorkAxle',
     description: {
       uz: "WorkAxle - bu kengaytiriladigan, kelajakka chidamli va tez miqyosda joylashtiriladigan zamonaviy va modulli korporativ ishchi kuchini boshqarish platformasi. Ushbu platforma an'anaviy monolit WFM ilovalari muammosini hal qiladi, shu bilan birga korporativ mijozlar uchun moslashtirilgan yechimni taqdim etadi.",
@@ -104,20 +91,7 @@ export const projects: Project[] = [
     website: 'https://www.workaxle.com/',
   },
   {
-    id: 8,
-    name: 'Asia Insurance',
-    description: {
-      uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug'urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
-      ru: 'Мобильное приложение Asia Insurance помогает владельцам транспортных средств за несколько минут приобрести ОСАГО, страховку для онлайн-путешествий за границу, и это только начало!',
-      en: 'Insurance platform enabling instant OSGO policy purchases and travel insurance for vehicle owners and travelers.',
-    },
-    technology: 'React / Redux / Google Maps / Yandex Maps / iOS / Android',
-    location: 'Uzbekistan',
-    type: 'Insurance',
-    website: 'https://asiainsurance.uz/',
-  },
-  {
-    id: 9,
+    id: 7,
     name: 'EDOCS',
     description: {
       uz: 'E-DOCS (edocs.uz) yuridik ahamiyatga ega boʻlgan elektron hujjat aylanishini taʼminlash boʻyicha dasturiy taʼminot toʻplami elektron shaklda hisob-fakturalarni (yetkazib berish dalolatnomalari, dalolatnomalar va boshqalar) yaratish hamda ularni mijozlar va hamkorlar bilan almashish imkonini beruvchi tizimdir.',
@@ -131,7 +105,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/kz/app/edocs-uz/id6754750404',
   },
   {
-    id: 10,
+    id: 8,
     name: 'Primus mall',
     description: {
       uz: "Primus Mall – bu oddiy onlayn do'kon emas, siz uyingizdan chiqmasdan onlayn xarid qilishingiz mumkin.",
@@ -143,7 +117,7 @@ export const projects: Project[] = [
     type: 'Marketplace',
   },
   {
-    id: 11,
+    id: 9,
     name: 'BDM',
     description: {
       uz: "Biznes dasturlash markazi bo'lib, har bir hujjat BDM tizimi orqali imzolanib, qonuniy kuchga ega bo'ladi.",
@@ -157,47 +131,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/id/app/bdm-uz/id1641747341',
   },
   {
-    id: 12,
-    name: 'ASCON',
-    description: {
-      uz: "ASCON loyihasi doirasida bizning xizmatimizdan foydalanib, sizga tezkor to'lov to'lanadi va zararni olish uchun boshqa holatlar bo'ylab yugurishingiz shart emas.",
-      ru: 'Пользуясь нашим сервисом в рамках проекта ASCON, вы будете быстро оплачены и не должны озабочиваться о возможных убытках.',
-      en: 'Express payment processing app — receive damages payments quickly without running around government instances.',
-    },
-    technology: 'React Native / Redux Saga / Google Maps API / iOS / Android',
-    location: 'Uzbekistan',
-    type: 'InsurTech',
-    playMarket: 'https://play.google.com/store/apps/details?id=uz.sos.ascon',
-    appStore: 'https://apps.apple.com/uz/app/ascon/id1613704743',
-  },
-  {
-    id: 13,
-    name: 'Nestegg.ai',
-    description: {
-      uz: "NestEgg sizga Buyuk Britaniyaning mas'ul kreditorlaridan ishonchli kreditlarni topishga, ariza topshirishga va ularni qabul qilishga yordam beradi. Platforma mas'ul kreditorlarga kredit arizalarini yuboradi va ular o'zlari va mijozlari uchun yaxshiroq kredit qarorlarini qabul qilishlari uchun kredit qarorlarini qabul qilish xizmatlarini taqdim etadi.",
-      ru: 'NestEgg помогает находить надежные кредиты у британских ответственных кредиторов, подавать заявки и получать одобрение. Платформа отправляет кредитные заявки ответственным кредиторам, чтобы они могли принимать лучшие кредитные решения для себя и своих клиентов.',
-      en: 'UK fintech platform matching borrowers with responsible lenders using credit, banking, and alternative data analysis.',
-    },
-    technology: 'React / Redux / TypeScript',
-    location: 'United Kingdom',
-    type: 'FinTech',
-    website: 'https://nestegg.ai/',
-  },
-  {
-    id: 14,
-    name: 'Nestegg Loan',
-    description: {
-      uz: "NestEgg platformasi mas'ul kreditorlar tomonidan taqdim etilgan kredit mahsulotlari bilan qulay kredit izlayotganlarga mos keladi. Ariza beruvchilar to'g'ri kreditordan to'g'ri kreditni topadilar va qabul qilinish imkoniyatlarini tekshiradilar.",
-      ru: 'Платформа NestEgg предлагает удобные кредитные продукты от ответственных кредиторов тем, кто ищет кредит. Заявители находят правильный кредит от правильного кредитора и проверяют шансы на одобрение.',
-      en: 'Loan matching platform — find the right loan from the right lender, check acceptance odds, and get tips on how to qualify.',
-    },
-    technology: 'React / Redux / TypeScript',
-    location: 'United Kingdom',
-    type: 'FinTech',
-    website: 'https://loans.nestegg.ai/',
-  },
-  {
-    id: 15,
+    id: 10,
     name: 'Align 360',
     description: {
       uz: "Align 360 qurilish va ta'mirlash guruhlari uchun mo'ljallangan. Ilova vazifalar menejeri, tahliliy vosita va jamoalar ichida muloqot qilish uchun messenjerni birlashtiradi.",
@@ -209,7 +143,7 @@ export const projects: Project[] = [
     type: 'Construction',
   },
   {
-    id: 16,
+    id: 11,
     name: 'NAFT',
     description: {
       uz: "Agar sizga zudlik bilan ish kerak bo'lsa yoki aksincha, mutaxassis, u holda Naft aynan sizga kerak bo'lgan narsadir. Bizning ilovamiz tez va qulay nomzodlar va takliflar manbai bo'lib, har bir foydalanuvchi o'ziga keraklisini topa oladi.",
@@ -221,7 +155,7 @@ export const projects: Project[] = [
     type: 'Job marketplace',
   },
   {
-    id: 17,
+    id: 12,
     name: 'DriveMe Driver',
     description: {
       uz: "DriveMe premium platformasi haydovchilari uchun ilova — buyurtmalarni qabul qiling, marshrut va yo'lovchi ma'lumotlarini ko'ring, safarlarni qulay interfeys orqali boshqaring.",
@@ -235,7 +169,7 @@ export const projects: Project[] = [
     appStore: 'https://apps.apple.com/uz/app/driveme-driver/id6757392657',
   },
   {
-    id: 18,
+    id: 13,
     name: 'BrainWake',
     description: {
       uz: "Ta'limiy budilnik ilovasi — har kuni ertalab so'z boyligi, umumiy bilim va matematika mashqlari bilan miyangizni uyg'otadi. Mobil va veb versiyalari mavjud.",
@@ -247,7 +181,7 @@ export const projects: Project[] = [
     type: 'Education',
   },
   {
-    id: 19,
+    id: 14,
     name: 'Nexus',
     description: {
       uz: 'Kripto-portfel platformasi — 200+ raqamli aktivlar, tematik portfellar va blokcheyn hamyon integratsiyasi bilan.',
@@ -260,7 +194,7 @@ export const projects: Project[] = [
     website: 'https://www.projectnexus.app/',
   },
   {
-    id: 20,
+    id: 15,
     name: 'Snap Taxi',
     description: {
       uz: 'Taksi va kuryerlik yetkazib berish ilovasi — manzilingizni kiriting, kuryer buyumingizni olib, eshikkacha yetkazib beradi.',
@@ -272,7 +206,7 @@ export const projects: Project[] = [
     type: 'Transport & Delivery',
   },
   {
-    id: 21,
+    id: 16,
     name: 'Seyf Bazar',
     description: {
       uz: "Toshkentdagi yirik onlayn do'kon — elektronika, maishiy texnika, smartfonlar va gadjetlar, O'zbekiston bo'ylab yetkazib berish bilan.",
@@ -284,7 +218,7 @@ export const projects: Project[] = [
     type: 'E-commerce',
   },
   {
-    id: 22,
+    id: 17,
     name: 'Bozorlik',
     description: {
       uz: 'Uydan chiqmasdan bozor narxlarida mahsulot sotib olish uchun onlayn bozor — mahsulotlarni kuzating va mobil orqali oson xarid qiling.',
@@ -296,7 +230,7 @@ export const projects: Project[] = [
     type: 'Marketplace',
   },
   {
-    id: 23,
+    id: 18,
     name: 'MyDesign',
     description: {
       uz: "Moda dizayni ilovasi — foydalanuvchilar kiyim andozalarini tanlab, ranglar va mato naqshlarini qo'shib, o'ziga xos ko'rinish yaratadilar. O'z naqshlaringizni yuklash ham mumkin.",
@@ -308,7 +242,7 @@ export const projects: Project[] = [
     type: 'Fashion & Design',
   },
   {
-    id: 24,
+    id: 19,
     name: 'Avtogen.uz',
     description: {
       uz: "O'zbekiston bo'ylab avtomoykalarni qidirish va navbatga yozilish — yaqin atrofdagi joylarni toping va o'rningizni bir zumda band qiling.",
@@ -318,5 +252,73 @@ export const projects: Project[] = [
     technology: 'React Native / Google Maps / Redux',
     location: 'Uzbekistan',
     type: 'Services',
+  },
+  {
+    id: 20,
+    name: 'Netevia',
+    description: {
+      uz: "Onlayn-banking mobil ilovasi — hisoblarni boshqarish, to'lovlar va moliyaviy xizmatlar istalgan joyda, bitta ilovada.",
+      ru: 'Мобильное приложение онлайн-банкинга — управление счетами, платежи и финансовые сервисы в одном приложении, где бы вы ни были.',
+      en: 'Online banking mobile application providing seamless digital banking experiences — account management, transactions, and financial services on the go.',
+    },
+    technology: 'React Native / TypeScript / REST APIs / iOS / Android',
+    location: 'USA',
+    type: 'FinTech',
+    playMarket: 'https://play.google.com/store/apps/details?id=com.neteviacard.card',
+    appStore: 'https://apps.apple.com/us/app/netevia/id1625351334',
+    website: 'https://netevia.com/',
+  },
+  {
+    id: 21,
+    name: 'Nestegg.ai',
+    description: {
+      uz: "NestEgg sizga Buyuk Britaniyaning mas'ul kreditorlaridan ishonchli kreditlarni topishga, ariza topshirishga va ularni qabul qilishga yordam beradi. Platforma mas'ul kreditorlarga kredit arizalarini yuboradi va ular o'zlari va mijozlari uchun yaxshiroq kredit qarorlarini qabul qilishlari uchun kredit qarorlarini qabul qilish xizmatlarini taqdim etadi.",
+      ru: 'NestEgg помогает находить надежные кредиты у британских ответственных кредиторов, подавать заявки и получать одобрение. Платформа отправляет кредитные заявки ответственным кредиторам, чтобы они могли принимать лучшие кредитные решения для себя и своих клиентов.',
+      en: 'UK fintech platform matching borrowers with responsible lenders using credit, banking, and alternative data analysis.',
+    },
+    technology: 'React / Redux / TypeScript',
+    location: 'United Kingdom',
+    type: 'FinTech',
+    website: 'https://nestegg.ai/',
+  },
+  {
+    id: 22,
+    name: 'Nestegg Loan',
+    description: {
+      uz: "NestEgg platformasi mas'ul kreditorlar tomonidan taqdim etilgan kredit mahsulotlari bilan qulay kredit izlayotganlarga mos keladi. Ariza beruvchilar to'g'ri kreditordan to'g'ri kreditni topadilar va qabul qilinish imkoniyatlarini tekshiradilar.",
+      ru: 'Платформа NestEgg предлагает удобные кредитные продукты от ответственных кредиторов тем, кто ищет кредит. Заявители находят правильный кредит от правильного кредитора и проверяют шансы на одобрение.',
+      en: 'Loan matching platform — find the right loan from the right lender, check acceptance odds, and get tips on how to qualify.',
+    },
+    technology: 'React / Redux / TypeScript',
+    location: 'United Kingdom',
+    type: 'FinTech',
+    website: 'https://loans.nestegg.ai/',
+  },
+  {
+    id: 23,
+    name: 'Asia Insurance',
+    description: {
+      uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug'urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
+      ru: 'Мобильное приложение Asia Insurance помогает владельцам транспортных средств за несколько минут приобрести ОСАГО, страховку для онлайн-путешествий за границу, и это только начало!',
+      en: 'Insurance platform enabling instant OSGO policy purchases and travel insurance for vehicle owners and travelers.',
+    },
+    technology: 'React / Redux / Google Maps / Yandex Maps / iOS / Android',
+    location: 'Uzbekistan',
+    type: 'Insurance',
+    website: 'https://asiainsurance.uz/',
+  },
+  {
+    id: 24,
+    name: 'ASCON',
+    description: {
+      uz: "ASCON loyihasi doirasida bizning xizmatimizdan foydalanib, sizga tezkor to'lov to'lanadi va zararni olish uchun boshqa holatlar bo'ylab yugurishingiz shart emas.",
+      ru: 'Пользуясь нашим сервисом в рамках проекта ASCON, вы будете быстро оплачены и не должны озабочиваться о возможных убытках.',
+      en: 'Express payment processing app — receive damages payments quickly without running around government instances.',
+    },
+    technology: 'React Native / Redux Saga / Google Maps API / iOS / Android',
+    location: 'Uzbekistan',
+    type: 'InsurTech',
+    playMarket: 'https://play.google.com/store/apps/details?id=uz.sos.ascon',
+    appStore: 'https://apps.apple.com/uz/app/ascon/id1613704743',
   },
 ];

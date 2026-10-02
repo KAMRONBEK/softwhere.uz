@@ -7,23 +7,26 @@ description: Make portfolio media for SoftWhere's projects — scripted screen r
 
 Turns a project's code into portfolio media: a recorded walkthrough (the real app, driven by a script), framed in a phone or browser, with captions and an optional voiceover, plus framed stills. Everything here is free: Playwright, Maestro, ffmpeg and the Kokoro voice.
 
-## Step 1: May we show it?
+## Step 1: May we show it, and how is it credited?
 
-Check this before running anything. Which group is the project in? `references/inventory.md` has a draft list; ask the user when a project isn't there or is marked "confirm".
+The founders decided on 2 October 2026:
 
-| Group                                                              | What we may show                                                                                                                                                        | Label on the video and card                                                                       |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| **A. Built by SoftWhere** (agency client or own product)           | The real app. Under an NDA: only after the client agrees in writing; anonymise if they ask.                                                                             | "Built by SoftWhere" (or "Client under NDA, shown with permission")                               |
-| **B. Built by our engineers at a previous company, and public**    | Only screens that were publicly available (App Store, Play Store, public website). Replace the name, logo, colours and all data. Never present the company as a client. | "Anonymised. Built by [Name / our lead engineer] in a previous role."                             |
-| **C. Internal, unreleased, or only available as an ex-employer's code** | Nothing from the original. Build a fresh **concept demo** with new branding, fake data and our own code, showing the same kind of features.                       | "Concept demo"                                                                                    |
+- **Every project in the portfolio is shown by name**, with the real app, icon and screens. They confirmed there are no NDA issues with the projects in `references/inventory.md`. They will add more projects; for a project that isn't in the list, ask the user before recording.
+- **Interest-based banking, lending and insurance projects** (Netevia, Nestegg.ai, Nestegg Loan, Asia Insurance, ASCON) are shown like any other project but **always last**: last on the site, in proposals and in reels, and recorded last. The client policy still says we don't take this kind of work, so describe what was built and never offer it as a service.
 
-Rules for every group:
+Rules for every project:
 
-- **Never run or copy an ex-employer's source code** to make SoftWhere marketing. For group B, record the public app from the store with demo data, or rebuild it as a concept demo (group C).
+- **Credit it honestly.** Say who built it and in what role. For an app a team member built while working at another company, the label says so ("Built by [Name] at WorkAxle"), not that the company was SoftWhere's client; buyers call references. Wording comes from the `case-study-writer` skill.
 - **No real customer data on screen, ever.** Use a demo account and fake data; blur anything else (`redact` boxes below).
 - **Honest dates.** "Recorded with demo data, [month year]". If the app is no longer live, don't imply it is.
-- **Non-halal projects** (interest-based banking, lending, conventional insurance): the founders decided (October 2026) these may appear only as **anonymised skill showcases**. Name the capability ("secure onboarding and identity checks", "card management", "instant transfers"), not the business model, and never as an offer. The site's client policy still says we don't take this work; keep the two consistent.
-- Wording for case studies and cards comes from the `case-study-writer` skill.
+- **Anonymise only when asked** (by a client or a former employer): a generic name, the logo blurred with `redact`, a neutral `url`.
+- **Concept demo** only when the original can't be run any more (code lost, backend gone and too costly to mock): rebuild the same kind of features with fake data and label it "Concept demo".
+
+| Who built it | Label on the video and card |
+| --- | --- |
+| SoftWhere (agency client or own product) | "Built by SoftWhere" |
+| A team member at another company | "Built by [Name] at [Company]" |
+| Rebuilt because the original can't run | "Concept demo" |
 
 ## Step 2: Where it runs
 
@@ -67,7 +70,7 @@ Write a `walkthrough.json` next to the recording (see `assets/walkthrough.exampl
 
 | Field                                | Meaning                                                                                                     |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `title`, `category`, `label`         | Big title (a generic name for anonymised work), the category line, the honesty label from Step 1            |
+| `title`, `category`, `label`         | Big title (the project name; a generic one only when anonymising on request), the category line, the label from Step 1 |
 | `device`                             | `iphone`, `android` or `browser` (`url` sets the address bar text; use a neutral one when anonymising)      |
 | `island`                             | `false` hides the iPhone camera cutout (needed for mobile-web recordings, which have no status bar)         |
 | `format`, `theme`                    | `landscape` (1920×1080, case-study pages) or `vertical` (1080×1920, cards and social); `light` or `dark`   |

@@ -1,32 +1,36 @@
-# Portfolio inventory (draft, October 2026)
+# Portfolio inventory (October 2026)
 
-From `src/shared/data/projects.ts` and the founders' notes so far. **Confirm every row marked "confirm"** before recording: which group it is in (see SKILL.md, Step 1), and whether an NDA or employment agreement applies. Update this file as projects are captured.
+From `src/shared/data/projects.ts`. **The founders decided on 2 October 2026 that every project here is shown by name; there are no NDA issues with this list.** They will add more projects: add a row for each, and ask before recording one that isn't listed.
 
-| Project                 | What it is                    | Platforms           | Public link           | Group (draft)                               | Halal note             | Show as                                                    | Next step                                   |
-| ----------------------- | ----------------------------- | ------------------- | --------------------- | ------------------------------------------- | ---------------------- | ---------------------------------------------------------- | ------------------------------------------- |
-| Talim AI                | AI self-learning platform     | Web                 | talim-ai.uz           | A (SoftWhere product)                       |                        | Talim AI                                                   | Record web walkthrough                      |
-| DriveMe                 | Premium chauffeur app         | iOS, Android        | App Store, Play       | A (agency)                                  |                        | DriveMe (check client OK if under NDA)                     | Record with demo mode                       |
-| DriveMe Driver          | Driver app for DriveMe        | iOS, Android        | App Store, Play       | A (agency)                                  |                        | DriveMe Driver                                             | Record with demo mode                       |
-| Netevia                 | Online banking                | iOS, Android        | App Store, Play       | B (previous employer)                       | Interest-based banking | "Online banking app", anonymised skill showcase            | Public screens only, or concept demo        |
-| Truck Me                | Trucking services             | iOS, Android        | App Store, Play       | B (previous employer)                       |                        | "Trucking services app", anonymised                        | Public screens only                         |
-| VBrato & SwishSportsApp | Sports social apps            | iOS, Android        | App Store, Play       | B (previous employer)                       |                        | "Sports community app", anonymised                         | Public screens only                         |
-| HeyAll                  | Event planning                | iOS                 | App Store             | B (previous employer)                       |                        | "Event planning app", anonymised                           | Public screens only                         |
-| WorkAxle                | Workforce management          | iOS, Android        | App Store, Play       | B (previous employer)                       |                        | "Workforce scheduling app", anonymised                     | Public screens only                         |
-| Asia Insurance          | Insurance                     | Web, mobile         | asiainsurance.uz      | confirm (B or C)                            | Conventional insurance | "Insurance self-service app", anonymised skill showcase    | Confirm group                               |
-| ASCON                   | Insurtech                     | iOS, Android        | App Store, Play       | confirm (B?)                                | Conventional insurance | "Insurance app", anonymised skill showcase                 | Confirm group                               |
-| Nestegg.ai              | UK fintech                    | Web                 | nestegg.ai            | B (previous employer)                       | Lending                | "Personal finance web app", anonymised skill showcase      | Public screens only, or concept demo        |
-| Nestegg Loan            | UK lending                    | Web                 | loans.nestegg.ai      | B (previous employer)                       | Lending                | "Loan application flow", anonymised skill showcase         | Public screens only, or concept demo        |
-| EDOCS                   | E-documents                   | iOS, Android        | App Store, Play       | confirm                                     |                        |                                                            | Confirm group                               |
-| BDM                     | Document signing              | iOS, Android        | App Store, Play       | confirm                                     |                        |                                                            | Confirm group                               |
-| Primus mall             | Marketplace                   | iOS, Android        | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| Align 360               | Construction                  | iOS, Android        | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| NAFT                    | Job marketplace               | iOS, Android        | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| BrainWake               | Education                     | iOS, Android, Web   | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| Nexus                   | Fintech                       | Web                 | projectnexus.app      | confirm                                     | Check the model        |                                                            | Confirm group and halal fit                 |
-| Snap Taxi               | Taxi and delivery             | iOS, Android        | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| Seyf Bazar              | E-commerce                    | iOS, Android        | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| Bozorlik                | Marketplace                   | Android             | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| MyDesign                | Fashion and design            | Android             | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
-| Avtogen.uz              | Car services                  | Mobile              | none                  | confirm (C if unreleased)                   |                        |                                                            | Confirm group                               |
+Interest-based banking, lending and insurance projects are shown like any other project but always last (rows 20–24, which match their position on the site). Record them last too.
 
-Suggested order: the three group A projects first (they make the best case studies and need no permission questions), then two or three group B public apps, then concept demos for the strongest group C ideas.
+"Who built it" decides the credit line (see SKILL.md, Step 1). Fill in the rows marked "[to fill]" before writing a case study. Update this file as projects are captured.
+
+| # on site | Project | What it is | Platforms | Public link | Who built it | Next step |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Talim AI | AI self-learning platform | Web | talim-ai.uz | SoftWhere (own product) | **Record first** (web; can run in any session) |
+| 2 | DriveMe | Premium chauffeur app | iOS, Android | App Store, Play | SoftWhere | **Record first** (Mac) |
+| 3 | Truck Me | Trucking services | iOS, Android | App Store, Play | Team member at the company | Record (Mac) |
+| 4 | VBrato & SwishSportsApp | Sports social apps | iOS, Android | App Store, Play | Team member at the company | Record (Mac) |
+| 5 | HeyAll | Event planning | iOS | App Store | Team member at the company | Record (Mac) |
+| 6 | WorkAxle | Workforce management | iOS, Android | App Store, Play | Team member at the company | Record (Mac) |
+| 7 | EDOCS | E-documents | iOS, Android | App Store, Play | [to fill] | Record (Mac) |
+| 8 | Primus mall | Marketplace | iOS, Android | none | [to fill] | Record (Mac), demo data |
+| 9 | BDM | Document signing | iOS, Android | App Store, Play | [to fill] | Record (Mac) |
+| 10 | Align 360 | Construction | iOS, Android | none | [to fill] | Record (Mac), demo data |
+| 11 | NAFT | Job marketplace | iOS, Android | none | [to fill] | Record (Mac), demo data |
+| 12 | DriveMe Driver | Driver app for DriveMe | iOS, Android | App Store, Play | SoftWhere | Record with DriveMe (Mac) |
+| 13 | BrainWake | Education | iOS, Android, Web | none | [to fill] | Record, demo data |
+| 14 | Nexus | Crypto portfolio platform | Web | projectnexus.app | [to fill] | Record (web) |
+| 15 | Snap Taxi | Taxi and delivery | iOS, Android | none | [to fill] | Record (Mac), demo data |
+| 16 | Seyf Bazar | E-commerce | iOS, Android | none | [to fill] | Record (Mac), demo data |
+| 17 | Bozorlik | Marketplace | Android | none | [to fill] | Record (Mac), demo data |
+| 18 | MyDesign | Fashion and design | Android | none | [to fill] | Record (Mac), demo data |
+| 19 | Avtogen.uz | Car services | Mobile | none | [to fill] | Record (Mac), demo data |
+| 20 | Netevia | Online banking | iOS, Android | App Store, Play | Team member at the company | Record last (Mac) |
+| 21 | Nestegg.ai | UK personal finance | Web | nestegg.ai | Team member at the company | Record last (web) |
+| 22 | Nestegg Loan | UK lending | Web | loans.nestegg.ai | Team member at the company | Record last (web) |
+| 23 | Asia Insurance | Insurance | Web, mobile | asiainsurance.uz | [to fill] | Record last |
+| 24 | ASCON | Insurtech | iOS, Android | App Store, Play | [to fill] | Record last (Mac) |
+
+Suggested order: Talim AI first (a website, so any session can record it), then DriveMe and DriveMe Driver on the Mac, then the other public apps, then the unreleased ones with demo data, and the banking and insurance projects last.

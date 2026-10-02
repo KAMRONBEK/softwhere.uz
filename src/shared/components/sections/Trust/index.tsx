@@ -2,7 +2,8 @@ import { getTranslations } from 'next-intl/server';
 import css from './style.module.css';
 
 // Client names for the trust marquee (proper nouns — same across locales).
-const NAMES = ['Primus Mall', 'EDOCS', 'HeyAll', 'Align 360', 'Asia Insurance', 'Nestegg.ai', 'WorkAxle', 'NAFT', 'BDM', 'ASCON'];
+// Lending and insurance names go last (founders' decision, 2026-10-02).
+const NAMES = ['Primus Mall', 'EDOCS', 'HeyAll', 'Align 360', 'WorkAxle', 'NAFT', 'BDM', 'Nestegg.ai', 'Asia Insurance', 'ASCON'];
 
 export default async function Trust() {
   const t = await getTranslations('trust');

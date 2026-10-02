@@ -28,7 +28,7 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 | [06-growth-and-trust.md](./06-growth-and-trust.md)           | Clutch reviews, real people, time-zone widget, trust page; two free tools worth building; safe comparison pages; PostHog set up properly; a founder newsletter                                                                |
 | [07-own-server.md](./07-own-server.md)                       | Which server (netcup RS 1000 G12.5, or OVH VPS-1), a checklist so nothing Vercel does today is lost, the Neon ownership check, background jobs (pg-boss), Coolify, Cloudflare in front, small self-hosted tools               |
 | [08-instagram-assistant.md](./08-instagram-assistant.md)     | Claude on SoftWhere's Instagram through Meta's official API: a draft-then-auto DM assistant with human takeover, comment-to-DM funnels, and a human-approved queue that publishes reels, posts and stories on schedule        |
-| [09-portfolio-media.md](./09-portfolio-media.md)             | **Tool built.** Walkthrough videos and framed screenshots of past projects, made on the Mac with the `portfolio-capture` skill; the rules for NDA, employee-era and non-halal projects                                        |
+| [09-portfolio-media.md](./09-portfolio-media.md)             | **Tool built.** Walkthrough videos and framed screenshots of past projects, made with the `portfolio-capture` skill; every project shown by name with an honest credit, banking and insurance last                            |
 | [10-analytics.md](./10-analytics.md)                         | PostHog Cloud EU (free to 1M events a month) plus Cloudflare Web Analytics to replace Vercel Analytics and Speed Insights, countries included; the one-file switch in `analytics.ts`                                          |
 | [11-secrets-doppler.md](./11-secrets-doppler.md)             | All environment variables in Doppler (free for 3 users): moving them out of Vercel, and how local dev, the server, GitHub Actions and Claude sessions read them                                                               |
 
@@ -51,7 +51,7 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 4. **Blog:** add Claude to `src/core/ai.ts`, run the Uzbek and Russian blind test, add real author bylines, and stop generating posts with no founder input ([02](./02-blog-engine.md)).
 5. **After the 2026-10-03 SEO gate:** rewrite pilot on the 3–5 posts with the most impressions, keeping slugs ([02](./02-blog-engine.md)).
 
-**Alongside, on the Mac:** confirm the portfolio project groups, then capture Talim AI and DriveMe with the `portfolio-capture` skill ([09](./09-portfolio-media.md)).
+**Alongside:** portfolio videos with the `portfolio-capture` skill, starting with Talim AI, then DriveMe on the Mac; banking and insurance projects last ([09](./09-portfolio-media.md)).
 
 ### The move itself (October)
 
@@ -104,7 +104,7 @@ The larger cost is people's time: about an hour per blog post, a weekly look at 
 
 ## Guardrails that apply to every idea
 
-- **Honesty:** no invented numbers, clients or reviews. Employee-era work is "where our engineers have shipped" or an anonymised, labelled showcase, never "our client"; never run a former employer's code (the `case-study-writer` skill, [09](./09-portfolio-media.md)).
+- **Honesty:** no invented numbers, clients or reviews. Every portfolio project is shown by name, credited to whoever built it; work done at another company is never called "our client". Banking, lending and insurance projects come last (the `case-study-writer` skill, [09](./09-portfolio-media.md)).
 - **Halal policy:** the work we take and don't take (the `client-screening` skill); no interest in any payment terms; religious questions go to the founders' scholar.
 - **The repo's golden rules** (`CLAUDE.md`):
   - Database access only through repositories.
