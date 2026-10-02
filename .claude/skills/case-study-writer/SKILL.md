@@ -7,15 +7,18 @@ description: Turn a SoftWhere project into an honest case study, portfolio card,
 
 Buyers in the US and Europe check what agencies claim. Clutch verifies reviews by phone and buyers call references, so every case study must be true and checkable. A modest true story beats an impressive one that falls apart on a reference call.
 
-## Step 1: Which tier is this project?
+## Step 1: Who built it, and where does it go?
 
-- **Built by SoftWhere:** a client paid SoftWhere, or it's SoftWhere's own product (for example DriveMe and DriveMe Driver, Talim AI). Full case study allowed. If the client is under an NDA, show it only after the client agrees in writing; anonymise it if they ask ("a premium chauffeur service in Tashkent").
-- **Our engineers have shipped:** the work was done by a team member while employed or contracted at another company (for example WorkAxle, Truck Me, Swish Sports, HeyAll). Never present the company as SoftWhere's client or use its logo as a client logo. Two ways to show it:
-  - On the person's profile or in a clearly labelled "where our engineers have shipped" section, naming the person's real role ("[Name], lead mobile engineer on the WorkAxle app").
-  - **Anonymised** (founders' decision, October 2026): a generic name ("Workforce scheduling app"), no logo, colours or real data, only screens that were public, labelled "Anonymised. Built by [Name / our lead engineer] in a previous role." Never run or copy the former employer's code to make these; record the public app with demo data or build a concept demo instead.
-  - Remind the user to check the confidentiality and return-of-materials clauses of the employment agreement first: an NDA can cover screens and features, not just the name.
-- **Concept demo:** for work that was internal, unreleased, or only exists as a former employer's code, SoftWhere rebuilds a demo with new branding, fake data and its own code. Label it "Concept demo"; never imply it shipped to a client.
-- **Interest-based finance and conventional insurance** (for example Netevia, Nestegg, Asia Insurance, ASCON): the founders decided in October 2026 these may appear only as **anonymised skill showcases**. Describe the capability ("secure onboarding and identity checks", "card management", "instant transfers"), not the business model, and never offer this kind of work: the client policy still declines it, and the page must not contradict that. Suggest the founders confirm this with their scholar.
+The founders decided on 2 October 2026 that **every project in the portfolio may be shown by name**; they confirmed there are no NDA issues with the current list. For a new project, ask whether it may be shown.
+
+**Interest-based banking, lending and insurance projects** (Netevia, Nestegg.ai, Nestegg Loan, Asia Insurance, ASCON) are shown as regular projects but **always last**: after every other project on a page, in a list, a proposal or a deck. Never present this kind of work as a service we offer; the client policy still declines it.
+
+Credit each project by who built it:
+
+- **Built by SoftWhere:** a client paid SoftWhere, or it's SoftWhere's own product (for example DriveMe and DriveMe Driver, Talim AI). Full case study.
+- **Built by a team member while working at another company** (for example WorkAxle, Truck Me, Swish Sports, HeyAll, Netevia, Nestegg): show it, and say whose work it was and in what role ("[Name], lead mobile engineer, built the WorkAxle app"). Don't call the company SoftWhere's client, use it as a reference, or put its logo in a "clients" strip: buyers call references and Clutch verifies reviews, so one false claim can cost the deal.
+- **Concept demo:** when the original can't be run or shown any more, SoftWhere rebuilds the same kind of features with new branding and fake data. Label it "Concept demo"; never imply it shipped to a client.
+- **Anonymise only when someone asks** (a client or a former employer): a generic name ("Workforce scheduling app"), no logo or real data.
 
 For videos and screenshots of any of these, use the `portfolio-capture` skill.
 
@@ -44,7 +47,7 @@ Ask for whatever is missing. Never invent a number, a quote, a client name or a 
 7. Quote
 8. Stack and links
 
-**Portfolio card:** headline, one sentence of outcome, tier label, two or three stack tags. About 40 words.
+**Portfolio card:** headline, one sentence of outcome, the credit line from Step 1, two or three stack tags. About 40 words.
 
 **Clutch portfolio entry:** title, one paragraph of challenge and solution, one paragraph of results.
 
