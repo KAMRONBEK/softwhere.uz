@@ -75,7 +75,7 @@ One admin page with this week's numbers, so the founders don't open five tools: 
 - Warm up the new domain slowly: 10–20 emails a day to people who expect them, rising over 4–6 weeks.
 - Add one-click unsubscribe (RFC 8058) to anything that isn't a direct reply. Gmail, Yahoo and Microsoft require it for bulk senders, and it helps reputation even at low volume.
 - Skip BIMI (the logo in the inbox) until DMARC is at `reject`. Outlook doesn't show it, and the certificate costs hundreds of dollars a year.
-- Never send email from the Hetzner server itself. Use a provider.
+- Never send email from our own server itself. Use a provider.
 
 ## Legal notes (not legal advice)
 
