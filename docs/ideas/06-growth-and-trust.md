@@ -44,7 +44,7 @@ Google's scaled-content-abuse policy (since March 2024, reinforced in 2025 and 2
 
 ## 4. Measure what matters: PostHog
 
-The estimator's events aren't being recorded at all today: Vercel Web Analytics custom events aren't available on the Hobby plan (`docs/seo-measurement-2026-09.md`). The Global Playbook already picked **PostHog Cloud EU**. Set it up like this:
+The estimator's events aren't being recorded at all today: Vercel Web Analytics custom events aren't available on the Hobby plan (`docs/seo-measurement-2026-09.md`). The Global Playbook already picked **PostHog Cloud EU**. The technical setup (free-tier limits, the `/ingest` proxy, the one-file switch, and replacing Vercel Analytics and Speed Insights) is in [10-analytics.md](./10-analytics.md). What to measure:
 
 - **Cookieless mode by default** for page views and funnels. It needs no consent banner, but it turns off session replay, surveys and identifying users.
 - **Consent-based extras:** session replay and surveys only after the visitor agrees. Record replay only on the estimator and contact pages, where it answers "where do people give up?"

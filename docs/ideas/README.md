@@ -1,6 +1,8 @@
 # Ideas for the site
 
-> **These are proposals, not current behavior.** Everywhere else in `docs/`, a doc describes what the code does today. This folder is the exception: it keeps researched ideas for later. Written 2026-09-24, from web research and a read of the current code. When an idea gets built, document it in the normal docs and mark it "built" here.
+> **These are proposals, not current behavior.** Everywhere else in `docs/`, a doc describes what the code does today. This folder is the exception: it keeps researched ideas for later. Written 2026-09-24, from web research and a read of the current code; updated 2026-10-01. When an idea gets built, document it in the normal docs and mark it "built" here.
+
+**Starting a new session on this work?** Read this file first, then the file for the task. The site decisions and research from the founders' sessions with Claude up to 2026-10-01 are in these files. The business strategy (positioning, prices, client policy, company setup) is in the Global Playbook, which lives outside the repo; ask the founders for it.
 
 ## The honest starting point
 
@@ -24,18 +26,38 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 | [04-project-rooms.md](./04-project-rooms.md)                 | The "dashboard for potential clients": a private page that is the proposal, then the project dashboard, then the monthly app health report                                                                                    |
 | [05-ai-assistant.md](./05-ai-assistant.md)                   | A narrow, grounded site assistant (start with a cached knowledge pack, add RAG later) and an AI scoping assistant that turns an idea into a brief                                                                             |
 | [06-growth-and-trust.md](./06-growth-and-trust.md)           | Clutch reviews, real people, time-zone widget, trust page; two free tools worth building; safe comparison pages; PostHog set up properly; a founder newsletter                                                                |
-| [07-own-server.md](./07-own-server.md)                       | What the Hetzner server enables: background jobs (pg-boss), Coolify, Cloudflare in front, small self-hosted tools, and what never to self-host                                                                                |
+| [07-own-server.md](./07-own-server.md)                       | Which server (netcup RS 1000 G12.5, or OVH VPS-1), a checklist so nothing Vercel does today is lost, the Neon ownership check, background jobs (pg-boss), Coolify, Cloudflare in front, small self-hosted tools               |
 | [08-instagram-assistant.md](./08-instagram-assistant.md)     | Claude on SoftWhere's Instagram through Meta's official API: a draft-then-auto DM assistant with human takeover, comment-to-DM funnels, and a human-approved queue that publishes reels, posts and stories on schedule        |
+| [09-portfolio-media.md](./09-portfolio-media.md)             | **Tool built.** Walkthrough videos and framed screenshots of past projects, made on the Mac with the `portfolio-capture` skill; the rules for NDA, employee-era and non-halal projects                                        |
+| [10-analytics.md](./10-analytics.md)                         | PostHog Cloud EU (free to 1M events a month) plus Cloudflare Web Analytics to replace Vercel Analytics and Speed Insights, countries included; the one-file switch in `analytics.ts`                                          |
+| [11-secrets-doppler.md](./11-secrets-doppler.md)             | All environment variables in Doppler (free for 3 users): moving them out of Vercel, and how local dev, the server, GitHub Actions and Claude sessions read them                                                               |
 
 ## Recommended order
 
 ### Now: works on the current setup (next 2–4 weeks)
 
+**First code batch from the Global Playbook (not started):**
+
+- Switch the softwhere.app redirect in `next.config.mjs` from permanent (308) to temporary (307), so the domain stays free for the English site.
+- CI that runs type-check, lint and build on every pull request.
+- Security headers.
+- PostHog and the email field (items 1 and 2 below).
+
+**The ideas, in order:**
+
 1. **Email on both forms**, a "what do you need?" question, a thank-you page with a booking link, and Turnstile ([01](./01-leads-inbox-and-email.md)).
-2. **PostHog in cookieless mode** with the estimator funnel, so the next decisions use real numbers ([06](./06-growth-and-trust.md)).
+2. **PostHog in cookieless mode** with the estimator funnel, so the next decisions use real numbers, running next to Vercel Analytics until the move ([06](./06-growth-and-trust.md), [10](./10-analytics.md)).
 3. **Trust basics:** Clutch profile and the first two reviews, a team page with real people, the time-zone line, a trust page ([06](./06-growth-and-trust.md)).
 4. **Blog:** add Claude to `src/core/ai.ts`, run the Uzbek and Russian blind test, add real author bylines, and stop generating posts with no founder input ([02](./02-blog-engine.md)).
 5. **After the 2026-10-03 SEO gate:** rewrite pilot on the 3–5 posts with the most impressions, keeping slugs ([02](./02-blog-engine.md)).
+
+**Alongside, on the Mac:** confirm the portfolio project groups, then capture Talim AI and DriveMe with the `portfolio-capture` skill ([09](./09-portfolio-media.md)).
+
+### The move itself (October)
+
+- **Check who owns the Neon database** before anything else; if Vercel manages it, move it first ([07](./07-own-server.md)).
+- **Doppler** for every environment variable ([11](./11-secrets-doppler.md)).
+- **The server** (netcup RS 1000 G12.5 or OVH VPS-1) with Cloudflare in front, ticking every row of the Vercel checklist on staging before the cutover ([07](./07-own-server.md)).
 
 ### Next: once the site runs on its own server (October–December)
 
@@ -64,22 +86,25 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 
 ## Rough monthly running cost once built
 
-| Item                                                     | Approx. per month                                     |
-| -------------------------------------------------------- | ----------------------------------------------------- |
-| Hetzner server (from the Global Playbook)                | ~€35                                                  |
-| Cloudflare (free plan)                                   | $0                                                    |
-| Postmark with inbound, or Resend                         | ~$16–20                                               |
-| Amazon SES for the newsletter                            | cents at this volume                                  |
-| PostHog Cloud EU                                         | $0 on the free tier at current traffic (check limits) |
-| Cal.com cloud, one person                                | $0                                                    |
-| Claude API: blog (2–4 articles), assistant, admin drafts | ~$20–60                                               |
-| **Total**                                                | **about $70–120 plus the server**                     |
+| Item                                                     | Approx. per month                                         |
+| -------------------------------------------------------- | --------------------------------------------------------- |
+| Server: netcup RS 1000 G12.5 (or OVH VPS-1 at ~€7)       | ~€10–12                                                   |
+| Cloudflare (free plan)                                   | $0                                                        |
+| Postmark with inbound, or Resend                         | ~$16–20                                                   |
+| Amazon SES for the newsletter                            | cents at this volume                                      |
+| PostHog Cloud EU                                         | $0 on the free tier (1M events a month), billing limit $0 |
+| Cloudflare Web Analytics                                 | $0                                                        |
+| Doppler (Developer plan, up to 3 users)                  | $0                                                        |
+| Video hosting on Cloudflare R2                           | $0 at this size                                           |
+| Cal.com cloud, one person                                | $0                                                        |
+| Claude API: blog (2–4 articles), assistant, admin drafts | ~$20–60                                                   |
+| **Total**                                                | **about $70–120 plus ~€10–12 for the server**             |
 
 The larger cost is people's time: about an hour per blog post, a weekly look at the inbox and assistant transcripts, and the founders' calls.
 
 ## Guardrails that apply to every idea
 
-- **Honesty:** no invented numbers, clients or reviews. Employee-era work is "where our engineers have shipped", never "our client" (the `case-study-writer` skill).
+- **Honesty:** no invented numbers, clients or reviews. Employee-era work is "where our engineers have shipped" or an anonymised, labelled showcase, never "our client"; never run a former employer's code (the `case-study-writer` skill, [09](./09-portfolio-media.md)).
 - **Halal policy:** the work we take and don't take (the `client-screening` skill); no interest in any payment terms; religious questions go to the founders' scholar.
 - **The repo's golden rules** (`CLAUDE.md`):
   - Database access only through repositories.

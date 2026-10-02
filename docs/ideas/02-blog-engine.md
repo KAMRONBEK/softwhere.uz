@@ -70,7 +70,7 @@ Rules the pipeline enforces:
 - **Nothing is published without a human.** Generation always ends as a draft with a Telegram "draft ready" message; unreviewed auto-publishing was already turned off during the index-recovery work.
 - **Every post shows its author and its reviewer.**
 
-The voice note can be transcribed by a speech-to-text API or by a self-hosted Whisper model on the Hetzner server (fast enough on a CPU for a 15-minute file). Test Uzbek speech before relying on it; Russian and English are well supported.
+The voice note can be transcribed by a speech-to-text API or by a self-hosted Whisper model on our own server (fast enough on a CPU for a 15-minute file). Test Uzbek speech before relying on it; Russian and English are well supported.
 
 ## Stop forcing every topic into three languages
 
