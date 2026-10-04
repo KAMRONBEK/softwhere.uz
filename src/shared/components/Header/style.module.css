@@ -35,9 +35,10 @@
   flex: none;
 }
 
+/* Size by height: the mark is taller than wide (logo.svg viewBox ≈ 30:34). */
 .logo {
-  width: 34px;
-  height: auto;
+  width: auto;
+  height: 28px;
 }
 
 .wordmark {
@@ -326,6 +327,10 @@
 
   .burgerMenu {
     display: flex;
+  }
+
+  .logo {
+    height: 26px;
   }
 
   .wordmark {
