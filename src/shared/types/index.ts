@@ -111,6 +111,7 @@ export interface Project {
   technology: string;
   location: string;
   type: string;
+  /** Store links only while the listing is live: the hero's live-app count is derived from them. */
   playMarket?: string;
   appStore?: string;
   /** The product itself (never a client's corporate site). */

@@ -59,7 +59,7 @@ Rules for every project:
 1. **Talim AI, DriveMe and DriveMe Driver:** about 1–3 hours of Claude time each. Getting old builds to run is the slowest part.
 2. **The other public apps**, then **the unreleased ones** with demo data.
 3. **The banking and insurance projects last.**
-4. **Put each project on the site** with the `case-study-writer` skill, then remove the overstated "24 apps live" count (playbook section 6).
+4. **Put each project on the site** with the `case-study-writer` skill, then remove the overstated "24 apps live" count (playbook section 6). _Count done 2026-10-04: the hero now counts only projects with a live App Store or Google Play link (16 of 53, every link checked), with no "+"._
 
 **How to start a session on the Mac:** "Use the portfolio-capture skill to make the portfolio videos for Talim AI." The skill walks through:
 
