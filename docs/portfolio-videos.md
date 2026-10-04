@@ -16,6 +16,8 @@ video/                         Remotion project (own package.json, not part of t
         │  yarn render
         ▼
 public/videos/<slug>.mp4 + <slug>.jpg (poster)   ← served by Next.js as static files
+        │                                          (`videos` must stay excluded in src/proxy.ts's matcher,
+        │                                           or the locale redirect turns them into /uz/videos/… 404s)
         │
 src/shared/data/projects.ts → Project.video { src, poster }
         │
