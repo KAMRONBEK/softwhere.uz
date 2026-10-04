@@ -1,0 +1,97 @@
+{
+  "slug": "persona",
+  "name": "Persona",
+  "tagline": "Community app where groups chat, post and run a shared treasury with proposals and votes",
+  "category": "Social / Community",
+  "location": "USA",
+  "years": "2023",
+  "status": "archived",
+  "statusLabel": "Archived · public alpha 2023",
+  "role": "React Native development by the Softwhere team for Persona, New York",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Firebase / Firestore",
+    "Cloud Functions",
+    "Stripe",
+    "Algolia"
+  ],
+  "accent": "#5468d4",
+  "icon": {
+    "src": "projects/persona/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/persona/revived-01.webp"
+        }
+      ],
+      "title": "Communities that build together",
+      "body": "The app's own welcome screen: a social network paired with group funds its members govern.",
+      "seconds": 3.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/persona/revived-02.webp"
+        }
+      ],
+      "title": "Every community in one rail",
+      "body": "A side rail switches communities; each lists its channels with unread badges and the shared balance.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/persona/revived-03.webp"
+        },
+        {
+          "src": "projects/persona/revived-04.webp"
+        }
+      ],
+      "title": "Real-time chat for every channel",
+      "body": "Messages stream from Firestore, grouped by author, with emoji reactions and image attachments.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/persona/revived-05.webp"
+        }
+      ],
+      "title": "Proposals the group votes on",
+      "body": "Treasury proposals tally for, against and abstain votes with a quorum and a countdown to the deadline.",
+      "seconds": 4.0
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/persona/revived-06.webp"
+        },
+        {
+          "src": "projects/persona/revived-07.webp"
+        }
+      ],
+      "title": "A shared treasury, fully tracked",
+      "body": "Deposits and withdrawals land in a transfers feed; the portfolio shows available and pending funds.",
+      "seconds": 4.4
+    }
+  ]
+}

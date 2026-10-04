@@ -1,0 +1,120 @@
+{
+  "slug": "agrobank-fresh",
+  "name": "Agrobank FRESH",
+  "tagline": "Mobile banking app prototype for Agrobank: cards, Click payments, transfers and deposits",
+  "category": "Mobile banking",
+  "location": "Uzbekistan",
+  "years": "2021",
+  "status": "archived",
+  "statusLabel": "Banking app prototype · 2021",
+  "role": "Mobile app development by the Softwhere team for Agrobank",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native 0.63",
+    "TypeScript",
+    "Redux + Rematch",
+    "React Navigation 5",
+    "Click API (JSON-RPC)",
+    "Google Maps",
+    "i18n (uz / ru / en)",
+    "Sentry"
+  ],
+  "accent": "#50b66e",
+  "icon": {
+    "src": "projects/agrobank-fresh/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/agrobank-fresh/signin-01.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/signin-02.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/signin-03.webp"
+        }
+      ],
+      "title": "Phone sign-in, SMS code and PIN",
+      "body": "Masked phone login, a 5-digit SMS code with a countdown, and a 4-digit PIN each time the app opens.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/agrobank-fresh/home-01.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/home-02.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/home-03.webp"
+        }
+      ],
+      "title": "Balances and payment history",
+      "body": "Uzcard balances with one-tap refresh, a pull-up sheet of recent payments, and the virtual Visa under Currency.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/agrobank-fresh/pay-01.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/pay-02.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/pay-03.webp"
+        }
+      ],
+      "title": "Bill payments via the Click API",
+      "body": "Categories, providers and each payment form are built at runtime from Click's JSON-RPC responses.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/agrobank-fresh/money-01.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/money-02.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/money-03.webp"
+        }
+      ],
+      "title": "Transfers, virtual Visa and deposits",
+      "body": "Card-to-card transfers show the bank fee before sending; open a virtual Visa or an online deposit from a card.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/agrobank-fresh/branches-01.webp"
+        },
+        {
+          "src": "projects/agrobank-fresh/branches-02.webp"
+        }
+      ],
+      "title": "Branch map and ATMs by region",
+      "body": "Branches pinned on a map around your location, and ATM addresses listed region by region.",
+      "seconds": 4
+    }
+  ]
+}

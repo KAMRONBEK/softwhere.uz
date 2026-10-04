@@ -1,0 +1,80 @@
+{
+  "slug": "seyf-bazar",
+  "name": "Seyf Bazar",
+  "tagline": "Mobile storefront for a Tashkent electronics retailer",
+  "category": "E-commerce",
+  "location": "Uzbekistan",
+  "years": "2020",
+  "status": "archived",
+  "role": "iOS and Android storefront app with a WooCommerce backend",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Redux", "WooCommerce REST API", "Firebase", "OneSignal"],
+  "accent": "#2fb3b0",
+  "icon": {
+    "src": "projects/seyf-bazar/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/seyf-bazar/category-list.webp"
+        },
+        {
+          "src": "projects/seyf-bazar/home.webp"
+        },
+        {
+          "src": "projects/seyf-bazar/categories.webp"
+        }
+      ],
+      "title": "Uzbek catalog, priced in UZS",
+      "body": "Categories, featured and latest products load from the retailer's WooCommerce catalog over its REST API.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/seyf-bazar/product.webp"
+        }
+      ],
+      "title": "Sale price, specs and reviews",
+      "body": "Product descriptions render from WooCommerce HTML, with wishlist, share and buy buttons pinned below.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/seyf-bazar/cart.webp"
+        },
+        {
+          "src": "projects/seyf-bazar/payment.webp"
+        }
+      ],
+      "title": "Checkout with Payme and Click",
+      "body": "Four steps from cart to order: cash orders post to WooCommerce, cards use the store's web checkout in-app.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/seyf-bazar/profile-dark.webp"
+        },
+        {
+          "src": "projects/seyf-bazar/product-dark.webp"
+        }
+      ],
+      "title": "Dark theme across the shop",
+      "body": "Profile settings toggle dark mode and OneSignal push notifications, and switch between Uzbek and Russian.",
+      "seconds": 3.8
+    }
+  ]
+}

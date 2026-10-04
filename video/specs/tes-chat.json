@@ -1,0 +1,64 @@
+{
+  "slug": "tes-chat",
+  "viewport": {
+    "width": 1152,
+    "height": 720
+  },
+  "shots": [
+    {
+      "name": "landing",
+      "url": "https://teschat.org/",
+      "fullPage": true,
+      "maxHeight": 1452,
+      "waitMs": 2000,
+      "actions": [
+        {
+          "hide": "nav.pill"
+        },
+        {
+          "hide": "ul.stores li:first-child"
+        },
+        {
+          "hide": "ul.shots"
+        },
+        {
+          "hide": "section[aria-labelledby=\"f-private\"] ul.rows li:first-child"
+        }
+      ]
+    },
+    {
+      "name": "app-lang",
+      "url": "https://teschat.org/app/",
+      "fullPage": false,
+      "waitMs": 5000,
+      "actions": [
+        {
+          "click": "text=\"O'zbek\""
+        },
+        {
+          "wait": 1000
+        }
+      ]
+    },
+    {
+      "name": "app",
+      "url": "https://teschat.org/app/",
+      "fullPage": false,
+      "waitMs": 5000,
+      "actions": [
+        {
+          "click": "text=\"O'zbek\""
+        },
+        {
+          "wait": 1000
+        },
+        {
+          "click": "text=\"English\""
+        },
+        {
+          "wait": 1500
+        }
+      ]
+    }
+  ]
+}

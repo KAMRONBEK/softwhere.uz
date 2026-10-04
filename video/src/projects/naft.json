@@ -1,0 +1,83 @@
+{
+  "slug": "naft",
+  "name": "NAFT",
+  "tagline": "Job marketplace app connecting job seekers, freelancers and employers in Uzbekistan",
+  "category": "Job marketplace",
+  "location": "Uzbekistan",
+  "years": "2020",
+  "status": "archived",
+  "role": "React Native app development with a small team",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Redux", "React Navigation", "REST API", "Google Maps"],
+  "accent": "#ff5851",
+  "icon": {
+    "src": "projects/naft/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/naft/revived-02.webp"
+        },
+        {
+          "src": "projects/naft/revived-01.webp"
+        },
+        {
+          "src": "projects/naft/revived-03.webp"
+        }
+      ],
+      "title": "Jobs, workers and companies",
+      "body": "Each side of the market gets its own tab, and lists load from the REST API ten at a time as you scroll.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/naft/revived-04.webp"
+        }
+      ],
+      "title": "Job posts with the terms up front",
+      "body": "Pay, job type, city and duration come first in every post, followed by the brief, required skills and files.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/naft/revived-06.webp"
+        },
+        {
+          "src": "projects/naft/revived-07.webp"
+        }
+      ],
+      "title": "Worker profiles that build trust",
+      "body": "Rate, city and member year, job counters, skill levels, awards and past work on one scrolling profile.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/naft/revived-08.webp"
+        },
+        {
+          "src": "projects/naft/revived-10.webp"
+        },
+        {
+          "src": "projects/naft/revived-09.webp"
+        }
+      ],
+      "title": "Sign-up and company pages",
+      "body": "Phone sign-up with a verification code; employers add staff size and department and get a page of openings.",
+      "seconds": 4.4
+    }
+  ]
+}

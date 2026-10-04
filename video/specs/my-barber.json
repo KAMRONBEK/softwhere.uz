@@ -1,0 +1,7 @@
+{
+  "slug": "my-barber",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [
+    { "name": "landing", "url": "https://my-barber.uz", "fullPage": false, "waitMs": 2000 }
+  ]
+}

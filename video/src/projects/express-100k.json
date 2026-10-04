@@ -1,0 +1,87 @@
+{
+  "slug": "express-100k",
+  "name": "100K Express",
+  "tagline": "Uzbek super-app for intercity taxi seats, parcel delivery, cargo and vehicle hire",
+  "category": "Logistics super-app",
+  "location": "Uzbekistan",
+  "years": "2021–22",
+  "status": "archived",
+  "statusLabel": "Archived · built 2021–22",
+  "role": "Mobile app development by the Softwhere team for 100k.uz",
+  "platforms": ["iOS", "Android"],
+  "tech": [
+    "React Native",
+    "Expo",
+    "TypeScript",
+    "Redux Toolkit",
+    "Redux Persist",
+    "React Navigation 6",
+    "Axios + token refresh"
+  ],
+  "accent": "#f2b705",
+  "icon": {
+    "src": "projects/express-100k/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/express-100k/revived-01.webp" },
+        { "src": "projects/express-100k/revived-02.webp" },
+        { "src": "projects/express-100k/revived-03.webp" }
+      ],
+      "title": "One app for four transport services",
+      "body": "Onboarding introduces parcel mail, intercity passenger seats, cargo and vehicle hire before sign-in.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/express-100k/revived-04.webp" },
+        { "src": "projects/express-100k/revived-05.webp" }
+      ],
+      "title": "Intercity rides at the rider's price",
+      "body": "Riders post the route, seats and a per-seat offer; drivers browse open requests and tap to accept.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/express-100k/revived-06.webp" },
+        { "src": "projects/express-100k/revived-07.webp" },
+        { "src": "projects/express-100k/revived-08.webp" }
+      ],
+      "title": "Parcels between regions, insured",
+      "body": "Choose car, truck or on-foot delivery, set the courier fee and insure the parcel at 0.5% of its value.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/express-100k/revived-09.webp" },
+        { "src": "projects/express-100k/revived-10.webp" }
+      ],
+      "title": "Cargo loads and vehicles for hire",
+      "body": "Shippers post weight, goods and price; owners list cars and special machinery by the day, hour or km.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/express-100k/revived-11.webp" },
+        { "src": "projects/express-100k/revived-12.webp" },
+        { "src": "projects/express-100k/revived-13.webp" }
+      ],
+      "title": "Wallet and courier sign-up",
+      "body": "Main and deposit balances, a Payme or Click top-up screen and a courier application with document photos.",
+      "seconds": 4.6
+    }
+  ]
+}

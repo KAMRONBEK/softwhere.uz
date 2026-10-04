@@ -1,0 +1,69 @@
+{
+  "slug": "talim-ai",
+  "name": "Talim AI",
+  "tagline": "AI self-learning platform that turns any material into an interactive lesson",
+  "category": "AI & EdTech",
+  "location": "Uzbekistan",
+  "years": "2025–26",
+  "status": "live",
+  "role": "Our own product — design, AI and full-stack engineering",
+  "platforms": ["Web"],
+  "tech": ["Next.js", "React 19", "TypeScript", "Express", "PostgreSQL + pgvector", "RAG / LLM", "Text-to-speech"],
+  "accent": "#2f8a68",
+  "icon": { "src": "projects/talim-ai/icon.webp" },
+  "links": { "web": "talim-ai.uz" },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "talim-ai.uz",
+      "shots": [{ "src": "projects/talim-ai/web-landing.webp", "scroll": true }],
+      "title": "Turn anything into a lesson",
+      "body": "Drop in a PDF, slide deck or YouTube link — Talim builds the course around it.",
+      "seconds": 6.5
+    },
+    {
+      "type": "web",
+      "url": "talim-ai.uz/learn",
+      "shots": [{ "src": "projects/talim-ai/deck-02.webp" }],
+      "title": "Every source, split into sections",
+      "body": "The AI segments the material and tracks mastery section by section.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "talim-ai.uz/learn",
+      "shots": [{ "src": "projects/talim-ai/deck-03.webp" }],
+      "title": "A tutor grounded in your material",
+      "body": "Retrieval-augmented answers come from your own sources — not the whole internet.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "talim-ai.uz/tasks",
+      "shots": [{ "src": "projects/talim-ai/deck-04.webp" }],
+      "title": "Quizzes and live games",
+      "body": "Generated quizzes and live game sessions with a class leaderboard.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "talim-ai.uz/school",
+      "shots": [
+        { "src": "projects/talim-ai/deck-05.webp", "cursor": { "x": 0.055, "y": 0.27 } },
+        { "src": "projects/talim-ai/deck-06.webp", "cursor": { "x": 0.06, "y": 0.36 } },
+        { "src": "projects/talim-ai/deck-07.webp" }
+      ],
+      "title": "A dashboard for schools and tutors",
+      "body": "Rosters, join codes, assessments and progress for every learner.",
+      "seconds": 7.5
+    },
+    {
+      "type": "web",
+      "url": "talim-ai.uz/pricing",
+      "shots": [{ "src": "projects/talim-ai/web-pricing.webp" }],
+      "title": "From free to school plans",
+      "body": "Individual, tutor and school tiers with monthly or annual billing.",
+      "seconds": 4
+    }
+  ]
+}

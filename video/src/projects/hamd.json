@@ -1,0 +1,111 @@
+{
+  "slug": "hamd",
+  "name": "Hamd Delivery Panel",
+  "tagline": "Call-center panel for a food-delivery service: phone orders, courier map and order feed",
+  "category": "Food delivery · Call center",
+  "location": "Uzbekistan",
+  "years": "2022",
+  "status": "archived",
+  "statusLabel": "Archived · built 2022",
+  "role": "Operator web panel by the Softwhere team for Hamd",
+  "platforms": [
+    "Web"
+  ],
+  "tech": [
+    "React 17",
+    "Redux Toolkit",
+    "React Router 6",
+    "Axios",
+    "Google Maps JS API",
+    "Ant Design",
+    "Sass"
+  ],
+  "accent": "#4d74c4",
+  "icon": {
+    "src": "projects/hamd/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "hamd · operator panel",
+      "shots": [
+        {
+          "src": "projects/hamd/app-01.webp"
+        }
+      ],
+      "title": "Couriers and live orders",
+      "body": "Courier pins on the map, their delivery addresses below, and an order feed that polls the API every second.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "hamd · operator panel",
+      "shots": [
+        {
+          "src": "projects/hamd/app-01.webp",
+          "cursor": {
+            "x": 0.615,
+            "y": 0.11
+          }
+        },
+        {
+          "src": "projects/hamd/app-02.webp"
+        }
+      ],
+      "title": "Recent calls at a glance",
+      "body": "One tap pulls the latest calls from the backend, numbered and time-stamped.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "hamd · operator panel",
+      "shots": [
+        {
+          "src": "projects/hamd/app-03.webp",
+          "cursor": {
+            "x": 0.53,
+            "y": 0.085
+          }
+        },
+        {
+          "src": "projects/hamd/app-04.webp"
+        }
+      ],
+      "title": "Phone orders in a few taps",
+      "body": "Categories and dishes load from the API as POS-style tiles, each showing its price in so'm.",
+      "seconds": 4.6
+    },
+    {
+      "type": "web",
+      "url": "hamd · operator panel",
+      "shots": [
+        {
+          "src": "projects/hamd/app-04.webp",
+          "cursor": {
+            "x": 0.417,
+            "y": 0.166
+          }
+        },
+        {
+          "src": "projects/hamd/app-05.webp",
+          "cursor": {
+            "x": 0.415,
+            "y": 0.085
+          }
+        },
+        {
+          "src": "projects/hamd/app-06.webp",
+          "cursor": {
+            "x": 0.532,
+            "y": 0.166
+          }
+        }
+      ],
+      "title": "A ticket with a running total",
+      "body": "Each tap adds a dish to the ticket, and the red bar keeps the running total due at checkout.",
+      "seconds": 5.3
+    }
+  ]
+}

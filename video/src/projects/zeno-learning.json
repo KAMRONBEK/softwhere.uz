@@ -1,0 +1,100 @@
+{
+  "slug": "zeno-learning",
+  "name": "Zeno Learning",
+  "tagline": "Gamified learning platform designed around levels, badges, ZenoCoin and referrals",
+  "category": "Gamified EdTech",
+  "location": "International",
+  "years": "2023",
+  "status": "archived",
+  "statusLabel": "Built 2023 · not launched",
+  "role": "Full-stack web platform by the Softwhere team",
+  "platforms": [
+    "Web"
+  ],
+  "tech": [
+    "SvelteKit",
+    "Svelte",
+    "Prisma",
+    "PostgreSQL",
+    "Tailwind CSS",
+    "Lucia Auth + OAuth",
+    "Vidstack",
+    "Web Push + SSE"
+  ],
+  "accent": "#00a6d6",
+  "icon": {
+    "src": "projects/zeno-learning/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "zeno · /auth",
+      "shots": [
+        {
+          "src": "projects/zeno-learning/web-signin-01.webp",
+          "cursor": {
+            "x": 0.787,
+            "y": 0.1
+          }
+        },
+        {
+          "src": "projects/zeno-learning/web-signup-01.webp"
+        }
+      ],
+      "title": "Social sign-in, referral sign-up",
+      "body": "OAuth via Lucia with Google, Facebook and LinkedIn; invite links prefill the referral code.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "zeno · /dashboard",
+      "shots": [
+        {
+          "src": "projects/zeno-learning/app-dashboard-01.webp"
+        }
+      ],
+      "title": "Pick up where you left off",
+      "body": "Course cards come from PostgreSQL via Prisma, with one-tap bookmarks.",
+      "seconds": 3.8
+    },
+    {
+      "type": "web",
+      "url": "zeno · /dashboard/video",
+      "shots": [
+        {
+          "src": "projects/zeno-learning/app-lesson-01.webp"
+        }
+      ],
+      "title": "Lessons with a reward path",
+      "body": "Vidstack player, lesson outline and quiz tab, with a complete-class, finish-quiz, earn-XP path laid out.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "zeno · /dashboard/profile",
+      "shots": [
+        {
+          "src": "projects/zeno-learning/app-profile-01.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Designed for levels, badges, ZenoCoin",
+      "body": "Profile UI built around a level gauge, badge grid and RP / ZenoCoin balances; XP and RP stored per learner.",
+      "seconds": 4.3
+    },
+    {
+      "type": "web",
+      "url": "zeno · /dashboard/referrals",
+      "shots": [
+        {
+          "src": "projects/zeno-learning/app-referrals-01.webp"
+        }
+      ],
+      "title": "Referral codes, partner list",
+      "body": "Each learner gets a unique referral code; sign-ups that use it are linked to the referrer.",
+      "seconds": 3.7
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "slug": "kiber",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [
+    { "name": "demo-landing", "url": "https://demo.kiber.uz/", "fullPage": false, "waitMs": 2500 },
+    { "name": "demo-login", "url": "https://demo.kiber.uz/login", "fullPage": false, "waitMs": 2500, "actions": [{ "hide": ".Alerts" }, { "wait": 400 }] }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "slug": "primus-mall",
+  "name": "Primus Mall",
+  "tagline": "Online mall app bringing local clothing, beauty and lifestyle stores into one catalog",
+  "category": "E-commerce marketplace",
+  "location": "Uzbekistan",
+  "years": "2019–21",
+  "status": "archived",
+  "role": "iOS and Android app development for an Uzbek online marketplace",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Redux", "React Navigation", "REST API + JWT refresh", "Facebook & Google sign-in", "Payme & Click"],
+  "accent": "#e74c3c",
+  "icon": {
+    "src": "projects/primus-mall/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/primus-mall/screen-04.webp"
+        },
+        {
+          "src": "projects/primus-mall/screen-01.webp"
+        },
+        {
+          "src": "projects/primus-mall/screen-05.webp"
+        }
+      ],
+      "title": "Many local stores, one shopping app",
+      "body": "Clothing, beauty and sports-nutrition shops share one catalog, with promo banners and new arrivals up front.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/primus-mall/screen-03.webp"
+        },
+        {
+          "src": "projects/primus-mall/screen-04.webp"
+        }
+      ],
+      "title": "A catalog built for browsing",
+      "body": "Women's, men's and kids' sections with subcategories, server-driven filters and sorting by price or rating."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/primus-mall/screen-05.webp"
+        }
+      ],
+      "title": "A directory of partner shops",
+      "body": "Shops are listed as one paged directory; each opens a storefront with banners and an infinite-scroll feed."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/primus-mall/screen-02.webp"
+        }
+      ],
+      "title": "Product pages from photo to cart",
+      "body": "Zoomable photos, article number and price, a size picker and add-to-cart, leading into a six-step checkout."
+    }
+  ]
+}

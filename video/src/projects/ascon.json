@@ -1,0 +1,94 @@
+{
+  "slug": "ascon",
+  "name": "ASCON",
+  "tagline": "Roadside help, towing, accident claims and car insurance for drivers in Uzbekistan",
+  "category": "Auto service & InsurTech",
+  "location": "Uzbekistan",
+  "years": "2021–22",
+  "status": "live",
+  "role": "Mobile development for a roadside-assistance service in Uzbekistan",
+  "platforms": ["Android", "iOS"],
+  "tech": ["React Native", "Redux Saga", "Google Maps", "RU / UZ localization"],
+  "accent": "#2fb457",
+  "icon": {
+    "src": "projects/ascon/icon.webp"
+  },
+  "links": {
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/ascon/play-03.webp"
+        },
+        {
+          "src": "projects/ascon/play-02.webp"
+        },
+        {
+          "src": "projects/ascon/play-06.webp"
+        }
+      ],
+      "title": "One app for drivers in trouble",
+      "body": "Roadside repair, accident claims, tow trucks and compulsory car insurance, in Russian and Uzbek.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/ascon/play-02.webp"
+        }
+      ],
+      "title": "Every service on one map",
+      "body": "Google Maps pins the driver's location, then one tap requests technical help, accident support or a tow."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/ascon/play-03.webp"
+        }
+      ],
+      "title": "Price agreed before dispatch",
+      "body": "A mechanic call-out shows its fixed fee up front, and the driver confirms before the request goes out."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/ascon/play-04.webp"
+        }
+      ],
+      "title": "For drivers and mechanics",
+      "body": "RU / UZ language switch, a service price list, support, and sign-up for mechanics joining the network."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/ascon/play-05.webp"
+        }
+      ],
+      "title": "Car insurance, priced in-app",
+      "body": "An OSGO calculator prices the policy by vehicle type, region, insurance term and number of drivers."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/ascon/play-06.webp"
+        }
+      ],
+      "title": "Tech passport to e-policy",
+      "body": "Plate and tech-passport details return the premium and coverage split, then the driver pays in-app."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "slug": "align-360",
+  "name": "Align 360",
+  "tagline": "Task manager, analytics and team messenger for construction and renovation crews",
+  "category": "Construction",
+  "location": "USA",
+  "years": "2022",
+  "status": "archived",
+  "role": "React Native app development for a US client",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "TypeScript", "Redux Thunk", "In-app subscriptions"],
+  "accent": "#ff9200",
+  "icon": { "src": "projects/align-360/icon.webp", "shape": "squircle" },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/align-360/archive-02.webp" }, { "src": "projects/align-360/archive-01.webp" }],
+      "title": "Contractors and subs, one app",
+      "body": "Contractors organize each job; subcontractors of every trade sign in and work on the same projects.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/align-360/archive-03.webp" }],
+      "title": "A daily brief on the home screen",
+      "body": "Projects, new and outstanding to-dos, materials and team messages in one workspace view."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/align-360/archive-04.webp" }],
+      "title": "Each job split by room and trade",
+      "body": "Rooms and trade to-do lists hold dated tasks; progress counts show what is left and what is done."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/align-360/archive-05.webp" }],
+      "title": "Plans that scale with the crew",
+      "body": "Free for one user; monthly in-app subscriptions for teams of 2–5, 6–9, 10–14 or 15+ members.",
+      "seconds": 3.6
+    }
+  ]
+}

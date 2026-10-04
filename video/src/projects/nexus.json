@@ -1,0 +1,95 @@
+{
+  "slug": "nexus",
+  "name": "Nexus",
+  "tagline": "Crypto, themed bundles and fractional real estate in one app",
+  "category": "Crypto investing · unreleased app",
+  "location": "International",
+  "years": "2022–23",
+  "status": "archived",
+  "role": "Mobile app development by the Softwhere team (2022–23)",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "Expo",
+    "TypeScript",
+    "Redux Toolkit",
+    "React Navigation",
+    "KYC onboarding"
+  ],
+  "accent": "#50a863",
+  "icon": {
+    "src": "projects/nexus/icon.webp"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/nexus/markets.webp"
+        },
+        {
+          "src": "projects/nexus/explore.webp"
+        },
+        {
+          "src": "projects/nexus/portfolio.webp"
+        }
+      ],
+      "title": "Crypto and real estate in one app",
+      "body": "Digital assets, real-estate markets by country and one portfolio view, designed for iOS and Android.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/nexus/explore.webp"
+        }
+      ],
+      "title": "An Explore tab built for browsing",
+      "body": "Swipeable carousels surface trending bundles, real-estate markets by country and top gainers."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/nexus/markets.webp"
+        }
+      ],
+      "title": "Every coin with its own sparkline",
+      "body": "Price and daily change for each coin, with search in the header and a Watchlist tab.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/nexus/bundle.webp"
+        }
+      ],
+      "title": "Themed bundles in the app design",
+      "body": "The design groups a theme like Metaverse into several coins under one chart and one Buy button.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/nexus/portfolio.webp"
+        }
+      ],
+      "title": "Your whole portfolio on one screen",
+      "body": "Balance and trend up top, 1D to ALL ranges, then cash, bundles and coins with Top up and Withdraw.",
+      "seconds": 4.4
+    }
+  ],
+  "statusLabel": "Never publicly released"
+}

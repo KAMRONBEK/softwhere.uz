@@ -1,0 +1,89 @@
+{
+  "slug": "snap-taxi",
+  "name": "Snap Taxi",
+  "tagline": "Rider and driver apps for an Uzbek taxi service — live tracking, chat and a taximeter",
+  "category": "Ride-hailing",
+  "location": "Uzbekistan",
+  "years": "2020–21",
+  "status": "archived",
+  "role": "Rider and driver apps by the Softwhere team (React Native)",
+  "platforms": [
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux Saga / Rematch",
+    "Laravel Echo + Socket.io",
+    "Google Maps",
+    "Firebase push",
+    "Background geolocation"
+  ],
+  "accent": "#01a2d3",
+  "icon": {
+    "src": "projects/snap-taxi/icon.webp"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/snap-taxi/rider-01.webp"
+        },
+        {
+          "src": "projects/snap-taxi/rider-02.webp"
+        }
+      ],
+      "title": "Rider app: pick a class, see the fare",
+      "body": "Nearby cars and a pickup pin; each class is priced from the route distance.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/snap-taxi/rider-04.webp"
+        },
+        {
+          "src": "projects/snap-taxi/rider-03.webp"
+        }
+      ],
+      "title": "Live driver tracking and chat",
+      "body": "The driver's car refreshes on the map every 5 s; chat, call or tap “I'm coming out”.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/snap-taxi/driver-01.webp"
+        }
+      ],
+      "title": "Driver app: orders in real time",
+      "body": "Orders arrive over Laravel Echo sockets with fare, commission, pickup and rider note; 10 seconds to accept.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/snap-taxi/driver-03.webp"
+        },
+        {
+          "src": "projects/snap-taxi/driver-02.webp"
+        },
+        {
+          "src": "projects/snap-taxi/driver-04.webp"
+        }
+      ],
+      "title": "A taximeter built into every trip",
+      "body": "Waiting turns paid after three free minutes; a trip timer and background GPS track the ride.",
+      "seconds": 4.6
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "slug": "united-fuel",
+  "name": "United Fuel Driver",
+  "tagline": "Fuel-card app for US truck drivers — discounted diesel, route planning and support",
+  "category": "Fleet fuel cards",
+  "location": "USA",
+  "years": "2025",
+  "status": "live",
+  "role": "Mobile development for a US fuel-card company",
+  "platforms": ["iOS"],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux Toolkit",
+    "Google Maps & Directions",
+    "Socket.io chat",
+    "Biometric login",
+    "Amplitude",
+    "Fastlane"
+  ],
+  "accent": "#e9a426",
+  "icon": {
+    "src": "projects/united-fuel/icon.webp"
+  },
+  "links": {
+    "appStore": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/united-fuel/appstore-05.webp"
+        },
+        {
+          "src": "projects/united-fuel/appstore-03.webp"
+        },
+        {
+          "src": "projects/united-fuel/appstore-08.webp"
+        }
+      ],
+      "title": "Card, map and support in one app",
+      "body": "Card spending, discounted truck stops, repair shops and a support line for drivers.",
+      "seconds": 4.5
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/united-fuel/appstore-03.webp"
+        }
+      ],
+      "title": "Discounted diesel on a live map",
+      "body": "Retail vs card price at every truck stop, sorted by price or distance in a set radius."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/united-fuel/appstore-04.webp"
+        }
+      ],
+      "title": "Plan fuel stops on the route",
+      "body": "Enter a destination and the map lists discounted truck stops along the way."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/united-fuel/appstore-07.webp"
+        }
+      ],
+      "title": "Repair shops by truck brand",
+      "body": "Maintenance shops on a second map layer, filtered by service type and truck brand."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/united-fuel/appstore-06.webp"
+        },
+        {
+          "src": "projects/united-fuel/appstore-08.webp"
+        }
+      ],
+      "title": "Support chat per request",
+      "body": "Real-time Socket.io messaging for each service request, plus a one-tap call-back helpline."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "slug": "tes-tube",
+  "name": "TES Tube",
+  "tagline": "YouTube-style video and Shorts platform for Turon Ecosystem",
+  "category": "Video streaming",
+  "location": "Uzbekistan",
+  "years": "2026",
+  "status": "pre-launch",
+  "role": "Web app, shared monorepo and CI/CD for Turon Ecosystem",
+  "platforms": ["Web"],
+  "tech": ["Next.js 16", "React 19", "TypeScript", "hls.js", "Tailwind CSS 4", "TanStack Query", "Turborepo", "GitHub Actions"],
+  "accent": "#2d84c6",
+  "icon": {
+    "src": "projects/tes-tube/icon.webp",
+    "shape": "wide"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "TES-Tube · preview",
+      "shots": [
+        {
+          "src": "projects/tes-tube/web-home.webp"
+        }
+      ],
+      "title": "Long videos and Shorts",
+      "body": "One server-rendered Next.js 16 app serves both, so every watch and channel URL can be indexed.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "TES-Tube · preview",
+      "shots": [
+        {
+          "src": "projects/tes-tube/web-watch-settings.webp",
+          "cursor": {
+            "x": 0.5,
+            "y": 0.545
+          }
+        },
+        {
+          "src": "projects/tes-tube/web-watch-quality.webp"
+        }
+      ],
+      "title": "Adaptive HLS playback",
+      "body": "hls.js plays the HLS bitrate ladder and picks the right quality automatically.",
+      "seconds": 5.4
+    },
+    {
+      "type": "web",
+      "url": "TES-Tube · preview",
+      "shots": [
+        {
+          "src": "projects/tes-tube/web-shorts-comments.webp"
+        }
+      ],
+      "title": "Shorts with comments",
+      "body": "A full-height vertical player with likes, sharing and one-level reply threads beside the video.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "TES-Tube · preview",
+      "shots": [
+        {
+          "src": "projects/tes-tube/web-channel.webp",
+          "cursor": {
+            "x": 0.322,
+            "y": 0.487
+          }
+        },
+        {
+          "src": "projects/tes-tube/web-channel-live.webp"
+        }
+      ],
+      "title": "Channel tabs",
+      "body": "Tabs for videos, Shorts, past broadcasts, playlists and About, each at its own crawlable URL.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-tube/mobile-01.webp"
+        },
+        {
+          "src": "projects/tes-tube/mobile-03.webp"
+        },
+        {
+          "src": "projects/tes-tube/mobile-02.webp"
+        }
+      ],
+      "title": "Responsive to 360px",
+      "body": "Touch layouts and bottom sheets on phones; 592 layout boxes are checked against the Figma file within 1.5px.",
+      "seconds": 4.4
+    }
+  ]
+}

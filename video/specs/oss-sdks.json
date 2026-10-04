@@ -1,0 +1,39 @@
+{
+  "slug": "oss-sdks",
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "shots": [
+    {
+      "name": "yandex-readme",
+      "url": "https://github.com/softwhere-uz/expo-yandex-mapkit",
+      "fullPage": true,
+      "maxHeight": 2050,
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "header.HeaderMktg, div:has(> table[aria-labelledby=\"folders-and-files\"]), #repo-stars-counter-star, #repo-network-counter, #issues-repo-tab-count, #pull-requests-repo-tab-count, [class*=\"SidebarAbout-module__insightItem\"], a:has(> img[data-canonical-src*=\"/npm/dm/\"]), a:has(> img[data-canonical-src*=\"github/stars\"]), [class*=\"SidebarSection-module__sidebarSection\"]:has(a[href$=\"/graphs/contributors\"]), .BorderGrid-row:has(a[href$=\"/graphs/contributors\"]), [class*=\"LatestCommit-module\"]"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    },
+    {
+      "name": "myid-readme",
+      "url": "https://github.com/softwhere-uz/react-native-myid",
+      "fullPage": true,
+      "maxHeight": 1250,
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "header.HeaderMktg, div:has(> table[aria-labelledby=\"folders-and-files\"]), #repo-stars-counter-star, #repo-network-counter, #issues-repo-tab-count, #pull-requests-repo-tab-count, [class*=\"SidebarAbout-module__insightItem\"], a:has(> img[data-canonical-src*=\"/npm/dm/\"]), a:has(> img[data-canonical-src*=\"github/stars\"]), [class*=\"SidebarSection-module__sidebarSection\"]:has(a[href$=\"/graphs/contributors\"]), .BorderGrid-row:has(a[href$=\"/graphs/contributors\"]), [class*=\"LatestCommit-module\"], .markdown-alert p:has(a[href*=\"myid-rn-sdk\"]), article.markdown-body > p[align=\"center\"], article.markdown-body .highlight"
+        },
+        {
+          "wait": 600
+        }
+      ]
+    }
+  ]
+}

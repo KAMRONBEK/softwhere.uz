@@ -1,0 +1,70 @@
+{
+  "slug": "whoriddle",
+  "name": "WhoRiddle",
+  "tagline": "Family riddle game with a new original “Who am I?” riddle every week",
+  "category": "Puzzle game",
+  "location": "USA",
+  "years": "2023–25",
+  "status": "live",
+  "role": "Mobile app, backend, CMS and website by the Softwhere team",
+  "platforms": ["iOS", "Android", "Web"],
+  "tech": [
+    "React Native",
+    "Expo",
+    "TypeScript",
+    "Redux Toolkit",
+    "Firebase + Firestore",
+    "Node.js + Express",
+    "Strapi CMS",
+    "Google Cloud"
+  ],
+  "accent": "#7a62f5",
+  "icon": { "src": "projects/whoriddle/icon.webp", "shape": "squircle" },
+  "links": { "appStore": true, "googlePlay": true, "web": "whoriddle.com" },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/whoriddle/appstore-01.webp" }, { "src": "projects/whoriddle/play-03.webp" }],
+      "title": "A new original riddle every week",
+      "body": "Each riddle has a deadline, limited attempts, points to earn and hints, all scheduled from a Strapi CMS.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/whoriddle/appstore-02.webp" }, { "src": "projects/whoriddle/appstore-03.webp" }],
+      "title": "Riddleverse: themed channels",
+      "body": "Follow channels like Geography, Sports or Food, plus verified brand channels with their own challenges.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/whoriddle/appstore-05.webp" }, { "src": "projects/whoriddle/appstore-04.webp" }],
+      "title": "Points, ranks and invites",
+      "body": "Solving riddles earns points; a scheduled Cloud Function re-ranks the leaderboard every five minutes.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/whoriddle/restaurant-01.webp" },
+        { "src": "projects/whoriddle/restaurant-02.webp" },
+        { "src": "projects/whoriddle/restaurant-03.webp" }
+      ],
+      "title": "Web riddles for restaurants",
+      "body": "Guests solve a venue's riddle in the browser and show the screen to their server to claim a free treat.",
+      "seconds": 4.6
+    },
+    {
+      "type": "web",
+      "url": "whoriddle.com",
+      "shots": [{ "src": "projects/whoriddle/web-home.webp" }],
+      "title": "One site for both stores",
+      "body": "React site on AWS; Firebase Analytics logs store clicks and visits from referral links.",
+      "seconds": 4.4
+    }
+  ]
+}

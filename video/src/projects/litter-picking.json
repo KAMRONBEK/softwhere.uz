@@ -1,0 +1,64 @@
+{
+  "slug": "litter-picking",
+  "name": "Litter Picking App",
+  "tagline": "Community app for organising litter clean-ups and plogging sessions in Dutch towns",
+  "category": "Civic tech",
+  "location": "Netherlands",
+  "years": "2021",
+  "status": "archived",
+  "statusLabel": "Archived · built 2021",
+  "role": "Mobile app development by the Softwhere team",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Expo SDK 42", "JavaScript", "Redux", "React Navigation", "Axios REST API", "react-native-svg"],
+  "accent": "#e9b10c",
+  "icon": {
+    "src": "projects/litter-picking/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/litter-picking/revived-01.webp" },
+        { "src": "projects/litter-picking/revived-02.webp" }
+      ],
+      "title": "Onboarding into a home community",
+      "body": "New members pick their town, such as Brielle or Zeist, then allow location access, which plogging needs.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/litter-picking/revived-03.webp", "scroll": true }
+      ],
+      "title": "A personal impact dashboard",
+      "body": "Kilograms cleaned and steps plogged from the user profile, then waste reports, news and upcoming sessions.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/litter-picking/revived-04.webp" },
+        { "src": "projects/litter-picking/revived-05.webp" }
+      ],
+      "title": "Find and join local communities",
+      "body": "Towns expand into neighbourhood groups; each page shows its leader, members, sessions and kg collected.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/litter-picking/revived-06.webp" },
+        { "src": "projects/litter-picking/revived-07.webp" }
+      ],
+      "title": "Session list and PIN sign-in",
+      "body": "Upcoming clean-up sessions with turnout; sign-in sends email and PIN to the REST API and keeps the token.",
+      "seconds": 4.2
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "slug": "medrite",
+  "name": "Medrite",
+  "tagline": "Patient app and web portal for a New York urgent care: visits, lab results, OTP sign-in",
+  "category": "Healthcare",
+  "location": "USA",
+  "years": "2022–23",
+  "status": "archived",
+  "statusLabel": "Archived · built 2022–23",
+  "role": "App, web portal and backend by the Softwhere team for Medrite",
+  "platforms": ["iOS", "Android", "Web"],
+  "tech": ["React Native", "Expo", "TypeScript", "Redux Toolkit", "React", "ASP.NET Core", "Azure Functions", "SQL Server"],
+  "accent": "#2fae9f",
+  "icon": {
+    "src": "projects/medrite/icon.webp",
+    "shape": "wide"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/medrite/app-01.webp" }, { "src": "projects/medrite/app-02.webp" }],
+      "title": "Sign-in with a one-time code",
+      "body": "Password first, then a 5-digit e-mail or SMS code that expires in five minutes.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/medrite/app-03.webp" }, { "src": "projects/medrite/app-04.webp" }],
+      "title": "Visits and tests in one place",
+      "body": "The home screen lists recent visits and lab tests; the full history is grouped by month.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/medrite/app-05.webp" }, { "src": "projects/medrite/app-06.webp" }],
+      "title": "Lab results flagged at a glance",
+      "body": "Abnormal values are flagged red, negative tests green; reports can be shared as a PDF.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/medrite/app-07.webp" }, { "src": "projects/medrite/app-08.webp" }],
+      "title": "Visit details and patient chart",
+      "body": "Diagnoses with ICD-10 codes, the discharging provider and the patient's demographic summary.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "Medrite · patient portal",
+      "shots": [
+        { "src": "projects/medrite/web-01.webp", "cursor": { "x": 0.274, "y": 0.66 } },
+        { "src": "projects/medrite/web-02.webp" }
+      ],
+      "title": "Also on the web",
+      "body": "A React patient portal served by the .NET API, with lab results ready to print.",
+      "seconds": 5.2
+    }
+  ]
+}

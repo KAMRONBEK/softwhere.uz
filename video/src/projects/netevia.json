@@ -1,0 +1,121 @@
+{
+  "slug": "netevia",
+  "name": "Netevia",
+  "tagline": "Mobile business banking — accounts, cards, transfers and rewards for US business owners",
+  "category": "Fintech · Business banking",
+  "location": "USA",
+  "years": "2024",
+  "status": "live",
+  "role": "Mobile development for a US business-banking fintech",
+  "platforms": ["iOS", "Android"],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux Toolkit",
+    "Plaid Link",
+    "Apple Wallet",
+    "Firebase",
+    "Feature-Sliced Design",
+    "Biometric auth"
+  ],
+  "accent": "#1e88e5",
+  "icon": {
+    "src": "projects/netevia/icon.webp"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-04.webp"
+        },
+        {
+          "src": "projects/netevia/appstore-01.webp"
+        },
+        {
+          "src": "projects/netevia/appstore-06.webp"
+        }
+      ],
+      "title": "Banking on iOS and Android",
+      "body": "One React Native codebase for accounts, cards, transfers and rewards, in English and Spanish.",
+      "seconds": 5
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-01.webp"
+        }
+      ],
+      "title": "Every account on one home screen",
+      "body": "Netevia and Plaid-linked external accounts in one place, plus cash-flow and balance-history charts.",
+      "seconds": 5
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-02-03.webp"
+        }
+      ],
+      "title": "Transfers and activity search",
+      "body": "ACH, own-account and customer transfers, automations, CSV or PDF statements, and activity filtered by date, category or card.",
+      "seconds": 5.6
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-04.webp"
+        }
+      ],
+      "title": "Virtual cards with spend controls",
+      "body": "Virtual, burner and physical cards with limits by country and merchant category, plus Apple Wallet.",
+      "seconds": 5
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-05.webp"
+        }
+      ],
+      "title": "Rewards with a full points ledger",
+      "body": "Points charted by 6M, 1Y, QTD or YTD, an earned and redeemed history, and PDF statements.",
+      "seconds": 5
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-06.webp"
+        }
+      ],
+      "title": "Gift cards paid for with points",
+      "body": "A searchable brand catalog with filters, in-app ordering and a My Gift Cards wallet.",
+      "seconds": 4.8
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/netevia/appstore-07.webp"
+        }
+      ],
+      "title": "Onboarding and secure sign-in",
+      "body": "Multi-step sign-up with document upload, then MFA and optional biometric login.",
+      "seconds": 5
+    }
+  ]
+}

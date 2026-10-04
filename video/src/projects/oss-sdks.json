@@ -1,0 +1,78 @@
+{
+  "slug": "oss-sdks",
+  "name": "Open-source SDKs",
+  "tagline": "Yandex Maps, emoji and MyID eKYC for React Native & Expo",
+  "category": "Developer tools",
+  "location": "Uzbekistan",
+  "years": "2026",
+  "status": "live",
+  "role": "Built and maintained by Softwhere",
+  "platforms": ["npm", "iOS", "Android", "Web"],
+  "tech": ["React Native", "Expo Modules API", "TypeScript", "Swift", "Kotlin", "New Architecture", "FlashList v2", "react-native-web"],
+  "accent": "#e8842c",
+  "icon": {
+    "src": "projects/oss-sdks/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "web": "github.com/softwhere-uz"
+  },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "github.com/softwhere-uz/expo-yandex-mapkit",
+      "shots": [
+        {
+          "src": "projects/oss-sdks/web-yandex-readme.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Yandex Maps, native in Expo",
+      "body": "Markers, clustering, search, routing and offline maps on iOS and Android, set up by one config plugin.",
+      "seconds": 5.5
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/oss-sdks/emoji-web-02.webp"
+        },
+        {
+          "src": "projects/oss-sdks/emoji-web-01.webp"
+        },
+        {
+          "src": "projects/oss-sdks/emoji-web-03.webp"
+        }
+      ],
+      "title": "Emoji 17 keyboard for chats",
+      "body": "A FlashList v2 grid with search, skin tones and smart recents at keyboard height.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/oss-sdks/emoji-web-04.webp"
+        }
+      ],
+      "title": "Reactions, then the full keyboard",
+      "body": "A recent-first ReactionStrip opens the full keyboard in a bottom sheet; one package for iOS, Android and web.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "github.com/softwhere-uz/react-native-myid",
+      "shots": [
+        {
+          "src": "projects/oss-sdks/web-myid-readme.webp",
+          "scroll": true
+        }
+      ],
+      "title": "MyID eKYC in one typed call",
+      "body": "Unofficial wrapper: an Expo config plugin and a typed identify() around MyID's native face-liveness SDKs.",
+      "seconds": 5
+    }
+  ]
+}

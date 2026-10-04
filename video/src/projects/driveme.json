@@ -1,0 +1,102 @@
+{
+  "slug": "driveme",
+  "name": "DriveMe",
+  "tagline": "Premium chauffeur rides in Uzbekistan — a rider app and a driver app on one platform",
+  "category": "Ride-hailing",
+  "location": "Uzbekistan",
+  "years": "2025–26",
+  "status": "live",
+  "role": "Rider and driver apps for a premium chauffeur service",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Expo SDK 54", "TypeScript", "Expo Router", "Google Maps", "Yandex routing", "Background GPS", "Payme"],
+  "accent": "#14a052",
+  "icon": {
+    "src": "projects/driveme/icon.webp"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-04.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-03.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-05.webp"
+        }
+      ],
+      "title": "Rider app: book a chauffeur",
+      "body": "Set the route on the map, pick a car class, then follow the assigned driver live.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-03.webp"
+        }
+      ],
+      "title": "The route sets the fare",
+      "body": "Yandex routing on Google Maps measures the trip; a backup provider takes over if Yandex is down."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-04.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-05.webp"
+        }
+      ],
+      "title": "Business, Premium or Minivan",
+      "body": "Each class shows its fare with the service fee included. Pay by cash, Uzcard, Humo, Visa or Mastercard."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-03.webp"
+        }
+      ],
+      "title": "Driver app: see the order, then accept",
+      "body": "Each order shows the fare, route, distance and payment type, so drivers decide before they accept."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-04.webp"
+        }
+      ],
+      "title": "Background GPS on every shift",
+      "body": "Metered rides log a GPS point every 5 s while moving, queue points offline and sync them when back online."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-ipad-03.webp"
+        },
+        {
+          "src": "projects/driveme/driver-appstore-05.webp"
+        }
+      ],
+      "title": "Payouts and paperwork",
+      "body": "Top up through Payme, withdraw earnings, and upload ID and cabin photos for review — on phone or iPad.",
+      "seconds": 4.4
+    }
+  ]
+}

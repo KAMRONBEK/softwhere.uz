@@ -1,0 +1,98 @@
+{
+  "slug": "chat-app",
+  "name": "Chat App",
+  "tagline": "Cross-platform messenger prototype for iOS, Android and the web, built with Expo",
+  "category": "Messaging",
+  "location": "Uzbekistan",
+  "years": "2026",
+  "status": "archived",
+  "statusLabel": "Prototype · 2026",
+  "role": "Cross-platform prototype by the Softwhere team",
+  "platforms": [
+    "iOS",
+    "Android",
+    "Web"
+  ],
+  "tech": [
+    "Expo SDK 55",
+    "React Native 0.83",
+    "TypeScript",
+    "Expo Router",
+    "Redux Toolkit / RTK Query",
+    "React Native Web",
+    "Gesture Handler",
+    "redux-persist"
+  ],
+  "accent": "#7357e6",
+  "icon": {
+    "src": "projects/chat-app/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/chat-app/screen-01.webp"
+        },
+        {
+          "src": "projects/chat-app/screen-02.webp"
+        }
+      ],
+      "title": "Chat list and conversations",
+      "body": "Each chat keeps its unsent draft, saved across restarts; search filters by name or message.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/chat-app/screen-03.webp"
+        },
+        {
+          "src": "projects/chat-app/screen-04.webp"
+        }
+      ],
+      "title": "Long-press quick actions",
+      "body": "Press and hold (right-click on web) to open the quick-action menu, with a nested timed-mute submenu.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/chat-app/screen-05.webp"
+        }
+      ],
+      "title": "Peek without opening",
+      "body": "Hold an avatar to preview the conversation in a floating card; let go and you are back in the list.",
+      "seconds": 3.8
+    },
+    {
+      "type": "web",
+      "url": "chat-app · web build",
+      "shots": [
+        {
+          "src": "projects/chat-app/web-01.webp",
+          "cursor": {
+            "x": 0.12,
+            "y": 0.18
+          }
+        },
+        {
+          "src": "projects/chat-app/web-02.webp"
+        },
+        {
+          "src": "projects/chat-app/web-03.webp"
+        }
+      ],
+      "title": "Split view on wide screens",
+      "body": "From 900 px wide, the same code shows chats beside the open conversation, light or dark to match the system.",
+      "seconds": 5.6
+    }
+  ]
+}

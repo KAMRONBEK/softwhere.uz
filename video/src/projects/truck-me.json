@@ -1,0 +1,50 @@
+{
+  "slug": "truck-me",
+  "name": "Truck Me",
+  "tagline": "Truck repairs, maintenance and funding — found in minutes, with 24/7 support",
+  "category": "Fleet services",
+  "location": "USA",
+  "years": "2025–26",
+  "status": "live",
+  "role": "Mobile development for a US fleet-services startup",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Expo", "TypeScript", "Google Maps", "Socket.io", "Biometric auth"],
+  "accent": "#ff6a1a",
+  "icon": { "src": "projects/truck-me/icon.webp" },
+  "links": { "appStore": true, "googlePlay": true },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        { "src": "projects/truck-me/appstore-02.webp" },
+        { "src": "projects/truck-me/appstore-01.webp" },
+        { "src": "projects/truck-me/appstore-03.webp" }
+      ],
+      "title": "Built for owner-operators",
+      "body": "Find service, get help and manage repair spend — all from one app.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/truck-me/appstore-02.webp" }],
+      "title": "A live map of truck services",
+      "body": "Repair, tires, oil and towing nearby, filtered by truck brand and routed in one tap."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/truck-me/appstore-03.webp" }],
+      "title": "Real-time support chat",
+      "body": "Socket-powered messaging with recorded voice notes for drivers on the road."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/truck-me/appstore-01.webp" }],
+      "title": "Discounts and a credit line",
+      "body": "Maintenance discounts and funding that keep a fleet's cash flow predictable."
+    }
+  ]
+}

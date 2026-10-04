@@ -1,0 +1,112 @@
+{
+  "slug": "avtogen",
+  "name": "AvtoGen",
+  "tagline": "Car-wash search and queue booking across Uzbekistan, with a companion app for wash staff",
+  "category": "Car-wash booking",
+  "location": "Uzbekistan",
+  "years": "2019–22",
+  "status": "archived",
+  "role": "Client and staff mobile apps for a car-wash booking service",
+  "platforms": ["iOS", "Android"],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux + Redux Toolkit",
+    "react-native-maps",
+    "Geolocation",
+    "Firebase push",
+    "SMS OTP login",
+    "Lottie"
+  ],
+  "accent": "#f39c12",
+  "icon": {
+    "src": "projects/avtogen/icon.webp"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/avtogen/client-01.webp"
+        },
+        {
+          "src": "projects/avtogen/client-03.webp"
+        }
+      ],
+      "title": "Find a car wash near you",
+      "body": "A search zooms the map to your location and pins the washes nearby.",
+      "seconds": 3.5
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/avtogen/client-02.webp"
+        },
+        {
+          "src": "projects/avtogen/client-04.webp"
+        },
+        {
+          "src": "projects/avtogen/client-05.webp"
+        }
+      ],
+      "title": "Car type, services, time",
+      "body": "One draggable card walks through the steps; its button fills as each is done.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/avtogen/client-06.webp"
+        },
+        {
+          "src": "projects/avtogen/client-07.webp"
+        }
+      ],
+      "title": "Prices first, then a queue slot",
+      "body": "Each wash totals your services and shows today's hours; bookings then await its reply.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/avtogen/agent-02.webp"
+        },
+        {
+          "src": "projects/avtogen/agent-03.webp"
+        },
+        {
+          "src": "projects/avtogen/agent-01.webp"
+        }
+      ],
+      "title": "A separate app for wash staff",
+      "body": "New requests come with a two-minute timer; details show the car model and plate.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/avtogen/rewrite-01.webp"
+        },
+        {
+          "src": "projects/avtogen/rewrite-02.webp"
+        },
+        {
+          "src": "projects/avtogen/rewrite-03.webp"
+        }
+      ],
+      "title": "Rebuilt in 2022 with a new UI",
+      "body": "React Native 0.67 and Redux Toolkit: OTP login, service categories, persisted session.",
+      "seconds": 3.7
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "slug": "bdm",
+  "name": "BDM",
+  "tagline": "Business Documents Management: e-documents signed, rejected and tracked from an iPhone",
+  "category": "E-document exchange",
+  "location": "Uzbekistan",
+  "years": "2020",
+  "status": "archived",
+  "role": "Mobile app built by our founder, published by THE MIND",
+  "platforms": ["iOS"],
+  "tech": ["React Native", "Redux Saga", "Formik", "E-IMZO sign-in", "Push notifications"],
+  "accent": "#4a63d8",
+  "icon": {
+    "src": "projects/bdm/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/bdm/archive-02.webp"
+        },
+        {
+          "src": "projects/bdm/archive-01.webp"
+        },
+        {
+          "src": "projects/bdm/archive-04.webp"
+        }
+      ],
+      "title": "E-documents with legal force",
+      "body": "Sign in with E-IMZO or a web login to BDM, an official electronic document operator in Uzbekistan.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/bdm/archive-02.webp"
+        }
+      ],
+      "title": "Sign, reject or download",
+      "body": "Invoice cards show number, date, amount and counterparty; push alerts flag new documents to sign."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/bdm/archive-03.webp"
+        }
+      ],
+      "title": "Inbox and outbox, folder by folder",
+      "body": "A drawer splits received, signed, rejected and uploaded documents with counts, and a filter speeds up search."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/bdm/archive-04.webp"
+        }
+      ],
+      "title": "Balance and tariffs in the cabinet",
+      "body": "Check the balance and switch between a per-document tariff and a monthly plan; documents are kept 5 years."
+    }
+  ]
+}

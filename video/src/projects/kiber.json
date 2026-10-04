@@ -1,0 +1,101 @@
+{
+  "slug": "kiber",
+  "name": "Kiber",
+  "tagline": "B2B e-document exchange for Uzbek taxpayers, signed with E-IMZO",
+  "category": "E-document exchange",
+  "location": "Uzbekistan",
+  "years": "2022–26",
+  "status": "live",
+  "role": "Web app design and development",
+  "platforms": ["Web"],
+  "tech": ["React 18", "TypeScript", "Redux Toolkit", "Material UI", "E-IMZO / PKCS#7", "i18next (RU / UZ)"],
+  "accent": "#3e68ba",
+  "icon": {
+    "src": "projects/kiber/icon.webp",
+    "shape": "wide"
+  },
+  "links": {
+    "web": "demo.kiber.uz"
+  },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "demo.kiber.uz",
+      "shots": [
+        {
+          "src": "projects/kiber/web-demo-landing.webp",
+          "cursor": {
+            "x": 0.926,
+            "y": 0.047
+          }
+        },
+        {
+          "src": "projects/kiber/web-demo-login.webp"
+        }
+      ],
+      "title": "Sign in with E-IMZO",
+      "body": "Login runs through the national E-IMZO signing app, with TIN and password as a fallback.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "kiber · /main/docs/sender",
+      "shots": [
+        {
+          "src": "projects/kiber/app-outgoing.webp",
+          "cursor": {
+            "x": 0.346,
+            "y": 0.122
+          }
+        },
+        {
+          "src": "projects/kiber/app-outgoing-acts.webp"
+        }
+      ],
+      "title": "One queue per type",
+      "body": "Invoices, acts, contracts, powers of attorney and waybills, each showing the partner's status.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "kiber · /main/invoice",
+      "shots": [
+        {
+          "src": "projects/kiber/app-incoming.webp",
+          "cursor": {
+            "x": 0.485,
+            "y": 0.123
+          }
+        }
+      ],
+      "title": "Countersign to accept",
+      "body": "Accepting adds your E-IMZO signature to the sender's, so the document carries both.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "kiber · /main/factura/create",
+      "shots": [
+        {
+          "src": "projects/kiber/app-create.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Buyer autofill by TIN",
+      "body": "Type a TIN and the buyer's bank, address and VAT code fill in; VAT and totals compute per line.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "kiber · /main/settings/my-products",
+      "shots": [
+        {
+          "src": "projects/kiber/app-products.webp"
+        }
+      ],
+      "title": "Product catalog",
+      "body": "Lines use MXIK, the national product classifier: pick a code and its name and unit fill in.",
+      "seconds": 4.5
+    }
+  ]
+}

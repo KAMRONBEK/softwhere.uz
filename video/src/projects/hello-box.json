@@ -1,0 +1,94 @@
+{
+  "slug": "hello-box",
+  "name": "Hello Box",
+  "tagline": "Admin panel for a Telegram-bot shop: products, partners, news",
+  "category": "E-commerce · Telegram bot",
+  "location": "Uzbekistan",
+  "years": "2021",
+  "status": "archived",
+  "statusLabel": "Archived · built 2021",
+  "role": "Admin dashboard by the Softwhere team for a Telegram-bot shop",
+  "platforms": [
+    "Web"
+  ],
+  "tech": [
+    "React 17",
+    "React Router 5",
+    "styled-components",
+    "Axios",
+    "Create React App",
+    "Boxicons"
+  ],
+  "accent": "#00a3e4",
+  "icon": {
+    "src": "projects/hello-box/icon.webp",
+    "shape": "wide"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "hellobox admin · sign in",
+      "shots": [
+        {
+          "src": "projects/hello-box/app-01.webp",
+          "cursor": {
+            "x": 0.5,
+            "y": 0.699
+          }
+        }
+      ],
+      "title": "One panel behind the shop's bot",
+      "body": "Operators manage what the Hellobox Telegram bot sells from a single neumorphic React panel.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "hellobox admin · products",
+      "shots": [
+        {
+          "src": "projects/hello-box/app-02.webp",
+          "cursor": {
+            "x": 0.939,
+            "y": 0.148
+          }
+        }
+      ],
+      "title": "Product catalog at a glance",
+      "body": "Each item lists its price, category and expiry window, with edit and delete actions on every row.",
+      "seconds": 4.6
+    },
+    {
+      "type": "web",
+      "url": "hellobox admin · add product",
+      "shots": [
+        {
+          "src": "projects/hello-box/app-03.webp",
+          "cursor": {
+            "x": 0.085,
+            "y": 0.522
+          }
+        }
+      ],
+      "title": "Add a product in one form",
+      "body": "Upload a photo, pick a category and partner shop, then set price, expiry and profit share.",
+      "seconds": 4.8
+    },
+    {
+      "type": "web",
+      "url": "hellobox admin · news",
+      "shots": [
+        {
+          "src": "projects/hello-box/app-04.webp",
+          "cursor": {
+            "x": 0.694,
+            "y": 0.28
+          }
+        }
+      ],
+      "title": "News posts for the bot",
+      "body": "Write a post and attach an uploaded image, ready to go out through the bot.",
+      "seconds": 4.6
+    }
+  ]
+}

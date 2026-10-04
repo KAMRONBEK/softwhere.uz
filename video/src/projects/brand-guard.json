@@ -1,0 +1,117 @@
+{
+  "slug": "brand-guard",
+  "name": "Brand Guard",
+  "tagline": "Brand monitoring across Telegram, Instagram, Facebook, YouTube and the web",
+  "category": "Brand monitoring · Analytics",
+  "location": "Uzbekistan",
+  "years": "2026",
+  "status": "archived",
+  "statusLabel": "Internal tool · 2026",
+  "role": "Monitoring dashboard by the Softwhere team",
+  "platforms": [
+    "Web"
+  ],
+  "tech": [
+    "React 19",
+    "TypeScript",
+    "Vite",
+    "Zustand",
+    "TanStack Query",
+    "Tailwind + shadcn/ui",
+    "Server-Sent Events",
+    "Vitest"
+  ],
+  "accent": "#00a76f",
+  "icon": {
+    "src": "projects/brand-guard/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "brandguard · /platforms-search",
+      "shots": [
+        {
+          "src": "projects/brand-guard/app-01.webp",
+          "cursor": {
+            "x": 0.269,
+            "y": 0.806
+          }
+        }
+      ],
+      "title": "One search across five platforms",
+      "body": "Keywords, exclusions and Telegram channels in one query, with bilingual expansion into transliterations.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "brandguard · /platforms-search",
+      "shots": [
+        {
+          "src": "projects/brand-guard/app-02.webp"
+        }
+      ],
+      "title": "Live progress over SSE",
+      "body": "Progress events and partial results stream in, so Telegram hits appear before the web scan ends.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "brandguard · /platforms-search",
+      "shots": [
+        {
+          "src": "projects/brand-guard/app-03.webp",
+          "cursor": {
+            "x": 0.358,
+            "y": 0.197
+          }
+        },
+        {
+          "src": "projects/brand-guard/app-04.webp"
+        }
+      ],
+      "title": "Mentions, reach and sentiment",
+      "body": "Posts, views and tonality by day; click a day to filter the posts, or download the full report.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "brandguard · /platforms-search",
+      "shots": [
+        {
+          "src": "projects/brand-guard/app-05.webp",
+          "cursor": {
+            "x": 0.528,
+            "y": 0.738
+          }
+        },
+        {
+          "src": "projects/brand-guard/app-06.webp"
+        }
+      ],
+      "title": "Insights and flagged posts",
+      "body": "An AI-written recommendation and themes, then every platform's posts grouped by sentiment.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "brandguard · /management/users",
+      "shots": [
+        {
+          "src": "projects/brand-guard/app-07.webp",
+          "cursor": {
+            "x": 0.919,
+            "y": 0.416
+          }
+        },
+        {
+          "src": "projects/brand-guard/app-08.webp"
+        }
+      ],
+      "title": "Roles for every tenant",
+      "body": "Each company gets its own pages; admins, analysts and viewers see only what their permissions allow.",
+      "seconds": 4.6
+    }
+  ]
+}

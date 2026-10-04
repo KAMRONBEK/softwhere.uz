@@ -1,0 +1,56 @@
+{
+  "slug": "workaxle",
+  "name": "WorkAxle",
+  "tagline": "Time clock, schedules, tasks and team chat for an enterprise workforce platform",
+  "category": "Workforce management",
+  "location": "Canada",
+  "years": "2021–22",
+  "status": "live",
+  "role": "Mobile app development for a workforce-management platform",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "GraphQL", "Redux Saga", "Google Maps"],
+  "accent": "#fd6c2e",
+  "icon": { "src": "projects/workaxle/icon.webp" },
+  "links": { "appStore": true, "googlePlay": true },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/workaxle/screen-02.webp" }, { "src": "projects/workaxle/screen-01.webp" }],
+      "title": "Time clock, breaks and a shift log",
+      "body": "Clock-in waits for location and Bluetooth checks; paid breaks, a task tracker and a filterable shift log.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/workaxle/screen-03.webp" }],
+      "title": "Schedules with shift swaps built in",
+      "body": "Personal and department views; trade a shift, find cover or request time off right from the schedule."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/workaxle/screen-04.webp" }],
+      "title": "Availability set by the employee",
+      "body": "Weekly hour and shift limits, repeating weekdays and a night-shift opt-in, saved as scheduling preferences.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [{ "src": "projects/workaxle/screen-05.webp" }],
+      "title": "Department group chats",
+      "body": "Team messaging with photo sharing, read receipts and join or leave notices.",
+      "seconds": 3.4
+    },
+    {
+      "type": "web",
+      "url": "workaxle.com",
+      "shots": [{ "src": "projects/workaxle/web-home.webp" }],
+      "title": "The client's platform",
+      "body": "The employee app is the frontline end of WorkAxle's scheduling and compliance platform for multi-site teams.",
+      "seconds": 4.4
+    }
+  ]
+}
