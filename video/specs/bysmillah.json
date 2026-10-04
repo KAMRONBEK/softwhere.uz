@@ -1,0 +1,106 @@
+{
+  "slug": "bysmillah",
+  "reducedMotion": true,
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "shots": [
+    {
+      "name": "landing",
+      "url": "https://bysmillah.com/",
+      "fullPage": true,
+      "maxHeight": 2565,
+      "waitMs": 3000,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        }
+      ]
+    },
+    {
+      "name": "what-we-do",
+      "url": "https://bysmillah.com/",
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        },
+        {
+          "scroll": 820
+        },
+        {
+          "wait": 1500
+        }
+      ]
+    },
+    {
+      "name": "how-it-works",
+      "url": "https://bysmillah.com/",
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        },
+        {
+          "scroll": 3040
+        },
+        {
+          "wait": 1500
+        }
+      ]
+    },
+    {
+      "name": "early-access",
+      "url": "https://bysmillah.com/",
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        },
+        {
+          "scroll": 3700
+        },
+        {
+          "wait": 1500
+        }
+      ]
+    },
+    {
+      "name": "tools",
+      "url": "https://bysmillah.com/tools",
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        }
+      ]
+    },
+    {
+      "name": "agents",
+      "url": "https://bysmillah.com/agents",
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        }
+      ]
+    },
+    {
+      "name": "agents-advisor",
+      "url": "https://bysmillah.com/agents",
+      "waitMs": 2500,
+      "actions": [
+        {
+          "hide": "div.fixed.bottom-5.right-5"
+        },
+        {
+          "scroll": 560
+        },
+        {
+          "wait": 1500
+        }
+      ]
+    }
+  ]
+}

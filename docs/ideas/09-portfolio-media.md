@@ -2,7 +2,7 @@
 
 > **Status:** the tool is built; no project has been captured yet. Built 2026-10-01; what may be shown was decided 2026-10-02. The tool is the `portfolio-capture` skill (`.claude/skills/portfolio-capture/`). The credit rules are in the `case-study-writer` skill and the Global Playbook (section 6).
 >
-> **Update 2026-10-04:** every one of the 53 portfolio projects now has a silent 16:9 walkthrough video with English captions, rendered with **Remotion** from `video/` ([portfolio-videos.md](../portfolio-videos.md)) and played in the site's portfolio slider. Remotion's free licence covers SoftWhere (three people or fewer, confirmed 2026-10-04). The videos live in `public/videos/` in the repo **for now**; move them to our own server or R2 once that exists. Team-built work is credited "by the Softwhere team". The narrated 45–90 second cuts, vertical versions and framed stills below are still to do with `portfolio-capture`.
+> **Update 2026-10-04:** every one of the 54 portfolio projects now has a silent 16:9 walkthrough video with English captions, rendered with **Remotion** from `video/` ([portfolio-videos.md](../portfolio-videos.md)) and played in the site's portfolio slider. Remotion's free licence covers SoftWhere (three people or fewer, confirmed 2026-10-04). The videos live in `public/videos/` in the repo **for now**; move them to our own server or R2 once that exists. Team-built work is credited "by the Softwhere team". The narrated 45–90 second cuts, vertical versions and framed stills below are still to do with `portfolio-capture`.
 
 ## The idea
 
@@ -38,7 +38,7 @@ Test outputs (a 31-second narrated softwhere.uz walkthrough and a vertical loop)
 ## What may be shown (founders' decision, 2 October 2026)
 
 - **Every project in the portfolio is shown by name**, with the real app, icon and screens. The founders confirmed there are no NDA issues with the current list, and they will add more projects. For a new project, confirm it may be shown before recording.
-- **Interest-based banking, lending and insurance projects** (Netevia, Nestegg.ai, Nestegg Loan, Asia Insurance, ASCON) are shown as regular projects but **always last**: last on the site, in proposals and in reels, and recorded last. The site already lists them last (`src/shared/data/projects.ts`, positions 46–53: Nestegg.ai and Nestegg Loan are now one NestEgg entry, joined by Agrobank FRESH, Ipak Yuli Bank Locator, ZPay and Emit Autolab). The client policy still says we don't take this kind of work, so they are never offered as a service.
+- **Interest-based banking, lending and insurance projects** (Netevia, Nestegg.ai, Nestegg Loan, Asia Insurance, ASCON) are shown as regular projects but **always last**: last on the site, in proposals and in reels, and recorded last. The site already lists them last (`src/shared/data/projects.ts`, positions 47–54: Nestegg.ai and Nestegg Loan are now one NestEgg entry, joined by Agrobank FRESH, Ipak Yuli Bank Locator, ZPay and Emit Autolab). The client policy still says we don't take interest-based work, so these projects are never offered as a service. Bysmillah (halal, interest-free car financing) is not in this group: it sits near the top with the other live work (decided 2026-10-04).
 
 Rules for every project:
 
@@ -59,7 +59,7 @@ Rules for every project:
 1. **Talim AI, DriveMe and DriveMe Driver:** about 1–3 hours of Claude time each. Getting old builds to run is the slowest part.
 2. **The other public apps**, then **the unreleased ones** with demo data.
 3. **The banking and insurance projects last.**
-4. **Put each project on the site** with the `case-study-writer` skill, then remove the overstated "24 apps live" count (playbook section 6). _Count done 2026-10-04: the hero now counts only projects with a live App Store or Google Play link (16 of 53, every link checked), with no "+"._
+4. **Put each project on the site** with the `case-study-writer` skill, then remove the overstated "24 apps live" count (playbook section 6). _Count done 2026-10-04: the hero now counts only projects with a live App Store or Google Play link (16 of 54, every link checked), with no "+"._
 
 **How to start a session on the Mac:** "Use the portfolio-capture skill to make the portfolio videos for Talim AI." The skill walks through:
 
