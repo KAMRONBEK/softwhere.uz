@@ -382,14 +382,17 @@ const t = useTranslations('contact');
 Static content comes from typed data modules under `src/shared/data/`:
 
 - `projects.ts` — `Project[]` (`src/shared/types` `Project`: `id`, `name`, `description.{uz,ru,en}`,
-  `technology`, `location`, `type`, optional store/site URLs). Array order **is** slider order and
-  `id` must equal array-index + 1.
-- `projectImages.ts` — `projectVisuals` map (icon/screenshot `StaticImageData`) keyed by project name.
+  `technology`, `location`, `type`, optional store/product URLs, optional `video`). Array order **is**
+  slider order and `id` must equal array-index + 1.
+- `projectImages.ts` — `projectVisuals` map (icon/screenshot `StaticImageData`) keyed by project name;
+  the fallback visual for projects without a walkthrough video.
 
 `ProjectSlider` (`sections/Projects/components/ProjectSlider/`, client) renders `projects` in a
-`react-slick` carousel, picks the description by `params.locale`, and resolves visuals via
-`projectVisuals[name]` (falling back to initials). It uses `lazyLoad: 'ondemand'` specifically so
-infinite mode doesn't clone every slide's `<img>` into the homepage HTML.
+`react-slick` carousel and picks the description by `params.locale`. `ProjectMedia` shows the
+project's walkthrough video (`ProjectVideo`, see [portfolio-videos.md](./portfolio-videos.md)) or falls
+back to `projectVisuals[name]` / initials. The slider advances when a video ends (slides without one
+advance after `STILL_SLIDE_MS`). It uses `lazyLoad: 'ondemand'` specifically so infinite mode doesn't
+clone every slide's media into the homepage HTML.
 
 The `Contact` form (client) is the one interactive section: `react-international-phone` `PhoneInput`
 limited to a `RELEVANT_COUNTRIES` set (to keep the SSR'd country `<li>` list small), client-side

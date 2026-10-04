@@ -113,7 +113,15 @@ export interface Project {
   type: string;
   playMarket?: string;
   appStore?: string;
+  /** The product itself (never a client's corporate site). */
   website?: string;
+  /** Promo walkthrough rendered by the video/ Remotion project into public/videos. */
+  video?: ProjectVideo;
+}
+
+export interface ProjectVideo {
+  src: string;
+  poster: string;
 }
 
 // Form Types

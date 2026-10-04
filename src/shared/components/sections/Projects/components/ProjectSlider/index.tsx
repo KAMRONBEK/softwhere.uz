@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Slider from 'react-slick';
 
 import Image from 'next/image';
@@ -8,7 +8,6 @@ import 'slick-carousel/slick/slick.css';
 import css from './style.module.css';
 
 import { projects } from '@/shared/data/projects';
-import { projectVisuals } from '@/shared/data/projectImages';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import AppStoreIcon from '../../../../../../../public/icons/ios.svg';
@@ -16,20 +15,10 @@ import LinkToIcon from '../../../../../../../public/icons/link.svg';
 import LocationIcon from '../../../../../../../public/icons/place_outline_24.svg';
 import PlayMarketIcon from '../../../../../../../public/icons/play-market.svg';
 import WorkIcon from '../../../../../../../public/icons/work_outline_24.svg';
+import ProjectMedia from '../ProjectMedia';
 
-function visualFor(name: string) {
-  return projectVisuals[name];
-}
-
-/** "Align 360" -> "A3", "NAFT" -> "N" — fallback badge for icon-less projects. */
-function initialsOf(name: string): string {
-  return name
-    .split(/\s+/)
-    .map(w => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
+/** How long a slide without a walkthrough video stays up; video slides advance when their video ends. */
+const STILL_SLIDE_MS = 4000;
 
 function ProjectSlider() {
   const sliderRef = useRef<Slider | null>(null);
@@ -47,15 +36,22 @@ function ProjectSlider() {
     lazyLoad: 'ondemand' as const,
     slidesToShow: 1,
     slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2500,
+    // Advancing is driven below so a walkthrough video is never cut off mid-play.
+    autoplay: false,
     arrows: false,
-    pauseOnHover: true,
-    pauseOnFocus: true,
-    beforeChange: (current: number, next: number) => {
+    beforeChange: (_current: number, next: number) => {
       setActiveSlide(next + 1);
     },
   };
+
+  const goToNext = useCallback(() => sliderRef.current?.slickNext(), []);
+
+  useEffect(() => {
+    const active = projects[activeSlide - 1];
+    if (!active || active.video) return;
+    const timer = setTimeout(goToNext, STILL_SLIDE_MS);
+    return () => clearTimeout(timer);
+  }, [activeSlide, goToNext]);
 
   const handleChangeSlide = (i: number) => {
     setActiveSlide(i + 1);
@@ -142,24 +138,12 @@ function ProjectSlider() {
                 )}
               </div>
             </div>
-            <div data-aos='fade-up-left' className={css.iconWrap}>
-              {visualFor(item.name)?.screenshot ? (
-                <>
-                  <Image className={css.screenshot} src={visualFor(item.name)!.screenshot!} alt={`${item.name} app screenshot`} />
-                  <Image className={css.iconBadge} src={visualFor(item.name)!.src} alt='' />
-                </>
-              ) : projectVisuals[item.name] ? (
-                <Image
-                  className={projectVisuals[item.name].wide ? css.appLogo : css.appIcon}
-                  src={projectVisuals[item.name].src}
-                  alt={`${item.name} app icon`}
-                />
-              ) : (
-                <span className={css.initials} aria-hidden='true'>
-                  {initialsOf(item.name)}
-                </span>
-              )}
-            </div>
+            <ProjectMedia
+              project={item}
+              active={activeSlide === item.id}
+              videoLabel={t('videoLabel', { name: item.name })}
+              onVideoEnded={goToNext}
+            />
           </div>
         ))}
       </Slider>

@@ -396,6 +396,7 @@
     "title": "Our pride - projects",
     "description": "Our software development company is proud of our wonderful clients. We are very pleased with long-term cooperation.",
     "viewProject": "View {name}",
+    "videoLabel": "{name} walkthrough video",
     "eyebrow": "Selected work",
     "viewAll": "View all"
   },
