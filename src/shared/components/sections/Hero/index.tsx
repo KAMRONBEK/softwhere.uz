@@ -8,6 +8,9 @@ import Counter from '@/shared/components/Counter';
 import { projects } from '@/shared/data/projects';
 import { useTranslations } from 'next-intl';
 
+// Only portfolio apps with a live store listing count — not every project.
+const LIVE_STORE_APPS = projects.filter(project => project.appStore || project.playMarket).length;
+
 function Hero() {
   const t = useTranslations('hero');
 
@@ -49,7 +52,7 @@ function Hero() {
           <div className={css.stats}>
             <div className={css.statCard}>
               <div className={css.statValue}>
-                <Counter to={projects.length} />
+                <Counter to={LIVE_STORE_APPS} suffix='' />
               </div>
               <div className={css.statLabel}>{t('statAppsLabel')}</div>
             </div>
