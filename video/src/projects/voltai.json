@@ -1,0 +1,85 @@
+{
+  "slug": "voltai",
+  "name": "VoltAI",
+  "tagline": "EV charging stations across Uzbekistan, plus a trip planner",
+  "category": "EV & Mobility",
+  "location": "Uzbekistan",
+  "years": "2026",
+  "status": "pre-launch",
+  "role": "Our own product — mobile app, website and station API",
+  "platforms": ["iOS", "Android", "Web"],
+  "tech": ["Expo / React Native", "TypeScript", "Yandex MapKit", "Next.js", "Express", "SQLite", "Cloudflare"],
+  "accent": "#1cbf62",
+  "icon": {
+    "src": "projects/voltai/icon.webp"
+  },
+  "links": {
+    "web": "voltai.uz"
+  },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "voltai.uz/en",
+      "shots": [
+        {
+          "src": "projects/voltai/web-hero.webp"
+        }
+      ],
+      "title": "For EV drivers",
+      "body": "The product site, in Uzbek, Russian and English, with store links ready for launch.",
+      "seconds": 4.5
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/voltai/app-map.webp"
+        }
+      ],
+      "title": "580 stations on one live map",
+      "body": "Several charging networks in one catalog, with live status and filters for power, connector and city.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/voltai/app-plan.webp"
+        }
+      ],
+      "title": "Trips planned around your car",
+      "body": "Add your car, today's charge and a start city; the server plans the charging stops.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/voltai/app-route.webp"
+        }
+      ],
+      "title": "Compare plans before you go",
+      "body": "Fastest vs. most-buffer options, with charge time per stop and the battery left on arrival.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/voltai/app-garage.webp"
+        },
+        {
+          "src": "projects/voltai/app-settings.webp"
+        }
+      ],
+      "title": "Private by design",
+      "body": "No account needed: cars and preferences stay on the phone, and trips send only coordinates and car specs.",
+      "seconds": 4.2
+    }
+  ],
+  "statusLabel": "voltai.uz · apps launching soon"
+}

@@ -1,0 +1,7 @@
+{
+  "slug": "whoriddle",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [
+    { "name": "web-home", "url": "https://www.whoriddle.com/", "fullPage": false, "waitMs": 3000 }
+  ]
+}

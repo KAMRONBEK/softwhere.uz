@@ -1,0 +1,137 @@
+{
+  "slug": "nestegg",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [
+    {
+      "name": "brand",
+      "url": "https://nestegg.ai/",
+      "fullPage": false,
+      "waitMs": 2500
+    },
+    {
+      "name": "loans",
+      "url": "https://loans.nestegg.ai/",
+      "fullPage": true,
+      "maxHeight": 2620,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 600}
+      ]
+    },
+    {
+      "name": "filter-amount",
+      "url": "https://loans.nestegg.ai/",
+      "fullPage": false,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 400},
+        {"click": "text=Clear filters"},
+        {"wait": 1500},
+        {"click": "[id=\"gtm-Min amount-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"hover": "text=\"£5,000\""},
+        {"wait": 600}
+      ]
+    },
+    {
+      "name": "filter-term",
+      "url": "https://loans.nestegg.ai/",
+      "fullPage": false,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 400},
+        {"click": "text=Clear filters"},
+        {"wait": 1500},
+        {"click": "[id=\"gtm-Min amount-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"£5,000\""},
+        {"wait": 2000},
+        {"click": "[id=\"gtm-Min term-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"hover": "text=\"24 months\""},
+        {"wait": 600}
+      ]
+    },
+    {
+      "name": "filter-result",
+      "url": "https://loans.nestegg.ai/",
+      "fullPage": false,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 400},
+        {"click": "text=Clear filters"},
+        {"wait": 1500},
+        {"click": "[id=\"gtm-Min amount-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"£5,000\""},
+        {"wait": 2000},
+        {"click": "[id=\"gtm-Min term-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"24 months\""},
+        {"wait": 2500}
+      ]
+    },
+    {
+      "name": "detail",
+      "url": "https://loans.nestegg.ai/",
+      "fullPage": false,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 400},
+        {"click": "text=Clear filters"},
+        {"wait": 1500},
+        {"click": "[id=\"gtm-Min amount-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"£5,000\""},
+        {"wait": 2000},
+        {"click": "[id=\"gtm-Min term-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"24 months\""},
+        {"wait": 2500},
+        {"click": "button:has-text(\"View more details\") >> nth=0"},
+        {"wait": 2500}
+      ]
+    },
+    {
+      "name": "detail-amount",
+      "url": "https://loans.nestegg.ai/",
+      "fullPage": false,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 400},
+        {"click": "text=Clear filters"},
+        {"wait": 1500},
+        {"click": "[id=\"gtm-Min amount-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"£5,000\""},
+        {"wait": 2000},
+        {"click": "[id=\"gtm-Min term-select\"] >> xpath=../.."},
+        {"wait": 600},
+        {"click": "text=\"24 months\""},
+        {"wait": 2500},
+        {"click": "button:has-text(\"View more details\") >> nth=0"},
+        {"wait": 2500},
+        {"click": ".rc-slider >> nth=0"},
+        {"wait": 1500},
+        {"hover": "text=Features"},
+        {"wait": 300}
+      ]
+    },
+    {
+      "name": "eligibility",
+      "url": "https://loans.nestegg.ai/eligibility-check",
+      "fullPage": false,
+      "waitMs": 2500,
+      "actions": [
+        {"click": "button:has-text(\"Decline\")"},
+        {"wait": 600}
+      ]
+    }
+  ]
+}

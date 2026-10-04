@@ -1,0 +1,100 @@
+{
+  "slug": "ai-merch",
+  "name": "AI Merch",
+  "tagline": "Field app for in-store retail analytics: reps shoot the shelves, AI returns the data",
+  "category": "Retail analytics",
+  "location": "USA",
+  "years": "2025",
+  "status": "live",
+  "role": "Mobile app development by the Softwhere team for Ai Merch Corp",
+  "platforms": [
+    "iOS",
+    "iPad"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "VisionCamera",
+    "TanStack Query",
+    "Zustand + MMKV",
+    "Firebase Cloud Messaging",
+    "React Native Maps",
+    "i18next (EN / ES)"
+  ],
+  "accent": "#f39506",
+  "icon": {
+    "src": "projects/ai-merch/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "appStore": true
+  },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "aimerch.io",
+      "shots": [
+        {
+          "src": "projects/ai-merch/web-site-hero.webp"
+        }
+      ],
+      "title": "Shelf intelligence for US retail",
+      "body": "AI Merch turns store visits into shelf data for distributors, manufacturers and retailers.",
+      "seconds": 3.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ai-merch/appstore-06.webp"
+        }
+      ],
+      "title": "Closest store first",
+      "body": "The app reads GPS and puts the nearest store on top with its distance; the full list is searchable.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ai-merch/appstore-02.webp"
+        },
+        {
+          "src": "projects/ai-merch/appstore-03.webp"
+        }
+      ],
+      "title": "A guided store visit",
+      "body": "Pick Before/After or Survey, shoot cooler doors, shelves and POS displays, then finish the location.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ai-merch/gallery.webp"
+        }
+      ],
+      "title": "Shelf photos in, shelf data out",
+      "body": "Photos queue for background upload; the AI reports SKUs, facings, shelves and empty space for each.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ai-merch/appstore-04.webp"
+        },
+        {
+          "src": "projects/ai-merch/appstore-05.webp"
+        }
+      ],
+      "title": "Every visit on record",
+      "body": "History lists visited stores by day, with a date-range filter and an item count for each stop.",
+      "seconds": 3.8
+    }
+  ]
+}

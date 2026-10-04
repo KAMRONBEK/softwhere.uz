@@ -1,0 +1,97 @@
+{
+  "slug": "livemysteps",
+  "name": "LiveMySteps",
+  "tagline": "Social travel journal: geotagged photos on a personal map, shared with friends",
+  "category": "Social travel",
+  "location": "USA",
+  "years": "2020–21",
+  "status": "live",
+  "role": "iOS app and web companion by the Softwhere team for KRIVI Associates",
+  "platforms": [
+    "iOS",
+    "iPad",
+    "Web"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux",
+    "react-native-maps",
+    "Google Maps Platform",
+    "Firebase Messaging",
+    "React + Redux-Saga",
+    "Sentry"
+  ],
+  "accent": "#f2b600",
+  "icon": {
+    "src": "projects/livemysteps/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "appStore": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/livemysteps/screen-01.webp"
+        }
+      ],
+      "title": "Every photo pinned on a map",
+      "body": "Clusters show the most-liked shot with a count; search any place, browse by year or share the map as an image.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/livemysteps/screen-02.webp"
+        },
+        {
+          "src": "projects/livemysteps/screen-03.webp"
+        }
+      ],
+      "title": "Location read from the photo",
+      "body": "GPS and time come from the photo's metadata and become a place name; stories stay up for 7 days.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/livemysteps/screen-04.webp"
+        },
+        {
+          "src": "projects/livemysteps/screen-05.webp"
+        }
+      ],
+      "title": "A calendar of favorite moments",
+      "body": "Pick favorites for each month, see a year of covers at a glance, then share to private groups or by link.",
+      "seconds": 4.4
+    },
+    {
+      "type": "web",
+      "url": "livemysteps · web app",
+      "shots": [
+        {
+          "src": "projects/livemysteps/web-01.webp",
+          "scroll": true,
+          "cursor": {
+            "x": 0.43,
+            "y": 0.909
+          }
+        },
+        {
+          "src": "projects/livemysteps/web-02.webp"
+        }
+      ],
+      "title": "Friends on the web",
+      "body": "React web app with friends' posts, likes, threaded comments and one-click sharing to social networks.",
+      "seconds": 6.5
+    }
+  ]
+}

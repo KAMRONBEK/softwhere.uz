@@ -1,0 +1,102 @@
+{
+  "slug": "ipak-yuli-locator",
+  "name": "Ipak Yuli Bank Locator",
+  "tagline": "Branch, ATM and minibank finder for Ipak Yuli Bank: clustered map, search and routes",
+  "category": "Banking",
+  "location": "Uzbekistan",
+  "years": "2020–21",
+  "status": "archived",
+  "statusLabel": "Archived · built 2020–21",
+  "role": "Mobile app development by the Softwhere team for Ipak Yuli Bank",
+  "platforms": [
+    "Android",
+    "iOS"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux + Thunk",
+    "React Navigation",
+    "react-native-maps",
+    "Supercluster",
+    "Google Directions API",
+    "geolib"
+  ],
+  "accent": "#3ead85",
+  "icon": {
+    "src": "projects/ipak-yuli-locator/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ipak-yuli-locator/revived-01.webp"
+        }
+      ],
+      "title": "Every location, one tap away",
+      "body": "Map, list, search and my-location shortcuts, with the interface in Uzbek, Russian and English.",
+      "seconds": 3.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ipak-yuli-locator/revived-02.webp"
+        },
+        {
+          "src": "projects/ipak-yuli-locator/revived-03.webp"
+        }
+      ],
+      "title": "98 locations on a clustered map",
+      "body": "Branches, minibanks and ATMs on one map; supercluster groups the pins and splits them as you zoom in.",
+      "seconds": 4.0
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ipak-yuli-locator/revived-04.webp"
+        },
+        {
+          "src": "projects/ipak-yuli-locator/revived-05.webp"
+        }
+      ],
+      "title": "Search by name, district or type",
+      "body": "One-tap ATM, branch and minibank filters plus text search; the map refits, like 7 matches in Yunusabad.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ipak-yuli-locator/revived-06.webp"
+        }
+      ],
+      "title": "Each location as an action card",
+      "body": "Address, hours and an open or closed badge, with bank-app transfer, show-on-map and call buttons.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/ipak-yuli-locator/revived-07.webp"
+        },
+        {
+          "src": "projects/ipak-yuli-locator/revived-08.webp"
+        }
+      ],
+      "title": "Details, directions and card orders",
+      "body": "Distance from you, driving directions, one-tap call, and Uzcard, Humo and Visa orders via the bank's app.",
+      "seconds": 4.2
+    }
+  ]
+}

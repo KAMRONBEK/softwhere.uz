@@ -1,0 +1,98 @@
+{
+  "slug": "edocs",
+  "name": "EDOCS",
+  "tagline": "Sign, accept or reject legally binding e-documents from a phone",
+  "category": "E-document exchange",
+  "location": "Uzbekistan",
+  "years": "2020–25",
+  "status": "live",
+  "role": "Mobile development for edocs.uz — 2020 app and 2025 rebuild",
+  "platforms": ["iOS", "Android", "iPad"],
+  "tech": ["React Native", "TypeScript", "Redux Saga", "QR code scanner", "Uzbek / Russian i18n"],
+  "accent": "#f39200",
+  "icon": {
+    "src": "projects/edocs/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/edocs/appstore-01.webp"
+        }
+      ],
+      "title": "Every e-document in one inbox",
+      "body": "Invoices, acts, waybills and powers of attorney, color-coded: signed, awaiting signature or rejected.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/edocs/appstore-02.webp"
+        },
+        {
+          "src": "projects/edocs/doc-01.webp"
+        }
+      ],
+      "title": "Swipe to sign, tap to view",
+      "body": "Cards reveal sign, share and bookmark actions; the viewer shows the official layout with QR code and stamps.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/edocs/appstore-04.webp"
+        },
+        {
+          "src": "projects/edocs/play-05.webp"
+        }
+      ],
+      "title": "13 document types, one filter",
+      "body": "Narrow by counterparty INN/PINFL, number or date — or scan a QR code to find a document or receipt.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/edocs/play-01.webp"
+        },
+        {
+          "src": "projects/edocs/play-02.webp"
+        }
+      ],
+      "title": "One phone login, every company",
+      "body": "One-time-code sign-in or a demo mode, then balance and monthly document stats for each legal entity.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/edocs/v2020-03.webp"
+        },
+        {
+          "src": "projects/edocs/v2020-01.webp"
+        },
+        {
+          "src": "projects/edocs/v2020-02.webp"
+        }
+      ],
+      "title": "Where it started: the 2020 app",
+      "body": "Our first EDOCS app shipped in 2020 with inbox, outbox and invoice creation, before the 2025 rebuild.",
+      "seconds": 4.4
+    }
+  ]
+}

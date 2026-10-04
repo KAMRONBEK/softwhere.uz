@@ -1,0 +1,64 @@
+{
+  "slug": "haru-console",
+  "name": "RoboNet for Haru",
+  "tagline": "Calling portal and real-time server for Honda Research Institute's Haru robot platform",
+  "category": "Robotics · Communication",
+  "location": "International",
+  "years": "2022",
+  "status": "archived",
+  "statusLabel": "Internal tool · 2022",
+  "role": "Backend and web portal by the Softwhere team for Honda Research Institute",
+  "platforms": ["Web"],
+  "tech": ["NestJS", "PostgreSQL + TypeORM", "AWS Cognito", "Server-Sent Events", "WebRTC", "React 17 + TypeScript", "Material UI", "Docker on AWS ECS"],
+  "accent": "#4853e7",
+  "icon": { "src": "projects/haru-console/icon.webp", "shape": "wide" },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "robonet · /sign-in",
+      "shots": [{ "src": "projects/haru-console/app-01.webp" }],
+      "title": "Sign-in backed by AWS Cognito",
+      "body": "Amplify signs users in against a Cognito user pool; the NestJS API verifies every access token.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "robonet · /contacts",
+      "shots": [
+        { "src": "projects/haru-console/app-02.webp", "cursor": { "x": 0.094, "y": 0.071 } },
+        { "src": "projects/haru-console/app-03.webp" }
+      ],
+      "title": "Contacts with live presence",
+      "body": "Status badges on every contact; pick one of four states, from Keen to meet to Not available.",
+      "seconds": 4.8
+    },
+    {
+      "type": "web",
+      "url": "robonet · /devices",
+      "shots": [{ "src": "projects/haru-console/app-04.webp" }],
+      "title": "Haru and Clara devices per user",
+      "body": "Devices linked through the desktop app report Online or Offline and can be renamed or disconnected.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "robonet · /calls",
+      "shots": [{ "src": "projects/haru-console/app-05.webp" }],
+      "title": "A callbook of every call",
+      "body": "Incoming, outgoing and missed calls grouped by day, with durations and a call-back action.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "robonet · /contacts",
+      "shots": [
+        { "src": "projects/haru-console/app-06.webp", "cursor": { "x": 0.664, "y": 0.5 } },
+        { "src": "projects/haru-console/app-07.webp", "cursor": { "x": 0.8, "y": 0.75 } }
+      ],
+      "title": "Answer calls from the browser",
+      "body": "Call events arrive over Server-Sent Events; the NestJS server also relays WebRTC signaling between devices.",
+      "seconds": 4.8
+    }
+  ]
+}

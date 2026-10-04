@@ -1,0 +1,118 @@
+{
+  "slug": "zpay",
+  "name": "ZPay",
+  "tagline": "A buy-now-pay-later app for Uzbekistan: installments, partner stores and bonus Z-coins",
+  "category": "FinTech · Buy now, pay later",
+  "location": "Uzbekistan",
+  "years": "2022",
+  "status": "archived",
+  "statusLabel": "Prototype · 2022",
+  "role": "Mobile app development by the Softwhere team",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native 0.67",
+    "TypeScript",
+    "React Navigation 6",
+    "Reanimated 2",
+    "react-native-camera",
+    "react-native-touch-id"
+  ],
+  "accent": "#3554d1",
+  "icon": {
+    "src": "projects/zpay/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/zpay/screen-01.webp"
+        },
+        {
+          "src": "projects/zpay/screen-02.webp"
+        },
+        {
+          "src": "projects/zpay/screen-03.webp"
+        }
+      ],
+      "title": "Phone sign-up with SMS code",
+      "body": "Register, log in or skip to browse; the number is masked as you type and confirmed with a 4-digit code.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/zpay/screen-04.webp"
+        },
+        {
+          "src": "projects/zpay/screen-05.webp"
+        },
+        {
+          "src": "projects/zpay/screen-06.webp"
+        }
+      ],
+      "title": "Passport details, face photo and PIN",
+      "body": "Identification takes passport data and a guided face photo; a 4-digit PIN can be paired with Face ID.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/zpay/screen-07.webp"
+        },
+        {
+          "src": "projects/zpay/screen-08.webp"
+        }
+      ],
+      "title": "Your limit and Z-coins at a glance",
+      "body": "Current limit, Z-coin bonuses, QR scanner and recent charges up front; cards are added with a design picker.",
+      "seconds": 3.9
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/zpay/screen-09.webp"
+        },
+        {
+          "src": "projects/zpay/screen-10.webp"
+        },
+        {
+          "src": "projects/zpay/screen-11.webp"
+        }
+      ],
+      "title": "Contracts and payment plans",
+      "body": "Each contract shows its term, status and monthly payment schedule, with early repayment from a saved card.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/zpay/screen-12.webp"
+        },
+        {
+          "src": "projects/zpay/screen-13.webp"
+        },
+        {
+          "src": "projects/zpay/screen-14.webp"
+        }
+      ],
+      "title": "Partner stores and bonus spending",
+      "body": "Partner offers by category with monthly prices; saved bonuses pay for mobile, internet, utilities and more.",
+      "seconds": 4.2
+    }
+  ]
+}

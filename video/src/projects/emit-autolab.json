@@ -1,0 +1,114 @@
+{
+  "slug": "emit-autolab",
+  "name": "Emit Autolab",
+  "tagline": "Car-leasing app for Uzbekistan: MyID check, car catalog, contracts and card payments",
+  "category": "Car leasing",
+  "location": "Uzbekistan",
+  "years": "2024",
+  "status": "archived",
+  "statusLabel": "Built 2024 · not launched",
+  "role": "iOS and Android app development by the Softwhere team",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux Toolkit",
+    "React Navigation",
+    "MyID SDK (Swift + Kotlin)",
+    "Reanimated 3",
+    "MMKV storage",
+    "i18n-js"
+  ],
+  "accent": "#155eef",
+  "icon": {
+    "src": "projects/emit-autolab/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/emit-autolab/app-01.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-02.webp"
+        }
+      ],
+      "title": "Welcome, then phone sign-up",
+      "body": "A branded welcome screen, then sign-up by phone number with privacy and personal-data consent checkboxes.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/emit-autolab/app-04.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-05.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-06.webp"
+        }
+      ],
+      "title": "From catalog to a monthly price",
+      "body": "Brand rows open a car page with a colour picker, region and dealer choice, and the full installment breakdown.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/emit-autolab/app-07.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-08.webp"
+        }
+      ],
+      "title": "Identity check with MyID",
+      "body": "Passport and birth date, then a MyID face check through native iOS and Android modules ahead of scoring.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/emit-autolab/app-09.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-10.webp"
+        }
+      ],
+      "title": "Contracts that show every stage",
+      "body": "Status badges follow scoring, car and insurance payments; each contract lists its costs and is signed in-app.",
+      "seconds": 3.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/emit-autolab/app-11.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-12.webp"
+        },
+        {
+          "src": "projects/emit-autolab/app-13.webp"
+        }
+      ],
+      "title": "Pay by card, keep the receipt",
+      "body": "Uzcard or Humo cards pay scoring and contract fees: confirm in a sheet, approve by code, get a fiscal receipt.",
+      "seconds": 4
+    }
+  ]
+}

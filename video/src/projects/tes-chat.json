@@ -1,0 +1,154 @@
+{
+  "slug": "tes-chat",
+  "name": "TES Chat",
+  "tagline": "Real-time messenger for Turon Ecosystem: chats, groups, channels and calls",
+  "category": "Messaging",
+  "location": "Uzbekistan",
+  "years": "2026",
+  "status": "live",
+  "role": "Lead mobile development for Turon Ecosystem",
+  "platforms": ["Android", "Web"],
+  "tech": [
+    "React Native 0.85",
+    "Expo SDK 56",
+    "TypeScript",
+    "Redux Toolkit / RTK Query",
+    "WebSocket + MessagePack",
+    "WebRTC",
+    "expo-sqlite",
+    "Feature-Sliced Design"
+  ],
+  "accent": "#2e93e7",
+  "icon": {
+    "src": "projects/tes-chat/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "googlePlay": true,
+    "web": "teschat.org"
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-04.webp"
+        },
+        {
+          "src": "projects/tes-chat/screen-03.webp"
+        },
+        {
+          "src": "projects/tes-chat/screen-06.webp"
+        }
+      ],
+      "title": "A complete messenger",
+      "body": "One inbox for direct chats, groups and channels, with the interface in Uzbek, Russian and English.",
+      "seconds": 4.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-01.webp"
+        }
+      ],
+      "title": "Live sync that works offline",
+      "body": "Chats sync over WebSocket + MessagePack; history is cached in SQLite and offline sends queue up.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-02.webp"
+        }
+      ],
+      "title": "Voice notes, maps and calls",
+      "body": "Voice notes and Yandex map locations render inline; the header starts WebRTC voice or video calls.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-03.webp"
+        }
+      ],
+      "title": "Group chats for families and teams",
+      "body": "Sender names on every bubble; a press-and-hold menu to reply, forward, edit, pin or react.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-04.webp"
+        }
+      ],
+      "title": "Channels that broadcast",
+      "body": "One-to-many posts in the same inbox; search finds public channels by @handle, and any chat can be muted.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-05.webp"
+        }
+      ],
+      "title": "Wallpapers, preset or your own",
+      "body": "Color and pattern presets or a gallery photo, set app-wide or overridden for one conversation.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/tes-chat/screen-06.webp"
+        }
+      ],
+      "title": "Color themes and accents",
+      "body": "Classic, Day, Night and Tinted presets recolor the whole app, plus message accents and light or dark.",
+      "seconds": 4
+    },
+    {
+      "type": "web",
+      "url": "teschat.org",
+      "shots": [
+        {
+          "src": "projects/tes-chat/web-landing.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Android or the browser",
+      "body": "The public page at teschat.org links the Android build and the web client, then lists the features.",
+      "seconds": 6
+    },
+    {
+      "type": "web",
+      "url": "teschat.org/app",
+      "shots": [
+        {
+          "src": "projects/tes-chat/web-app-lang.webp",
+          "cursor": {
+            "x": 0.435,
+            "y": 0.707
+          }
+        },
+        {
+          "src": "projects/tes-chat/web-app.webp"
+        }
+      ],
+      "title": "Same app on the web",
+      "body": "The React Native + Expo codebase also exports the web client; the language switches live, Uzbek to English.",
+      "seconds": 5.5
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "slug": "businessgov",
+  "name": "BusinessGov",
+  "tagline": "Concept app for entrepreneurs filing appeals with Uzbekistan's Business Ombudsman",
+  "category": "Civic tech · Business appeals",
+  "location": "Uzbekistan",
+  "years": "2022",
+  "status": "archived",
+  "statusLabel": "Prototype · 2022",
+  "role": "App prototype by the Softwhere team",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "TypeScript", "React Navigation", "React Native Paper"],
+  "accent": "#3d7bc4",
+  "icon": {
+    "src": "projects/businessgov/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/businessgov/revived-01.webp" },
+        { "src": "projects/businessgov/revived-02.webp" },
+        { "src": "projects/businessgov/revived-03.webp" }
+      ],
+      "title": "Sign-in built for entrepreneurs",
+      "body": "INN and phone with a 4-digit confirmation code, or Mobile ID by key or by password.",
+      "seconds": 4.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/businessgov/revived-04.webp" },
+        { "src": "projects/businessgov/revived-05.webp" }
+      ],
+      "title": "Two quick questions before the appeal",
+      "body": "Applicants pick who they are writing as (company, investor or individual), then their business sector.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/businessgov/revived-06.webp" }
+      ],
+      "title": "Applicant details in one form",
+      "body": "Birth date, region, district, mahalla, employment and an optional email, then on to the appeal.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        { "src": "projects/businessgov/revived-07.webp" }
+      ],
+      "title": "Write the appeal, attach files, send",
+      "body": "Subject, category and appeal text, plus a file upload area and a send button.",
+      "seconds": 4
+    }
+  ]
+}

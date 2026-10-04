@@ -1,0 +1,108 @@
+{
+  "slug": "birmakon",
+  "name": "BirMakon",
+  "tagline": "Multi-vendor shopping app, plus a companion app for sellers",
+  "category": "E-commerce marketplace",
+  "location": "Uzbekistan",
+  "years": "2022",
+  "status": "archived",
+  "statusLabel": "Archived · built 2022",
+  "role": "Buyer and seller mobile apps by the Softwhere team",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux Toolkit",
+    "Redux Persist",
+    "React Navigation 6",
+    "Axios",
+    "react-native-svg",
+    "React Native Chart Kit"
+  ],
+  "accent": "#ee4927",
+  "icon": {
+    "src": "projects/birmakon/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "video",
+      "frame": "device",
+      "src": "projects/birmakon/home-scroll.mp4",
+      "aspect": 2.1641,
+      "title": "One storefront, many shops",
+      "body": "A promo carousel, brand and shop rows, then horizontal product shelves with sale prices and add-to-cart.",
+      "seconds": 4.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/birmakon/buyer-02.webp"
+        },
+        {
+          "src": "projects/birmakon/buyer-03.webp"
+        }
+      ],
+      "title": "Catalog and filters",
+      "body": "A category grid, plus filters for price range, brands, colors, sizes and season.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/birmakon/buyer-04.webp"
+        },
+        {
+          "src": "projects/birmakon/buyer-05.webp"
+        }
+      ],
+      "title": "Product page with bulk prices",
+      "body": "Quantity price tiers sit beside the price, then color swatches, sizes, delivery terms and buy buttons.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/birmakon/buyer-06.webp"
+        },
+        {
+          "src": "projects/birmakon/buyer-07.webp"
+        },
+        {
+          "src": "projects/birmakon/buyer-08.webp"
+        }
+      ],
+      "title": "Cart split by shop",
+      "body": "Items are grouped per seller; checkout takes delivery and recipient details; orders show status categories.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/birmakon/seller-01.webp"
+        },
+        {
+          "src": "projects/birmakon/seller-02.webp"
+        },
+        {
+          "src": "projects/birmakon/seller-03.webp"
+        }
+      ],
+      "title": "A companion app for sellers",
+      "body": "A separate React Native app: daily sales summary, product cards with on/off switches, per-quantity prices.",
+      "seconds": 4.4
+    }
+  ]
+}

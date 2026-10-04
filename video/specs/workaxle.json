@@ -1,0 +1,17 @@
+{
+  "slug": "workaxle",
+  "viewport": { "width": 1152, "height": 720 },
+  "shots": [
+    {
+      "name": "home",
+      "url": "https://www.workaxle.com/",
+      "fullPage": false,
+      "waitMs": 3000,
+      "actions": [
+        { "click": "#hs-eu-decline-button" },
+        { "hide": ".trustbar, .hero .wrap > *:not(.hero-head)" },
+        { "wait": 4000 }
+      ]
+    }
+  ]
+}

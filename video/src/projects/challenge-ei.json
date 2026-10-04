@@ -1,0 +1,103 @@
+{
+  "slug": "challenge-ei",
+  "name": "Challenge EI",
+  "tagline": "Notes, reports and invoicing for Early Intervention therapists",
+  "category": "Healthcare",
+  "location": "USA",
+  "years": "2022–23",
+  "status": "live",
+  "role": "Mobile app development by the Softwhere team for Challenge EI",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "NativeBase",
+    "React Navigation",
+    "SQLite",
+    "AsyncStorage",
+    "Axios"
+  ],
+  "accent": "#c44c58",
+  "icon": {
+    "src": "projects/challenge-ei/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/challenge-ei/revived-01.webp"
+        },
+        {
+          "src": "projects/challenge-ei/revived-02.webp"
+        },
+        {
+          "src": "projects/challenge-ei/revived-03.webp"
+        }
+      ],
+      "title": "A therapist's day in one app",
+      "body": "Today's sessions, pending notes and reports due up front, with the schedule and caseload one tab away.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/challenge-ei/revived-04.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Session notes built for EI billing",
+      "body": "ICD-10 and CPT codes, IFSP outcomes and progress per objective, saved on the phone until signed.",
+      "seconds": 5.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/challenge-ei/revived-05.webp"
+        }
+      ],
+      "title": "Every note tracked to submission",
+      "body": "Started, completed, submitted, missed and cancelled sessions, with one tap to submit all completed notes.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/challenge-ei/revived-06.webp"
+        },
+        {
+          "src": "projects/challenge-ei/revived-07.webp"
+        }
+      ],
+      "title": "Progress reports before they're due",
+      "body": "Reports are flagged due soon or overdue; each is a four-part checklist signed and submitted in-app.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/challenge-ei/revived-08.webp"
+        }
+      ],
+      "title": "No invoice until notes are in",
+      "body": "Pending or unsubmitted session notes keep the next invoice locked until they're resolved.",
+      "seconds": 3.8
+    }
+  ]
+}

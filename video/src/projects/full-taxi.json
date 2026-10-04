@@ -1,0 +1,112 @@
+{
+  "slug": "full-taxi",
+  "name": "Full Taxi",
+  "tagline": "Rider and driver taxi apps for the Full Services platform in Uzbekistan",
+  "category": "Ride-hailing",
+  "location": "Uzbekistan",
+  "years": "2022",
+  "status": "archived",
+  "statusLabel": "Archived · built 2022",
+  "role": "Rider and driver apps by the Softwhere team for Full Services",
+  "platforms": [
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "JavaScript",
+    "NativeBase",
+    "React Navigation",
+    "Yandex MapKit",
+    "OneSignal",
+    "REST API (Axios)"
+  ],
+  "accent": "#06a8e8",
+  "icon": {
+    "src": "projects/full-taxi/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/full-taxi/customer-01.webp"
+        },
+        {
+          "src": "projects/full-taxi/customer-02.webp"
+        },
+        {
+          "src": "projects/full-taxi/customer-03.webp"
+        }
+      ],
+      "title": "Riders order inside Full Services",
+      "body": "Taxi sits beside food, market and listings; each tariff is priced per km of the route.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/full-taxi/customer-04.webp"
+        },
+        {
+          "src": "projects/full-taxi/customer-05.webp"
+        },
+        {
+          "src": "projects/full-taxi/customer-06.webp"
+        }
+      ],
+      "title": "Order status, from search to fare",
+      "body": "Polls every 5 s: driver and car details, one-tap call, then fare plus waiting.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/full-taxi/driver-01.webp"
+        },
+        {
+          "src": "projects/full-taxi/driver-02.webp"
+        }
+      ],
+      "title": "Driver app: shifts and live offers",
+      "body": "Start a shift; offers arrive with a sound, fare, distance and a 15 s accept timer.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/full-taxi/driver-03.webp"
+        },
+        {
+          "src": "projects/full-taxi/driver-04.webp"
+        }
+      ],
+      "title": "Paid waiting and a taximeter mode",
+      "body": "A stopwatch bills waiting by the minute; the taximeter adds up GPS distance every 4 s.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/full-taxi/driver-05.webp"
+        },
+        {
+          "src": "projects/full-taxi/driver-06.webp"
+        }
+      ],
+      "title": "Fare summary and trip history",
+      "body": "Rides close with fare plus waiting; history lists route, price and distance.",
+      "seconds": 4
+    }
+  ]
+}

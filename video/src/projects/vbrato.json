@@ -1,0 +1,106 @@
+{
+  "slug": "vbrato",
+  "name": "VBrato",
+  "tagline": "Collaboration and monetization marketplace for musicians",
+  "category": "Music-tech marketplace",
+  "location": "USA",
+  "years": "2023–25",
+  "status": "live",
+  "role": "Mobile development for a US music-tech startup",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "TypeScript", "Apollo GraphQL", "AWS AppSync", "Redux Toolkit", "Stripe", "In-app purchases", "Track Player"],
+  "accent": "#c99a3b",
+  "icon": {
+    "src": "projects/vbrato/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true,
+    "web": "vbrato.com"
+  },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "vbrato.com",
+      "shots": [
+        {
+          "src": "projects/vbrato/web-hero.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Artists meet creatives",
+      "body": "Releasing artists team up with songwriters, producers and engineers to post, pitch and get paid for work.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/vbrato/appstore-02.webp"
+        },
+        {
+          "src": "projects/vbrato/appstore-crop-03.webp"
+        }
+      ],
+      "title": "Profiles backed by streaming stats",
+      "body": "Search the catalog, claim your artist page and see Spotify, Instagram, TikTok and YouTube numbers together.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/vbrato/appstore-04.webp"
+        },
+        {
+          "src": "projects/vbrato/appstore-09.webp"
+        }
+      ],
+      "title": "Paid briefs with audio submissions",
+      "body": "Post a project, collect demos from collaborators and stream each one in-app before choosing.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/vbrato/appstore-crop-05.webp"
+        }
+      ],
+      "title": "Offers checked against the wallet",
+      "body": "Fee, deadline and requirements in one form; offers arrive as chat messages over GraphQL subscriptions.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/vbrato/appstore-06.webp"
+        },
+        {
+          "src": "projects/vbrato/appstore-07.webp"
+        }
+      ],
+      "title": "Collaborators by audience",
+      "body": "Filter by listeners, followers and playlist reach; audiences split by age, gender, language and location.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/vbrato/appstore-crop-10.webp"
+        }
+      ],
+      "title": "A wallet for music deals",
+      "body": "Top up by card or bank through Stripe, track earnings and cash out; Pro plans bill through the stores.",
+      "seconds": 3.8
+    }
+  ]
+}

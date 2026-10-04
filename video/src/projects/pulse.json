@@ -1,0 +1,57 @@
+{
+  "slug": "pulse",
+  "name": "Pulse",
+  "tagline": "Social and professional network for doctors and medical students",
+  "category": "Healthcare social network",
+  "location": "USA",
+  "years": "2024–25",
+  "status": "live",
+  "role": "Mobile app development by the Softwhere team for Practitionet",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Expo", "TypeScript", "Redux Toolkit", "AWS Amplify", "Stream Chat", "Firebase Messaging", "Algolia"],
+  "accent": "#16b8a8",
+  "icon": { "src": "projects/pulse/icon.webp", "shape": "squircle" },
+  "links": { "appStore": true, "googlePlay": true },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/pulse/appstore-06.webp" }],
+      "title": "A feed tuned to medical interests",
+      "body": "Posts, specialty news and page updates in an activity feed with likes, comments and sharing.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/pulse/appstore-02.webp" }, { "src": "projects/pulse/appstore-03.webp" }],
+      "title": "Connections and mentor matching",
+      "body": "Accept requests, discover recommended peers and request mentorship from students further along.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/pulse/appstore-04.webp" }],
+      "title": "Pages for schools and groups",
+      "body": "Organizations share posts and events that members can add to their calendar in one tap.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/pulse/appstore-07.webp" }],
+      "title": "Group chats and direct messages",
+      "body": "Real-time messaging on Stream Chat, with push notifications through Firebase and Notifee.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [{ "src": "projects/pulse/appstore-05.webp" }, { "src": "projects/pulse/appstore-08.webp" }],
+      "title": "Ava, an AI career advisor",
+      "body": "Pick goals, answer a few questions and get a saved, personalized plan, plus stage-based career guides.",
+      "seconds": 4.4
+    }
+  ]
+}

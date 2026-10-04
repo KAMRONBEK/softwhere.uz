@@ -1,0 +1,25 @@
+{
+  "slug": "tes-tube",
+  "notes": "Same local fixture build as specs/tes-tube.json. A narrower 1360x850 viewport so the 320px settings popover fills more of the frame; at 1328 and below the channel name under the player truncates.",
+  "mobile": false,
+  "viewport": { "width": 1360, "height": 850 },
+  "shots": [
+    {
+      "name": "watch-settings",
+      "url": "http://localhost:3217/uz/watch/vid-fond-bozori",
+      "waitMs": 1500,
+      "actions": [{ "click": "[data-player-settings-trigger]" }, { "wait": 500 }]
+    },
+    {
+      "name": "watch-quality",
+      "url": "http://localhost:3217/uz/watch/vid-fond-bozori",
+      "waitMs": 1500,
+      "actions": [
+        { "click": "[data-player-settings-trigger]" },
+        { "wait": 500 },
+        { "click": "[data-player-settings] :text(\"Sifat\")" },
+        { "wait": 500 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "slug": "my-barber",
+  "name": "My Barber Shop",
+  "tagline": "Barber booking for Uzbekistan — clients book a chair, barbers run their schedule",
+  "category": "Booking marketplace",
+  "location": "Uzbekistan",
+  "years": "2025–26",
+  "status": "pre-launch",
+  "role": "Our own product — mobile app, website and API",
+  "platforms": ["iOS", "Android", "Web"],
+  "tech": [
+    "React Native + Expo",
+    "TypeScript",
+    "Expo Router",
+    "TanStack Query",
+    "Express + Firestore",
+    "Next.js 16",
+    "Zod shared types",
+    "pnpm + Turborepo"
+  ],
+  "accent": "#b35a25",
+  "icon": {
+    "src": "projects/my-barber/icon.webp"
+  },
+  "links": {
+    "web": "my-barber.uz"
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/my-barber/client-01.webp"
+        },
+        {
+          "src": "projects/my-barber/client-02.webp"
+        }
+      ],
+      "title": "One app, two sides",
+      "body": "Clients book a chair; barbers get their own workspace. The role is chosen at sign-in.",
+      "seconds": 3.8
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/my-barber/client-03.webp"
+        },
+        {
+          "src": "projects/my-barber/client-04.webp"
+        }
+      ],
+      "title": "Find a barber nearby",
+      "body": "The next visit is pinned on top; barbers are listed with rating, distance and starting price.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/my-barber/client-05.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Pick a service, day and time",
+      "body": "Open slots are computed from service length and the barber's bookings; payment happens at the shop.",
+      "seconds": 4.6
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/my-barber/barber-01.webp"
+        },
+        {
+          "src": "projects/my-barber/barber-02.webp"
+        }
+      ],
+      "title": "A workspace for barbers",
+      "body": "A day timeline plus incoming requests to accept or decline; the client is notified either way.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/my-barber/barber-03.webp"
+        }
+      ],
+      "title": "Earnings, month by month",
+      "body": "Monthly total, a daily breakdown and recent jobs, with completed and cancelled counts.",
+      "seconds": 3.6
+    },
+    {
+      "type": "web",
+      "url": "my-barber.uz",
+      "shots": [
+        {
+          "src": "projects/my-barber/web-landing-dark-01.webp"
+        }
+      ],
+      "title": "Public site on Next.js 16",
+      "body": "Landing, privacy and terms pages, in the same pnpm + Turborepo monorepo as the app and API.",
+      "seconds": 3.4
+    }
+  ],
+  "statusLabel": "my-barber.uz · app launching soon"
+}

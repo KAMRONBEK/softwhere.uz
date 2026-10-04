@@ -1,0 +1,39 @@
+{
+  "slug": "tes-tube",
+  "notes": "Local fixtures only. Copy TES-Tube to a scratch dir, apply the fixture patch (kept outside this public repo because it touches client source) (neutral Uzbek channel names, titles and comments in place of the Figma-copied ones), then `next build` in apps/web with NEXT_PUBLIC_USE_MOCK_DATA=true and serve .next/standalone/apps/web/server.js on PORT=3217. Player close-ups come from specs/tes-tube-player.json (1360x850 so the settings menu reads larger). mobile-01..03 are 430x873 iPhone 14 Pro Max emulation shots of / , /watch/vid-fond-bozori (gear opens the quality sheet) and /shorts, each with a 177px status-bar band added on top, saved via save-images.mjs --kind=mobile.",
+  "mobile": false,
+  "viewport": {
+    "width": 1600,
+    "height": 1000
+  },
+  "shots": [
+    {
+      "name": "home",
+      "url": "http://localhost:3217/uz",
+      "waitMs": 2000
+    },
+    {
+      "name": "shorts-comments",
+      "url": "http://localhost:3217/shorts",
+      "waitMs": 2000,
+      "actions": [
+        {
+          "click": "[data-shorts-wide-rail] > div:nth-child(3) > button"
+        },
+        {
+          "wait": 500
+        }
+      ]
+    },
+    {
+      "name": "channel",
+      "url": "http://localhost:3217/channel/kiberarena",
+      "waitMs": 2000
+    },
+    {
+      "name": "channel-live",
+      "url": "http://localhost:3217/channel/kiberarena/live",
+      "waitMs": 2000
+    }
+  ]
+}

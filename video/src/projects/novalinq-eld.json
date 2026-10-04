@@ -1,0 +1,107 @@
+{
+  "slug": "novalinq-eld",
+  "name": "Novalinq ELD",
+  "tagline": "Hours-of-service compliance dashboard for US trucking fleets",
+  "category": "Fleet compliance (ELD)",
+  "location": "USA",
+  "years": "2023",
+  "status": "archived",
+  "statusLabel": "Built 2023 · not launched",
+  "role": "ELD web dashboard and PDF service by the Softwhere team",
+  "platforms": [
+    "Web"
+  ],
+  "tech": [
+    "React 18",
+    "TypeScript",
+    "Vite",
+    "TanStack Query",
+    "Mantine + Tailwind",
+    "OpenAPI codegen",
+    "Google Maps API",
+    "Puppeteer + AWS S3"
+  ],
+  "accent": "#5452f6",
+  "icon": {
+    "src": "projects/novalinq-eld/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "web",
+      "url": "novalinq · eld-operations/driver",
+      "shots": [
+        {
+          "src": "projects/novalinq-eld/app-logs-by-driver.webp"
+        }
+      ],
+      "title": "Daily HOS by driver",
+      "body": "Pick a driver to see daily miles, violations and remaining break, drive, shift and cycle time.",
+      "seconds": 3.6
+    },
+    {
+      "type": "web",
+      "url": "novalinq · driver daily log",
+      "shots": [
+        {
+          "src": "projects/novalinq-eld/app-daily-tall.webp",
+          "scroll": true
+        }
+      ],
+      "title": "The 24-hour log grid",
+      "body": "ELD events become the log graph, plus an event list and the signed log form.",
+      "seconds": 4.2
+    },
+    {
+      "type": "web",
+      "url": "novalinq · driver daily log",
+      "shots": [
+        {
+          "src": "projects/novalinq-eld/app-daily.webp",
+          "cursor": {
+            "x": 0.681,
+            "y": 0.536
+          }
+        },
+        {
+          "src": "projects/novalinq-eld/app-daily-edit.webp"
+        }
+      ],
+      "title": "Edit logs on the chart",
+      "body": "Click an event to drag its start and end, switch its status or insert a new duty status.",
+      "seconds": 4.0
+    },
+    {
+      "type": "web",
+      "url": "novalinq · driver daily log",
+      "shots": [
+        {
+          "src": "projects/novalinq-eld/app-daily-report.webp"
+        }
+      ],
+      "title": "The day's log as a PDF",
+      "body": "A Puppeteer microservice renders the daily log to PDF and stores it on S3 for preview or download.",
+      "seconds": 3.0
+    },
+    {
+      "type": "web",
+      "url": "novalinq · reports/vehicle",
+      "shots": [
+        {
+          "src": "projects/novalinq-eld/app-ifta.webp",
+          "cursor": {
+            "x": 0.928,
+            "y": 0.196
+          }
+        },
+        {
+          "src": "projects/novalinq-eld/app-ifta-new.webp"
+        }
+      ],
+      "title": "IFTA reports on demand",
+      "body": "Choose a period, optionally count empty miles, and the fleet's IFTA report is generated as a PDF.",
+      "seconds": 4.0
+    }
+  ]
+}

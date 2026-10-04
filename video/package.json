@@ -1,0 +1,33 @@
+{
+  "name": "softwhere-portfolio-videos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion promo walkthrough videos for the softwhere.uz portfolio",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node scripts/render.mjs",
+    "typecheck": "tsc --noEmit",
+    "fetch:appstore": "node scripts/fetch-appstore.mjs",
+    "fetch:play": "node scripts/fetch-play.mjs",
+    "capture:web": "node scripts/capture-web.mjs",
+    "frames": "node scripts/extract-frames.mjs",
+    "validate": "NODE_NO_WARNINGS=1 node scripts/validate.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.532",
+    "@remotion/cli": "4.0.532",
+    "@remotion/google-fonts": "4.0.532",
+    "@remotion/renderer": "4.0.532",
+    "@remotion/transitions": "4.0.532",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remotion": "4.0.532",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "playwright": "^1.56.0",
+    "sharp": "^0.34.0",
+    "typescript": "^5.8.3"
+  }
+}

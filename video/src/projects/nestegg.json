@@ -1,0 +1,112 @@
+{
+  "slug": "nestegg",
+  "name": "NestEgg",
+  "tagline": "Loan matching that connects UK borrowers with credit unions and responsible lenders",
+  "category": "Fintech · Loan matching",
+  "location": "United Kingdom",
+  "years": "2022–23",
+  "status": "live",
+  "role": "Built the loan-matching front end (2022–23)",
+  "platforms": ["Web"],
+  "tech": ["React 18", "TypeScript", "Redux Toolkit", "styled-components", "Formik + Yup", "Chart.js", "React Router", "REST API (Axios)"],
+  "accent": "#1188e0",
+  "icon": {
+    "src": "projects/nestegg/icon.webp",
+    "shape": "wide"
+  },
+  "links": {
+    "web": "loans.nestegg.ai"
+  },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "nestegg.ai",
+      "shots": [
+        {
+          "src": "projects/nestegg/web-brand.webp"
+        }
+      ],
+      "title": "Client: a UK credit broker",
+      "body": "FCA-regulated; matches borrowers with not-for-profit credit unions.",
+      "seconds": 4.4
+    },
+    {
+      "type": "web",
+      "url": "loans.nestegg.ai",
+      "shots": [
+        {
+          "src": "projects/nestegg/web-loans.webp",
+          "scroll": true
+        }
+      ],
+      "title": "Compare on total cost",
+      "body": "Today's live site, since evolved by the client: cards lead with total repayable, range, term and APR.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "loans.nestegg.ai",
+      "shots": [
+        {
+          "src": "projects/nestegg/web-filter-amount.webp",
+          "cursor": {
+            "x": 0.092,
+            "y": 0.479
+          }
+        },
+        {
+          "src": "projects/nestegg/web-filter-term.webp",
+          "cursor": {
+            "x": 0.1,
+            "y": 0.631
+          }
+        },
+        {
+          "src": "projects/nestegg/web-filter-result.webp",
+          "cursor": {
+            "x": 0.394,
+            "y": 0.633
+          }
+        }
+      ],
+      "title": "Filters that recalculate",
+      "body": "Filter by amount and term; choose £5,000 over 24 months and every card re-prices.",
+      "seconds": 6
+    },
+    {
+      "type": "web",
+      "url": "loans.nestegg.ai/single-loan",
+      "shots": [
+        {
+          "src": "projects/nestegg/web-detail.webp",
+          "cursor": {
+            "x": 0.757,
+            "y": 0.256
+          }
+        },
+        {
+          "src": "projects/nestegg/web-detail-amount.webp",
+          "cursor": {
+            "x": 0.757,
+            "y": 0.83
+          }
+        }
+      ],
+      "title": "Repayment calculator",
+      "body": "A loan's amount and term sliders recompute the monthly instalment and total repayable.",
+      "seconds": 4.8
+    },
+    {
+      "type": "web",
+      "url": "loans.nestegg.ai/eligibility-check",
+      "shots": [
+        {
+          "src": "projects/nestegg/web-eligibility.webp"
+        }
+      ],
+      "title": "Guided eligibility check",
+      "body": "A short questionnaire that opens by asking about credit-union membership.",
+      "seconds": 4.2
+    }
+  ]
+}

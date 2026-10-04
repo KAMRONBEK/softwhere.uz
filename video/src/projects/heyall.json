@@ -1,0 +1,101 @@
+{
+  "slug": "heyall",
+  "name": "HeyAll",
+  "tagline": "Event-planning app that puts hosts and suppliers on one schedule, guest list and chat",
+  "category": "Event planning",
+  "location": "Australia",
+  "years": "2021–22",
+  "status": "live",
+  "role": "React Native app by the Softwhere team for an Australian client",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux Toolkit",
+    "Firebase Firestore",
+    "Firebase Auth (phone OTP)",
+    "Push notifications (FCM)"
+  ],
+  "accent": "#e0405a",
+  "icon": {
+    "src": "projects/heyall/icon.webp"
+  },
+  "links": {
+    "appStore": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/heyall/appstore-02.webp"
+        },
+        {
+          "src": "projects/heyall/appstore-10.webp"
+        }
+      ],
+      "title": "Where hosts meet suppliers",
+      "body": "Hosts invite suppliers from an in-app directory; each one accepts and joins the shared event.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/heyall/appstore-05.webp"
+        }
+      ],
+      "title": "A countdown on every event",
+      "body": "The host dashboard ticks down to the day and links schedule, guests and suppliers."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/heyall/appstore-07.webp"
+        }
+      ],
+      "title": "One run sheet for the whole crew",
+      "body": "Hosts add timed schedule items; every supplier on the event sees the same plan."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/heyall/appstore-08.webp"
+        }
+      ],
+      "title": "Guest list with RSVP status",
+      "body": "Attendance status and a note per guest, grouped A–Z and exportable as a PDF."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/heyall/appstore-06.webp"
+        }
+      ],
+      "title": "A real-time chat for each event",
+      "body": "A Firestore group thread for the host and every supplier, backed by push notifications."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/heyall/appstore-04.webp"
+        }
+      ],
+      "title": "A calendar for suppliers",
+      "body": "Booked days are marked on a month view; tap a date to see its events or add your own."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "slug": "vbrato",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [
+    {
+      "name": "hero",
+      "url": "https://www.vbrato.com",
+      "fullPage": true,
+      "maxHeight": 1045,
+      "waitMs": 2500,
+      "actions": [{ "hide": ".ratingwrapper" }, { "wait": 400 }]
+    }
+  ]
+}

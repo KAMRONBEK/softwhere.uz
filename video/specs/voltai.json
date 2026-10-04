@@ -1,0 +1,5 @@
+{
+  "slug": "voltai",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [{ "name": "hero", "url": "https://voltai.uz/en", "fullPage": false, "waitMs": 3000 }]
+}

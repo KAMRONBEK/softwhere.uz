@@ -1,0 +1,88 @@
+{
+  "slug": "swish",
+  "name": "Swish Sports",
+  "tagline": "Create, find and join pickup games — from casual hoops to pickleball round robins",
+  "category": "Sports & social",
+  "location": "USA",
+  "years": "2024",
+  "status": "live",
+  "role": "Feature development for a US sports app",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "TypeScript", "Firebase Auth", "Firestore", "Cloud Functions", "Cloud Messaging", "Google Maps"],
+  "accent": "#0f98dc",
+  "icon": {
+    "src": "projects/swish/icon.webp"
+  },
+  "links": {
+    "appStore": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/swish/screen-01.webp"
+        },
+        {
+          "src": "projects/swish/screen-03.webp"
+        },
+        {
+          "src": "projects/swish/screen-06.webp"
+        }
+      ],
+      "title": "Pickup sports, organized",
+      "body": "Find a game nearby, host your own, or keep a private group's games out of the group chat.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/swish/screen-05.webp"
+        }
+      ],
+      "title": "Find games on a live map",
+      "body": "Pins show each game's start time and open spots, so a nearby run is one tap away."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/swish/screen-01.webp"
+        },
+        {
+          "src": "projects/swish/screen-02.webp"
+        }
+      ],
+      "title": "Host a game in a few steps",
+      "body": "Pick a sport, venue, date and time. Pickleball adds round robin, king-of-the-court and ladder formats.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/swish/screen-03.webp"
+        }
+      ],
+      "title": "Every game gets its own hub",
+      "body": "Scan-to-join QR code, a waitlist when spots fill, text invites and a game feed."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/swish/screen-06.webp"
+        }
+      ],
+      "title": "Profiles that track your play",
+      "body": "Friends, favorite sports and a running count of games this week, this month and overall.",
+      "seconds": 4
+    }
+  ]
+}

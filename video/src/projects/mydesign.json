@@ -1,0 +1,118 @@
+{
+  "slug": "mydesign",
+  "name": "MyDesign",
+  "tagline": "Design your own clothes from garment templates, colors and prints — then find a tailor",
+  "category": "Fashion & Design",
+  "location": "Australia",
+  "years": "2020–21",
+  "status": "archived",
+  "statusLabel": "Archived · built 2020–21",
+  "role": "UI/UX design and React Native development",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "Redux",
+    "react-native-svg",
+    "Figma (UI/UX)"
+  ],
+  "accent": "#d92a6a",
+  "icon": {
+    "src": "projects/mydesign/icon.webp"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/mydesign/design-01.webp"
+        },
+        {
+          "src": "projects/mydesign/design-02.webp"
+        },
+        {
+          "src": "projects/mydesign/design-03.webp"
+        }
+      ],
+      "title": "Design clothes, then get them made",
+      "body": "Pick a garment, style it with colors and prints, and send the design to a tailor.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/mydesign/design-04.webp"
+        },
+        {
+          "src": "projects/mydesign/design-05.webp"
+        },
+        {
+          "src": "projects/mydesign/design-06.webp"
+        }
+      ],
+      "title": "A guided design flow",
+      "body": "Who it is for, the body shape, then the garment type — one step per screen."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/mydesign/design-07.webp"
+        },
+        {
+          "src": "projects/mydesign/design-08.webp"
+        }
+      ],
+      "title": "Garments as vector outlines",
+      "body": "Each style is an SVG pattern, so sleeves, cuts and prints can be swapped on the fly."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/mydesign/design-09.webp",
+          "scroll": true
+        }
+      ],
+      "title": "A full spec for the tailor",
+      "body": "Measurements, garment details and the order total on one review screen.",
+      "seconds": 5
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/mydesign/design-10.webp"
+        },
+        {
+          "src": "projects/mydesign/design-11.webp"
+        }
+      ],
+      "title": "Folders for every collection",
+      "body": "Group designs into folders, select several and move them in one go."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/mydesign/design-12.webp"
+        },
+        {
+          "src": "projects/mydesign/design-13.webp"
+        }
+      ],
+      "title": "Orders, tailors and fabrics",
+      "body": "Track orders and share designs; the menu leads to tailors, fabrics and tutorials."
+    }
+  ]
+}

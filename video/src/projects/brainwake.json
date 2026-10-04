@@ -1,0 +1,94 @@
+{
+  "slug": "brainwake",
+  "name": "BrainWake",
+  "tagline": "An alarm clock you switch off by solving vocabulary, trivia or math challenges",
+  "category": "Education",
+  "location": "Europe",
+  "years": "2021–22",
+  "status": "archived",
+  "role": "React Native app by the Softwhere team for a European edtech client",
+  "platforms": [
+    "iOS",
+    "Android"
+  ],
+  "tech": [
+    "React Native",
+    "JavaScript",
+    "Swift alarm module",
+    "In-app purchases",
+    "Mixpanel",
+    "Localization (sv / es)"
+  ],
+  "accent": "#4ec55f",
+  "icon": {
+    "src": "projects/brainwake/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/brainwake/home-01.webp"
+        },
+        {
+          "src": "projects/brainwake/ringing-01.webp"
+        }
+      ],
+      "title": "Each alarm can end in a challenge",
+      "body": "Snooze limits are set per alarm, and going idle mid-quiz (30 s by default) makes the alarm ring again.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/brainwake/gk-settings-01.webp"
+        },
+        {
+          "src": "projects/brainwake/challenge-select-01.webp"
+        },
+        {
+          "src": "projects/brainwake/vocab-settings-01.webp"
+        }
+      ],
+      "title": "Math, trivia or vocabulary",
+      "body": "Per alarm: difficulty, question count, trivia categories, and vocabulary in English or Swedish.",
+      "seconds": 4.4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/brainwake/gk-question-01.webp"
+        },
+        {
+          "src": "projects/brainwake/vocab-question-01.webp"
+        }
+      ],
+      "title": "Quiz content ships offline",
+      "body": "Bundled JSON banks: 2,153 trivia questions and 1,747 words in English and Swedish, plus 7,980 math problems.",
+      "seconds": 4
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/brainwake/vocab-summary-01.webp"
+        },
+        {
+          "src": "projects/brainwake/vocab-correct-01.webp"
+        }
+      ],
+      "title": "Spaced repetition built in",
+      "body": "Answer right, then pick when the word returns: 3 days to never. A summary shows time, score and level.",
+      "seconds": 4.4
+    }
+  ],
+  "statusLabel": "Archived · built 2021–22"
+}

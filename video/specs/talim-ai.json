@@ -1,0 +1,8 @@
+{
+  "slug": "talim-ai",
+  "viewport": { "width": 1440, "height": 900 },
+  "shots": [
+    { "name": "landing", "url": "https://talim-ai.uz/en", "fullPage": true, "maxHeight": 5200, "waitMs": 2500 },
+    { "name": "pricing", "url": "https://talim-ai.uz/en/pricing", "fullPage": false, "waitMs": 2000 }
+  ]
+}

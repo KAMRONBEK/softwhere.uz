@@ -1,0 +1,63 @@
+{
+  "slug": "stadium-people",
+  "name": "Gignology (Stadium People)",
+  "tagline": "Event-staffing platform: public job board, applicant pipeline, events and rosters",
+  "category": "Event staffing",
+  "location": "USA",
+  "years": "2024",
+  "status": "live",
+  "role": "Admin dashboard and job board work by the Softwhere team for Perimeter Software",
+  "platforms": ["Web"],
+  "tech": ["React 17", "Material UI", "React Query", "React Hook Form + Yup", "Auth0", "FullCalendar", "Zustand", "Docker"],
+  "accent": "#d2282b",
+  "icon": { "src": "projects/stadium-people/icon.webp", "shape": "squircle" },
+  "links": { "web": "jobs.stadiumpeople.com" },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "jobs.stadiumpeople.com",
+      "shots": [{ "src": "projects/stadium-people/web-job-board.webp", "scroll": true }],
+      "title": "A job board for event gigs",
+      "body": "Candidates search by position, venue or ZIP code and apply online for jobs at each venue.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "jobs.stadiumpeople.com/dashboards/analytics",
+      "shots": [{ "src": "projects/stadium-people/app-dashboard.webp", "scroll": true }],
+      "title": "A dashboard for every role",
+      "body": "Venues, events, jobs and tasks at a glance, with menus scoped to Master, Admin, User and Client roles.",
+      "seconds": 4.6
+    },
+    {
+      "type": "web",
+      "url": "jobs.stadiumpeople.com/events",
+      "shots": [
+        { "src": "projects/stadium-people/app-events-list.webp", "cursor": { "x": 0.86, "y": 0.2 } },
+        { "src": "projects/stadium-people/app-events-calendar.webp" }
+      ],
+      "title": "Events in list or calendar view",
+      "body": "Each event shows positions requested against those rostered, plus request and waitlist counts.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "jobs.stadiumpeople.com/events/…/eventsroster",
+      "shots": [{ "src": "projects/stadium-people/app-event-roster.webp" }],
+      "title": "Build each event’s roster",
+      "body": "Add workers from the venue’s staffing pool to the roster or waitlist; conflicting events are flagged.",
+      "seconds": 4.4
+    },
+    {
+      "type": "web",
+      "url": "jobs.stadiumpeople.com/applicants",
+      "shots": [
+        { "src": "projects/stadium-people/app-applicants.webp", "cursor": { "x": 0.56, "y": 0.498 } },
+        { "src": "projects/stadium-people/app-applicant-detail.webp" }
+      ],
+      "title": "An applicant pipeline to hire",
+      "body": "Applicants move from New to ATC, Screened and Pre-Hire, with source tracking and an activity log.",
+      "seconds": 5
+    }
+  ]
+}

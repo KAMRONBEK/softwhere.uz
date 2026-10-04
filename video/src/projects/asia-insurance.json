@@ -1,0 +1,80 @@
+{
+  "slug": "asia-insurance",
+  "name": "Asia Insurance",
+  "tagline": "OSGO auto liability and travel insurance bought in-app, plus roadside help on a map",
+  "category": "Auto & travel insurance",
+  "location": "Uzbekistan",
+  "years": "2020–21",
+  "status": "archived",
+  "role": "iOS and Android app development for an Uzbek insurer",
+  "platforms": ["iOS", "Android"],
+  "tech": [
+    "React Native",
+    "TypeScript",
+    "Redux-Saga",
+    "React Navigation",
+    "Google Maps + GPS",
+    "Payme checkout",
+    "Push notifications",
+    "RU / UZ localization"
+  ],
+  "accent": "#2a6fd1",
+  "icon": {
+    "src": "projects/asia-insurance/icon.webp",
+    "shape": "squircle"
+  },
+  "links": {},
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/asia-insurance/appstore-02.webp"
+        },
+        {
+          "src": "projects/asia-insurance/appstore-01.webp"
+        },
+        {
+          "src": "projects/asia-insurance/appstore-03.webp"
+        }
+      ],
+      "title": "Insurance without an office visit",
+      "body": "Compulsory OSGO auto liability and travel insurance on the home screen, next to company news.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/asia-insurance/appstore-02.webp"
+        }
+      ],
+      "title": "An OSGO quote, one step at a time",
+      "body": "Vehicle type, region, claims history, violations, benefits and drivers set the premium."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/asia-insurance/appstore-03.webp"
+        }
+      ],
+      "title": "Travel cover shaped by the trip",
+      "body": "Destinations, cover package, trip type, purpose and group size drive the quote; Payme handles payment."
+    },
+    {
+      "type": "mobile",
+      "frame": "device",
+      "shots": [
+        {
+          "src": "projects/asia-insurance/appstore-04.webp"
+        }
+      ],
+      "title": "Policies, claims and roadside help",
+      "body": "Order history, policy lookup by number, and GPS-tagged help requests that other users can answer."
+    }
+  ]
+}
