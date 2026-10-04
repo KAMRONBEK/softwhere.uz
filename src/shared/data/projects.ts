@@ -26,6 +26,20 @@ export const projects: Project[] = [
   },
   {
     id: 2,
+    name: 'Bysmillah',
+    description: {
+      uz: "Kaliforniyada foizsiz avtomobil moliyalashtirish — halol P2P marketpleys: xaridor va sotuvchi qat'iy, to'liq oshkor qilingan narxni kelishadi, xaridor esa uni bo'lib-bo'lib to'laydi (murobaha yoki musovama). VIN bo'yicha bepul tekshiruv mavjud va har bir bitimni jamoa shaxsan olib boradi.",
+      ru: 'Беспроцентное автофинансирование в Калифорнии — халяльный P2P-маркетплейс, где покупатель и продавец согласуют фиксированную и полностью прозрачную цену с оплатой в рассрочку (мурабаха или мусавама). Бесплатная проверка авто по VIN, а каждую сделку команда ведёт лично.',
+      en: 'Interest-free car financing in California — a halal peer-to-peer marketplace where buyer and seller agree a fixed, fully disclosed price paid in installments (Murabaha or Musawama). Includes a free VIN check, and the team personally guides every deal.',
+    },
+    technology: 'Next.js 16 / React 19 / TypeScript / Tailwind CSS 4 / Express / PostgreSQL + Drizzle / Better Auth / Turborepo / Web',
+    location: 'USA',
+    type: 'Halal FinTech',
+    website: 'https://bysmillah.com/',
+    video: promoVideo('bysmillah'),
+  },
+  {
+    id: 3,
     name: 'TES Chat',
     description: {
       uz: "Turon Ecosystem uchun real vaqt rejimidagi messenjer — shaxsiy chatlar, guruhlar, kanallar, ovozli va video qo'ng'iroqlar, chat mavzulari va bir nechta akkaunt Android va vebda.",
@@ -40,7 +54,7 @@ export const projects: Project[] = [
     video: promoVideo('tes-chat'),
   },
   {
-    id: 3,
+    id: 4,
     name: 'DriveMe',
     description: {
       uz: "O'zbekistondagi premium haydovchi xizmati platformasi — yo'lovchilar Business, Premium yoki Minivan sinfini buyurtma qilib, mashinani jonli kuzatadi; haydovchilar buyurtmalarni qabul qiladi, fon GPS bilan taksometr bo'yicha safarlarni yuritadi va to'lovlarni boshqaradi.",
@@ -55,7 +69,7 @@ export const projects: Project[] = [
     video: promoVideo('driveme'),
   },
   {
-    id: 4,
+    id: 5,
     name: 'Truck Me',
     description: {
       uz: "Yuk mashinalari uchun servis topish ilovasi — yaqin atrofdagi ishonchli ta'mirlash, texnik xizmat va moliyalash yechimlarini tez toping, 24/7 qo'llab-quvvatlash bilan.",
@@ -70,7 +84,7 @@ export const projects: Project[] = [
     video: promoVideo('truck-me'),
   },
   {
-    id: 5,
+    id: 6,
     name: 'VBrato',
     description: {
       uz: "Musiqachilar uchun hamkorlik va daromad marketpleysi — takliflar, pullik loyihalar, chat va audio tinglash, Stripe orqali to'lovlar va ilova ichidagi xaridlar.",
@@ -85,7 +99,7 @@ export const projects: Project[] = [
     video: promoVideo('vbrato'),
   },
   {
-    id: 6,
+    id: 7,
     name: 'WorkAxle',
     description: {
       uz: "WorkAxle - bu kengaytiriladigan, kelajakka chidamli va tez miqyosda joylashtiriladigan zamonaviy va modulli korporativ ishchi kuchini boshqarish platformasi. Ushbu platforma an'anaviy monolit WFM ilovalari muammosini hal qiladi, shu bilan birga korporativ mijozlar uchun moslashtirilgan yechimni taqdim etadi.",
@@ -100,7 +114,7 @@ export const projects: Project[] = [
     video: promoVideo('workaxle'),
   },
   {
-    id: 7,
+    id: 8,
     name: 'United Fuel Driver',
     description: {
       uz: "AQShdagi yuk mashinasi haydovchilari uchun yoqilg'i kartasi ilovasi — yirik tarmoqlarda dizelga chegirmalar, marshrut rejalashtiriladigan yoqilg'i quyish shoxobchalari xaritasi, haydovchi va administrator kabinetlari, chat va yordam.",
@@ -114,7 +128,7 @@ export const projects: Project[] = [
     video: promoVideo('united-fuel'),
   },
   {
-    id: 8,
+    id: 9,
     name: 'VoltAI',
     description: {
       uz: "O'zbekiston uchun o'zimizning elektromobil quvvatlash stansiyalari agregatorimiz — bir nechta tarmoq stansiyalari bitta jonli xaritada, filtrlar, stansiyalarni solishtirish va safar rejalashtiruvchi.",
@@ -128,7 +142,7 @@ export const projects: Project[] = [
     video: promoVideo('voltai'),
   },
   {
-    id: 9,
+    id: 10,
     name: 'My Barber Shop',
     description: {
       uz: "O'zbekiston uchun o'zimizning barber bron qilish marketpleysimiz — mijozlar ustani topib vaqt band qiladi, barberlar esa jadvali va xizmatlarini shu ilovada boshqaradi.",
@@ -142,7 +156,7 @@ export const projects: Project[] = [
     video: promoVideo('my-barber'),
   },
   {
-    id: 10,
+    id: 11,
     name: 'Kiber',
     description: {
       uz: "O'zbekiston soliq to'lovchilari uchun B2B elektron hujjat almashinuvi — hisob-fakturalar, dalolatnomalar, shartnomalar va yo'l varaqalarini brauzerda yaratish, E-IMZO bilan imzolash, qabul qilish yoki rad etish.",
@@ -156,7 +170,7 @@ export const projects: Project[] = [
     video: promoVideo('kiber'),
   },
   {
-    id: 11,
+    id: 12,
     name: 'TES Tube',
     description: {
       uz: 'Turon Ecosystem uchun YouTube uslubidagi video va Shorts platformasi — kanallar, jonli efirlar, pleylistlar, teatr rejimli pleyer va moslashuvchan HLS striming. Tez orada ishga tushadi.',
@@ -169,7 +183,7 @@ export const projects: Project[] = [
     video: promoVideo('tes-tube'),
   },
   {
-    id: 12,
+    id: 13,
     name: 'Open-source SDKs',
     description: {
       uz: "Biz ishlab chiqadigan va qo'llab-quvvatlaydigan React Native va Expo uchun ochiq kodli kutubxonalar: Expo uchun Yandex MapKit, Emoji 17 klaviaturasi va MyID eKYC o'rami — npm'da nashr etilgan.",
@@ -183,7 +197,7 @@ export const projects: Project[] = [
     video: promoVideo('oss-sdks'),
   },
   {
-    id: 13,
+    id: 14,
     name: 'Pulse',
     description: {
       uz: "Pulse — shifokorlar va tibbiyot talabalari uchun ijtimoiy va professional tarmoq: shaxsiy lenta, aloqalar va mentorlik, tadbirli sahifalar, real vaqtdagi guruh chatlari va Ava — sun'iy intellektli karyera maslahatchisi. iOS va Android, React Native va Expo.",
@@ -198,7 +212,7 @@ export const projects: Project[] = [
     video: promoVideo('pulse'),
   },
   {
-    id: 14,
+    id: 15,
     name: 'WhoRiddle',
     description: {
       uz: 'WhoRiddle — har hafta yangi original «Men kimman?» topishmog‘i, mavzuli kanallar, reyting va restoranlar uchun veb-topishmoqlar taklif qiluvchi oilaviy o‘yin. Softwhere jamoasi Expo ilovasi, Node.js backend, Strapi CMS va saytni yaratdi.',
@@ -214,7 +228,7 @@ export const projects: Project[] = [
     video: promoVideo('whoriddle'),
   },
   {
-    id: 15,
+    id: 16,
     name: 'Challenge EI',
     description: {
       uz: "AQShdagi erta aralashuv terapevtlari uchun mobil ilova: ICD-10 va CPT kodli seans qaydlari, IFSP maqsadlari bo'yicha progress, jadval, ilovada imzolanadigan progress hisobotlari va barcha qaydlar topshirilmaguncha yopiq turadigan hisob-fakturalar.",
@@ -229,7 +243,7 @@ export const projects: Project[] = [
     video: promoVideo('challenge-ei'),
   },
   {
-    id: 16,
+    id: 17,
     name: 'AI Merch',
     description: {
       uz: "Ai Merch Corp (AQSh) do'kon ichi tahlil platformasi uchun mobil ilova: agent GPS orqali eng yaqin do'konni topadi, sovutgichlar, javonlar va POS displeylarni suratga oladi, sun'iy intellekt esa SKU, feysing va bo'sh joy ma'lumotlarini qaytaradi.",
@@ -243,7 +257,7 @@ export const projects: Project[] = [
     video: promoVideo('ai-merch'),
   },
   {
-    id: 17,
+    id: 18,
     name: 'Gignology (Stadium People)',
     description: {
       uz: 'Stadium People (AQSH) uchun tadbirlarga xodim yollash platformasi: nomzodlar ariza topshiradigan ochiq vakansiyalar sahifasi va arizachilar, tadbirlar, ro‘yxatlar hamda suhbatlar uchun admin panel. Softwhere jamoasi Perimeter Software uchun ishlab chiqqan.',
@@ -257,7 +271,7 @@ export const projects: Project[] = [
     video: promoVideo('stadium-people'),
   },
   {
-    id: 18,
+    id: 19,
     name: 'LiveMySteps',
     description: {
       uz: 'AQSh mijozi uchun ijtimoiy sayohat kundaligi: geotegli suratlar shaxsiy xaritada ko‘rinadi, sevimlilar kalendari, 7 kunlik hikoyalar, yopiq guruhlar va do‘stlar lentasi bor. Softwhere jamoasi React Native’da iOS ilovasi va React’da veb-versiyani yaratdi.',
@@ -271,7 +285,7 @@ export const projects: Project[] = [
     video: promoVideo('livemysteps'),
   },
   {
-    id: 19,
+    id: 20,
     name: 'HeyAll',
     description: {
       uz: "HeyAll, ikki xil maqsadga xizmat qiluvchi va ularni uzluksiz bog'laydigan ilova. Bir tomondan, bu xostlar uchun o'z tadbirlarini rejalashtirish uchun ilova bo'lsa, boshqa tomondan, bu tadbirlarda ishlaydigan yetkazib beruvchilar uchun dastur.",
@@ -285,7 +299,7 @@ export const projects: Project[] = [
     video: promoVideo('heyall'),
   },
   {
-    id: 20,
+    id: 21,
     name: 'Swish Sports',
     description: {
       uz: "Havaskor sport ilovasi — o'yinlarni yaratish, topish va ularga qo'shilish, oddiy basketboldan pikleybol turnirlarigacha. Biz AQSh jamoasining ilovasi uchun funksiyalar ishlab chiqdik.",
@@ -299,7 +313,7 @@ export const projects: Project[] = [
     video: promoVideo('swish'),
   },
   {
-    id: 21,
+    id: 22,
     name: 'EDOCS',
     description: {
       uz: 'E-DOCS (edocs.uz) yuridik ahamiyatga ega boʻlgan elektron hujjat aylanishini taʼminlash boʻyicha dasturiy taʼminot toʻplami elektron shaklda hisob-fakturalarni (yetkazib berish dalolatnomalari, dalolatnomalar va boshqalar) yaratish hamda ularni mijozlar va hamkorlar bilan almashish imkonini beruvchi tizimdir.',
@@ -314,7 +328,7 @@ export const projects: Project[] = [
     video: promoVideo('edocs'),
   },
   {
-    id: 22,
+    id: 23,
     name: 'Brand Guard',
     description: {
       uz: 'Brand Guard — brend monitoringi paneli: bitta so‘rov Telegram, Instagram, Facebook, YouTube va veb-saytlardagi eslatmalarni topadi, jarayonni jonli ko‘rsatadi, kayfiyat grafiklari, AI xulosalari va hisobotlarni har bir kompaniya uchun rollar bilan beradi.',
@@ -327,7 +341,7 @@ export const projects: Project[] = [
     video: promoVideo('brand-guard'),
   },
   {
-    id: 23,
+    id: 24,
     name: 'RoboNet for Haru',
     description: {
       uz: 'RoboNet — Honda Research Institute’ning Haru va Clara ilovalari uchun yaratilgan qo‘ng‘iroqlar platformasi: AWS Cognito avtorizatsiyali, SSE va WebRTC signalizatsiyali NestJS server hamda kontaktlar, qurilmalar va qo‘ng‘iroqlar tarixi uchun React veb-portal.',
@@ -340,7 +354,7 @@ export const projects: Project[] = [
     video: promoVideo('haru-console'),
   },
   {
-    id: 24,
+    id: 25,
     name: 'Novalinq ELD',
     description: {
       uz: 'Novalinq ELD — AQSh yuk tashish parklari uchun veb-panel: haydovchilarning ish vaqti (HOS) jurnallari, tahrirlanadigan 24 soatlik holat grafigi, IFTA hisobotlari va Puppeteer xizmati AWS S3 ga saqlaydigan kunlik PDF hisobotlar.',
@@ -353,7 +367,7 @@ export const projects: Project[] = [
     video: promoVideo('novalinq-eld'),
   },
   {
-    id: 25,
+    id: 26,
     name: 'Medrite',
     description: {
       uz: 'Nyu-Yorkdagi Medrite Urgent Care uchun bemorlar ilovasi va veb-portali: bir martalik kod bilan kirish, tashriflar tarixi, rangli belgilangan tahlil natijalari va PDF eksport, klinika hisobotlarini SQL Serverga import qiluvchi .NET va Azure API.',
@@ -366,7 +380,7 @@ export const projects: Project[] = [
     video: promoVideo('medrite'),
   },
   {
-    id: 26,
+    id: 27,
     name: 'Zeno Learning',
     description: {
       uz: 'SvelteKit, Prisma va PostgreSQL asosidagi o‘yinlashtirilgan ta’lim platformasi: video darslar va testlar, XP, daraja, nishonlar va ZenoCoin atrofida qurilgan profil, referal kodlar va Google, Facebook, LinkedIn orqali kirish. 2023-yilda yaratilgan, ishga tushirilmagan.',
@@ -379,7 +393,7 @@ export const projects: Project[] = [
     video: promoVideo('zeno-learning'),
   },
   {
-    id: 27,
+    id: 28,
     name: 'Persona',
     description: {
       uz: "Persona — Nyu-Yorkdagi startap uchun hamjamiyat ilovasi: kanallarda chat, postlar uchun forum va a'zolar moliyalashtirish takliflariga ovoz beradigan umumiy g'azna. React Native, Firebase va Cloud Functions asosida qurilgan.",
@@ -392,7 +406,7 @@ export const projects: Project[] = [
     video: promoVideo('persona'),
   },
   {
-    id: 28,
+    id: 29,
     name: 'Nexus',
     description: {
       uz: "Kriptovalyuta, tematik portfel to'plamlari va ulushli ko'chmas mulkka investitsiya qilish ilovasi, KYC ro'yxatdan o'tish bilan — ProjectNexus uchun ishlab chiqilgan (ommaviy ishga tushirilmagan).",
@@ -405,7 +419,7 @@ export const projects: Project[] = [
     video: promoVideo('nexus'),
   },
   {
-    id: 29,
+    id: 30,
     name: 'Align 360',
     description: {
       uz: "Align 360 qurilish va ta'mirlash guruhlari uchun mo'ljallangan. Ilova vazifalar menejeri, tahliliy vosita va jamoalar ichida muloqot qilish uchun messenjerni birlashtiradi.",
@@ -418,7 +432,7 @@ export const projects: Project[] = [
     video: promoVideo('align-360'),
   },
   {
-    id: 30,
+    id: 31,
     name: 'BDM',
     description: {
       uz: 'Business Documents Management ilovasi — yuridik kuchga ega elektron hujjatlarni telefondan imzolash, rad etish va kuzatish, tariflar va balans.',
@@ -431,7 +445,7 @@ export const projects: Project[] = [
     video: promoVideo('bdm'),
   },
   {
-    id: 31,
+    id: 32,
     name: 'Primus Mall',
     description: {
       uz: "Primus Mall – bu oddiy onlayn do'kon emas, siz uyingizdan chiqmasdan onlayn xarid qilishingiz mumkin.",
@@ -444,7 +458,7 @@ export const projects: Project[] = [
     video: promoVideo('primus-mall'),
   },
   {
-    id: 32,
+    id: 33,
     name: 'NAFT',
     description: {
       uz: "Agar sizga zudlik bilan ish kerak bo'lsa yoki aksincha, mutaxassis, u holda Naft aynan sizga kerak bo'lgan narsadir. Bizning ilovamiz tez va qulay nomzodlar va takliflar manbai bo'lib, har bir foydalanuvchi o'ziga keraklisini topa oladi.",
@@ -457,7 +471,7 @@ export const projects: Project[] = [
     video: promoVideo('naft'),
   },
   {
-    id: 33,
+    id: 34,
     name: 'Snap Taxi',
     description: {
       uz: "O'zbek taksi xizmati uchun yo'lovchi va haydovchi ilovalari — avtomobil sinflari, soketlar orqali jonli kuzatuv, ichki taksometr, chat va push-bildirishnomalar.",
@@ -470,7 +484,7 @@ export const projects: Project[] = [
     video: promoVideo('snap-taxi'),
   },
   {
-    id: 34,
+    id: 35,
     name: 'Seyf Bazar',
     description: {
       uz: "Toshkentdagi elektronika va maishiy texnika do'koni uchun mobil vitrina — katalog, mahsulot sahifalari, savat va WooCommerce asosida buyurtma berish.",
@@ -483,7 +497,7 @@ export const projects: Project[] = [
     video: promoVideo('seyf-bazar'),
   },
   {
-    id: 35,
+    id: 36,
     name: 'AvtoGen',
     description: {
       uz: "O'zbekiston bo'ylab avtomoykalarni qidirish va navbatga yozilish — yaqin moykalarni xaritada topish, vaqt band qilish va buyurtmalarni kuzatish, shuningdek moyka xodimlari uchun ilova.",
@@ -496,7 +510,7 @@ export const projects: Project[] = [
     video: promoVideo('avtogen'),
   },
   {
-    id: 36,
+    id: 37,
     name: 'BrainWake',
     description: {
       uz: "Ta'limiy budilnik — u faqat so'z boyligi, umumiy bilim yoki matematika topshiriqlarini yechgandan keyin o'chadi, shuning uchun har tong miya mashqi bilan boshlanadi.",
@@ -509,7 +523,7 @@ export const projects: Project[] = [
     video: promoVideo('brainwake'),
   },
   {
-    id: 37,
+    id: 38,
     name: 'MyDesign',
     description: {
       uz: "Moda dizayni ilovasi — foydalanuvchilar kiyim andozalarini tanlab, ranglar va mato naqshlarini qo'shib, o'ziga xos ko'rinish yaratadilar, dizaynlarni papkalarga saqlaydilar va tikish uchun tikuvchi topadilar. UI/UX dizayni ham bizniki.",
@@ -522,7 +536,7 @@ export const projects: Project[] = [
     video: promoVideo('mydesign'),
   },
   {
-    id: 38,
+    id: 39,
     name: '100K Express',
     description: {
       uz: '100K uchun ko‘p xizmatli mobil ilova: viloyatlararo taksi o‘rinlari yo‘lovchi taklif qilgan narxda, viloyatlar orasida sug‘urtalangan pochta, yuk tashish va transport ijarasi, ilova ichidagi hamyon va kuryer bo‘lib ro‘yxatdan o‘tish.',
@@ -535,7 +549,7 @@ export const projects: Project[] = [
     video: promoVideo('express-100k'),
   },
   {
-    id: 39,
+    id: 40,
     name: 'BirMakon',
     description: {
       uz: 'Oʻzbekistondagi koʻp sotuvchili BirMakon marketpleysi uchun mobil ilovalar: xaridorlar uchun katalog, filtrlar, miqdorga qarab narxlar, doʻkonlar boʻyicha savat va buyurtma berish, hamda sotuvchilar uchun savdo va mahsulotlarni boshqarish ilovasi.',
@@ -548,7 +562,7 @@ export const projects: Project[] = [
     video: promoVideo('birmakon'),
   },
   {
-    id: 40,
+    id: 41,
     name: 'Full Taxi',
     description: {
       uz: "O'zbekistondagi Full Services platformasi uchun yo'lovchi va haydovchi taksi ilovalari: Yandex xaritada kilometr bo'yicha tariflar bilan buyurtma va jonli holat; haydovchilar uchun smena, taymerli buyurtmalar, kutish to'lovi va taksometr.",
@@ -561,7 +575,7 @@ export const projects: Project[] = [
     video: promoVideo('full-taxi'),
   },
   {
-    id: 41,
+    id: 42,
     name: 'BusinessGov',
     description: {
       uz: 'Tadbirkorlar uchun biznes-ombudsmanga murojaat yuborish ilovasi prototipi (konsepsiya, 2022): INN yoki Mobile ID orqali tasdiqlash kodi bilan kirish, murojaatchi turi va soha, anketa hamda fayl biriktiriladigan murojaat shakli.',
@@ -574,7 +588,7 @@ export const projects: Project[] = [
     video: promoVideo('businessgov'),
   },
   {
-    id: 42,
+    id: 43,
     name: 'Hamd Delivery Panel',
     description: {
       uz: 'Hamd taom yetkazib berish xizmati call-markazi uchun operator paneli: kuryerlar xaritada, har soniyada yangilanadigan buyurtmalar lentasi va telefon buyurtmasini jami summa bilan yigʻuvchi POS uslubidagi menyu.',
@@ -587,7 +601,7 @@ export const projects: Project[] = [
     video: promoVideo('hamd'),
   },
   {
-    id: 43,
+    id: 44,
     name: 'Litter Picking App',
     description: {
       uz: "Niderlandiya shaharlarida axlat yig'ish aksiyalari uchun hamjamiyat ilovasi: foydalanuvchilar mahalliy hamjamiyatga qo'shiladi, yig'ilgan kilogrammlar va plogging qadamlarini hamda yaqin uchrashuvlarni ko'radi. React Native va Expo.",
@@ -600,7 +614,7 @@ export const projects: Project[] = [
     video: promoVideo('litter-picking'),
   },
   {
-    id: 44,
+    id: 45,
     name: 'Hello Box',
     description: {
       uz: 'Telegram-bot do‘koni uchun admin panel: operatorlar hamkor do‘konlar, narxi va yaroqlilik muddati ko‘rsatilgan mahsulotlar katalogi, bot foydalanuvchilari va bot uchun yangiliklar postlarini boshqaradi. React’da neomorfik interfeys bilan qurilgan.',
@@ -613,7 +627,7 @@ export const projects: Project[] = [
     video: promoVideo('hello-box'),
   },
   {
-    id: 45,
+    id: 46,
     name: 'Chat App',
     description: {
       uz: "Expo va React Native asosidagi krossplatforma messenjer prototipi: qidiruvli chatlar ro'yxati, qoralamalari saqlanadigan yozishmalar, uzoq bosishda tezkor amallar menyusi, chatni oldindan ko'rish hamda yorug' va tungi mavzuli ikki panelli veb-ko'rinish.",
@@ -626,7 +640,7 @@ export const projects: Project[] = [
     video: promoVideo('chat-app'),
   },
   {
-    id: 46,
+    id: 47,
     name: 'Netevia',
     description: {
       uz: "AQShdagi biznes egalari uchun mobil biznes-banking — hisoblar, biznes kartalar, o'tkazmalar, xarajatlar nazorati va bonuslar bitta ilovada.",
@@ -641,7 +655,7 @@ export const projects: Project[] = [
     video: promoVideo('netevia'),
   },
   {
-    id: 47,
+    id: 48,
     name: 'NestEgg',
     description: {
       uz: "FCA tomonidan tartibga solinadigan Buyuk Britaniya fintex kompaniyasi uchun kredit tanlash frontendi — qarz oluvchilar kreditlarni saralaydi, kreditorlarni APR va to'lovlar bo'yicha solishtiradi va ariza berishdan oldin imkoniyatini tekshiradi.",
@@ -655,7 +669,7 @@ export const projects: Project[] = [
     video: promoVideo('nestegg'),
   },
   {
-    id: 48,
+    id: 49,
     name: 'Asia Insurance',
     description: {
       uz: "Asia Insurance mobil ilovasi bir necha daqiqada transport vositalari egalari uchun OSGO polisini, xorijga onlayn sayohat qilish uchun sug'urta polisini sotib olishga yordam beradi va bu hali boshlanishi!",
@@ -668,7 +682,7 @@ export const projects: Project[] = [
     video: promoVideo('asia-insurance'),
   },
   {
-    id: 49,
+    id: 50,
     name: 'ASCON',
     description: {
       uz: "Mobil avtoservis ilovasi — yo'lda texnik yordam, YTH rasmiylashtirish, evakuator va avtosug'urta, shuningdek davlat idoralariga bormasdan zararni tezkor qoplash.",
@@ -682,7 +696,7 @@ export const projects: Project[] = [
     video: promoVideo('ascon'),
   },
   {
-    id: 50,
+    id: 51,
     name: 'Agrobank FRESH',
     description: {
       uz: "Agrobank uchun mobil banking prototipi: SMS va PIN-kod orqali kirish, Uzcard va virtual Visa kartalar, Click orqali to'lovlar, o'tkazmalar, onlayn depozitlar va filiallar xaritasi.",
@@ -695,7 +709,7 @@ export const projects: Project[] = [
     video: promoVideo('agrobank-fresh'),
   },
   {
-    id: 51,
+    id: 52,
     name: 'Ipak Yuli Bank Locator',
     description: {
       uz: 'Ipak Yo‘li banki uchun mobil ilova (Android va iOS): filiallar, minibanklar va bankomatlar bitta klasterlangan Google xaritasida, qidiruv va tur bo‘yicha filtrlar, ochiq/yopiq holati, masofa, yo‘nalish va bir bosishda qo‘ng‘iroq.',
@@ -708,7 +722,7 @@ export const projects: Project[] = [
     video: promoVideo('ipak-yuli-locator'),
   },
   {
-    id: 52,
+    id: 53,
     name: 'ZPay',
     description: {
       uz: 'ZPay — O‘zbekiston uchun «hozir xarid qil, keyin to‘la» muddatli to‘lov ilovasi prototipi: telefon va pasport orqali ro‘yxatdan o‘tish, yuzni skanerlash va PIN-kod, limit, to‘lov jadvalli shartnomalar, hamkor do‘konlar va Z-coin bonuslari.',
@@ -721,7 +735,7 @@ export const projects: Project[] = [
     video: promoVideo('zpay'),
   },
   {
-    id: 53,
+    id: 54,
     name: 'Emit Autolab',
     description: {
       uz: "O'zbekiston uchun avtomobilni muddatli to'lovga olish ilovasi (2024): oylik to'lovi ko'rsatilgan avtomobil katalogi, MyID orqali identifikatsiya, bosqichma-bosqich shartnomalar va Uzcard yoki Humo kartalari bilan to'lov. Ishga tushirilmagan.",

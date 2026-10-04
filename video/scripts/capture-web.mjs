@@ -5,6 +5,7 @@
 // Spec: {
 //   "slug": "nestegg",
 //   "mobile": false,                       // true = iPhone 13 emulation, saved at mobile width
+//   "reducedMotion": false,                // true = prefers-reduced-motion, so looping headline animations settle
 //   "viewport": { "width": 1440, "height": 900 },
 //   "shots": [{
 //     "name": "home", "url": "https://…", "fullPage": true, "maxHeight": 4200, "waitMs": 1500,
@@ -74,9 +75,10 @@ const main = async () => {
   const dir = await projectDir(spec.slug);
   const browser = await chromium.launch({ channel: 'chrome', headless: true });
   try {
+    const reducedMotion = spec.reducedMotion ? 'reduce' : 'no-preference';
     const context = spec.mobile
-      ? await browser.newContext({ ...devices['iPhone 13'] })
-      : await browser.newContext({ viewport: spec.viewport ?? DEFAULT_VIEWPORT, deviceScaleFactor: 1 });
+      ? await browser.newContext({ ...devices['iPhone 13'], reducedMotion })
+      : await browser.newContext({ viewport: spec.viewport ?? DEFAULT_VIEWPORT, deviceScaleFactor: 1, reducedMotion });
     const page = await context.newPage();
     const saved = [];
     for (const shot of spec.shots) {

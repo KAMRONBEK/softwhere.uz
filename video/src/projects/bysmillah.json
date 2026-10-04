@@ -1,0 +1,65 @@
+{
+  "slug": "bysmillah",
+  "name": "Bysmillah",
+  "tagline": "Interest-free car financing — a halal peer-to-peer car marketplace for California",
+  "category": "Halal fintech · Car marketplace",
+  "location": "California, USA",
+  "years": "2026",
+  "status": "live",
+  "role": "Full-stack engineering — public site, product app, staff console and API",
+  "platforms": ["Web"],
+  "tech": ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4", "Express", "PostgreSQL + Drizzle", "Better Auth", "Turborepo"],
+  "accent": "#0d6e63",
+  "icon": { "src": "projects/bysmillah/icon.webp" },
+  "links": { "web": "bysmillah.com" },
+  "scenes": [
+    {
+      "type": "web",
+      "url": "bysmillah.com",
+      "shots": [{ "src": "projects/bysmillah/web-landing.webp", "scroll": true }],
+      "title": "Finance a car without interest",
+      "body": "Buyers and sellers agree a fixed, fully disclosed price — paid in installments, never riba.",
+      "seconds": 7
+    },
+    {
+      "type": "web",
+      "url": "bysmillah.com/#what-we-do",
+      "shots": [{ "src": "projects/bysmillah/web-what-we-do.webp" }],
+      "title": "Two halal ways to finance",
+      "body": "Murabaha: true cost plus a fixed, disclosed markup. Musawama: a fair price agreed between buyer and seller.",
+      "seconds": 5
+    },
+    {
+      "type": "web",
+      "url": "bysmillah.com/#how-it-works",
+      "shots": [{ "src": "projects/bysmillah/web-how-it-works.webp" }],
+      "title": "Every deal guided by a person",
+      "body": "Contact the team, get matched with a buyer or seller, then sign a contract drafted for California law.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "bysmillah.com/#early-access",
+      "shots": [{ "src": "projects/bysmillah/web-early-access.webp", "cursor": { "x": 0.599, "y": 0.446 } }],
+      "title": "Apply as a buyer or a seller",
+      "body": "Sellers can paste a VIN to auto-fill the car's year, make and model.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "bysmillah.com/tools",
+      "shots": [{ "src": "projects/bysmillah/web-tools.webp" }],
+      "title": "A free vehicle check by VIN",
+      "body": "Specs, recalls for that model, crash-test ratings and fuel costs from NHTSA and EPA data — no sign-up.",
+      "seconds": 4.5
+    },
+    {
+      "type": "web",
+      "url": "bysmillah.com/agents",
+      "shots": [{ "src": "projects/bysmillah/web-agents.webp" }, { "src": "projects/bysmillah/web-agents-advisor.webp" }],
+      "title": "AI assistants, overseen by people",
+      "body": "A Telegram Q&A advisor is in development; contract and payment assistants are planned.",
+      "seconds": 5.5
+    }
+  ]
+}
