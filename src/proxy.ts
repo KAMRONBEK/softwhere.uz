@@ -40,6 +40,6 @@ export const config = {
   // rewrite breaks it — keep this list in sync with public/ root files (plus
   // the robots/sitemap route handlers).
   matcher: [
-    '/((?!(?:en|ru|uz)(?:/|$)|api|_next|_vercel|robots\\.txt|sitemap\\.xml|favicon|icons|images|\\.well-known|46b87b7e04b9d4a6adb8fc722995bde5\\.txt|yandex_f08533a1b0b3541d\\.html).*)',
+    '/((?!(?:en|ru|uz)(?:/|$)|api|_next|_vercel|robots\\.txt|sitemap\\.xml|favicon|icons|images|videos|\\.well-known|46b87b7e04b9d4a6adb8fc722995bde5\\.txt|yandex_f08533a1b0b3541d\\.html).*)',
   ],
 };
