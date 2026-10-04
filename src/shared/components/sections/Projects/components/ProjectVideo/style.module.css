@@ -1,0 +1,17 @@
+/* Portfolio walkthroughs are rendered 1920x1080 (video/ Remotion project), so keep 16:9. */
+.video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0a0705;
+  object-fit: cover;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 450px) {
+  .video {
+    border-radius: 12px;
+  }
+}

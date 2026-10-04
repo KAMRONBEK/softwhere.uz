@@ -76,6 +76,7 @@ Direct pointers to each subsystem's doc and key code:
 | i18n | `docs/i18n.md` | `src/proxy.ts`, `src/core/i18n.ts`, `src/messages/*` |
 | Estimator | `docs/estimator.md` | `src/modules/estimator/**` |
 | CI workflows | `docs/ci-workflows.md` | `.github/workflows/*` |
+| Portfolio videos (Remotion) | `docs/portfolio-videos.md` | `video/` (separate package, excluded from the Next build), `public/videos/*` |
 | Deployment / SEO / MCP / testing | `docs/deployment.md`, `docs/seo.md`, `docs/mcp.md`, `docs/testing/` | — |
 
 ## Warnings

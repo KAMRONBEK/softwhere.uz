@@ -396,6 +396,7 @@
     "title": "Biz faxrlanadigan loyihalar",
     "description": "Bizning dasturiy ta'minot ishlab chiqish kompaniyamiz biz ishlagan ajoyib mijozlar bilan chinakam faxrlanadi. Biz uzoq muddatli hamkorlikdan mamnunmiz.",
     "viewProject": "{name} loyihasini ko'rish",
+    "videoLabel": "{name} loyihasi bo'yicha video sharh",
     "eyebrow": "Tanlangan ishlar",
     "viewAll": "Barchasi"
   },

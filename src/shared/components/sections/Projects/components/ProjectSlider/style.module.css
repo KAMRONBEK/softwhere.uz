@@ -52,6 +52,13 @@
   width: 600px;
 }
 
+/* Walkthrough video slide visual (16:9, see ProjectVideo). */
+.videoWrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
 /* App-icon slide visual: the portfolio ships 512x512 app icons (not device
    mockups), so present them App-Store-style on a soft glow tile. */
 .iconWrap {
@@ -65,9 +72,7 @@
   margin: 0 auto;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  background:
-    radial-gradient(circle at 50% 42%, rgba(254, 69, 2, 0.16), transparent 65%),
-    rgba(255, 255, 255, 0.02);
+  background: radial-gradient(circle at 50% 42%, rgba(254, 69, 2, 0.16), transparent 65%), rgba(255, 255, 255, 0.02);
 }
 
 .appIcon {
