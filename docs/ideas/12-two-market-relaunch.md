@@ -51,7 +51,7 @@ The numbers behind the decisions (90 days to 2026-10-05):
 
 ### Admin panel ("one admin, market filter")
 
-- **Payload CMS 3** inside the same Next app. Next.js must be upgraded to at least 16.3.3 first, with a Payload 4 upgrade planned later. The existing `blog_posts` and `leads` tables must be kept or migrated deliberately, never dropped.
+- **Revised later on 2026-10-05: Payload is dropped.** The founder chose a monorepo with a **separate API server** (see "Monorepo and backend" below). The admin is our own small **Vite + React + shadcn/ui** app at `admin.softwhere.uz`. It talks only to the API, which enforces every role check through self-hosted **Better Auth**; that also replaces Neon Auth. The existing `blog_posts` and `leads` tables are kept and migrated deliberately, never dropped.
 - **Team logins with roles** (sales, content editor, developer).
 - **First version:**
   - A lead pipeline: market, language, source, UTM, click IDs, landing page, stage, notes, tasks, and a "test lead" flag.
@@ -86,7 +86,7 @@ The numbers behind the decisions (90 days to 2026-10-05):
 | Hosting | **Contabo Cloud VPS 6**, EU region (Germany): 6 shared vCPU, 12 GB, 100 GB NVMe, IPv4. **1-month term, EUR account**, paid by the founder personally with a physical Uzbek Visa/Mastercard: €7.50 + 12% Uzbek VAT = **€8.40/month**, no setup fee. When ordering, switch the term from the preselected 24 months to "1 Month" and pick EUR (in USD it costs $10.08). Benchmark CPU steal (`vmstat`, `yabs.sh`) and Tashkent latency (~110 ms) in week one. Cancelling needs ~4 weeks' notice. **Plan B:** Hostkey VPS Standard v2-mini ($7.40, 4 vCPU / 8 GB / 120 GB NVMe, Germany or Finland, never the Netherlands). About 45 plans were compared on 2026-10-05; Hetzner, netcup, OVH, Hostinger, IONOS, Strato, the US clouds and the Uzbek hosts each failed the $7–10 / monthly / no-setup-fee rules. |
 | Move order | **Server move first**, as a pure move: same URLs, same pages, nothing else changing. It also ends the Vercel Hobby commercial-use problem before ads. Vercel stays as a rollback for 2–4 weeks. |
 | Deploys | GitHub-hosted runners build the Docker image, push it to GHCR, then `docker compose pull && up -d` over SSH (Kamal 2 is the alternative). **No Coolify or Dokploy** (critical 2026 CVEs), and no CI runner on the server (the repo is public). |
-| App | Next.js standalone, **one process serving both hostnames**, behind Caddy. |
+| App | At the server move: the current Next.js app, standalone, **one process serving both hostnames**, behind Caddy. After the monorepo: `web`, `api`, `worker` and `admin` containers (see "Monorepo and backend"). |
 | Database | **PostgreSQL on the server**, with nightly encrypted backups (restic) to Cloudflare R2 and a monthly restore drill. Neon is kept as a fallback for about a month after cutover. |
 | Analytics | **Umami** self-hosted (cookieless: visitors, sources, countries, speed / Web Vitals, funnels) **+ PostHog Cloud EU free** (session recordings, heatmaps, deeper estimator funnels). Export Vercel Analytics before switching (only one month of history is kept). |
 | Consent | Cookieless analytics need no banner. On .app, session replay and the Google Ads tag load only after consent (Consent Mode v2). Privacy policy rewritten per edition. |
@@ -106,6 +106,22 @@ The numbers behind the decisions (90 days to 2026-10-05):
 - **Google Business Profile and Yandex Business:** a **service-area listing with the address hidden** (home office).
 - **Instagram DM assistant** ([08](./08-instagram-assistant.md)): later.
 
+## Monorepo and backend (decided 2026-10-05, later the same day)
+
+The founder chose a monorepo with a separate backend. It is designed by the `monorepo-and-backlog-v2` research workflow and tracked as GitHub issues in milestones M0–M7.
+
+- **When:** the **monorepo comes after the server move**. The server move stays a pure lift-and-shift of today's single Next app.
+- **Tooling:** **pnpm workspaces + Turborepo**, Node 24. Internal packages are TypeScript source with no build step. Each app gets its own image through `turbo prune --docker` on GitHub-hosted runners, pushed to GHCR and deployed with `docker compose` over SSH.
+- **Apps:**
+  - `apps/web`: the public Next site, both editions chosen by Host. 1 GB memory cap.
+  - `apps/api`: the **separate API server, Hono 4 on Node 24** (512 MB). It owns leads and the CRM, estimate and price books, offers, portfolio, blog content, Better Auth roles, webhooks (Resend, Cal.com, Telegram) and the **Telegram bot**, mounted inside the API.
+  - `apps/worker`: pg-boss jobs (768 MB): blog pipeline, emails, PDFs through Gotenberg, revalidation, scheduled tasks.
+  - `apps/admin`: a **static** Vite + shadcn/ui app (64 MB file server).
+- **Packages:** `config`, `core`, `i18n`, `contracts` (zod), `api-client`, `estimator`, `ui`, `db`, `ai`, `jobs`, `notify`, `bot`.
+- **Memory:** the caps total about 66% of 12 GB. That only holds because the admin is static and the bot runs inside the API.
+- **Secrets:** **Doppler** (free), as in [11](./11-secrets-doppler.md). The founder chose it over a no-new-service setup.
+- **softwhere.app launch:** **as soon as it's finished**, with no fixed date; the backlog estimates late February 2027, possibly mid-March. Because the API and admin come first, the launch is later than "right after 2026-12-02". The blog dates that depend on the launch (the T10 pilot and /en removal) move with it. The early .uz retire batch does not.
+
 ## Order of work
 
 1. **Now, on the current site:**
@@ -121,7 +137,7 @@ The numbers behind the decisions (90 days to 2026-10-05):
 4. **.uz price list** in so'm, then a **small Uzbekistan Google Ads test**.
 5. **Built hidden, in parallel:**
    - The redesign (3 mockup directions first).
-   - The Payload admin.
+   - The monorepo, then the API, worker and admin app (see "Monorepo and backend").
    - The estimator remake.
    - Case studies.
    - The .app edition.
