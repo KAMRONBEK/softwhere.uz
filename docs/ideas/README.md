@@ -2,7 +2,7 @@
 
 > **These are proposals, not current behavior.** Everywhere else in `docs/`, a doc describes what the code does today. This folder is the exception: it keeps researched ideas for later. Written 2026-09-24, from web research and a read of the current code; updated 2026-10-01. When an idea gets built, document it in the normal docs and mark it "built" here.
 
-**Starting a new session on this work?** Read this file first, then the file for the task. The site decisions and research from the founders' sessions with Claude up to 2026-10-01 are in these files. The business strategy (positioning, prices, client policy, company setup) is in the Global Playbook, which lives outside the repo; ask the founders for it.
+**Starting a new session on this work?** Read [12-two-market-relaunch.md](./12-two-market-relaunch.md) first: it holds the founder's decisions from 2026-10-05 and **wins wherever it disagrees with the files below**. Then read this file and the file for the task. The Global Playbook (24 September, outside the repo) is outdated; use file 12 for positioning, prices and markets.
 
 ## The honest starting point
 
@@ -31,6 +31,8 @@ So the order below puts **conversion blockers, trust and measurement first**, th
 | [09-portfolio-media.md](./09-portfolio-media.md)             | **Tool built.** Walkthrough videos and framed screenshots of past projects, made with the `portfolio-capture` skill; every project shown by name with an honest credit, banking and insurance last                            |
 | [10-analytics.md](./10-analytics.md)                         | PostHog Cloud EU (free to 1M events a month) plus Cloudflare Web Analytics to replace Vercel Analytics and Speed Insights, countries included; the one-file switch in `analytics.ts`                                          |
 | [11-secrets-doppler.md](./11-secrets-doppler.md)             | All environment variables in Doppler (free for 3 users): moving them out of Vercel, and how local dev, the server, GitHub Actions and Claude sessions read them                                                               |
+| [12-two-market-relaunch.md](./12-two-market-relaunch.md)     | **Decided plan (2026-10-05).** softwhere.uz (uz/ru, Central Asia) and softwhere.app (en, EU/US, after 2026-12-02); Contabo VPS + Postgres, Umami, PostHog, Bugsink; Payload admin, lead CRM, КП/ТЗ PDFs; prices; blog rules   |
+| [13-blog-plan.md](./13-blog-plan.md)                         | Per-topic keep / rewrite / merge / retire for all 59 topics; timeline to Sept 2027 at 1–2 posts a month; the first 4 posts with the founder's voice-note questions                                                            |
 
 ## Recommended order
 
