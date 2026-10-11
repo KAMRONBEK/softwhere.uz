@@ -49,3 +49,13 @@ regen-backups/
 regen-preview/
 
 .env*.local
+
+# Claude Code: local settings and the Impeccable engine binary (downloaded at install, ~20 MB)
+.claude/settings.local.json
+.claude/skills/impeccable/scripts/bin/
+
+# Throwaway probe/debug scripts and local settings backups
+*.tmp.mjs
+*.tmp.cjs
+*.tmp.ts
+.claude/settings.local.json.bak*
