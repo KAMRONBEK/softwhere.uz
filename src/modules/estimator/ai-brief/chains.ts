@@ -145,3 +145,40 @@ export function usableChain(chain: readonly BriefModelStep[], configured: readon
     .filter((step): step is BriefModelStep => step !== null)
     .filter((step, i, steps) => i === 0 || steps[i - 1] !== step);
 }
+
+/**
+ * Who writes the briefs — the admin's switch (`/admin/ai-demo`, stored in
+ * `ai_brief_settings`):
+ *  - 'kimi'     — production: Kimi K3, deepseek-flash as the fallback
+ *                 (blind audit 4.37/5, ~$0.05–0.26 a brief, ~40–70 s);
+ *  - 'deepseek' — deepseek-flash for every call, Kimi K3 (low effort) as the
+ *                 fallback when flash fails (audit ~3.97/5, ~$0.01–0.03 a
+ *                 brief, ~25 s).
+ * Either way the overflow lane stays on deepseek-flash.
+ */
+export const BRIEF_PROVIDERS = ['kimi', 'deepseek'] as const;
+export type BriefProvider = (typeof BRIEF_PROVIDERS)[number];
+export const DEFAULT_BRIEF_PROVIDER: BriefProvider = 'kimi';
+
+export function isBriefProvider(value: unknown): value is BriefProvider {
+  return typeof value === 'string' && (BRIEF_PROVIDERS as readonly string[]).includes(value);
+}
+
+/** Kimi as the fallback of a DeepSeek-first brief: the production later-call settings. */
+const KIMI_SCOPE_FALLBACK: BriefModelStep = { model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 50_000, maxTokens: 16_000 };
+const KIMI_LATER_FALLBACK: BriefModelStep = { model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 35_000, maxTokens: 8_000 };
+
+/**
+ * The chains for the admin's provider choice. 'kimi' = the production
+ * defaults (an empty set). 'deepseek' = the 'ds-flash' preset (incl. the
+ * flash Uzbek copy-edit it was audited with) with a Kimi step after each
+ * part's flash steps; without a Kimi key `usableChain` drops that step.
+ */
+export function providerChainSet(provider: BriefProvider): BriefChainSet {
+  if (provider === 'kimi') return {};
+  const { partChains = {}, samplesChain, polishChain } = briefChainSet('ds-flash');
+  const withKimi = Object.fromEntries(
+    Object.entries(partChains).map(([part, chain]) => [part, [...chain, part === 'scope' ? KIMI_SCOPE_FALLBACK : KIMI_LATER_FALLBACK]])
+  ) as Partial<Record<BriefPart, readonly BriefModelStep[]>>;
+  return { partChains: withKimi, samplesChain, polishChain };
+}

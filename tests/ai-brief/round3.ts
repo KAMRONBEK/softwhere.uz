@@ -778,7 +778,10 @@ s.group("normal briefs stay priced — the founder's rule unchanged");
 
 s.group('route limits stay as decided');
 {
-  const route = fs.readFileSync(path.join(ROOT, 'src/app/api/estimate/brief/route.ts'), 'utf8');
+  // The caps moved to ai-brief/caps.ts (2026-10-11, shared with the admin page); the route builds its budgets from them.
+  const route = ['src/app/api/estimate/brief/route.ts', 'src/modules/estimator/ai-brief/caps.ts']
+    .map(file => fs.readFileSync(path.join(ROOT, file), 'utf8'))
+    .join('\n');
   s.ok('3 requests per 10 minutes', /BURST_LIMIT = \{ count: 3, windowMs: 10 \* 60_000 \}/.test(route));
   // Founder decision 2026-10-10 (round 5): ONE free brief per visitor a day (was 5) — see tests/ai-brief/daily-limit.ts.
   s.ok('1 free brief a day per visitor', /DAILY_LIMIT_PER_IP = \{ count: 1, windowMs: 24 \* 60 \* 60_000 \}/.test(route));
@@ -788,8 +791,8 @@ s.group('route limits stay as decided');
   s.ok('150 calls a day by default (not the binding limit at $3)', /DEFAULT_DAILY_CALLS = 150;/.test(route));
   s.ok(
     'AI_BRIEF_DAILY_USD / _CALLS still override, through the fallback-safe parser',
-    route.includes('positiveNumberOr(process.env.AI_BRIEF_DAILY_USD, DEFAULT_DAILY_USD)') &&
-      route.includes('positiveNumberOr(process.env.AI_BRIEF_DAILY_CALLS, DEFAULT_DAILY_CALLS)')
+    route.includes('positiveNumberOr(env.AI_BRIEF_DAILY_USD, DEFAULT_DAILY_USD)') &&
+      route.includes('positiveNumberOr(env.AI_BRIEF_DAILY_CALLS, DEFAULT_DAILY_CALLS)')
   );
   const env: [string | undefined, number][] = [
     ['5', 5],

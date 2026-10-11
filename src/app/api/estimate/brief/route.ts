@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configuredProviders } from '@/core/ai';
 import { logger } from '@/core/logger';
-import { createDailyBudget, positiveNumberOr } from '@/shared/utils/dailyBudget';
+import { createDailyBudget } from '@/shared/utils/dailyBudget';
 import { getClientIp, rateLimit } from '@/shared/utils/rateLimit';
 import { createBriefAllowance } from '@/modules/estimator/ai-brief/allowance';
+import { briefCaps, OVERFLOW_RESERVE_USD, RESERVE_USD } from '@/modules/estimator/ai-brief/caps';
+import { providerChainSet, type BriefProvider } from '@/modules/estimator/ai-brief/chains';
 import { pickBriefLane, type BriefLane } from '@/modules/estimator/ai-brief/lanes';
 import { BRIEF_LOCALES, MAX_IDEA_CHARS, type BriefLocale } from '@/modules/estimator/ai-brief/constants';
 import { runBrief, type BriefRun } from '@/modules/estimator/ai-brief/orchestrator';
+import { briefRunRecord, busyRecord, visitorHash } from '@/modules/estimator/ai-brief/runRecord';
 import { totalRedactions } from '@/modules/estimator/ai-brief/scrub';
 import { BRIEF_STREAM_CONTENT_TYPE, encodeBriefEvent, type BriefStreamEvent } from '@/modules/estimator/ai-brief/stream';
+import { getBriefProvider, recordBriefRun } from '@/modules/estimator/model/briefRuns.repository';
 
 /**
  * POST /api/estimate/brief  { idea: string, locale: 'uz' | 'ru' | 'en' }
@@ -36,8 +40,8 @@ import { BRIEF_STREAM_CONTENT_TYPE, encodeBriefEvent, type BriefStreamEvent } fr
  * progress (and the priced scope at ~20s) rather than a spinner.
  */
 
-// Scope call, then plan ∥ risks ∥ two wireframe halves, each with a kimi-k3 →
-// deepseek-flash fallback, inside a 110s pipeline deadline. Mirrored in vercel.json (the
+// Scope call, then plan ∥ risks ∥ two wireframe halves, each with a fallback to the
+// other provider (Kimi K3 ⇄ deepseek-flash, per the admin's switch), inside a 110s pipeline deadline. Mirrored in vercel.json (the
 // global API cap there is 30s).
 export const maxDuration = 120;
 
@@ -55,47 +59,10 @@ const DAILY_LIMIT_PER_IP = { count: 1, windowMs: 24 * 60 * 60_000 };
  * back "too vague" while rejected runs (a paid scope call each) stay bounded.
  */
 const DAILY_ATTEMPTS_PER_IP = { count: 5, windowMs: 24 * 60 * 60_000 };
-/**
- * Cost held back per brief by the spend cap while it runs: ≈ $0.09–0.13 at
- * list price on en/ru pages, ≈ $0.21–0.26 on uz pages (the Uzbek copy-edit in
- * parallel chunks, round-3 live runs), plus room for a fallback.
- */
-const RESERVE_USD = 0.3;
-/**
- * Production default for the per-instance daily spend cap (USD); `AI_BRIEF_DAILY_USD` overrides it.
- * $3 (founder decision 2026-10-10, was $1.50): ~12 Uzbek briefs at ~$0.24 or 25–35 en/ru briefs at
- * $0.08–0.10 (list prices), counting the reserve the last brief must still fit.
- */
-const DEFAULT_DAILY_USD = 3;
-/**
- * Call cap, a backstop for the spend estimate. Not raised with the $3 cap: every priced brief costs
- * $0.06–0.31, so $3 is spent after ~10–50 briefs; only 150 back-to-back rejections at the cheapest
- * saved cost ($0.019) would stop at ~$2.90 instead.
- */
-const DEFAULT_DAILY_CALLS = 150;
-
-// An empty, zero or junk value falls back to the default, so it never lifts the cap by accident.
-const budget = createDailyBudget({
-  maxCalls: positiveNumberOr(process.env.AI_BRIEF_DAILY_CALLS, DEFAULT_DAILY_CALLS),
-  maxUsd: positiveNumberOr(process.env.AI_BRIEF_DAILY_USD, DEFAULT_DAILY_USD),
-  reserveUsd: RESERVE_USD,
-});
-
-/**
- * The overflow: once the main cap is spent, briefs run fully on deepseek-flash
- * (no Uzbek copy-edit, `chains.ts#overflowRunOptions`) under their own cap —
- * `AI_BRIEF_OVERFLOW_DAILY_USD`, $1 by default. A flash brief costs ~$0.01–0.03
- * (estimate incl. the 20% margin; peak hours double DeepSeek's price), so $1 is
- * ~30–100 more briefs; the reserve covers a peak-hour brief with a retry.
- * Without a DeepSeek key there is no overflow.
- */
-const OVERFLOW_RESERVE_USD = 0.05;
-const DEFAULT_OVERFLOW_DAILY_USD = 1;
-const overflowBudget = createDailyBudget({
-  maxCalls: positiveNumberOr(process.env.AI_BRIEF_OVERFLOW_DAILY_CALLS, DEFAULT_DAILY_CALLS),
-  maxUsd: positiveNumberOr(process.env.AI_BRIEF_OVERFLOW_DAILY_USD, DEFAULT_OVERFLOW_DAILY_USD),
-  reserveUsd: OVERFLOW_RESERVE_USD,
-});
+const caps = briefCaps();
+const budget = createDailyBudget({ maxCalls: caps.mainCalls, maxUsd: caps.mainUsd, reserveUsd: RESERVE_USD });
+/** Once the main cap is spent, briefs run on deepseek-flash under their own cap (`ai-brief/caps.ts`). */
+const overflowBudget = createDailyBudget({ maxCalls: caps.overflowCalls, maxUsd: caps.overflowUsd, reserveUsd: OVERFLOW_RESERVE_USD });
 const allowance = createBriefAllowance(DAILY_LIMIT_PER_IP);
 
 type ErrorCode =
@@ -130,15 +97,28 @@ function isLocale(value: unknown): value is BriefLocale {
   return typeof value === 'string' && (BRIEF_LOCALES as readonly string[]).includes(value);
 }
 
-/** Spend + one outcome log line per brief — metadata only, never the idea text (visitor-written, may hold personal data). */
-function recordRun(run: BriefRun, locale: BriefLocale, lane: BriefLane): void {
+/** Who sent a brief and how it ran: the stats row's context (`ai-brief/runRecord.ts`). */
+interface RunContext {
+  locale: BriefLocale;
+  provider: BriefProvider;
+  lane: BriefLane;
+  ip: string;
+}
+
+/**
+ * Spend, one outcome log line and one admin stats row per brief — metadata
+ * only, never the idea text (visitor-written, may hold personal data) or the IP.
+ */
+async function recordRun(run: BriefRun, ctx: RunContext): Promise<void> {
+  const { locale, lane } = ctx;
   lane.budget.record(run.totalCostUsd);
   logger.info(
-    `brief ${run.outcome.status}${run.outcome.status === 'error' ? `:${run.outcome.code}` : ''} locale=${locale} lane=${lane.name} model=${run.model ?? '-'} ` +
+    `brief ${run.outcome.status}${run.outcome.status === 'error' ? `:${run.outcome.code}` : ''} locale=${locale} provider=${ctx.provider} lane=${lane.name} model=${run.model ?? '-'} ` +
       `ms=${run.totalMs} cost=$${run.totalCostUsd.toFixed(4)} redactions=${totalRedactions(run.redactions)} attempts=${run.attempts.length}`,
     undefined,
     'AI_BRIEF'
   );
+  await recordBriefRun(briefRunRecord(run, { locale, provider: ctx.provider, lane: lane.name, visitor: visitorHash(ctx.ip) }));
 }
 
 /**
@@ -146,7 +126,8 @@ function recordRun(run: BriefRun, locale: BriefLocale, lane: BriefLane): void {
  * stops the writes: the run finishes and is still counted against the budget
  * (and, when it delivers a brief, against the visitor's free brief).
  */
-function streamBrief(idea: string, locale: BriefLocale, ip: string, lane: BriefLane): Response {
+function streamBrief(idea: string, ctx: RunContext): Response {
+  const { ip, lane } = ctx;
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const encoder = new TextEncoder();
@@ -162,10 +143,14 @@ function streamBrief(idea: string, locale: BriefLocale, ip: string, lane: BriefL
 
       send({ type: 'accepted' });
       try {
-        const run = await runBrief({ idea, locale }, { ...lane.options, onProgress: progress => send({ type: 'progress', progress }) });
-        recordRun(run, locale, lane);
+        const run = await runBrief(
+          { idea, locale: ctx.locale },
+          { ...lane.options, onProgress: progress => send({ type: 'progress', progress }) }
+        );
+        const recorded = recordRun(run, ctx); // the stats row is written while the result goes out
         settleAllowance(ip, run);
         send(run.outcome.status === 'error' ? { type: 'error', code: run.outcome.code } : { type: 'result', data: run.outcome });
+        await recorded;
       } catch (error) {
         lane.budget.record(0); // release the reserve held for this brief
         settleAllowance(ip, null);
@@ -218,9 +203,11 @@ export async function POST(request: NextRequest) {
 
     // Held from here; every path below that ends without a brief gives it back.
     if (!allowance.take(ip)) return dailyLimit(allowance.retryAfter(ip)); // a parallel request got it first
-    const lane = pickBriefLane(budget, overflowBudget, configuredProviders().includes('deepseek'));
+    const provider = await getBriefProvider();
+    const lane = pickBriefLane(budget, overflowBudget, configuredProviders().includes('deepseek'), providerChainSet(provider));
     if (!lane) {
       allowance.refund(ip);
+      await recordBriefRun(busyRecord({ locale, provider, visitor: visitorHash(ip) }));
       logger.warn(
         'AI brief daily budgets exhausted on this instance',
         { main: budget.snapshot(), overflow: overflowBudget.snapshot() },
@@ -230,7 +217,8 @@ export async function POST(request: NextRequest) {
     }
 
     const idea = body.idea;
-    if ((request.headers.get('accept') ?? '').includes(BRIEF_STREAM_CONTENT_TYPE)) return streamBrief(idea, locale, ip, lane);
+    const ctx: RunContext = { locale, provider, lane, ip };
+    if ((request.headers.get('accept') ?? '').includes(BRIEF_STREAM_CONTENT_TYPE)) return streamBrief(idea, ctx);
 
     let run: BriefRun;
     try {
@@ -240,7 +228,7 @@ export async function POST(request: NextRequest) {
       settleAllowance(ip, null);
       throw error;
     }
-    recordRun(run, locale, lane);
+    await recordRun(run, ctx);
     settleAllowance(ip, run);
     if (run.outcome.status === 'error') {
       return fail(503, run.outcome.code, 'The AI brief is temporarily unavailable. Please try again or use the estimator.');

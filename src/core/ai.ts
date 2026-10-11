@@ -94,6 +94,52 @@ export function configuredProviders(): ProviderName[] {
   return providerChain().map(p => p.name as ProviderName);
 }
 
+/** A provider account's remaining prepaid balance (admin page). */
+export interface ProviderBalance {
+  currency: string;
+  amount: number;
+}
+
+const BALANCE_TIMEOUT_MS = 8_000;
+
+/** Kimi: GET /users/me/balance → { data: { available_balance } } (USD on the international platform). */
+function readKimiBalance(body: unknown): ProviderBalance | null {
+  const amount = (body as { data?: { available_balance?: unknown } })?.data?.available_balance;
+  return typeof amount === 'number' ? { currency: 'USD', amount } : null;
+}
+
+/** DeepSeek: GET /user/balance → { balance_infos: [{ currency, total_balance: "8.36" }] }. */
+function readDeepSeekBalance(body: unknown): ProviderBalance | null {
+  const info = (body as { balance_infos?: { currency?: unknown; total_balance?: unknown }[] })?.balance_infos?.[0];
+  const amount = Number(info?.total_balance);
+  return info && Number.isFinite(amount) ? { currency: String(info.currency ?? 'USD'), amount } : null;
+}
+
+async function fetchBalance(p: Provider, path: string, read: (body: unknown) => ProviderBalance | null): Promise<ProviderBalance | null> {
+  if (!p.apiKey) return null;
+  try {
+    const res = await fetch(`${p.baseURL.replace(/\/$/, '')}${path}`, {
+      headers: { Authorization: `Bearer ${p.apiKey}` },
+      signal: AbortSignal.timeout(BALANCE_TIMEOUT_MS),
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return read(await res.json());
+  } catch (error) {
+    logger.warn(`${p.name} balance unavailable`, error instanceof Error ? error.message : error, 'AI');
+    return null;
+  }
+}
+
+/** The remaining balance of each provider account; null = no key, or the provider did not answer. */
+export async function getProviderBalances(): Promise<Record<ProviderName, ProviderBalance | null>> {
+  const [kimi, deepseek] = await Promise.all([
+    fetchBalance(KIMI, '/users/me/balance', readKimiBalance),
+    fetchBalance(DEEPSEEK, '/user/balance', readDeepSeekBalance),
+  ]);
+  return { kimi, deepseek };
+}
+
 export function isQuotaError(error: unknown): boolean {
   if (!error || typeof error !== 'object') return false;
   const err = error as Record<string, unknown>;

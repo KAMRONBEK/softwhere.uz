@@ -157,7 +157,8 @@ s.group('allowance — one free brief per visitor a day');
 
 s.group('route — the allowance is wired in the right order');
 {
-  const route = read('src/app/api/estimate/brief/route.ts');
+  // The caps live in ai-brief/caps.ts (2026-10-11); the route builds its budgets from them.
+  const route = read('src/app/api/estimate/brief/route.ts') + '\n' + read('src/modules/estimator/ai-brief/caps.ts');
   const at = (needle: string) => route.indexOf(needle);
   s.ok('one free brief a day per IP', /DAILY_LIMIT_PER_IP = \{ count: 1, windowMs: 24 \* 60 \* 60_000 \}/.test(route));
   s.ok('the allowance is created from it', route.includes('createBriefAllowance(DAILY_LIMIT_PER_IP)'));
@@ -172,7 +173,7 @@ s.group('route — the allowance is wired in the right order');
   s.ok('a busy day (main and overflow spent) gives the held brief back', /if \(!lane\) \{\s*allowance\.refund\(ip\);/.test(route));
   s.ok(
     'the overflow only runs with a DeepSeek key',
-    route.includes("pickBriefLane(budget, overflowBudget, configuredProviders().includes('deepseek'))")
+    route.includes("pickBriefLane(budget, overflowBudget, configuredProviders().includes('deepseek'), providerChainSet(provider))")
   );
   s.ok(
     'the overflow cap is its own env var, $1 by default',

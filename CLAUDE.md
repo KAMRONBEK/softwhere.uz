@@ -11,7 +11,7 @@ High-signal orientation for AI coding agents (Claude Code / Cursor) working in `
 | Framework | Next.js `^16.1` App Router | `package.json`; routes in `src/app/[locale]/` |
 | Language | TypeScript 5.8 | `yarn type-check` = `tsc --noEmit` |
 | Database | Neon serverless Postgres + Drizzle (HTTP driver) | client `src/core/db.ts`; **not** MongoDB/Mongoose (some old docs are stale) |
-| Tables | `blog_posts`, `leads` | schemas `src/modules/blog/model/BlogPost.ts`, `src/modules/contact/model/Lead.ts` |
+| Tables | `blog_posts`, `leads`, `ai_brief_runs`, `ai_brief_settings` | schemas `src/modules/blog/model/BlogPost.ts`, `src/modules/contact/model/Lead.ts`, `src/modules/estimator/model/BriefRun.ts` |
 | AI | OpenAI-compatible SDK (`openai` pkg) | client `src/core/ai.ts`; provider chain **Kimi K2.6 → DeepSeek** (see below) |
 | i18n | `next-intl` v4 | locales `uz` (default), `ru`, `en`; middleware `src/proxy.ts`; messages `src/messages/*.json` |
 | Auth | Neon Auth (Better Auth, beta) + Bearer `API_SECRET` | `src/core/neonAuth.ts`, `src/core/auth.ts` → see `docs/auth-and-admin.md` |
@@ -21,7 +21,7 @@ High-signal orientation for AI coding agents (Claude Code / Cursor) working in `
 
 ## Golden rules
 
-1. **DB only through the repository layer — never touch Drizzle in routes/pages.** All queries live in `src/modules/blog/model/posts.repository.ts` and `src/modules/contact/model/leads.repository.ts`. These own the `db` client, the `blogPosts`/`leads` tables, and serialization. Routes/pages/components call repository functions (`listPublished`, `getPublishedBySlug`, `createPost`, `pingDb`, …); they must not `import { db }` or build Drizzle queries.
+1. **DB only through the repository layer — never touch Drizzle in routes/pages.** All queries live in `src/modules/blog/model/posts.repository.ts`, `src/modules/contact/model/leads.repository.ts` and `src/modules/estimator/model/briefRuns.repository.ts`. These own the `db` client, the `blogPosts`/`leads` tables, and serialization. Routes/pages/components call repository functions (`listPublished`, `getPublishedBySlug`, `createPost`, `pingDb`, …); they must not `import { db }` or build Drizzle queries.
 2. **AI only through `src/core/ai.ts`.** Use the exported helpers — `safeGenerateContent`, `generateContentWithProvider`, `safeGenerateJSON`, `safeGenerateJSONWithTimeout`, `generateWithWebSearch`. Never instantiate `new OpenAI(...)` elsewhere. The module owns provider selection, quota cooldowns, retries, and the Kimi-only `$web_search` grounding loop.
 3. **Log via the logger, not `console`.** Import `logger` (or `logError`/`logWarn`/`logInfo`/`logDebug`) from `src/core/logger.ts`. `no-console` is a lint warning; `logger` is the sanctioned console boundary. `warn`/`error` always emit (prod included); `info`/`debug` are dev-only.
 4. **User-facing strings come from next-intl messages, not hardcoded literals.** Add keys to `src/messages/{uz,ru,en}.json` and read them with next-intl. Keep all three locales in sync.

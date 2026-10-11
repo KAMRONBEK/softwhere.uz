@@ -30,6 +30,9 @@ export default async function AdminLayout({ children, params }: { children: Reac
           <a href={`/${locale}/admin/leads`} className='text-ember-muted hover:text-ember-text transition-colors'>
             Leads
           </a>
+          <a href={`/${locale}/admin/ai-demo`} className='text-ember-muted hover:text-ember-text transition-colors'>
+            AI demo
+          </a>
         </nav>
         <AdminLogout />
       </div>
