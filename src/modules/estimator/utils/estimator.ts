@@ -18,7 +18,7 @@ import { FEATURE_BY_ID, INTEGRATION_BY_ID, effectiveFeatureHours, getSubtype, ha
 import type { BreakdownLine, EstimateResult, EstimatorInput, Range } from '@/modules/estimator/types';
 
 /** Round money outward to friendly steps so ranges read honest, not fake-precise. */
-function roundMoney(value: number, mode: 'down' | 'up'): number {
+export function roundMoney(value: number, mode: 'down' | 'up'): number {
   const step = value >= 20000 ? 500 : value >= 5000 ? 250 : value >= 1000 ? 100 : 50;
   const fn = mode === 'down' ? Math.floor : Math.ceil;
   return fn(value / step) * step;

@@ -6,7 +6,7 @@ Canonical "how it works today" reference for the estimator: the multi-step wizar
 
 | Concern | Where | Notes |
 |---|---|---|
-| Page (route) | `src/app/[locale]/estimator/page.tsx` | Server component; sets locale + SEO metadata, renders `<Wizard/>` |
+| Page (route) | `src/app/[locale]/(site)/estimator/page.tsx` | Server component; sets locale + SEO metadata, renders `<Wizard/>` |
 | Wizard (state machine) | `src/modules/estimator/components/Wizard.tsx` | `'use client'`; 6 input steps + result; sessionStorage persistence |
 | Steps UI | `src/modules/estimator/components/Steps/*` | `TypeStep`, `ScopeStep`, `FeaturesStep`, `IntegrationsStep`, `TechStep`, `DetailsStep` |
 | Catalog (data) | `src/modules/estimator/data/catalog.ts` | 6 services, 30 subtypes, 45 features, 30 integrations, 51 tech |

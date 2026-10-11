@@ -18,6 +18,8 @@ Scope legend: **server** = server-only (never sent to the browser); **client** =
 | `AI_FALLBACK_BASE_URL` | server | Optional | AI fallback base URL override | `src/core/ai.ts:45` |
 | `AI_FALLBACK_MODEL` | server | Optional | AI fallback model override | `src/core/ai.ts:52` |
 | `BLOG_MAX_TOKENS` | server | Optional | AI completion budget | `src/core/ai.ts:18` |
+| `AI_BRIEF_DAILY_USD` | server | Optional | AI brief per-instance daily spend cap (default 3) | `src/app/api/estimate/brief/route.ts` |
+| `AI_BRIEF_DAILY_CALLS` | server | Optional | AI brief per-instance daily call cap (default 150) | `src/app/api/estimate/brief/route.ts` |
 | `NEON_AUTH_BASE_URL` | server | Optional | Admin login (Neon Auth) | `src/core/neonAuth.ts:12` |
 | `NEON_AUTH_COOKIE_SECRET` | server | Optional | Admin session cookie signing | `src/core/neonAuth.ts:13` |
 | `API_SECRET` | server | Optional | Machine/Bearer admin auth + ISR cache bust | `src/core/auth.ts:52`, `scripts/generate-post.ts:128` |
@@ -25,7 +27,7 @@ Scope legend: **server** = server-only (never sent to the browser); **client** =
 | `TG_CHAT_ID` | server | Optional | Telegram chat target | `src/app/api/contact/route.ts:47`, `src/core/notify.ts:11` |
 | `UNSPLASH_ACCESS_KEY` | server | Optional | Blog cover images | `src/modules/blog/utils/unsplash.ts:124` |
 | `EXCHANGERATE_API_KEY` | server | Optional | Currency rates (estimator) | `src/app/api/currency/rates/route.ts:18` |
-| `BLOG_AUTHOR_NAME` | server | Optional | Blog SEO author | `src/app/[locale]/blog/[slug]/page.tsx:146` |
+| `BLOG_AUTHOR_NAME` | server | Optional | Blog SEO author | `src/app/[locale]/(site)/blog/[slug]/page.tsx:146` |
 | `NEXT_PUBLIC_BLOG_AUTHOR` | client | Optional | Blog SEO author fallback | `src/modules/blog/lib/seo.tsx:123` |
 | `NODE_ENV` | platform | Auto-set | Environment mode | `src/core/constants.ts:60` |
 | `YANDEX_WEBMASTER_TOKEN` | tooling | Required for its MCP | Yandex Webmaster MCP | `scripts/yandex-webmaster-mcp.js:20` |
@@ -89,6 +91,7 @@ AI runs through one OpenAI-compatible client with a two-provider chain (`src/cor
 - **`DEEPSEEK_API_KEY`** — auth for the fallback provider (default base `https://api.deepseek.com`). Also used to route Uzbek content to DeepSeek.
 - **`AI_BASE_URL`, `AI_MODEL`, `AI_FALLBACK_BASE_URL`, `AI_FALLBACK_MODEL`** — override host/model per provider without code changes. Defaults: `kimi-k2.6` and `deepseek-v4-pro`.
 - **`BLOG_MAX_TOKENS`** — completion budget for blog bodies; numeric, defaults to `32000` (`src/core/ai.ts:18`).
+- **`AI_BRIEF_DAILY_USD`, `AI_BRIEF_DAILY_CALLS`** — circuit breaker for `POST /api/estimate/brief` (USD, default `3` since 2026-10-10, was `1.5` — ≈ 12 uz briefs at ~$0.24 or 25–35 en/ru briefs at ~$0.08–0.10 a day at list prices; each brief in flight holds a $0.30 reserve, so at most 10 run at once on a fresh day; calls, default `150` — kept, since $3 runs out after ~10–50 priced briefs). An empty, zero or non-numeric value falls back to the default, so it can never lift the cap by accident. In-memory and per warm instance, so it resets on cold starts/redeploys — it bounds one instance, not the account; the Moonshot balance is the real backstop. The brief itself always runs on Kimi (`kimi-k3` at effort `high` for the scope call, `low` for the rest → `kimi-k2.6`; `kimi-k3` low for the sample-content call and the Uzbek copy-edit), selected per call; `AI_MODEL` does not change it.
 
 Get keys from `https://platform.moonshot.ai` (Kimi/Moonshot) and `https://platform.deepseek.com` (DeepSeek). See `mcp.md` for the generation workflows.
 
@@ -111,7 +114,7 @@ Get keys from `https://platform.moonshot.ai` (Kimi/Moonshot) and `https://platfo
 
 ### Blog SEO author
 
-- **`BLOG_AUTHOR_NAME`** (server) and **`NEXT_PUBLIC_BLOG_AUTHOR`** (client) — author name in blog metadata/JSON-LD; precedence is `BLOG_AUTHOR_NAME` → `NEXT_PUBLIC_BLOG_AUTHOR` → hardcoded default (`src/app/[locale]/blog/[slug]/page.tsx:146`, `src/modules/blog/lib/seo.tsx:123`). Both optional.
+- **`BLOG_AUTHOR_NAME`** (server) and **`NEXT_PUBLIC_BLOG_AUTHOR`** (client) — author name in blog metadata/JSON-LD; precedence is `BLOG_AUTHOR_NAME` → `NEXT_PUBLIC_BLOG_AUTHOR` → hardcoded default (`src/app/[locale]/(site)/blog/[slug]/page.tsx:146`, `src/modules/blog/lib/seo.tsx:123`). Both optional.
 
 ### Platform-provided
 

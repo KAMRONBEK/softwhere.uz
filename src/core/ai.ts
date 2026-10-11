@@ -138,6 +138,79 @@ function sanitizeContent(text: string): string {
     .join('');
 }
 
+/**
+ * Kimi K3 thinks on every call; `reasoning_effort` ('low' | 'high' | 'max',
+ * API default 'max') sets how hard. Verified live 2026-10: in thinking mode K3
+ * accepts only temperature 1 (0.6 → 400), so the temperature is omitted and the
+ * API applies its fixed value. K2.x models ignore an effort and keep the
+ * historical non-thinking params.
+ */
+export type KimiReasoningEffort = 'low' | 'high' | 'max';
+
+const REASONING_EFFORT_MODEL = /^kimi-k3/;
+
+/**
+ * Sampling/thinking params for one Kimi request. With no effort this is
+ * exactly what every Kimi call has always sent (temperature 0.6 + thinking
+ * disabled — kimi-k2.6 400s otherwise), so existing callers are unaffected.
+ */
+export function kimiRequestParams(model: string, effort?: KimiReasoningEffort): Record<string, unknown> {
+  if (effort && REASONING_EFFORT_MODEL.test(model)) return { reasoning_effort: effort };
+  return { temperature: KIMI_TEMPERATURE, thinking: { type: 'disabled' } };
+}
+
+/** Token usage of one completion (reasoning tokens are included in `completionTokens`). */
+export interface AiUsage {
+  promptTokens: number;
+  completionTokens: number;
+  reasoningTokens: number;
+  cachedTokens: number;
+}
+
+/**
+ * List prices, USD per 1M tokens (platform.kimi.ai pricing page, checked
+ * 2026-10). Used for spend caps and eval reports, not billing: cache hits are
+ * billed lower, so `estimateCostUsd` is a deliberate upper bound.
+ */
+const PRICE_PER_M: Record<string, { input: number; output: number }> = {
+  'kimi-k3': { input: 3, output: 15 },
+  'kimi-k2.6': { input: 0.95, output: 4 },
+  'kimi-k2.7-code': { input: 0.95, output: 4 },
+};
+const UNKNOWN_MODEL_PRICE = PRICE_PER_M['kimi-k3'];
+
+export function estimateCostUsd(model: string, usage: AiUsage | null | undefined): number {
+  if (!usage) return 0;
+  const price = PRICE_PER_M[model] ?? UNKNOWN_MODEL_PRICE;
+  return (usage.promptTokens * price.input + usage.completionTokens * price.output) / 1_000_000;
+}
+
+function readUsage(raw: unknown): AiUsage | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const u = raw as Record<string, unknown>;
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+  const completionDetails = (u.completion_tokens_details ?? {}) as Record<string, unknown>;
+  const promptDetails = (u.prompt_tokens_details ?? {}) as Record<string, unknown>;
+  return {
+    promptTokens: num(u.prompt_tokens),
+    completionTokens: num(u.completion_tokens),
+    reasoningTokens: num(completionDetails.reasoning_tokens),
+    cachedTokens: num(promptDetails.cached_tokens) || num(u.cached_tokens),
+  };
+}
+
+/** One provider attempt, reported through `onAttempt` (evals, spend accounting). */
+export interface AiAttempt {
+  provider: string;
+  model: string;
+  ms: number;
+  ok: boolean;
+  finishReason?: string | null;
+  usage?: AiUsage | null;
+  /** Error message only — never the request. */
+  error?: string;
+}
+
 /** Strict structured-output schema (Kimi `response_format: json_schema`).
  *  Must conform to MFJS (Moonshot-flavored JSON Schema): explicit `type` on
  *  every property, no oneOf/allOf/format. DeepSeek doesn't support it, so the
@@ -161,13 +234,28 @@ interface GenOptions {
   firstOnly?: boolean;
   /** Try this provider first (falls back to the rest of the chain). */
   prefer?: ProviderName;
+  /** Kimi-only model override (e.g. 'kimi-k3'); other providers keep their configured model. */
+  model?: string;
+  /** Kimi K3 thinking depth; ignored by non-K3 models (see `kimiRequestParams`). */
+  reasoningEffort?: KimiReasoningEffort;
+  /** Called once per provider attempt with timing/usage/error (no prompt data). */
+  onAttempt?: (attempt: AiAttempt) => void;
 }
 
-/** Per-provider temperature: Kimi is pinned to its fixed default; DeepSeek
- *  takes the requested value (or the conservative default). */
-function temperatureFor(provider: Provider, requested?: number): number {
-  if (provider.name === 'kimi') return KIMI_TEMPERATURE;
-  return requested ?? DEFAULT_TEMPERATURE;
+/** Per-provider sampling: Kimi gets its pinned params (see `kimiRequestParams`);
+ *  DeepSeek takes the requested temperature (or the conservative default). */
+function samplingParamsFor(provider: Provider, model: string, opts: GenOptions): Record<string, unknown> {
+  if (provider.name === 'kimi') return kimiRequestParams(model, opts.reasoningEffort);
+  return { temperature: opts.temperature ?? DEFAULT_TEMPERATURE };
+}
+
+function modelFor(provider: Provider, override?: string): string {
+  return provider.name === 'kimi' && override ? override : provider.model;
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message.slice(0, 300);
+  return String(error).slice(0, 300);
 }
 
 /**
@@ -176,11 +264,16 @@ function temperatureFor(provider: Provider, requested?: number): number {
  * provider on quota/error. Returns the text (and which provider produced it)
  * or null when everything is exhausted.
  */
-async function generate(
-  prompt: string,
-  label: string,
-  opts: GenOptions
-): Promise<{ text: string; provider: string; finishReason: string | null } | null> {
+interface GenResult {
+  text: string;
+  provider: string;
+  finishReason: string | null;
+  /** The model that actually answered (after any override). */
+  model: string;
+  usage: AiUsage | null;
+}
+
+async function generate(prompt: string, label: string, opts: GenOptions): Promise<GenResult | null> {
   let providers = providerChain(opts.prefer);
   if (opts.firstOnly) providers = providers.slice(0, 1);
   if (providers.length === 0) {
@@ -202,8 +295,10 @@ async function generate(
       logger.info(`Cooldown active, skipping ${p.name}: ${label}`, undefined, CONTEXT);
       continue;
     }
+    const model = modelFor(p, opts.model);
     for (let attempt = 1; attempt <= attempts; attempt++) {
       aiStats.callAttempts++;
+      const startedAt = Date.now();
       try {
         // Strict schema output is Kimi-only; DeepSeek degrades to json_object.
         const responseFormat =
@@ -219,26 +314,30 @@ async function generate(
               : {};
         const completion = await clientFor(p).chat.completions.create(
           {
-            model: p.model,
+            model,
             messages,
-            temperature: temperatureFor(p, opts.temperature),
+            // Kimi: temperature 0.6 + thinking disabled (kimi-k2.6 defaults to
+            // thinking mode, which rejects any temperature except 1, so plain
+            // generation must disable it or every call 400s) — or, for K3
+            // with an explicit effort, reasoning_effort and no temperature.
+            ...samplingParamsFor(p, model, opts),
             ...responseFormat,
             ...(opts.maxTokens && { max_tokens: opts.maxTokens }),
-            // kimi-k2.6 defaults to thinking mode, which rejects any
-            // temperature except 1 — plain generation must disable it
-            // explicitly or every Kimi call 400s.
-            ...(p.name === 'kimi' && { thinking: { type: 'disabled' } }),
           } as unknown as OpenAI.ChatCompletionCreateParamsNonStreaming,
           { timeout: opts.timeout ?? 120_000, maxRetries: 0 }
         );
         const choice = completion.choices[0];
         const text = choice?.message?.content ?? null;
+        const finishReason = choice?.finish_reason ?? null;
+        const usage = readUsage(completion.usage);
+        opts.onAttempt?.({ provider: p.name, model, ms: Date.now() - startedAt, ok: !!text, finishReason, usage });
         // finish_reason 'length' means the completion cap truncated the output
         // mid-stream — callers (the blog pipeline) use it to trigger a
         // continuation instead of silently publishing a cut-off post.
-        if (text) return { text, provider: p.name, finishReason: choice?.finish_reason ?? null };
+        if (text) return { text, provider: p.name, finishReason, model, usage };
         break; // empty response — try the next provider
       } catch (error) {
+        opts.onAttempt?.({ provider: p.name, model, ms: Date.now() - startedAt, ok: false, error: errorMessage(error) });
         if (isQuotaError(error)) {
           cooldownUntil.set(p.name, Date.now() + extractRetryMs(error));
           aiStats.quotaBlocked++;
@@ -419,7 +518,9 @@ export async function generateWithWebSearch(
  * cap. Walks the provider chain (Kimi with strict json_schema when given,
  * DeepSeek degrading to json_object) unless `firstOnly`. Falls back to null on
  * timeout/failure so the caller can use its formula. Returns the provider name
- * so callers can attribute the result.
+ * so callers can attribute the result, plus the answering model and token
+ * usage. `model`/`reasoningEffort` apply to Kimi only (e.g. the AI brief runs
+ * kimi-k3 with effort 'low'); omitted, behaviour is unchanged.
  */
 export async function safeGenerateJSONWithTimeout(
   prompt: string,
@@ -432,8 +533,11 @@ export async function safeGenerateJSONWithTimeout(
     jsonSchema?: JsonSchemaSpec;
     prefer?: ProviderName;
     firstOnly?: boolean;
+    model?: string;
+    reasoningEffort?: KimiReasoningEffort;
+    onAttempt?: (attempt: AiAttempt) => void;
   }
-): Promise<{ text: string; provider: string } | null> {
+): Promise<{ text: string; provider: string; model: string; usage: AiUsage | null; finishReason: string | null } | null> {
   return generate(prompt, label, {
     system: options?.system,
     json: true,
@@ -443,5 +547,8 @@ export async function safeGenerateJSONWithTimeout(
     maxTokens: options?.maxTokens,
     firstOnly: options?.firstOnly ?? true,
     prefer: options?.prefer,
+    model: options?.model,
+    reasoningEffort: options?.reasoningEffort,
+    onAttempt: options?.onAttempt,
   });
 }
