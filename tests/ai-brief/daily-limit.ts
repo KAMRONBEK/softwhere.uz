@@ -13,6 +13,8 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { createTranslator } from 'use-intl/core';
 import { createBriefAllowance } from '../../src/modules/estimator/ai-brief/allowance';
+import { pickBriefLane } from '../../src/modules/estimator/ai-brief/lanes';
+import { createDailyBudget } from '../../src/shared/utils/dailyBudget';
 import { buildEstimate, engineSize, mapScopeToInputs } from '../../src/modules/estimator/ai-brief/mapping';
 import { previewOf, priceScope } from '../../src/modules/estimator/ai-brief/orchestrator';
 import type { AiBrief, BriefScope } from '../../src/modules/estimator/ai-brief/types';
@@ -165,12 +167,61 @@ s.group('route — the allowance is wired in the right order');
   );
   s.ok(
     'the brief is held only after the body is valid, before the budget',
-    at('allowance.take(ip)') > at("fail(400, 'too_long'") && at('allowance.take(ip)') < at('budget.tryStart()')
+    at('allowance.take(ip)') > at("fail(400, 'too_long'") && at('allowance.take(ip)') < at('pickBriefLane(')
   );
-  s.ok('a busy day gives the held brief back', /if \(!budget\.tryStart\(\)\) \{\s*allowance\.refund\(ip\);/.test(route));
+  s.ok('a busy day (main and overflow spent) gives the held brief back', /if \(!lane\) \{\s*allowance\.refund\(ip\);/.test(route));
+  s.ok(
+    'the overflow only runs with a DeepSeek key',
+    route.includes("pickBriefLane(budget, overflowBudget, configuredProviders().includes('deepseek'))")
+  );
+  s.ok(
+    'the overflow cap is its own env var, $1 by default',
+    /AI_BRIEF_OVERFLOW_DAILY_USD, DEFAULT_OVERFLOW_DAILY_USD/.test(route) && /DEFAULT_OVERFLOW_DAILY_USD = 1;/.test(route)
+  );
+  s.ok(
+    'each run is recorded on the budget of its lane',
+    route.includes('lane.budget.record(run.totalCostUsd)') && !/\n\s*budget\.record\(/.test(route)
+  );
+  s.ok(
+    'the lane options reach both run paths',
+    route.includes('runBrief({ idea, locale }, lane.options)') && route.includes('...lane.options, onProgress')
+  );
   s.ok("a run that is not 'ok' gives it back", route.includes("if (run?.outcome.status !== 'ok') allowance.refund(ip);"));
   s.eq('settled on both paths (stream + JSON, success + throw)', route.match(/settleAllowance\(ip, /g)?.length, 4);
   s.ok("429 'daily_limit' with Retry-After", /fail\(429, 'daily_limit'[\s\S]{0,160}'Retry-After'/.test(route));
+}
+
+s.group('lanes — main budget first, then the deepseek-flash overflow');
+{
+  const budgetOf = (maxUsd: number) => createDailyBudget({ maxCalls: 100, maxUsd, reserveUsd: 0.3 });
+  const main = budgetOf(0.6); // room for two reserves
+  const overflow = createDailyBudget({ maxCalls: 100, maxUsd: 0.1, reserveUsd: 0.05 });
+  const first = pickBriefLane(main, overflow, true);
+  const second = pickBriefLane(main, overflow, true);
+  s.eq('briefs run on the main lane while its cap allows', [first?.name, second?.name], ['main', 'main']);
+  s.eq('the main lane runs the production chains (no overrides)', first?.options, {});
+  const third = pickBriefLane(main, overflow, true);
+  s.eq('main cap reached → overflow lane', third?.name, 'overflow');
+  s.ok(
+    'the overflow runs every call on deepseek-flash',
+    Object.values(third?.options.partChains ?? {})
+      .flat()
+      .every(step => step.model === 'deepseek-flash') && Object.keys(third?.options.partChains ?? {}).length === 5
+  );
+  s.eq('the overflow skips the Uzbek copy-edit', third?.options.polish, false);
+  s.eq('overflow reserve held on the overflow budget only', [main.snapshot().inFlight, overflow.snapshot().inFlight], [2, 1]);
+  s.eq(
+    'overflow cap reached too → null (resting for today)',
+    [pickBriefLane(main, overflow, true), pickBriefLane(main, overflow, true)].map(l => l?.name ?? null),
+    ['overflow', null]
+  );
+  const noKeyMain = budgetOf(0.3);
+  const noKeyOverflow = budgetOf(1);
+  pickBriefLane(noKeyMain, noKeyOverflow, false);
+  s.eq('without a DeepSeek key there is no overflow', pickBriefLane(noKeyMain, noKeyOverflow, false), null);
+  s.eq('… and its budget is never touched', noKeyOverflow.snapshot().calls, 0);
+  main.record(0); // a brief that failed before any paid call
+  s.eq('a finished main brief frees its reserve for the main lane again', pickBriefLane(main, overflow, true)?.name, 'main');
 }
 
 /* ------------------------------------------------------------------ */

@@ -3,9 +3,12 @@ import {
   claimedLanguages,
   createConsistencyGuard,
   framingLeaks,
+  specificsContextOf,
   type ConsistencyGuard,
   type ViewSource,
 } from '@/modules/estimator/ai-brief/consistency';
+import { BLOCK_CONCEPTS } from '@/modules/estimator/ai-brief/consistencyLexicon';
+import { budgetFiller, fillerRisk, inventedDetail, templateLeak, type SpecificsContext } from '@/modules/estimator/ai-brief/specifics';
 import type { PricedScope } from '@/modules/estimator/ai-brief/digest';
 import { mapPhases, type AiBrief, type BriefScope, type WireframeBlock, type WireframeScreen } from '@/modules/estimator/ai-brief/types';
 
@@ -29,7 +32,13 @@ import { mapPhases, type AiBrief, type BriefScope, type WireframeBlock, type Wir
  *    priced, and — only where ONE language is priced (English pages) — a
  *    second-language switch or field and a risk built on translation. With
  *    two languages priced, "Uzbek + Russian" copy, its switch and its
- *    translation risks agree with the scope and stay.
+ *    translation risks agree with the scope and stay;
+ *  - invented specifics and template leakage (`specifics.ts`, when the idea is
+ *    known): branches, cities, brands and — on English pages — Uzbek places,
+ *    names and so'm the idea never gave; delivery words in a product that
+ *    delivers nothing; app-store, in-app-purchase and budget/timeline filler
+ *    risks and questions;
+ *  - on 'later' wireframes, copy that shows what no price covers.
  *
  * A field is never emptied by the guard: when every sentence of a required
  * text fails, the text is kept and the finding is only recorded. Every removal
@@ -69,6 +78,16 @@ function dropSentences(text: string, fails: (sentence: string) => string | null,
 }
 
 const firstSubject = (violations: { subject: string }[]) => (violations.length ? `contradicts: ${violations[0].subject}` : null);
+
+/** The specifics context of a guard run; null when the idea is unknown (saved runs from before 2026-10-11). */
+const specificsOf = (source: ViewSource, priced: PricedScope): SpecificsContext | null =>
+  source.idea === undefined ? null : specificsContextOf(source.locale, source.idea, priced);
+
+/** A sentence (prose) or a sample text (`prose` false: wireframes, assumptions) that invents a detail or leaks another product's words. */
+function specificsReason(ctx: SpecificsContext | null, text: string, prose: boolean): string | null {
+  if (!ctx) return null;
+  return inventedDetail(text, ctx, prose) ?? templateLeak(text, ctx);
+}
 const framingReason = (sentence: string) => (hasFraming(sentence) ? 'framing leak' : null);
 
 /**
@@ -96,9 +115,13 @@ const TRANSLATION = /tarjima|перевод|translat/iu;
 /** Summary, audience, assumptions and extra-product reasons, against the priced scope. */
 export function guardScopeText(scope: BriefScope, source: ViewSource, priced: PricedScope): Guarded<BriefScope> {
   const guard = createConsistencyGuard(source, priced);
+  const specifics = specificsOf(source, priced);
   const removed: string[] = [];
   const summaryCheck = (sentence: string) =>
-    framingReason(sentence) ?? languageReason(sentence, source.languages) ?? firstSubject(guard.summary(sentence));
+    framingReason(sentence) ??
+    languageReason(sentence, source.languages) ??
+    specificsReason(specifics, sentence, true) ??
+    firstSubject(guard.summary(sentence));
 
   const summary = dropSentences(scope.summary, summaryCheck, 'summary', removed);
 
@@ -109,7 +132,7 @@ export function guardScopeText(scope: BriefScope, source: ViewSource, priced: Pr
   });
 
   const assumptions = scope.assumptions.filter((a, i) => {
-    const why = framingReason(a) ?? firstSubject(guard.assumption(a));
+    const why = framingReason(a) ?? specificsReason(specifics, a, false) ?? firstSubject(guard.assumption(a));
     if (why) removed.push(`dropped assumptions[${i}]: "${a}" (${why})`);
     return !why;
   });
@@ -207,51 +230,72 @@ function unpricedLanguageUi(text: string, languages: number): boolean {
   return switchLanguages(text).length > languages || (languages === 1 && SECOND_LANGUAGE_UI.test(text));
 }
 
-function guardBlock(
-  block: WireframeBlock,
-  at: string,
-  context: string,
-  guard: ConsistencyGuard,
-  removed: string[],
-  languages: number,
-  locale: BriefLocale
-): WireframeBlock | null {
-  const unpricedItems = unpricedLanguageItems(block, languages, locale);
-  const isUnpricedLanguage = (text: string) => unpricedItems.has(text) || unpricedLanguageUi(text, languages);
-  const fails = (text: string) => !!text && (isUnpricedLanguage(text) || guard.mvpText(text, 'screen', context).length > 0);
+interface ScreenGuard {
+  guard: ConsistencyGuard;
+  specifics: SpecificsContext | null;
+  removed: string[];
+  languages: number;
+  locale: BriefLocale;
+}
+
+/** Why one wireframe text fails on a screen of this phase (null: it stays). */
+function screenTextReason(text: string, screen: WireframeScreen, sg: ScreenGuard): string | null {
+  if (!text) return null;
+  const specific = specificsReason(sg.specifics, text, false);
+  if (specific) return specific;
+  const scope = screen.phase === 'mvp' ? sg.guard.mvpText(text, 'screen', screen.name) : sg.guard.laterText(text);
+  return scope.length ? (screen.phase === 'mvp' ? 'not priced in the MVP' : 'not priced at all') : null;
+}
+
+function guardBlock(block: WireframeBlock, at: string, screen: WireframeScreen, sg: ScreenGuard): WireframeBlock | null {
+  // The block's kind is itself a promise: a map, a checkout or a chat on an MVP screen whose scope has none.
+  if (screen.phase === 'mvp') {
+    const concept = BLOCK_CONCEPTS[block.kind];
+    const kindFails = concept ? sg.guard.mvpBlock(block, screen).filter(v => v.subject === concept) : [];
+    if (kindFails.length) {
+      sg.removed.push(`dropped ${at} › ${block.kind} (the block itself: ${kindFails[0].subject} is not priced in the MVP)`);
+      return null;
+    }
+  }
+  const unpricedItems = unpricedLanguageItems(block, sg.languages, sg.locale);
+  const isUnpricedLanguage = (text: string) => unpricedItems.has(text) || unpricedLanguageUi(text, sg.languages);
+  const reasons = new Map<string, string>();
+  const fails = (text: string) => {
+    if (!text) return false;
+    const why = isUnpricedLanguage(text) ? 'interface language not priced' : screenTextReason(text, screen, sg);
+    if (why) reasons.set(text, why);
+    return !!why;
+  };
   const label = fails(block.label) ? '' : block.label;
   const items = block.items.filter(item => !fails(item));
+  // A later screen's block can name an unpriced item across its lines ("Report filters · … · Truck" → IFTA reporting).
+  if (screen.phase !== 'mvp' && sg.guard.laterText([label, ...items].filter(Boolean).join(' · ')).length) {
+    sg.removed.push(`dropped ${at} › ${block.kind} (together its lines show what no price covers)`);
+    return null;
+  }
   const gone = [...(label !== block.label ? [block.label] : []), ...block.items.filter(item => !items.includes(item))];
   if (gone.length === 0) return block;
-  const why = gone.every(isUnpricedLanguage) ? 'interface language not priced' : 'not priced in the MVP';
-  removed.push(`dropped ${at} › ${block.kind}: ${gone.map(g => `"${g}"`).join(', ')} (${why})`);
+  const why = Array.from(new Set(gone.map(g => reasons.get(g) ?? 'not priced'))).join('; ');
+  sg.removed.push(`dropped ${at} › ${block.kind}: ${gone.map(g => `"${g}"`).join(', ')} (${why})`);
   if (!label && items.length === 0) return null;
   return { ...block, label, items };
 }
 
-function guardScreens(
-  screens: WireframeScreen[],
-  guard: ConsistencyGuard,
-  removed: string[],
-  languages: number,
-  locale: BriefLocale
-): WireframeScreen[] {
+function guardScreens(screens: WireframeScreen[], sg: ScreenGuard): WireframeScreen[] {
   return screens.flatMap(screen => {
-    if (screen.phase !== 'mvp') return [screen];
     const at = `screen "${screen.name}"`;
-    if (guard.mvpText(screen.name, 'screen').length) {
-      removed.push(`dropped ${at} (its subject is not priced in the MVP)`);
+    const nameWhy = screenTextReason(screen.name, screen, sg);
+    if (nameWhy) {
+      sg.removed.push(`dropped ${at} (its subject: ${nameWhy})`);
       return [];
     }
-    const blocks = screen.blocks
-      .map(block => guardBlock(block, at, screen.name, guard, removed, languages, locale))
-      .filter((b): b is WireframeBlock => !!b);
+    const blocks = screen.blocks.map(block => guardBlock(block, at, screen, sg)).filter((b): b is WireframeBlock => !!b);
     if (blocks.length < CAPS.blocksMin) {
-      removed.push(`dropped ${at} (${blocks.length} block(s) left after the guard)`);
+      sg.removed.push(`dropped ${at} (${blocks.length} block(s) left after the guard)`);
       return [];
     }
-    const purpose = screen.purpose && guard.mvpText(screen.purpose, 'screen', screen.name).length ? '' : screen.purpose;
-    if (purpose !== screen.purpose) removed.push(`dropped ${at}.purpose: "${screen.purpose}"`);
+    const purpose = screenTextReason(screen.purpose, screen, sg) ? '' : screen.purpose;
+    if (purpose !== screen.purpose) sg.removed.push(`dropped ${at}.purpose: "${screen.purpose}"`);
     return [{ ...screen, purpose, blocks }];
   });
 }
@@ -346,8 +390,10 @@ function guardLead(
  */
 export function guardBriefText(brief: AiBrief, priced: PricedScope, source: ViewSource): Guarded<AiBrief> {
   const guard = createConsistencyGuard(source, priced);
+  const specifics = specificsOf(source, priced);
   const removed: string[] = [];
-  const languageCheck = (sentence: string) => languageReason(sentence, source.languages);
+  // Every narrative sentence: the languages priced, then invented specifics and other products' words.
+  const languageCheck = (sentence: string) => languageReason(sentence, source.languages) ?? specificsReason(specifics, sentence, true);
   const mvpCheck = (sentence: string) =>
     framingReason(sentence) ?? languageCheck(sentence) ?? firstSubject(guard.mvpText(sentence, 'narrative'));
 
@@ -375,7 +421,7 @@ export function guardBriefText(brief: AiBrief, priced: PricedScope, source: View
   });
 
   const n = brief.narrative;
-  const deframedWhy = deframe(n.buildFirst.why, 'buildFirst.why', removed);
+  const deframedWhy = dropSentences(deframe(n.buildFirst.why, 'buildFirst.why', removed), languageCheck, 'buildFirst.why', removed);
   const buildFirst = {
     what: guardLead(n.buildFirst.what, mvpCheck, 'buildFirst.what', removed, () => firstVersionLine(mvpDeliverables, brief.locale)),
     why: hasFraming(deframedWhy) ? fallbackWhy(deframedWhy, brief.locale, removed) : deframedWhy,
@@ -387,8 +433,9 @@ export function guardBriefText(brief: AiBrief, priced: PricedScope, source: View
       reason: dropSentences(deframe(c.reason, `canWait[${i}].reason`, removed), languageCheck, `canWait[${i}].reason`, removed),
     }))
     .filter((c, i) => {
-      if (!hasFraming(c.reason)) return true;
-      removed.push(`dropped canWait[${i}]: "${c.item}" (its reason is a framing leak)`);
+      const why = hasFraming(c.reason) ? 'its reason is a framing leak' : specificsReason(specifics, c.item, true);
+      if (!why) return true;
+      removed.push(`dropped canWait[${i}]: "${c.item}" (${why})`);
       return false;
     });
   // One priced language (English pages — uz/ru always price two, so their translation risks stay): a risk about
@@ -403,13 +450,20 @@ export function guardBriefText(brief: AiBrief, priced: PricedScope, source: View
       mitigation: dropSentences(deframe(r.mitigation, `risks[${i}].mitigation`, removed), languageCheck, `risks[${i}].mitigation`, removed),
     }))
     .filter((r, i) => {
+      const filler = specifics
+        ? (fillerRisk(`${n.risks[i].title} ${n.risks[i].detail}`, specifics) ??
+          budgetFiller(r.title, specifics) ??
+          specificsReason(specifics, r.title, true))
+        : null;
       const why = hasFraming(`${r.detail} ${r.mitigation}`)
         ? 'framing leak'
-        : isTranslationRisk(n.risks[i])
-          ? 'translation risk, one language priced'
-          : null;
-      // A framing leak goes while another risk is left (as before); a translation risk never takes the brief below two.
-      if (!why || risksLeft <= (why === 'framing leak' ? 1 : 2)) return true;
+        : filler
+          ? `filler: ${filler}`
+          : isTranslationRisk(n.risks[i])
+            ? 'translation risk, one language priced'
+            : null;
+      // A framing leak or a filler risk goes while another risk is left; a translation risk never takes the brief below two.
+      if (!why || risksLeft <= (why === 'framing leak' || filler ? 1 : 2)) return true;
       risksLeft--;
       removed.push(`dropped risks[${i}]: "${r.title}" (${why})`);
       return false;
@@ -421,13 +475,22 @@ export function guardBriefText(brief: AiBrief, priced: PricedScope, source: View
       if (leak) removed.push(`dropped questions[${i}]: "${q}" (framing leak)`);
       return !leak;
     });
+  // A question about another product, an invented detail, a store/budget filler goes while two are left.
+  let questionsLeft = questions.length;
+  const sharpQuestions = questions.filter(q => {
+    const why = specifics ? (specificsReason(specifics, q, true) ?? fillerRisk(q, specifics) ?? budgetFiller(q, specifics, true)) : null;
+    if (!why || questionsLeft <= 2) return true;
+    questionsLeft--;
+    removed.push(`dropped question "${q}" (${why})`);
+    return false;
+  });
 
   return {
     value: {
       ...brief,
-      screens: guardScreens(brief.screens, guard, removed, source.languages, brief.locale),
+      screens: guardScreens(brief.screens, { guard, specifics, removed, languages: source.languages, locale: brief.locale }),
       estimate,
-      narrative: { ...n, buildFirst, canWait, risks, questions },
+      narrative: { ...n, buildFirst, canWait, risks, questions: sharpQuestions },
     },
     removed,
   };

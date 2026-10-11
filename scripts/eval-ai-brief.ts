@@ -23,7 +23,8 @@
  *   --model <id>          kimi-k3 | kimi-k2.6 for every call (single model, no fallback)
  *   --effort <e>          K3 reasoning effort with --model: low | high | max (default low)
  *   --chain               the production chains per call (BRIEF_PART_CHAINS: k3-high scope,
- *                         k3-low for the rest, k2.6 fallback) and the production deadline
+ *                         k3-low for the rest, deepseek-flash fallback — k2.6 without a DeepSeek
+ *                         key) and the production deadline
  *   --variant <list>      comma-separated, each run in its own sub-directory of --out:
  *                           a  k3 effort low for every call (baseline)
  *                           b  k3 low scope + plan + risks, k2.6 wireframes
@@ -32,6 +33,23 @@
  *                           d  the calls after the scope in parallel — already production
  *                              behaviour, so d runs as a (skipped when a is selected);
  *                              every summary reports the parallel saving it buys
+ *                           kimi      current production (k3-high scope, k3-low later calls,
+ *                                     deepseek-flash fallback + hedges, production deadline)
+ *                           overflow  what the route serves once the Kimi daily cap is spent:
+ *                                     ds-flash with no Uzbek copy-edit
+ *                           ds-pro    deepseek-v4-pro for every call
+ *                           ds-flash  deepseek-flash for every call
+ *                           ds-mix    deepseek-v4-pro scope, deepseek-flash for everything else
+ *                           kimi-flash  production Kimi scope (k3-high, long ideas k3-low, flash
+ *                                     fallback + hedge) and Kimi Uzbek copy-edit; plan, risks,
+ *                                     both wireframe halves and the sample content on deepseek-flash
+ *                         The DeepSeek variants (`src/modules/estimator/ai-brief/chains.ts`) run
+ *                         with the production deadline and NO fallback to another provider, so
+ *                         their results are pure; a failed call is recorded, not rescued
+ *                         (kimi-flash: the DeepSeek calls; its Kimi scope keeps production's fallback).
+ *   --ds-thinking <s>[,<r>[,<h>]]  DeepSeek thinking for the scope [, the later parts
+ *                         [, the helpers: samples + Uzbek copy-edit]]: off | low | high | max
+ *                         (default high,off,low; a missing value repeats the one before)
  *
  * Selection and repetition:
  *   --cases <a,b,…>       only these case ids, run in this order
@@ -49,6 +67,8 @@
  *   --min-balance <usd>   check the Moonshot balance before starting and every 30 s; stop
  *                         launching runs below it, or once the start balance minus this
  *                         run's estimated spend would be (billing lags; default 7; 0 disables)
+ *   --ds-min-balance <usd>  the same guard for the DeepSeek balance when a variant uses
+ *                         DeepSeek (default 3.40; its spend counts at PEAK prices)
  *   --out <dir>           output dir (default /tmp/claude-1000/ai-brief-eval/<label>/)
  *   --merge               keep other cases' results already in --out in summary.json
  *
@@ -64,7 +84,15 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { BigIdeaVerdict } from '../src/modules/estimator/ai-brief/bigIdea';
 import { cleanVisibleText } from '../src/modules/estimator/ai-brief/cleanText';
-import { AUX_PARTS, BRIEF_PARTS, POLISH_CHAIN, type BriefModelStep } from '../src/modules/estimator/ai-brief/constants';
+import {
+  AUX_PARTS,
+  BRIEF_PART_CHAINS,
+  BRIEF_PARTS,
+  LONG_IDEA_SCOPE_CHAIN,
+  POLISH_CHAIN,
+  SAMPLES_CHAIN,
+  type BriefModelStep,
+} from '../src/modules/estimator/ai-brief/constants';
 import { checkBriefConsistency } from '../src/modules/estimator/ai-brief/consistency';
 import {
   assembleBrief,
@@ -92,16 +120,34 @@ import {
   type TextMapper,
 } from '../src/modules/estimator/ai-brief/polish';
 import { buildPolishUserPrompt } from '../src/modules/estimator/ai-brief/prompts';
-import { estimateCostUsd, safeGenerateJSONWithTimeout, type AiAttempt } from '../src/core/ai';
+import {
+  estimateCostUsd,
+  providerOfModel,
+  safeGenerateJSONWithTimeout,
+  type AiAttempt,
+  type DeepSeekThinking,
+  type ProviderName,
+} from '../src/core/ai';
+import {
+  briefChainSet,
+  DEFAULT_DS_THINKING,
+  overflowRunOptions,
+  providersOf,
+  type BriefChainPreset,
+  type DeepSeekThinkingPlan,
+} from '../src/modules/estimator/ai-brief/chains';
 import { isPolicyDecline, isRejected, parseScopeJson, rejectionReason } from '../src/modules/estimator/ai-brief/parseScope';
 import { prepareIdea, scrubContactDetails } from '../src/modules/estimator/ai-brief/scrub';
 import { isPricedEstimate, mapEstimateText, mapPhases, type AiBrief, type BriefOutcome } from '../src/modules/estimator/ai-brief/types';
-import type { KimiReasoningEffort } from '../src/core/ai';
 import {
+  auxMs,
+  callStats,
   caseVariance,
   checksFor,
   comparisonTable,
+  costByProviderPeak,
   partMs,
+  peakCostUsd,
   pricedOf,
   summarizeVariant,
   type CaseResult,
@@ -144,17 +190,69 @@ interface RunConfig {
   /** One chain for every call; absent = the production chains per call. */
   chain?: readonly BriefModelStep[];
   partChains?: BriefRunOptions['partChains'];
+  samplesChain?: BriefRunOptions['samplesChain'];
+  polishChain?: BriefRunOptions['polishChain'];
   /** Production deadline (only the production chain); single-model evals measure the model. */
   deadlineMs?: number;
+  /** Short tag for the multi-variant output directory (default: the label's first letter). */
+  short?: string;
+  /** false = no Uzbek copy-edit (the overflow run); absent = production / --no-polish. */
+  polish?: false;
 }
 
 /** Single-model evals measure the model, not the deadline: generous caps. */
-const step = (model: string, effort?: KimiReasoningEffort): BriefModelStep => ({
-  model,
-  reasoningEffort: model.startsWith('kimi-k3') ? (effort ?? 'low') : undefined,
-  timeoutMs: 180_000,
-  maxTokens: model.startsWith('kimi-k3') ? 24_000 : 12_000,
-});
+const step = (model: string, effort?: DeepSeekThinking): BriefModelStep => {
+  const isK3 = model.startsWith('kimi-k3');
+  const isDeepSeek = model.startsWith('deepseek-');
+  return {
+    model,
+    reasoningEffort: isK3 ? (effort === 'off' || !effort ? 'low' : effort) : isDeepSeek ? effort : undefined,
+    timeoutMs: 180_000,
+    maxTokens: isK3 || isDeepSeek ? 24_000 : 12_000,
+  };
+};
+
+const THINKING_VALUES: readonly string[] = ['off', 'low', 'high', 'max'];
+
+/** --ds-thinking high,low | off → the DeepSeek thinking plan (default: chains.ts). */
+function dsThinkingFromArgs(): DeepSeekThinkingPlan {
+  if (!opts['ds-thinking']) return DEFAULT_DS_THINKING;
+  const [scope, rest = scope, helpers = rest] = opts['ds-thinking'].split(',').map(v => v.trim().toLowerCase());
+  if (![scope, rest, helpers].every(v => THINKING_VALUES.includes(v))) fail('--ds-thinking takes off | low | high | max[,…]');
+  return { scope: scope as DeepSeekThinking, rest: rest as DeepSeekThinking, helpers: helpers as DeepSeekThinking };
+}
+
+type DeepSeekPreset = Exclude<BriefChainPreset, 'kimi'>;
+const DS_DESCRIPTIONS: Record<DeepSeekPreset, { short: string; text: string }> = {
+  'ds-pro': { short: 'P', text: 'deepseek-v4-pro for every call' },
+  'ds-flash': { short: 'F', text: 'deepseek-flash for every call' },
+  'ds-mix': { short: 'M', text: 'deepseek-v4-pro scope, deepseek-flash for the other calls' },
+  'kimi-flash': {
+    short: 'KF',
+    text: 'production Kimi scope (k3-high, long ideas k3-low, k2.6 fallback + hedge) and Kimi Uzbek copy-edit; plan, risks, wireframes + samples on deepseek-flash',
+  },
+};
+
+/** A DeepSeek variant: its chains with no cross-provider fallback, the production deadline. */
+function dsVariant(preset: DeepSeekPreset): RunConfig {
+  const thinking = dsThinkingFromArgs();
+  const isDefault = (['scope', 'rest', 'helpers'] as const).every(k => thinking[k] === DEFAULT_DS_THINKING[k]);
+  const set = briefChainSet(preset, { thinking });
+  return {
+    label: isDefault ? preset : `${preset}@${thinking.scope}-${thinking.rest}-${thinking.helpers}`,
+    short: DS_DESCRIPTIONS[preset].short,
+    description: `${DS_DESCRIPTIONS[preset].text} (DeepSeek thinking: ${preset === 'kimi-flash' ? '' : `scope ${thinking.scope}, `}rest ${thinking.rest}, helpers ${thinking.helpers}; no cross-provider fallback; production deadline)`,
+    ...set,
+  };
+}
+
+/** Every provider a configuration can call: its explicit chains, the production chains for the rest. */
+function providersOfConfig(config: RunConfig): ProviderName[] {
+  const parts = BRIEF_PARTS.map(part => config.partChains?.[part] ?? config.chain ?? BRIEF_PART_CHAINS[part]);
+  const longScope = config.partChains?.scope ?? config.chain ?? LONG_IDEA_SCOPE_CHAIN;
+  const chains = [...parts, longScope, config.samplesChain ?? SAMPLES_CHAIN, config.polishChain ?? POLISH_CHAIN];
+  return Array.from(new Set(chains.flatMap(c => providersOf(c))));
+}
 const SINGLE_MODEL_DEADLINE = 200_000;
 
 const VARIANTS: Record<string, RunConfig> = {
@@ -184,19 +282,42 @@ const VARIANTS: Record<string, RunConfig> = {
     chain: [step('kimi-k3', 'low')],
     deadlineMs: SINGLE_MODEL_DEADLINE,
   },
+  kimi: {
+    label: 'kimi',
+    short: 'K',
+    description: 'current production: k3-high scope, k3-low later calls, deepseek-flash fallback + hedges, production deadline',
+  },
 };
+
+/** The route's overflow run (Kimi daily cap spent): every call on deepseek-flash, no Uzbek copy-edit. */
+function overflowVariant(): RunConfig {
+  return {
+    label: 'overflow',
+    short: 'O',
+    description: 'overflow: deepseek-flash for every call, no Uzbek copy-edit, production deadline',
+    ...overflowRunOptions(),
+  };
+}
+
+/** A variant by key; the DeepSeek ones are built per invocation (they read --ds-thinking). */
+function variantFor(key: string): RunConfig | undefined {
+  if (key === 'ds-pro' || key === 'ds-flash' || key === 'ds-mix' || key === 'kimi-flash') return dsVariant(key);
+  if (key === 'overflow') return overflowVariant();
+  return VARIANTS[key];
+}
 
 function configsFromArgs(): RunConfig[] {
   if (opts.variant) {
     const keys = opts.variant.split(',').map(s => s.trim().toLowerCase());
-    const unknown = keys.filter(k => !VARIANTS[k]);
-    if (unknown.length) fail(`unknown variant(s): ${unknown.join(', ')} — use a, b, c, d`);
+    const unknown = keys.filter(k => !variantFor(k));
+    if (unknown.length)
+      fail(`unknown variant(s): ${unknown.join(', ')} — use a, b, c, d, kimi, overflow, ds-pro, ds-flash, ds-mix, kimi-flash`);
     if (keys.includes('d')) {
       console.log('note: variant d (the calls after the scope in parallel) is already how the orchestrator runs every brief;');
       console.log('      the "parallel saving" line of each summary measures it. d runs the same calls as a.');
     }
     // d is the same configuration as a: never pay for it twice.
-    return Array.from(new Set(keys.includes('a') ? keys.filter(k => k !== 'd') : keys)).map(k => VARIANTS[k]);
+    return Array.from(new Set(keys.includes('a') ? keys.filter(k => k !== 'd') : keys)).map(k => variantFor(k)!);
   }
   if (flags.has('chain'))
     return [
@@ -206,10 +327,11 @@ function configsFromArgs(): RunConfig[] {
       },
     ];
   const model = opts.model;
-  if (!model) fail('--model kimi-k3|kimi-k2.6, --chain or --variant a,b,c,d is required');
-  const effort = (opts.effort ?? 'low') as KimiReasoningEffort;
-  if (!['low', 'high', 'max'].includes(effort)) fail('--effort must be low | high | max');
-  const label = model.startsWith('kimi-k3') ? `${model}-${effort}` : model;
+  if (!model) fail('--model kimi-k3|kimi-k2.6|deepseek-v4-pro|deepseek-flash, --chain or --variant … is required');
+  const effort = (opts.effort ?? 'low') as DeepSeekThinking;
+  if (!THINKING_VALUES.includes(effort)) fail('--effort must be low | high | max (DeepSeek also: off)');
+  if (effort === 'off' && !model.startsWith('deepseek-')) fail('--effort off is DeepSeek-only');
+  const label = model.startsWith('kimi-k3') || model.startsWith('deepseek-') ? `${model}-${effort}` : model;
   return [{ label, description: `${label} for every call`, chain: [step(model, effort)], deadlineMs: SINGLE_MODEL_DEADLINE }];
 }
 
@@ -242,6 +364,26 @@ async function moonshotBalance(): Promise<number | null> {
     if (!res.ok) return null;
     const body = (await res.json()) as { data?: { available_balance?: unknown } };
     return typeof body.data?.available_balance === 'number' ? body.data.available_balance : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The DeepSeek account balance in USD (null when the check fails). */
+async function deepseekBalance(): Promise<number | null> {
+  const key = process.env.DEEPSEEK_API_KEY;
+  const base = process.env.AI_FALLBACK_BASE_URL || 'https://api.deepseek.com';
+  if (!key) return null;
+  try {
+    const res = await fetch(`${base}/user/balance`, {
+      headers: { Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return null;
+    const body = (await res.json()) as { balance_infos?: { currency?: string; total_balance?: string }[] };
+    const usd = body.balance_infos?.find(b => b.currency === 'USD');
+    const value = Number(usd?.total_balance);
+    return usd && Number.isFinite(value) ? value : null;
   } catch {
     return null;
   }
@@ -292,6 +434,11 @@ function resultRow(
     ms: run.totalMs,
     partMs: partMs(run.attempts),
     costUsd: run.totalCostUsd,
+    costUsdPeak: peakCostUsd(run.attempts),
+    costByProviderPeak: costByProviderPeak(run.attempts),
+    auxMs: auxMs(run.attempts),
+    calls: callStats(run.attempts),
+    cachedTokens: run.attempts.reduce((sum, a) => sum + (a.usage?.cachedTokens ?? 0), 0),
     promptTokens: tokens.prompt,
     completionTokens: tokens.completion,
     reasoningTokens: tokens.reasoning,
@@ -373,9 +520,11 @@ async function evalOnce(
     {
       chain: config.chain,
       partChains: config.partChains,
+      samplesChain: config.samplesChain,
+      polishChain: config.polishChain,
       deadlineMs: config.deadlineMs,
       samples: flags.has('no-samples') ? false : undefined,
-      polish: flags.has('no-polish') ? false : undefined,
+      polish: flags.has('no-polish') ? false : config.polish,
     }
   );
   const { row, checks } = resultRow(c, config.label, repeat, run);
@@ -388,6 +537,8 @@ async function evalOnce(
         repeat,
         chain: config.chain,
         partChains: config.partChains,
+        samplesChain: config.samplesChain,
+        polishChain: config.polishChain,
         input: c.idea,
         scrubbedInput: run.scrubbedIdea,
         truncated: run.truncated,
@@ -452,6 +603,8 @@ function writeSummary(
         description: config.description,
         chain: config.chain,
         partChains: config.partChains,
+        samplesChain: config.samplesChain,
+        polishChain: config.polishChain,
         ...extra,
         summary,
         variance,
@@ -473,7 +626,13 @@ function writeSummary(
       )
         .map(p => `${p} ${summary.partMsP50[p]}`)
         .join(' / ')}; parallel saves ${summary.parallelSavingMsP50}ms)` +
-      ` · $${summary.costUsd.total} ($${summary.costUsd.perBrief}/brief)`
+      ` · $${summary.costUsd.total} ($${summary.costUsd.perBrief}/brief${
+        summary.costUsd.perBriefPeak !== null ? `, $${summary.costUsd.perBriefPeak} at peak prices` : ''
+      })` +
+      (summary.auxMsP50 ? ` · samples p50 ${summary.auxMsP50.samples}ms, copy-edit p50 ${summary.auxMsP50.polishMax}ms` : '') +
+      (summary.calls
+        ? ` · calls ${summary.calls.total}: ${summary.calls.unusable} unusable, ${summary.calls.errors} errors, ${summary.calls.truncated} truncated`
+        : '')
   );
   for (const v of variance) {
     const price = v.mvpPrice ? `$${Math.round(v.mvpPrice.min)}–$${Math.round(v.mvpPrice.max)} cv ${v.mvpPrice.cv}` : 'no price';
@@ -730,7 +889,7 @@ async function polishCall(part: keyof PolishLog, texts: string[], idea: string) 
       reasoningEffort: step.reasoningEffort,
       timeout: step.timeoutMs,
       maxTokens: step.maxTokens,
-      prefer: 'kimi',
+      provider: providerOfModel(step.model) ?? 'kimi',
       firstOnly: true,
       maxRetries: 0,
       onAttempt: a => calls.push(a),
@@ -880,15 +1039,21 @@ const INFRA_PAUSE_MS = 65_000;
 const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function runEvals(): Promise<void> {
-  if (!process.env.MOONSHOT_API_KEY && !process.env.KIMI_API_KEY) fail('MOONSHOT_API_KEY is not set (check .env, or pass it explicitly)');
   const configs = configsFromArgs();
+  const used = new Set(configs.flatMap(providersOfConfig));
+  const usesKimi = used.has('kimi');
+  const usesDeepSeek = used.has('deepseek');
+  if (usesKimi && !process.env.MOONSHOT_API_KEY && !process.env.KIMI_API_KEY)
+    fail('MOONSHOT_API_KEY is not set (check .env, or pass it explicitly)');
+  if (usesDeepSeek && !process.env.DEEPSEEK_API_KEY) fail('DEEPSEEK_API_KEY is not set (it lives in .env.local — pass it explicitly)');
   const cases = selectCases();
   const repeats = Math.max(1, Number(opts.repeat) || 1);
   const concurrency = Math.max(1, Number(opts.concurrency) || 2);
   const maxCost = Number(opts['max-cost']) || 4;
-  const minBalance = opts['min-balance'] !== undefined ? Number(opts['min-balance']) : 7;
+  const minBalance = usesKimi ? (opts['min-balance'] !== undefined ? Number(opts['min-balance']) : 7) : 0;
+  const dsMinBalance = usesDeepSeek ? (opts['ds-min-balance'] !== undefined ? Number(opts['ds-min-balance']) : 3.4) : 0;
   const multi = configs.length > 1;
-  const runLabel = multi ? `variants-${configs.map(c => c.label[0]).join('')}` : configs[0].label;
+  const runLabel = multi ? `variants-${configs.map(c => c.short ?? c.label[0]).join('')}` : configs[0].label;
   const baseDir = path.resolve(opts.out ?? `/tmp/claude-1000/ai-brief-eval/${runLabel}/`);
   const dirFor = (config: RunConfig) => (multi ? path.join(baseDir, config.label) : baseDir);
   for (const config of configs) fs.mkdirSync(dirFor(config), { recursive: true });
@@ -910,11 +1075,23 @@ async function runEvals(): Promise<void> {
     );
     if (startBalance !== null && startBalance < minBalance) fail('balance is below --min-balance: not starting');
   }
+  const dsStartBalance = dsMinBalance > 0 ? await deepseekBalance() : null;
+  if (dsMinBalance > 0) {
+    console.log(
+      `DeepSeek balance: ${dsStartBalance === null ? 'unknown (check failed)' : `$${dsStartBalance.toFixed(2)}`} (floor $${dsMinBalance})`
+    );
+    if (dsStartBalance === null) fail('DeepSeek balance check failed: not starting (the floor is a hard budget)');
+    if (dsStartBalance < dsMinBalance) fail('DeepSeek balance is below --ds-min-balance: not starting');
+  }
   console.log('');
 
   const startedAt = new Date();
   const rows: CaseResult[] = [];
   let spent = 0;
+  /** Kimi spend of this invocation (what the Moonshot balance floor guards). */
+  let kimiSpent = 0;
+  /** DeepSeek spend of this invocation at PEAK prices (the balance guard's upper bound). */
+  let dsSpentPeak = 0;
   let next = 0;
   let stopReason: string | null = null;
   let lastCheck = Date.now();
@@ -928,15 +1105,24 @@ async function runEvals(): Promise<void> {
       }
       // The balance API lags billing by 10+ minutes (iteration 3 ended $0.09 under its floor although
       // every check passed): this run's own estimated spend counts against the floor too.
-      if (minBalance > 0 && startBalance !== null && startBalance - spent < minBalance) {
-        stopReason = `start balance $${startBalance.toFixed(2)} − this run's estimated $${spent.toFixed(2)} is below the $${minBalance} floor`;
+      if (minBalance > 0 && startBalance !== null && startBalance - kimiSpent < minBalance) {
+        stopReason = `start balance $${startBalance.toFixed(2)} − this run's estimated Kimi $${kimiSpent.toFixed(2)} is below the $${minBalance} floor`;
         return;
       }
-      if (minBalance > 0 && Date.now() - lastCheck > 30_000) {
+      if (dsMinBalance > 0 && dsStartBalance !== null && dsStartBalance - dsSpentPeak < dsMinBalance) {
+        stopReason = `DeepSeek start balance $${dsStartBalance.toFixed(2)} − this run's estimated $${dsSpentPeak.toFixed(2)} (peak) is below the $${dsMinBalance} floor`;
+        return;
+      }
+      if ((minBalance > 0 || dsMinBalance > 0) && Date.now() - lastCheck > 30_000) {
         lastCheck = Date.now();
-        const balance = await moonshotBalance();
+        const balance = minBalance > 0 ? await moonshotBalance() : null;
         if (balance !== null && balance < minBalance) {
           stopReason = `balance $${balance.toFixed(2)} below the $${minBalance} floor`;
+          return;
+        }
+        const dsBalance = dsMinBalance > 0 ? await deepseekBalance() : null;
+        if (dsBalance !== null && dsBalance < dsMinBalance) {
+          stopReason = `DeepSeek balance $${dsBalance.toFixed(2)} below the $${dsMinBalance} floor`;
           return;
         }
       }
@@ -953,6 +1139,8 @@ async function runEvals(): Promise<void> {
       try {
         const { row, infraLoss } = await evalOnce(job.c, job.config, job.repeat, repeats, dirFor(job.config));
         spent += row.costUsd;
+        dsSpentPeak += row.costByProviderPeak?.deepseek ?? 0;
+        kimiSpent += row.costByProviderPeak?.kimi ?? 0;
         if (infraLoss && retries < INFRA_RETRIES) {
           await requeue('lost a call to the provider or network');
           continue;
@@ -989,12 +1177,22 @@ async function runEvals(): Promise<void> {
 
   const endBalance = minBalance > 0 ? await moonshotBalance() : null;
   console.log(
-    `\nEstimated spend (list prices, upper bound): $${spent.toFixed(4)}${
+    `\nEstimated spend (list prices; DeepSeek at the hour's rate): $${spent.toFixed(4)}${
       startBalance !== null && endBalance !== null
-        ? ` · balance $${startBalance.toFixed(2)} → $${endBalance.toFixed(2)} (Δ $${(startBalance - endBalance).toFixed(2)}, billing may lag)`
+        ? ` · Moonshot balance $${startBalance.toFixed(2)} → $${endBalance.toFixed(2)} (Δ $${(startBalance - endBalance).toFixed(2)}, billing may lag)`
         : ''
     }`
   );
+  if (dsMinBalance > 0) {
+    const dsEnd = await deepseekBalance();
+    console.log(
+      `DeepSeek estimated $${dsSpentPeak.toFixed(4)} at peak prices${
+        dsStartBalance !== null && dsEnd !== null
+          ? ` · balance $${dsStartBalance.toFixed(2)} → $${dsEnd.toFixed(2)} (Δ $${(dsStartBalance - dsEnd).toFixed(2)}, billing may lag)`
+          : ''
+      }`
+    );
+  }
 }
 
 async function main(): Promise<void> {

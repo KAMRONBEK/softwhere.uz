@@ -3,6 +3,7 @@
  * maths. Pure (no network, no files) so `tests/ai-brief/consistency.ts` can
  * cover it; the CLI in `scripts/eval-ai-brief.ts` does the I/O.
  */
+import { estimateCostUsd, providerOfModel } from '../../src/core/ai';
 import { FEATURES, INTEGRATIONS } from '../../src/modules/estimator/data/catalog';
 import { BRIEF_PARTS, DEFAULT_UI_LANGUAGES, type BriefLocale } from '../../src/modules/estimator/ai-brief/constants';
 import { checkBriefConsistency, type ConsistencyReport } from '../../src/modules/estimator/ai-brief/consistency';
@@ -347,7 +348,7 @@ export function checksFor(c: EvalCase, run: RunView): CaseChecks {
   if (run.outcome.status !== 'ok') return { checks, consistency: null };
   const brief = run.outcome.brief;
   const priced = pricedOf(run, brief.locale);
-  const consistency = priced ? checkBriefConsistency(brief, priced) : null;
+  const consistency = priced ? checkBriefConsistency(brief, priced, run.scrubbedIdea ?? c.idea) : null;
   return {
     checks: [
       ...checks,
@@ -376,7 +377,16 @@ export interface CaseResult {
   ms: number;
   /** Time spent per call (sum of its attempts). Narrative and screens run in parallel. */
   partMs: Record<BriefPart, number>;
+  /** Estimated cost; DeepSeek at the rate of the hour each call ran (off-peak = half). */
   costUsd: number;
+  /** The same at peak prices (DeepSeek's upper bound; equals costUsd for Kimi). Runs since 2026-10-11. */
+  costUsdPeak?: number;
+  costByProviderPeak?: Record<string, number>;
+  /** Helper calls' time: the sample content (sum of attempts) and the Uzbek copy-edit (slowest chunk). */
+  auxMs?: AuxMs;
+  /** Model calls of the run: answered, unusable (no valid JSON / failed validation), errors, truncated. */
+  calls?: CallStats;
+  cachedTokens?: number;
   promptTokens: number;
   completionTokens: number;
   reasoningTokens: number;
@@ -401,6 +411,55 @@ export interface CaseResult {
 export function partMs(attempts: BriefAttemptLog[]): Record<BriefPart, number> {
   const sum = (part: BriefPart) => attempts.filter(a => a.part === part).reduce((s, a) => s + a.ms, 0);
   return Object.fromEntries(BRIEF_PARTS.map(part => [part, sum(part)])) as Record<BriefPart, number>;
+}
+
+export interface AuxMs {
+  samples: number;
+  /** The copy-edit chunks run in parallel: the slowest attempt (0 = no copy-edit). */
+  polishMax: number;
+}
+
+export function auxMs(attempts: BriefAttemptLog[]): AuxMs {
+  const samples = attempts.filter(a => a.part === 'samples').reduce((s, a) => s + a.ms, 0);
+  const polish = attempts.filter(a => a.part.startsWith('polish')).map(a => a.ms);
+  return { samples, polishMax: Math.max(0, ...polish) };
+}
+
+export interface CallStats {
+  /** Attempts sent to a model (deadline skips excluded). */
+  calls: number;
+  /** Answered, but not usable: invalid JSON or a failed validator. */
+  unusable: number;
+  /** No answer: HTTP error, timeout, empty response. */
+  errors: number;
+  /** Answers cut at the completion cap (finish_reason 'length'). */
+  truncated: number;
+  /** Per part: '<part>: <error or parse issue>' for every failed attempt. */
+  failures: string[];
+}
+
+export function callStats(attempts: BriefAttemptLog[]): CallStats {
+  const sent = attempts.filter(a => !(a.error ?? '').startsWith('skipped'));
+  const failed = sent.filter(a => !a.ok || a.usable === false);
+  return {
+    calls: sent.length,
+    unusable: sent.filter(a => a.ok && a.usable === false).length,
+    errors: sent.filter(a => !a.ok).length,
+    truncated: sent.filter(a => a.finishReason === 'length').length,
+    failures: failed.map(a => `${a.part}: ${a.ok ? `unusable (${(a.parseIssues ?? []).slice(0, 2).join('; ')})` : a.error}`),
+  };
+}
+
+/** The run's estimated cost at peak prices (no `at`: DeepSeek's upper bound). */
+export function peakCostUsd(attempts: BriefAttemptLog[]): number {
+  return attempts.reduce((sum, a) => sum + estimateCostUsd(a.model, a.usage), 0);
+}
+
+export function costByProviderPeak(attempts: BriefAttemptLog[]): Record<string, number> {
+  return attempts.reduce<Record<string, number>>((acc, a) => {
+    const provider = providerOfModel(a.model) ?? 'kimi';
+    return { ...acc, [provider]: (acc[provider] ?? 0) + estimateCostUsd(a.model, a.usage) };
+  }, {});
 }
 
 /** The calls after the scope run in parallel: their wall clock is the slowest one. */
@@ -504,11 +563,17 @@ export interface VariantSummary {
   };
   latencyMs: { mean: number; p50: number; p90: number; max: number };
   partMsP50: Record<BriefPart, number>;
+  partMsP90: Record<BriefPart, number>;
+  /** Helper calls (runs that recorded them): p50 of the samples call and of the slowest copy-edit chunk. */
+  auxMsP50: { samples: number; polishMax: number } | null;
+  /** Model-call reliability over every attempt (runs that recorded it). */
+  calls: { total: number; unusable: number; errors: number; truncated: number; unusableRate: number; errorRate: number } | null;
   /** Median wall clock of the parallel calls after the scope (the slowest of them). */
   afterScopeMsP50: number;
   /** Median of sum − max over the parallel calls: what running them in parallel saves. */
   parallelSavingMsP50: number;
-  costUsd: { total: number; perBrief: number };
+  /** perBriefPeak: DeepSeek at peak prices (null for runs that predate it). */
+  costUsd: { total: number; perBrief: number; perBriefPeak: number | null };
   /** Only with --repeat ≥ 2. */
   stability: { priceCvMean: number; mvpRefsJaccardMean: number; productFlips: string[]; statusFlips: string[] } | null;
 }
@@ -523,6 +588,20 @@ export function summarizeVariant(variant: string, rows: CaseResult[]): VariantSu
   const repeated = [...byCase.values()].filter(rs => rs.length > 1).map(caseVariance);
   const coverages = withConsistency.map(r => r.consistency!.coverage).filter((c): c is number => c !== null);
   const guarded = ok.filter(r => r.consistencyBefore);
+  const partPercentile = (p: number) =>
+    Object.fromEntries(
+      BRIEF_PARTS.map(part => [
+        part,
+        percentile(
+          ok.map(r => r.partMs[part] ?? 0),
+          p
+        ),
+      ])
+    ) as Record<BriefPart, number>;
+  const withAux = rows.filter(r => r.auxMs);
+  const withCalls = rows.filter(r => r.calls);
+  const callSum = (key: 'calls' | 'unusable' | 'errors' | 'truncated') => withCalls.reduce((sum, r) => sum + r.calls![key], 0);
+  const withPeak = rows.filter(r => r.costUsdPeak !== undefined);
   return {
     variant,
     briefs: rows.length,
@@ -555,15 +634,30 @@ export function summarizeVariant(variant: string, rows: CaseResult[]): VariantSu
       p90: percentile(latencies, 90),
       max: Math.max(0, ...latencies),
     },
-    partMsP50: Object.fromEntries(
-      BRIEF_PARTS.map(part => [
-        part,
-        percentile(
-          ok.map(r => r.partMs[part] ?? 0),
-          50
-        ),
-      ])
-    ) as Record<BriefPart, number>,
+    partMsP50: partPercentile(50),
+    partMsP90: partPercentile(90),
+    auxMsP50: withAux.length
+      ? {
+          samples: percentile(
+            withAux.map(r => r.auxMs!.samples).filter(ms => ms > 0),
+            50
+          ),
+          polishMax: percentile(
+            withAux.map(r => r.auxMs!.polishMax).filter(ms => ms > 0),
+            50
+          ),
+        }
+      : null,
+    calls: withCalls.length
+      ? {
+          total: callSum('calls'),
+          unusable: callSum('unusable'),
+          errors: callSum('errors'),
+          truncated: callSum('truncated'),
+          unusableRate: round(callSum('unusable') / (callSum('calls') || 1)),
+          errorRate: round(callSum('errors') / (callSum('calls') || 1)),
+        }
+      : null,
     afterScopeMsP50: percentile(
       ok.map(r => Math.max(...parallelValues(r.partMs))),
       50
@@ -575,7 +669,11 @@ export function summarizeVariant(variant: string, rows: CaseResult[]): VariantSu
       }),
       50
     ),
-    costUsd: { total: round(total, 4), perBrief: round(total / (rows.length || 1), 4) },
+    costUsd: {
+      total: round(total, 4),
+      perBrief: round(total / (rows.length || 1), 4),
+      perBriefPeak: withPeak.length ? round(withPeak.reduce((sum, r) => sum + r.costUsdPeak!, 0) / withPeak.length, 4) : null,
+    },
     stability: repeated.length
       ? {
           priceCvMean: round(mean(repeated.filter(v => v.mvpPrice).map(v => v.mvpPrice!.cv))),
@@ -598,7 +696,11 @@ export function comparisonTable(summaries: VariantSummary[]): string {
     'briefsWithErr',
     'p50 s',
     'p90 s',
+    'scope p50 s',
+    'unusable%',
+    'errors%',
     '$/brief',
+    '$peak/brief',
     'priceCV',
     'refsJacc',
   ];
@@ -611,7 +713,11 @@ export function comparisonTable(summaries: VariantSummary[]): string {
     String(s.consistency.briefsWithErrors),
     (s.latencyMs.p50 / 1000).toFixed(1),
     (s.latencyMs.p90 / 1000).toFixed(1),
+    (s.partMsP50.scope / 1000).toFixed(1),
+    s.calls ? (s.calls.unusableRate * 100).toFixed(1) : '—',
+    s.calls ? (s.calls.errorRate * 100).toFixed(1) : '—',
     s.costUsd.perBrief.toFixed(4),
+    s.costUsd.perBriefPeak === null ? '—' : s.costUsd.perBriefPeak.toFixed(4),
     s.stability ? s.stability.priceCvMean.toFixed(3) : '—',
     s.stability ? s.stability.mvpRefsJaccardMean.toFixed(2) : '—',
   ]);

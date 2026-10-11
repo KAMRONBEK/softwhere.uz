@@ -1,6 +1,7 @@
 import { CAPS } from '@/modules/estimator/ai-brief/constants';
 import { asList, extractJson, label, type TextContext } from '@/modules/estimator/ai-brief/parse';
 import { namesRegex, stripZeroAmounts } from '@/modules/estimator/ai-brief/screens';
+import { inventedDetail } from '@/modules/estimator/ai-brief/specifics';
 import { isClaimLike } from '@/modules/estimator/ai-brief/textGuards';
 import type { Parsed } from '@/modules/estimator/ai-brief/types';
 
@@ -9,7 +10,8 @@ import type { Parsed } from '@/modules/estimator/ai-brief/types';
  * wireframe halves reuse, so the two calls that draw them in parallel stop
  * contradicting each other. Sample copy follows the wireframe rules: no facts
  * about the client, no invented statistics, none of the names the scrubber
- * removed, no contact details.
+ * removed, no contact details, no invented branches, cities or brands
+ * (`specifics.ts`).
  */
 
 /** A phone number ("+998 90 123 45 67", "90-123-45-67") or an email — never a price ("1 250 000 so'm"). */
@@ -25,7 +27,8 @@ export function parseSamplesJson(text: string, ctx: TextContext): Parsed<string[
   for (const entry of asList(raw.samples)) {
     const sample = stripZeroAmounts(label(entry, CAPS.label, ctx));
     if (!sample) continue;
-    if (isClaimLike(sample, ctx.idea) || CONTACT.test(sample) || names?.test(sample)) {
+    const invented = inventedDetail(sample, { locale: ctx.locale, idea: ctx.idea });
+    if (isClaimLike(sample, ctx.idea) || CONTACT.test(sample) || names?.test(sample) || invented) {
       issues.push(`dropped sample "${sample}"`);
       continue;
     }

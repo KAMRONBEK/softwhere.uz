@@ -145,7 +145,37 @@ function sanitizeContent(text: string): string {
  * API applies its fixed value. K2.x models ignore an effort and keep the
  * historical non-thinking params.
  */
-export type KimiReasoningEffort = 'low' | 'high' | 'max';
+export type ReasoningEffort = 'low' | 'high' | 'max';
+export type KimiReasoningEffort = ReasoningEffort;
+
+/**
+ * DeepSeek V4 (deepseek-v4-pro, deepseek-flash) is a hybrid model: thinking is
+ * ON by default at effort 'high' (api-docs.deepseek.com/guides/thinking_mode,
+ * checked 2026-10). `thinking: {type}` switches it, a top-level
+ * `reasoning_effort` ('low' | 'high' | 'max') sets its depth; temperature is
+ * ignored while thinking. 'off' disables it (temperature applies again).
+ */
+export type DeepSeekThinking = ReasoningEffort | 'off';
+
+/**
+ * Sampling/thinking params for one DeepSeek request. Without an explicit
+ * `thinking` this is exactly what every DeepSeek call has always sent (the
+ * temperature alone — the API's default thinking applies), so the blog
+ * callers are unaffected.
+ */
+export function deepseekRequestParams(thinking: DeepSeekThinking | undefined, temperature: number): Record<string, unknown> {
+  if (!thinking) return { temperature };
+  if (thinking === 'off') return { thinking: { type: 'disabled' }, temperature };
+  return { thinking: { type: 'enabled' }, reasoning_effort: thinking };
+}
+
+/** The provider that serves a model id ('deepseek-…' → deepseek, 'kimi-…'/'moonshot-…' → kimi); undefined when unknown. */
+export function providerOfModel(model: string | undefined): ProviderName | undefined {
+  if (!model) return undefined;
+  if (/^deepseek-/i.test(model)) return 'deepseek';
+  if (/^(kimi|moonshot)-/i.test(model)) return 'kimi';
+  return undefined;
+}
 
 const REASONING_EFFORT_MODEL = /^kimi-k3/;
 
@@ -168,24 +198,72 @@ export interface AiUsage {
 }
 
 /**
- * List prices, USD per 1M tokens (platform.kimi.ai pricing page, checked
- * 2026-10). Used for spend caps and eval reports, not billing: cache hits are
- * billed lower, so `estimateCostUsd` is a deliberate upper bound.
+ * List prices, USD per 1M tokens. Used for spend caps and eval reports, not
+ * billing.
+ *  - Kimi (platform.kimi.ai pricing page, checked 2026-10): cache hits are
+ *    billed lower but priced as misses here, so a Kimi estimate is a
+ *    deliberate upper bound.
+ *  - DeepSeek (api-docs.deepseek.com/quick_start/pricing, checked 2026-10-11):
+ *    PEAK prices below, i.e. DOUBLE the off-peak price (`isDeepSeekPeak`);
+ *    `cacheHit` is the cache-hit input price. Reasoning tokens bill as output.
+ *    Each DeepSeek price is the list price × DEEPSEEK_PRICE_MARGIN: the
+ *    2026-10-11 eval runs' balance moved ~20% more than their estimate (the
+ *    reasoning/caching split and the peak hours are hard to predict), and a
+ *    spend cap must not run low.
  */
-const PRICE_PER_M: Record<string, { input: number; output: number }> = {
+interface ModelPrice {
+  input: number;
+  output: number;
+  /** Cache-hit input price; absent = hits priced as misses (upper bound). */
+  cacheHit?: number;
+  /** Price is halved outside `isDeepSeekPeak` hours. */
+  offPeakHalf?: boolean;
+}
+export const DEEPSEEK_PRICE_MARGIN = 1.2;
+const deepseekPrice = (input: number, output: number, cacheHit: number): ModelPrice => ({
+  input: input * DEEPSEEK_PRICE_MARGIN,
+  output: output * DEEPSEEK_PRICE_MARGIN,
+  cacheHit: cacheHit * DEEPSEEK_PRICE_MARGIN,
+  offPeakHalf: true,
+});
+const PRICE_PER_M: Record<string, ModelPrice> = {
   'kimi-k3': { input: 3, output: 15 },
   'kimi-k2.6': { input: 0.95, output: 4 },
   'kimi-k2.7-code': { input: 0.95, output: 4 },
+  'deepseek-v4-pro': deepseekPrice(1.32, 3.96, 0.044),
+  'deepseek-flash': deepseekPrice(0.3, 1.2, 0.006),
+  // Legacy alias, served and billed as deepseek-flash (V4.1-Flash).
+  'deepseek-v4-flash': deepseekPrice(0.3, 1.2, 0.006),
 };
 const UNKNOWN_MODEL_PRICE = PRICE_PER_M['kimi-k3'];
 
-export function estimateCostUsd(model: string, usage: AiUsage | null | undefined): number {
-  if (!usage) return 0;
-  const price = PRICE_PER_M[model] ?? UNKNOWN_MODEL_PRICE;
-  return (usage.promptTokens * price.input + usage.completionTokens * price.output) / 1_000_000;
+/**
+ * DeepSeek peak hours: 01:00–04:00 and 06:00–10:00 UTC, Monday–Friday;
+ * everything else is off-peak at half price. Chinese public holidays are
+ * off-peak too but are NOT modelled (a holiday is priced as peak — upper bound).
+ */
+export function isDeepSeekPeak(at: Date): boolean {
+  const day = at.getUTCDay();
+  if (day === 0 || day === 6) return false;
+  const h = at.getUTCHours();
+  return (h >= 1 && h < 4) || (h >= 6 && h < 10);
 }
 
-function readUsage(raw: unknown): AiUsage | null {
+/**
+ * Estimated USD cost of one completion. `at` = when the call ran: DeepSeek is
+ * priced at that hour's rate (peak or off-peak); without it at peak (upper
+ * bound). Cache-hit input is priced at the cache rate where the list has one.
+ */
+export function estimateCostUsd(model: string, usage: AiUsage | null | undefined, at?: Date): number {
+  if (!usage) return 0;
+  const price = PRICE_PER_M[model] ?? UNKNOWN_MODEL_PRICE;
+  const hits = price.cacheHit === undefined ? 0 : Math.min(usage.cachedTokens, usage.promptTokens);
+  const full =
+    ((usage.promptTokens - hits) * price.input + hits * (price.cacheHit ?? 0) + usage.completionTokens * price.output) / 1_000_000;
+  return price.offPeakHalf && at && !isDeepSeekPeak(at) ? full / 2 : full;
+}
+
+export function readUsage(raw: unknown): AiUsage | null {
   if (!raw || typeof raw !== 'object') return null;
   const u = raw as Record<string, unknown>;
   const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
@@ -195,7 +273,8 @@ function readUsage(raw: unknown): AiUsage | null {
     promptTokens: num(u.prompt_tokens),
     completionTokens: num(u.completion_tokens),
     reasoningTokens: num(completionDetails.reasoning_tokens),
-    cachedTokens: num(promptDetails.cached_tokens) || num(u.cached_tokens),
+    // DeepSeek reports hits as `prompt_cache_hit_tokens` (its details field reads 0).
+    cachedTokens: num(promptDetails.cached_tokens) || num(u.prompt_cache_hit_tokens) || num(u.cached_tokens),
   };
 }
 
@@ -204,6 +283,8 @@ export interface AiAttempt {
   provider: string;
   model: string;
   ms: number;
+  /** Epoch ms the request was sent (DeepSeek's price depends on the hour). */
+  startedAt?: number;
   ok: boolean;
   finishReason?: string | null;
   usage?: AiUsage | null;
@@ -234,10 +315,19 @@ interface GenOptions {
   firstOnly?: boolean;
   /** Try this provider first (falls back to the rest of the chain). */
   prefer?: ProviderName;
-  /** Kimi-only model override (e.g. 'kimi-k3'); other providers keep their configured model. */
+  /**
+   * Model override, applied to the provider that serves it (`providerOfModel`;
+   * an unknown id counts as Kimi's): 'kimi-k3' overrides Kimi only,
+   * 'deepseek-flash' DeepSeek only. Other providers keep their configured model.
+   */
   model?: string;
-  /** Kimi K3 thinking depth; ignored by non-K3 models (see `kimiRequestParams`). */
-  reasoningEffort?: KimiReasoningEffort;
+  /** Use ONLY this provider (no fallback to another provider; null when it has no key). */
+  provider?: ProviderName;
+  /**
+   * Thinking depth. Kimi: K3 only (see `kimiRequestParams`; 'off' = no effort).
+   * DeepSeek: see `deepseekRequestParams` — absent keeps the API default.
+   */
+  reasoningEffort?: DeepSeekThinking;
   /** Called once per provider attempt with timing/usage/error (no prompt data). */
   onAttempt?: (attempt: AiAttempt) => void;
 }
@@ -245,12 +335,53 @@ interface GenOptions {
 /** Per-provider sampling: Kimi gets its pinned params (see `kimiRequestParams`);
  *  DeepSeek takes the requested temperature (or the conservative default). */
 function samplingParamsFor(provider: Provider, model: string, opts: GenOptions): Record<string, unknown> {
-  if (provider.name === 'kimi') return kimiRequestParams(model, opts.reasoningEffort);
-  return { temperature: opts.temperature ?? DEFAULT_TEMPERATURE };
+  if (provider.name === 'kimi') return kimiRequestParams(model, opts.reasoningEffort === 'off' ? undefined : opts.reasoningEffort);
+  return deepseekRequestParams(opts.reasoningEffort, opts.temperature ?? DEFAULT_TEMPERATURE);
 }
 
-function modelFor(provider: Provider, override?: string): string {
-  return provider.name === 'kimi' && override ? override : provider.model;
+/** The model a provider runs: the override when that provider serves it, else its configured model. */
+export function modelFor(provider: { name: string; model: string }, override?: string): string {
+  if (!override) return provider.model;
+  return (providerOfModel(override) ?? 'kimi') === provider.name ? override : provider.model;
+}
+
+/**
+ * The SDK's `timeout` stops counting once the response HEADERS arrive. DeepSeek
+ * sends them at once and keeps the connection alive while it thinks, so its
+ * calls ran far past their timeout (a 30 s copy-edit took 45 s; a brief blew
+ * its 110 s deadline — verified live and with a local fake 2026-10-11). Its
+ * calls get an abort signal covering the whole request. Kimi keeps the SDK
+ * timeout alone (unchanged production behaviour; whether it streams headers
+ * early is unverified).
+ */
+const HARD_TIMEOUT_PROVIDERS: ReadonlySet<string> = new Set(['deepseek']);
+
+/** Only Kimi enforces a strict `json_schema`; the others get json_object. */
+const STRICT_SCHEMA_PROVIDERS: ReadonlySet<string> = new Set(['kimi']);
+
+/**
+ * A provider without strict schemas (DeepSeek) never sees the schema the
+ * brief's prompts refer to ("matches the provided schema"), so it is appended
+ * to the system prompt: same contract, enforced afterwards by the callers'
+ * validators/repair instead of by the API.
+ */
+export function systemPromptFor(providerName: string, system: string | undefined, jsonSchema?: JsonSchemaSpec): string | undefined {
+  if (!jsonSchema || STRICT_SCHEMA_PROVIDERS.has(providerName)) return system;
+  const contract = `The JSON object must conform to this JSON Schema ("${jsonSchema.name}"): every property listed is required, no other properties, string values from an "enum" copied exactly.\n${JSON.stringify(jsonSchema.schema)}`;
+  return system ? `${system}\n\n${contract}` : contract;
+}
+
+/** `response_format` for one provider: strict schema on Kimi, json_object elsewhere, none for plain text. */
+export function responseFormatFor(providerName: string, opts: Pick<GenOptions, 'json' | 'jsonSchema'>): Record<string, unknown> {
+  if (opts.jsonSchema && STRICT_SCHEMA_PROVIDERS.has(providerName)) {
+    return {
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: opts.jsonSchema.name, strict: true, schema: opts.jsonSchema.schema },
+      },
+    };
+  }
+  return opts.json || opts.jsonSchema ? { response_format: { type: 'json_object' } } : {};
 }
 
 function errorMessage(error: unknown): string {
@@ -274,19 +405,23 @@ interface GenResult {
 }
 
 async function generate(prompt: string, label: string, opts: GenOptions): Promise<GenResult | null> {
-  let providers = providerChain(opts.prefer);
+  let providers = providerChain(opts.provider ?? opts.prefer);
+  if (opts.provider) providers = providers.filter(p => p.name === opts.provider);
   if (opts.firstOnly) providers = providers.slice(0, 1);
   if (providers.length === 0) {
     aiStats.fallbackUsed++;
     return null;
   }
 
-  const messages = opts.system
-    ? ([
-        { role: 'system' as const, content: opts.system },
-        { role: 'user' as const, content: prompt },
-      ] satisfies OpenAI.ChatCompletionMessageParam[])
-    : ([{ role: 'user' as const, content: prompt }] satisfies OpenAI.ChatCompletionMessageParam[]);
+  const messagesFor = (p: Provider): OpenAI.ChatCompletionMessageParam[] => {
+    const system = systemPromptFor(p.name, opts.system, opts.jsonSchema);
+    return system
+      ? [
+          { role: 'system', content: system },
+          { role: 'user', content: prompt },
+        ]
+      : [{ role: 'user', content: prompt }];
+  };
 
   const attempts = opts.attempts ?? MAX_ATTEMPTS;
 
@@ -296,22 +431,15 @@ async function generate(prompt: string, label: string, opts: GenOptions): Promis
       continue;
     }
     const model = modelFor(p, opts.model);
+    const messages = messagesFor(p);
     for (let attempt = 1; attempt <= attempts; attempt++) {
       aiStats.callAttempts++;
       const startedAt = Date.now();
+      const timeout = opts.timeout ?? 120_000;
+      const hardStop = HARD_TIMEOUT_PROVIDERS.has(p.name) ? AbortSignal.timeout(timeout) : undefined;
       try {
-        // Strict schema output is Kimi-only; DeepSeek degrades to json_object.
-        const responseFormat =
-          opts.jsonSchema && p.name === 'kimi'
-            ? {
-                response_format: {
-                  type: 'json_schema',
-                  json_schema: { name: opts.jsonSchema.name, strict: true, schema: opts.jsonSchema.schema },
-                },
-              }
-            : opts.json || opts.jsonSchema
-              ? { response_format: { type: 'json_object' as const } }
-              : {};
+        // Strict schema output is Kimi-only; DeepSeek degrades to json_object (schema in the prompt).
+        const responseFormat = responseFormatFor(p.name, opts);
         const completion = await clientFor(p).chat.completions.create(
           {
             model,
@@ -320,24 +448,26 @@ async function generate(prompt: string, label: string, opts: GenOptions): Promis
             // thinking mode, which rejects any temperature except 1, so plain
             // generation must disable it or every call 400s) — or, for K3
             // with an explicit effort, reasoning_effort and no temperature.
+            // DeepSeek: see `deepseekRequestParams`.
             ...samplingParamsFor(p, model, opts),
             ...responseFormat,
             ...(opts.maxTokens && { max_tokens: opts.maxTokens }),
           } as unknown as OpenAI.ChatCompletionCreateParamsNonStreaming,
-          { timeout: opts.timeout ?? 120_000, maxRetries: 0 }
+          { timeout, maxRetries: 0, ...(hardStop && { signal: hardStop }) }
         );
         const choice = completion.choices[0];
         const text = choice?.message?.content ?? null;
         const finishReason = choice?.finish_reason ?? null;
         const usage = readUsage(completion.usage);
-        opts.onAttempt?.({ provider: p.name, model, ms: Date.now() - startedAt, ok: !!text, finishReason, usage });
+        opts.onAttempt?.({ provider: p.name, model, ms: Date.now() - startedAt, startedAt, ok: !!text, finishReason, usage });
         // finish_reason 'length' means the completion cap truncated the output
         // mid-stream — callers (the blog pipeline) use it to trigger a
         // continuation instead of silently publishing a cut-off post.
         if (text) return { text, provider: p.name, finishReason, model, usage };
         break; // empty response — try the next provider
       } catch (error) {
-        opts.onAttempt?.({ provider: p.name, model, ms: Date.now() - startedAt, ok: false, error: errorMessage(error) });
+        const message = hardStop?.aborted ? `Request timed out after ${timeout}ms` : errorMessage(error);
+        opts.onAttempt?.({ provider: p.name, model, ms: Date.now() - startedAt, startedAt, ok: false, error: message });
         if (isQuotaError(error)) {
           cooldownUntil.set(p.name, Date.now() + extractRetryMs(error));
           aiStats.quotaBlocked++;
@@ -519,8 +649,10 @@ export async function generateWithWebSearch(
  * DeepSeek degrading to json_object) unless `firstOnly`. Falls back to null on
  * timeout/failure so the caller can use its formula. Returns the provider name
  * so callers can attribute the result, plus the answering model and token
- * usage. `model`/`reasoningEffort` apply to Kimi only (e.g. the AI brief runs
- * kimi-k3 with effort 'low'); omitted, behaviour is unchanged.
+ * usage. `model` applies to the provider that serves it and `provider` pins
+ * the call to one provider (the AI brief runs each step on its model's own
+ * provider); `reasoningEffort` sets K3's or DeepSeek's thinking. Omitted,
+ * behaviour is unchanged.
  */
 export async function safeGenerateJSONWithTimeout(
   prompt: string,
@@ -534,7 +666,8 @@ export async function safeGenerateJSONWithTimeout(
     prefer?: ProviderName;
     firstOnly?: boolean;
     model?: string;
-    reasoningEffort?: KimiReasoningEffort;
+    provider?: ProviderName;
+    reasoningEffort?: DeepSeekThinking;
     onAttempt?: (attempt: AiAttempt) => void;
   }
 ): Promise<{ text: string; provider: string; model: string; usage: AiUsage | null; finishReason: string | null } | null> {
@@ -548,6 +681,7 @@ export async function safeGenerateJSONWithTimeout(
     firstOnly: options?.firstOnly ?? true,
     prefer: options?.prefer,
     model: options?.model,
+    provider: options?.provider,
     reasoningEffort: options?.reasoningEffort,
     onAttempt: options?.onAttempt,
   });

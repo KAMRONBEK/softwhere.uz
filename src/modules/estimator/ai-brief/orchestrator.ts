@@ -1,4 +1,11 @@
-import { configuredProviders, estimateCostUsd, safeGenerateJSONWithTimeout, type AiAttempt, type JsonSchemaSpec } from '@/core/ai';
+import {
+  configuredProviders,
+  estimateCostUsd,
+  providerOfModel,
+  safeGenerateJSONWithTimeout,
+  type AiAttempt,
+  type JsonSchemaSpec,
+} from '@/core/ai';
 import { logger } from '@/core/logger';
 import { TECH_BY_ID } from '@/modules/estimator/data/catalog';
 import {
@@ -22,6 +29,7 @@ import {
   type BriefModelStep,
   type BriefPart,
 } from '@/modules/estimator/ai-brief/constants';
+import { providersOf, usableChain } from '@/modules/estimator/ai-brief/chains';
 import { checkBriefConsistency, type ViewSource } from '@/modules/estimator/ai-brief/consistency';
 import { pricedScopeOf, type PricedScope } from '@/modules/estimator/ai-brief/digest';
 import { guardBriefText, guardScopeText } from '@/modules/estimator/ai-brief/guard';
@@ -71,6 +79,7 @@ import {
 } from '@/modules/estimator/ai-brief/schema';
 import { harmonizeSamplePrices, mergeScreenParts, parseScreensJson } from '@/modules/estimator/ai-brief/screens';
 import { prepareIdea, scrubContactDetails, type RedactionKind } from '@/modules/estimator/ai-brief/scrub';
+import { mapBriefTexts, mapPreviewTexts, withUzbekLetters } from '@/modules/estimator/ai-brief/uzLetters';
 import type {
   AiBrief,
   BriefErrorCode,
@@ -111,8 +120,9 @@ import type {
  * rejection or decline never pays for them.
  *
  * Fallback: each call walks its chain in BRIEF_PART_CHAINS (kimi-k3 →
- * kimi-k2.6) while the shared deadline allows; an unusable answer counts as a
- * failure, and a dropped connection is retried once on the same model. The
+ * deepseek-flash, or kimi-k2.6 without a DeepSeek key — `usableChain`) while
+ * the shared deadline allows; an unusable answer counts as a failure, and a
+ * dropped connection is retried once on the same model. The
  * high-effort scope has a long tail, so its fallback is hedged: it starts in
  * parallel once the primary has run SCOPE_HEDGE_MS. Late in the deadline a
  * step that cannot run its full timeout yields to the faster fallback. When
@@ -189,6 +199,10 @@ export interface BriefRunOptions {
    * the start instead of `chain` / the production chain.
    */
   partChains?: Partial<Record<BriefPart, readonly BriefModelStep[]>>;
+  /** The sample-content call's chain; default SAMPLES_CHAIN. */
+  samplesChain?: readonly BriefModelStep[];
+  /** The Uzbek copy-edit's chain; default POLISH_CHAIN. */
+  polishChain?: readonly BriefModelStep[];
   /** Eval switches for the helper calls; default: samples on, the Uzbek copy-edit per UZ_POLISH_ENABLED. */
   samples?: boolean;
   polish?: boolean;
@@ -230,6 +244,7 @@ async function attempt<T>(
   timeout: number
 ): Promise<{ entry: BriefAttemptLog; parsed: Parsed<T> | null; model: string }> {
   const calls: AiAttempt[] = [];
+  // The step's model picks its provider; never another provider's default model.
   const res = await safeGenerateJSONWithTimeout(prompt, `ai-brief-${spec.part}-${locale}`, {
     system: spec.system,
     jsonSchema: spec.schema,
@@ -237,7 +252,7 @@ async function attempt<T>(
     reasoningEffort: step.reasoningEffort,
     timeout,
     maxTokens: step.maxTokens,
-    prefer: 'kimi',
+    provider: providerOfModel(step.model) ?? 'kimi',
     firstOnly: true,
     maxRetries: 0,
     onAttempt: a => calls.push(a),
@@ -254,7 +269,7 @@ async function attempt<T>(
     error: call?.error ?? (res ? undefined : 'no response'),
     finishReason: call?.finishReason,
     usage: call?.usage,
-    costUsd: estimateCostUsd(model, call?.usage),
+    costUsd: estimateCostUsd(model, call?.usage, call?.startedAt ? new Date(call.startedAt) : undefined),
     rawText: res?.text,
     ...(res && { usable: !!parsed?.usable, parseIssues: parsed?.issues ?? ['not a JSON object'] }),
   };
@@ -426,9 +441,9 @@ function notify(listener: BriefRunOptions['onProgress'], progress: BriefProgress
  */
 function chainFor(part: BriefPart, options: BriefRunOptions, startModel?: string, idea = ''): readonly BriefModelStep[] {
   const explicit = options.partChains?.[part];
-  if (explicit) return explicit;
+  if (explicit) return usableChain(explicit, configuredProviders());
   const production = part === 'scope' && idea.length > LONG_IDEA_CHARS ? LONG_IDEA_SCOPE_CHAIN : BRIEF_PART_CHAINS[part];
-  const chain = options.chain ?? production;
+  const chain = usableChain(options.chain ?? production, configuredProviders());
   if (!startModel) return chain;
   const from = chain.findIndex(s => s.model === startModel);
   return from > 0 ? chain.slice(from) : chain;
@@ -485,6 +500,7 @@ export function priceScope(modelScope: BriefScope, idea: string, locale: BriefLo
     integrations,
     languages: estimate.config.languages,
     platforms: estimate.config.platforms,
+    idea,
   };
   const guarded = guardScopeText(ruledScope, source, priced);
   return { ruledScope, scope: guarded.value, mapped, adjustments, priced, source, removed: guarded.removed, bigIdea };
@@ -493,9 +509,13 @@ export function priceScope(modelScope: BriefScope, idea: string, locale: BriefLo
 /** The discovery reasons of a stage (null: a normal, priced brief). */
 const discoveryOf = (stage: Pick<PricedStage, 'bigIdea'>) => (stage.bigIdea.isBig ? stage.bigIdea.reasons : null);
 
-/** The preview that streams once the scope is priced. */
+/** The preview that streams once the scope is priced (Uzbek letters oʻ/gʻ on uz pages, as in the brief). */
 export function previewOf(stage: PricedStage, locale: BriefLocale): BriefPreview {
-  return briefCore({ scope: stage.scope, mapped: stage.mapped, adjustments: stage.adjustments, discovery: discoveryOf(stage) }, locale);
+  const preview = briefCore(
+    { scope: stage.scope, mapped: stage.mapped, adjustments: stage.adjustments, discovery: discoveryOf(stage) },
+    locale
+  );
+  return withUzbekLetters(locale, preview, mapPreviewTexts);
 }
 
 /** Calls 2–5 as specs: system prompt, schema and the parser that checks each answer against the priced scope. */
@@ -559,9 +579,10 @@ export function assembleBrief(
     priced,
     source
   );
-  const before = checkBriefConsistency(rawBrief, priced);
+  const before = checkBriefConsistency(rawBrief, priced, source.idea);
   return {
-    brief: finalGuard.value,
+    // The last step: Uzbek letters oʻ/gʻ (everything before works in the plain "'").
+    brief: withUzbekLetters(locale, finalGuard.value, mapBriefTexts),
     guard: {
       removed: [...stage.removed, ...finalGuard.removed],
       before: { errors: before.errors, warnings: before.warnings, kinds: before.violations.map(v => v.kind) },
@@ -600,8 +621,9 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
   });
 
   if (meaningfulLength(scrubbed.text) < MIN_IDEA_CHARS) return finish({ status: 'rejected', reason: 'too_short' });
-  if (!configuredProviders().includes('kimi')) {
-    logger.warn('AI brief requested but no Kimi key is configured', undefined, LOG);
+  const scopeChain = chainFor('scope', options, undefined, scrubbed.text);
+  if (scopeChain.length === 0) {
+    logger.warn('AI brief requested but no AI provider key is configured for its scope call', undefined, LOG);
     return finish({ status: 'error', code: 'ai_unavailable' });
   }
 
@@ -610,7 +632,16 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
 
   // Sample content for the wireframes, in parallel with the scope (never awaited past a short grace).
   const samplesRun =
-    options.samples === false ? null : runPart(samplesSpec(ctx, locale), ideaPrompt, locale, SAMPLES_CHAIN, deadline, attempts);
+    options.samples === false
+      ? null
+      : runPart(
+          samplesSpec(ctx, locale),
+          ideaPrompt,
+          locale,
+          usableChain(options.samplesChain ?? SAMPLES_CHAIN, configuredProviders()),
+          deadline,
+          attempts
+        );
   const samplesNow = async (): Promise<string[] | null> => {
     if (!samplesRun) return null;
     const run = await Promise.race([samplesRun, delay(SAMPLES_GRACE_MS)]);
@@ -622,7 +653,7 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
     { part: 'scope', system: buildScopeSystemPrompt(locale), schema: SCOPE_JSON_SCHEMA, parse: t => parseScopeJson(t, ctx) },
     ideaPrompt,
     locale,
-    chainFor('scope', options, undefined, scrubbed.text),
+    scopeChain,
     deadline,
     SCOPE_HEDGE_MS,
     attempts
@@ -638,7 +669,11 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
     return finish({ status: 'rejected', reason: rejectionReason(modelScope) }, { scope: modelScope, model: scopeModel });
   if (isPolicyDecline(modelScope)) {
     return finish(
-      { status: 'declined_policy', topics: modelScope.policy.topics, note: modelScope.policy.note },
+      {
+        status: 'declined_policy',
+        topics: modelScope.policy.topics,
+        note: withUzbekLetters(locale, modelScope.policy.note, (t, f) => f(t)),
+      },
       { scope: modelScope, model: scopeModel }
     );
   }
@@ -648,11 +683,20 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
   const { scope, priced } = stage;
   notify(options.onProgress, { stage: 'scoped', preview: previewOf(stage, locale) });
 
-  // The Uzbek copy-edit: each part's strings, as soon as that part is final.
+  const startModel = laterStartModel(
+    attempts.filter(a => a.part === 'scope'),
+    scopeModel
+  );
+
+  // The Uzbek copy-edit: each part's strings, as soon as that part is final. It
+  // runs on its own chain only (Kimi): never on another provider, and not at all
+  // when the scope found that provider down — the brief ships unedited instead.
   const polishLog: PolishLog = {};
-  const polishing = locale === 'uz' && (options.polish ?? UZ_POLISH_ENABLED);
+  const polishChain = usableChain(options.polishChain ?? POLISH_CHAIN, configuredProviders());
+  const polishDown = !!startModel && !providersOf(polishChain).includes(providerOfModel(startModel) ?? 'kimi');
+  const polishing = locale === 'uz' && (options.polish ?? UZ_POLISH_ENABLED) && polishChain.length > 0 && !polishDown;
   const polish = <T>(part: Extract<AuxPart, `polish${string}`>, value: T, map: TextMapper<T>): Promise<T> =>
-    polishing ? polishValue(part, value, map, scrubbed.text, deadline, attempts, polishLog) : Promise.resolve(value);
+    polishing ? polishValue(part, value, map, scrubbed.text, deadline, attempts, polishLog, polishChain) : Promise.resolve(value);
   const scopePolished = polish('polishScope', scope, mapScopeTexts);
 
   // Calls 2–5, in parallel (each walks its chain; its attempts land straight in `attempts`).
@@ -661,10 +705,6 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
   const userPrompt = (part?: string) =>
     buildScopedUserPrompt(scrubbed.text, locale, scope, priced, prepared.truncated, part, samples ?? [], stage.bigIdea.isBig);
   const parts = screenParts(scope, priced);
-  const startModel = laterStartModel(
-    attempts.filter(a => a.part === 'scope'),
-    scopeModel
-  );
   const run = <T>(spec: PartSpec<T>, prompt: string) =>
     runHedgedPart(spec, prompt, locale, chainFor(spec.part as BriefPart, options, startModel), deadline, LATER_HEDGE_MS, attempts);
 
@@ -683,7 +723,7 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
   const screensDone = Promise.all([run(specs.screensMain, userPrompt(parts.main)), run(specs.screensRest, userPrompt(parts.rest))]).then(
     async ([main, rest]) => {
       const merged = screensOf(main.result?.value ?? null, rest.result?.value ?? null);
-      if (merged.length) notify(options.onProgress, { stage: 'screens', screens: merged });
+      if (merged.length) notify(options.onProgress, { stage: 'screens', screens: withUzbekLetters(locale, merged, mapScreensTexts) });
       return {
         screens: merged.length ? await polish('polishScreens', merged, mapScreensTexts) : merged,
         model: main.result?.model ?? null,
@@ -725,15 +765,14 @@ async function polishValue<T>(
   idea: string,
   deadline: number,
   attempts: BriefAttemptLog[],
-  log: PolishLog
+  log: PolishLog,
+  chain: readonly BriefModelStep[]
 ): Promise<T> {
   const texts = collectTexts(value, map);
   if (texts.length === 0) return value;
   // Balanced chunks in parallel: a chunk that fails or times out keeps its strings as they were.
   const runs = await Promise.all(
-    chunkTexts(texts).map(chunk =>
-      runPart(polishSpec(part, chunk), buildPolishUserPrompt(idea, chunk), 'uz', POLISH_CHAIN, deadline, attempts)
-    )
+    chunkTexts(texts).map(chunk => runPart(polishSpec(part, chunk), buildPolishUserPrompt(idea, chunk), 'uz', chain, deadline, attempts))
   );
   const fixes = new Map(runs.flatMap(run => Array.from(run.result?.value ?? new Map<string, string>())));
   if (!fixes.size) return value;

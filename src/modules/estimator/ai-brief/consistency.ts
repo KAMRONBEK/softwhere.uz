@@ -18,7 +18,8 @@ import {
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
 import type { PricedScope } from '@/modules/estimator/ai-brief/digest';
 import { refLabel } from '@/modules/estimator/ai-brief/labels';
-import type { AiBrief, ScopeItem } from '@/modules/estimator/ai-brief/types';
+import { budgetFiller, fillerRisk, inventedDetail, templateLeak, type SpecificsContext } from '@/modules/estimator/ai-brief/specifics';
+import type { AiBrief, ScopeItem, WireframeBlock, WireframeScreen } from '@/modules/estimator/ai-brief/types';
 
 /**
  * Brief CONSISTENCY checker — does what the visitor reads match what was
@@ -57,7 +58,9 @@ export type ConsistencyKind =
   | 'assumption_not_in_scope'
   | 'assumption_config'
   | 'summary_unpriced'
-  | 'framing_leak';
+  | 'framing_leak'
+  | 'invented_detail'
+  | 'template_leak';
 
 export type Severity = 'error' | 'warn';
 
@@ -84,7 +87,7 @@ export interface ConsistencyReport {
 /* Tokens                                                              */
 /* ------------------------------------------------------------------ */
 
-const APOSTROPHES = /['‘’ʻ`]/g;
+const APOSTROPHES = /['‘’ʻʼ`]/g;
 
 export function normalizeToken(token: string): string {
   const t = token.toLowerCase().replace(APOSTROPHES, '').replace(/ё/g, 'е');
@@ -198,6 +201,8 @@ export interface ViewSource {
   /** Engine config: interface languages and mobile platforms priced. */
   languages: number;
   platforms: string[];
+  /** The idea the brief was written for (scrubbed): enables the invented-specifics and template-leak checks. */
+  idea?: string;
 }
 
 export function viewSourceOf(brief: AiBrief): ViewSource {
@@ -299,22 +304,55 @@ function checkMvpText({ area, where, text, context = '', implied = [] }: MvpText
 const CONTENT_SUBTYPES: readonly string[] = ['landing', 'corporate'];
 const CONTENT_BLOCKS: readonly string[] = ['hero', 'text', 'image', 'video', 'card-grid', 'list', 'stats'];
 
+/** One MVP wireframe block against the priced scope; its kind counts too (a map block draws a map). */
+function checkBlock(
+  block: WireframeBlock,
+  screen: Pick<WireframeScreen, 'name' | 'device'>,
+  view: ScopeView,
+  emit: Emit,
+  subtype: string
+): string[] {
+  if (CONTENT_SUBTYPES.includes(subtype) && CONTENT_BLOCKS.includes(block.kind)) return [];
+  const blockConcept = CONCEPT_BY_ID.get(BLOCK_CONCEPTS[block.kind] ?? '');
+  // A bot's whole screen is a chat: the chat frame is the product, not a feature.
+  const inherentChat = block.kind === 'chat' && (screen.device === 'chat' || view.projectType === 'telegram');
+  const implied = blockConcept && !inherentChat ? [blockConcept] : [];
+  const text = [block.label, ...block.items].filter(Boolean).join(' · ') || block.kind;
+  return checkMvpText(
+    { area: 'screen', where: `screen "${screen.name}" › ${block.kind}`, text, context: screen.name, implied },
+    view,
+    emit
+  );
+}
+
+/** A 'later' screen may show LATER items and extra products, never what no price covers. */
+function checkLaterScreen(screen: WireframeScreen, view: ScopeView, emit: Emit): void {
+  const at = `screen "${screen.name}" (later)`;
+  const units = [[screen.name, screen.purpose].join(' — '), ...screen.blocks.map(b => [b.label, ...b.items].filter(Boolean).join(' · '))];
+  for (const text of units) {
+    if (!text || SCREEN_DEFERRAL.test(text)) continue;
+    for (const item of view.unpriced.filter(u => matchesUnpriced(text, u)))
+      emit({
+        kind: 'screen_unpriced',
+        severity: 'error',
+        where: at,
+        text,
+        subject: item.label,
+        detail: 'a later screen shows an item no price covers',
+      });
+  }
+}
+
 function checkScreens(brief: AiBrief, view: ScopeView, emit: Emit, subtype: string): string[] {
   const shown: string[] = [];
-  const copyOnly = CONTENT_SUBTYPES.includes(subtype);
-  for (const screen of brief.screens.filter(s => s.phase === 'mvp')) {
-    const at = `screen "${screen.name}"`;
-    const context = screen.name;
-    shown.push(...checkMvpText({ area: 'screen', where: at, text: [screen.name, screen.purpose].join(' — ') }, view, emit));
-    for (const block of screen.blocks) {
-      if (copyOnly && CONTENT_BLOCKS.includes(block.kind)) continue;
-      const blockConcept = CONCEPT_BY_ID.get(BLOCK_CONCEPTS[block.kind] ?? '');
-      // A bot's whole screen is a chat: the chat frame is the product, not a feature.
-      const inherentChat = block.kind === 'chat' && (screen.device === 'chat' || view.projectType === 'telegram');
-      const implied = blockConcept && !inherentChat ? [blockConcept] : [];
-      const text = [block.label, ...block.items].filter(Boolean).join(' · ') || block.kind;
-      shown.push(...checkMvpText({ area: 'screen', where: `${at} › ${block.kind}`, text, context, implied }, view, emit));
+  for (const screen of brief.screens) {
+    if (screen.phase !== 'mvp') {
+      checkLaterScreen(screen, view, emit);
+      continue;
     }
+    const at = `screen "${screen.name}"`;
+    shown.push(...checkMvpText({ area: 'screen', where: at, text: [screen.name, screen.purpose].join(' — ') }, view, emit));
+    for (const block of screen.blocks) shown.push(...checkBlock(block, screen, view, emit, subtype));
   }
   return shown;
 }
@@ -614,11 +652,56 @@ function checkFraming(brief: AiBrief, emit: Emit): void {
   }
 }
 
+/** The specifics context of a brief: its idea, product and priced refs. */
+export function specificsContextOf(locale: BriefLocale, idea: string, priced: PricedScope): SpecificsContext {
+  return { locale, idea, product: priced.product, refs: [...priced.mvpRefs, ...priced.laterRefs], extraRefs: priced.extraRefs };
+}
+
+/** Invented specifics and template leakage (`specifics.ts`) anywhere in the visible text. */
+function checkSpecifics(brief: AiBrief, ctx: SpecificsContext, emit: Emit): void {
+  const n = brief.narrative;
+  const mvp = brief.estimate.phases.flatMap(p => [p.goal, ...p.deliverables].map((t): [string, string] => [`phases.${p.id}`, t]));
+  const prose: [string, string][] = [
+    ['summary', brief.summary],
+    ...brief.audience.map((a, i): [string, string] => [`audience[${i}]`, `${a.segment}: ${a.need}`]),
+    ['buildFirst', `${n.buildFirst.what} ${n.buildFirst.why}`],
+    ...mvp,
+    ...n.canWait.map((c, i): [string, string] => [`canWait[${i}]`, `${c.item} ${c.reason}`]),
+    ...n.risks.map((r, i): [string, string] => [`risks[${i}]`, `${r.title} ${r.detail} ${r.mitigation}`]),
+    ...n.questions.map((q, i): [string, string] => [`questions[${i}]`, q]),
+  ];
+  const samples: [string, string][] = [
+    ...n.assumptions.map((a, i): [string, string] => [`assumptions[${i}]`, a]),
+    ...brief.screens.flatMap(s =>
+      [s.name, s.purpose, ...s.blocks.flatMap(b => [b.label, ...b.items])].map((t): [string, string] => [`screen "${s.name}"`, t])
+    ),
+  ];
+  const report = (kind: ConsistencyKind, where: string, text: string, why: string | null) => {
+    if (why) emit({ kind, severity: 'error', where, text, subject: why, detail: why });
+  };
+  for (const [where, text] of prose) {
+    report('invented_detail', where, text, inventedDetail(text, ctx, true));
+    report('template_leak', where, text, templateLeak(text, ctx));
+  }
+  for (const [where, text] of samples) {
+    report('invented_detail', where, text, inventedDetail(text, ctx));
+    report('template_leak', where, text, templateLeak(text, ctx));
+  }
+  n.risks.forEach((r, i) => {
+    report('template_leak', `risks[${i}]`, r.title, fillerRisk(`${r.title} ${r.detail}`, ctx) ?? budgetFiller(r.title, ctx));
+  });
+  n.questions.forEach((q, i) => report('template_leak', `questions[${i}]`, q, fillerRisk(q, ctx) ?? budgetFiller(q, ctx, true)));
+}
+
 /* ------------------------------------------------------------------ */
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
 
-export function checkBriefConsistency(brief: AiBrief, priced: PricedScope): ConsistencyReport {
+/**
+ * The deterministic consistency report of a brief. With the `idea` the brief
+ * was written for, invented specifics and template leakage are checked too.
+ */
+export function checkBriefConsistency(brief: AiBrief, priced: PricedScope, idea?: string): ConsistencyReport {
   const view = scopeView(viewSourceOf(brief), priced);
   const violations: ConsistencyViolation[] = [];
   const seen = new Set<string>();
@@ -634,6 +717,7 @@ export function checkBriefConsistency(brief: AiBrief, priced: PricedScope): Cons
   checkAssumptions(brief, view, emit);
   checkSummary(brief, view, emit);
   checkFraming(brief, emit);
+  if (idea !== undefined) checkSpecifics(brief, specificsContextOf(brief.locale, idea, priced), emit);
 
   const detectable = new Set(CONCEPTS.flatMap(c => c.refs));
   const visible = priced.mvpRefs.filter(r => !INVISIBLE_REFS.has(r) && detectable.has(r));
@@ -655,6 +739,10 @@ export function checkBriefConsistency(brief: AiBrief, priced: PricedScope): Cons
 export interface ConsistencyGuard {
   /** MVP wireframe copy or an MVP narrative sentence (`context`: the screen it sits on). */
   mvpText(text: string, area: Area, context?: string): ConsistencyViolation[];
+  /** One MVP wireframe block, its kind included (a map block on a scope without maps). */
+  mvpBlock(block: WireframeBlock, screen: Pick<WireframeScreen, 'name' | 'device'>): ConsistencyViolation[];
+  /** Copy on a 'later' screen: only what no price covers fails. */
+  laterText(text: string): ConsistencyViolation[];
   assumption(text: string): ConsistencyViolation[];
   /** A summary sentence or an audience line. */
   summary(text: string): ConsistencyViolation[];
@@ -673,6 +761,15 @@ export function createConsistencyGuard(src: ViewSource, priced: PricedScope): Co
     mvpText: (text, area, context) =>
       collect(emit =>
         area === 'narrative' ? checkNarrativeText(text, area, view, emit) : checkMvpText({ area, where: area, text, context }, view, emit)
+      ),
+    mvpBlock: (block, screen) => collect(emit => checkBlock(block, screen, view, emit, priced.product.subtype)),
+    laterText: text =>
+      collect(emit =>
+        checkLaterScreen(
+          { name: '', purpose: '', device: priced.frames.primary, phase: 'later', blocks: [{ kind: 'text', label: text, items: [] }] },
+          view,
+          emit
+        )
       ),
     assumption: text => collect(emit => checkAssumption(text, 'assumption', view, emit)),
     summary: text => collect(emit => checkSummaryText(text, 'summary', view, emit)),

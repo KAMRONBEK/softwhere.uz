@@ -300,11 +300,19 @@ s.group('samples — one set of items, prices and places for both halves');
     ctx
   );
   s.ok('usable', !!parsed?.usable);
-  s.eq('deduped, no names, phones or claims; a big price is not a phone', parsed?.value, [
+  // 'Chilonzor filiali' goes too since 2026-10-11: one bakery has no branches (`specifics.ts`).
+  s.eq('deduped, no names, phones, claims or invented branches; a big price is not a phone', parsed?.value, [
     "Patir — 12 000 so'm",
     "1 250 000 so'm — to'y non to'plami",
-    'Chilonzor filiali',
   ]);
+  s.eq(
+    'a branch stays when the idea has several',
+    parseSamplesJson(JSON.stringify({ samples: ["Patir — 12 000 so'm", 'Chilonzor filiali'] }), {
+      ...ctx,
+      idea: 'Uchta filialli nonvoyxona uchun bot',
+    })?.value,
+    ["Patir — 12 000 so'm", 'Chilonzor filiali']
+  );
   s.ok('capped', CAPS.samples === 8);
   s.ok('one sample is not enough', parseSamplesJson('{"samples":["Patir"]}', ctx)?.usable === false);
 

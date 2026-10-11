@@ -1,4 +1,4 @@
-import type { KimiReasoningEffort } from '@/core/ai';
+import type { DeepSeekThinking } from '@/core/ai';
 
 /**
  * AI project brief — limits, model chain and the fixed vocabularies the model
@@ -14,13 +14,22 @@ export type BriefLocale = (typeof BRIEF_LOCALES)[number];
 export const MIN_IDEA_CHARS = 12;
 export const MAX_IDEA_CHARS = 3000;
 
-/** One step of the model fallback chain. */
+/**
+ * One step of the model fallback chain. The model id picks the provider
+ * (`providerOfModel`: 'deepseek-…' runs on DeepSeek, everything else on Kimi);
+ * a step never falls through to another provider by itself.
+ */
 export interface BriefModelStep {
   model: string;
-  /** K3 only; K2.x runs without thinking. */
-  reasoningEffort?: KimiReasoningEffort;
+  /**
+   * Kimi: K3 only ('low' | 'high' | 'max'); K2.x runs without thinking.
+   * DeepSeek: the thinking depth, 'off' = thinking disabled.
+   */
+  reasoningEffort?: DeepSeekThinking;
   timeoutMs: number;
   maxTokens: number;
+  /** The step that runs instead when this step's provider has no API key (see `chains.ts#usableChain`). */
+  ifUnavailable?: BriefModelStep;
 }
 
 /**
@@ -61,15 +70,50 @@ export const SAMPLE_PRODUCTS: Readonly<Record<string, readonly string[]>> = {
   desktop: ['pos_kiosk'],
 };
 
-/** kimi-k2.6: the fallback for every part — cheaper, ~2.5× faster, weaker Uzbek. */
+/** kimi-k2.6: the fallback before 2026-10-11, kept for a deployment without a DeepSeek key — cheaper, ~2.5× faster, weaker Uzbek. */
 const K26_FALLBACK: BriefModelStep = { model: 'kimi-k2.6', timeoutMs: 30_000, maxTokens: 8_000 };
 /** A scope runs to ~1k tokens on a detailed idea, ~30 s on k2.6 — give its fallback room. */
 const K26_SCOPE_FALLBACK: BriefModelStep = { ...K26_FALLBACK, timeoutMs: 40_000 };
 
 /**
+ * deepseek-flash (DeepSeek-V4.1-Flash): the fallback for every part since
+ * 2026-10-11 (founder decision). A blind 60-case comparison put Kimi K3 first
+ * (4.37/5) and deepseek-flash, or a Kimi scope + flash mix, at ~3.97 — so
+ * flash only answers when Kimi fails or is slow, never by default.
+ *
+ * No strict json_schema on DeepSeek: it runs json_object with the schema in
+ * the system prompt and the same validators (`src/core/ai.ts`). Thinking per
+ * call (2026-10-11 runs, 60 cases): the scope thinks 'high' (p50 19 s, p90
+ * 36 s, max 51 s); the later parts answer without thinking in 3 s (p90 5 s,
+ * max 13 s), with a same-model retry that thinks ('low') when the fast answer
+ * is unusable (~1% of calls). Reasoning tokens bill and count as output, so
+ * the caps leave them room. When DeepSeek has no key, each flash step becomes
+ * the old k2.6 fallback (`ifUnavailable`).
+ */
+export const DS_FLASH = 'deepseek-flash';
+const FLASH_SCOPE_FALLBACK: BriefModelStep = {
+  model: DS_FLASH,
+  reasoningEffort: 'high',
+  timeoutMs: 50_000,
+  maxTokens: 16_000,
+  ifUnavailable: K26_SCOPE_FALLBACK,
+};
+const FLASH_FALLBACK: BriefModelStep = {
+  model: DS_FLASH,
+  reasoningEffort: 'off',
+  timeoutMs: 15_000,
+  maxTokens: 8_000,
+  ifUnavailable: K26_FALLBACK,
+};
+const FLASH_RETRY: BriefModelStep = { ...FLASH_FALLBACK, reasoningEffort: 'low', timeoutMs: 25_000, maxTokens: 12_000 };
+/** The later parts' fallback: flash without thinking, then the same model thinking. */
+const FLASH_LATER_FALLBACK: readonly BriefModelStep[] = [FLASH_FALLBACK, FLASH_RETRY];
+
+/**
  * Production model chains, per part — round-2 matrix winner (variant c):
  * kimi-k3 at reasoning effort 'high' for the scope, 'low' for everything
- * written after it, kimi-k2.6 as the fallback.
+ * written after it, deepseek-flash as the fallback (kimi-k2.6 until
+ * 2026-10-11, and still when DeepSeek has no key).
  *
  * Why (2026-10 round 2, 60 cases, four auditors): high effort on the scope
  * call gave the best accuracy (4.31 vs 4.24/4.09 for k3-low everywhere),
@@ -80,7 +124,7 @@ const K26_SCOPE_FALLBACK: BriefModelStep = { ...K26_FALLBACK, timeoutMs: 40_000 
  * the cheapest but scored worst on screens (3.5) and language, so the later
  * calls stay on k3-low. Its effort costs ~300 reasoning tokens (median), so the
  * scope cap must still leave room for them. Its timeout sits at the round-2
- * matrix's slowest scope (61 s, p90 41 s); when it is hit, the k2.6 scope and
+ * matrix's slowest scope (61 s, p90 41 s); when it is hit, the fallback scope and
  * the later calls still fit the deadline (`runPart` skips a step that cannot
  * finish in the time left when a faster fallback can).
  *
@@ -88,28 +132,30 @@ const K26_SCOPE_FALLBACK: BriefModelStep = { ...K26_FALLBACK, timeoutMs: 40_000 
  * iterations: c stays the production default. Quality first — it led accuracy,
  * usefulness and consistency; b's cheaper wireframes cost the most on screens
  * and Uzbek, and a's 6 s faster scope cost accuracy. Latency is spent on the
- * scope where it pays and recovered elsewhere (the k2.6 hedges, parallel
+ * scope where it pays and recovered elsewhere (the fallback hedges, parallel
  * later calls); cost is ~$0.09 a brief at list price (~2/3 of that billed).
  */
 /**
  * The later calls answer in ~19 s (p50) / 23 s (p90) / 27 s (max) on k3-low
  * (round-2 iteration 1); their 35 s timeout keeps a stuck call from eating the
- * time its k2.6 fallback needs.
+ * time its fallback needs.
  */
+const K3_LATER: BriefModelStep = { model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 35_000, maxTokens: 8_000 };
 export const BRIEF_PART_CHAINS: Readonly<Record<BriefPart, readonly BriefModelStep[]>> = {
-  scope: [{ model: 'kimi-k3', reasoningEffort: 'high', timeoutMs: 60_000, maxTokens: 16_000 }, K26_SCOPE_FALLBACK],
-  plan: [{ model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 35_000, maxTokens: 8_000 }, K26_FALLBACK],
-  risks: [{ model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 35_000, maxTokens: 8_000 }, K26_FALLBACK],
-  screensMain: [{ model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 35_000, maxTokens: 8_000 }, K26_FALLBACK],
-  screensRest: [{ model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 35_000, maxTokens: 8_000 }, K26_FALLBACK],
+  scope: [{ model: 'kimi-k3', reasoningEffort: 'high', timeoutMs: 60_000, maxTokens: 16_000 }, FLASH_SCOPE_FALLBACK],
+  plan: [K3_LATER, ...FLASH_LATER_FALLBACK],
+  risks: [K3_LATER, ...FLASH_LATER_FALLBACK],
+  screensMain: [K3_LATER, ...FLASH_LATER_FALLBACK],
+  screensRest: [K3_LATER, ...FLASH_LATER_FALLBACK],
 };
 
 /**
  * The high-effort scope's tail: a quarter of the first 24 round-2 iteration-1
  * scopes ran past 38 s and two hit the 60 s timeout, which left the later calls
- * too little time (`timeout` errors). From this point the k2.6 fallback runs in
- * parallel; the first usable scope wins (~$0.008 extra, only on slow briefs).
- * Hedge + k2.6 scope + a k2.6 later call still fit the deadline.
+ * too little time (`timeout` errors). From this point the fallback (flash at
+ * high thinking, ≤ 50 s) runs in parallel; the first usable scope wins
+ * (~$0.003 extra, only on slow briefs). Hedge + flash scope + a no-thinking
+ * flash later call (≤ 15 s) still fit the deadline.
  */
 export const SCOPE_HEDGE_MS = 38_000;
 
@@ -123,14 +169,14 @@ export const SCOPE_HEDGE_MS = 38_000;
 export const LONG_IDEA_CHARS = 900;
 export const LONG_IDEA_SCOPE_CHAIN: readonly BriefModelStep[] = [
   { model: 'kimi-k3', reasoningEffort: 'low', timeoutMs: 50_000, maxTokens: 16_000 },
-  K26_SCOPE_FALLBACK,
+  FLASH_SCOPE_FALLBACK,
 ];
 
 /**
  * The later calls' tail: on k3-low they answer in 17 s (p50) / 23 s (p95) /
  * 29 s (max but one) over 148 round-2 briefs; one screens call took 41 s. Past
- * this point the k2.6 fallback runs in parallel and the first usable answer
- * wins (~1% of calls, ~$0.003 each).
+ * this point the flash fallback runs in parallel and the first usable answer
+ * wins (~1% of calls, well under $0.001 each).
  */
 export const LATER_HEDGE_MS = 27_000;
 

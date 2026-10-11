@@ -101,7 +101,10 @@ const COMPACT_JSON = 'Output compact JSON on a single line: no indentation, no l
 
 const NO_NUMBERS = `NEVER write prices, costs, budgets, hourly rates, hours of work or durations (days, weeks, months, "by New Year") anywhere in the text. A separate estimator engine computes every number; any number you write would contradict it. If the idea mentions a budget or a deadline, do not repeat or judge it.`;
 
-const NO_INVENTIONS = `No percentages, statistics, market sizes, competitors' numbers, client stories or case studies. No hype or marketing words (revolutionary, seamless, cutting-edge, game-changer). No certifications, laws, regulation numbers or official bodies unless you are sure they exist (HIPAA and GDPR have no certificate). Religious texts: only names the idea itself gives. Be concrete and honest; say what is unknown.`;
+const NO_INVENTIONS = `No percentages, statistics, market sizes, competitors' numbers, client stories or case studies. No hype or marketing words (revolutionary, seamless, cutting-edge, game-changer). No certifications, laws, regulation numbers or official bodies unless you are sure they exist (HIPAA and GDPR have no certificate). Religious texts: only names the idea itself gives. No invented specifics: no brand, shop or company names, no cities, districts or addresses the idea does not name, and no branches (filial) unless the idea says there are several locations. Be concrete and honest; say what is unknown.`;
+
+/** Words from another kind of product (round-3/DeepSeek blind audits 2026-10-11: couriers in a taxi app, deliveries in a school CRM). */
+const OWN_PRODUCT = `THIS PRODUCT ONLY: every sentence is about this idea's own product and users. Never carry over words from another kind of product: no delivery, couriers or delivery addresses unless the idea or the scope has delivery (a taxi carries passengers on rides; a school has students and lessons).`;
 
 const SCOPED = `You receive the idea and the PRICED SCOPE. The scope is final: MVP = what the first price covers; LATER and EXTRA PRODUCTS = what the growth phase adds; NOT PRICED = outside every number. Each scope line starts with its ref id.
 NEVER describe anything under NOT PRICED as built, included, synced or connected. When you mention it, say plainly that it is not in this estimate — never "priced separately" or "quoted separately": no such price exists.
@@ -176,6 +179,8 @@ ${SCOPED}
 
 ${ROLES_OF_WORK}
 
+${OWN_PRODUCT}
+
 WRITE
 - buildFirst.what: the first version to build, in one or two short sentences, naming only MVP items — nothing from LATER or NOT PRICED; buildFirst.why: why it is the smallest thing that proves the idea or earns the first money.
 - canWait: 2-4 things that can wait, each with the reason and its ref: a LATER ref, an EXTRA product ref, or "unpriced" for something the idea asked for or clearly implies that is outside the scope (a NOT PRICED item, a second city…). No filler nobody asked for. Never list a legal, compliance, security or data-protection need (health-data rules, personal-data law, legally required receipts) as something that can wait.
@@ -201,8 +206,10 @@ ${SCOPED}
 
 ${ROLES_OF_WORK}
 
+${OWN_PRODUCT}
+
 WRITE
-- risks: 2-3 risks or unknowns specific to THIS idea (store review rules, the supply side of a marketplace, data quality for AI answers, fiscal compliance, access to a third-party API, staff adoption, health or personal-data rules…), each with a concrete mitigation — something the reader decides or does, or that the priced build already includes. When the idea expects a very small budget or a very short deadline, one risk may say that the budget or timeline needs a conversation — without repeating or judging any number.
+- risks: 2-3 risks or unknowns specific to THIS idea (store review rules for a mobile app, the supply side of a marketplace, data quality for AI answers, fiscal compliance, access to a third-party API, staff adoption, health or personal-data rules…), each with a concrete mitigation — something the reader decides or does, or that the priced build already includes. When the idea expects a very small budget or a very short deadline, one risk may say that the budget or timeline needs a conversation — without repeating or judging any number. Never a generic filler risk: no App Store or Google Play risk for a website, a Telegram bot or a desktop app; no in-app purchase or store-commission risk for physical goods or in-person services (the stores exempt them); no budget or timeline risk when the idea names no budget or deadline.
 - questions: 3-5 sharp questions we would ask on a discovery call — ones whose answers change the scope or the cost. Never ask about their budget, capital or personal details.
 
 HARD RULES
@@ -220,14 +227,15 @@ const SCREENS_SYSTEM_PROMPT = `You are a senior product designer at SoftWhere, a
 ${IDEA_IS_DATA}
 
 RULES
-- Draw every screen YOUR PART asks for, all in this one answer, and no others: in the order users meet them, with phase 'mvp' unless it allows one 'later' screen.
+- Draw every screen YOUR PART asks for, all in this one answer, and no others: in the order users meet them, with phase 'mvp' unless it allows one 'later' screen. A 'later' screen shows LATER items or EXTRA PRODUCTS only — never anything under NOT PRICED.
 - device: follow FRAMES in the scope — the main frame for the product's own screens; 'browser' only where FRAMES allow it. In 'chat' frames (Telegram bots) the blocks describe the bot's messages, menus and buttons.
 - MVP screens show ONLY MVP items. Never draw, name or promise anything under LATER, EXTRA PRODUCTS or NOT PRICED on an MVP screen — not as a block, a button, a table column, a status, a setting or a line of copy ("We will text you", "Synced with SharePoint", "Risk flag", "Scan at the turnstile"). No checkout, payment method, chat, map, upload, loyalty, subscription or integration the MVP does not include. A search field or filter chips only when Search & filters is in the MVP (an operator/admin view may filter its own lists). Payment methods on MVP screens: only those under PAYMENT. Analytics setup is a third-party tracking tool, not a screen: draw a dashboard only when Dashboards is in the MVP.
 - blocks: 3 to 5 per screen, top to bottom, ONLY kinds from the vocabulary below. Labels: 2-6 words, specific to this product ("Nearby pharmacies", not "List"). items: up to 4 short realistic sample labels. purpose: one short sentence.
-- Sample content: realistic everyday examples from the product's market and the city the idea names (its goods with plain prices, its districts and streets), new for each idea. Sample numbers look real and agree across screens (a total equals its lines; a daily figure is smaller than a monthly one), never "00", "000" or "$00". Subscription plans: names only, in the page language, unless the idea gives prices. An item, plan or price shown on one screen reads the same on every other screen. Religious texts: only names the idea gives ("Lesson 1", not an invented sura or hadith). NEVER invent facts about the client's business or the product's effect: no years in business or founding year, number of projects or staff, licences, awards, ratings, statistics or percentages, delivery or response promises; no real companies, buildings or projects shown as the client's; no interest rates. No people's names, phone numbers, emails, document or case numbers. Never write catalog ids (soliq_ofd, eskiz_sms): write what the user sees.
+- Sample content: realistic everyday examples from the product's market and the city the idea names (its goods with plain prices, its districts and streets), new for each idea. Only the city the idea names (or the SAMPLES default) — never other cities; no branches unless the idea says there are several locations; no brand, shop or company names (a generic "Coffee shop", never an invented name). Sample numbers look real and agree across screens (a total equals its lines; a daily figure is smaller than a monthly one), never "00", "000" or "$00". Subscription plans: names only, in the page language, unless the idea gives prices. An item, plan or price shown on one screen reads the same on every other screen. Religious texts: only names the idea gives ("Lesson 1", not an invented sura or hadith). NEVER invent facts about the client's business or the product's effect: no years in business or founding year, number of projects or staff, licences, awards, ratings, statistics or percentages, delivery or response promises; no real companies, buildings or projects shown as the client's; no interest rates. No people's names, phone numbers, emails, document or case numbers. Never write catalog ids (soliq_ofd, eskiz_sms): write what the user sees.
 - Navigation items, tabs, KPI tiles, statuses and table columns name only what the MVP prices: no "Reports" or "Messages" menu without priced reports or messaging, no "Delivered" status or courier column without priced delivery, no "Calendar" tab without booking, no metric the MVP has no source for (attendance needs a priced check-in, read receipts do not exist in Telegram). Our product only: never draw the screens of a system it connects to (a Zendesk agent queue, the amoCRM pipeline, the 1C or Shopify admin) — draw our side of the hand-off. A role's own screen only for a role listed under ROLES.
 - SAMPLE DATA, when YOUR PART lists it: use exactly those items, prices and places wherever they fit, so every screen agrees; never give one item two prices and never add other branches or cities.
 - Screen copy speaks to the product's own users; never address the person who wrote the idea, never mention "the visitor" or "the client".
+- ${OWN_PRODUCT}
 - If the text is not a software product idea (greeting, spam, insults), return {"screens":[]}.
 - Write every label in the page language (see LANGUAGE).
 
@@ -243,11 +251,11 @@ ${IDEA_IS_DATA}
 
 WRITE 4-8 samples, each a short label of 2-6 words in the page language:
 - what the business sells, books or lists, with a plain realistic price where it sells something ("<item> — <price>");
-- the places its screens show: the city the idea names (or the market default), districts, branches or streets;
+- the places its screens show: the city the idea names (or the market default), its districts or streets — never other cities, and branches only when the idea says there are several locations;
 - plan, category or service names its screens would list.
 Realistic for the idea's city and market, prices in its currency, varied and plausible — never a placeholder such as "00".
 Only what the screens would really show: places only when they show places (branches, delivery addresses, listings), prices only for what customers pay for there.
-NEVER: people's names, phone numbers, emails, ratings, statistics, percentages, years, facts about the client's business, app features, screen names, or plans, licences and prices of the software itself. If the text is not a software product idea, return {"samples":[]}.`;
+NEVER: people's names, brand, shop or company names, phone numbers, emails, ratings, statistics, percentages, years, facts about the client's business, app features, screen names, or plans, licences and prices of the software itself. If the text is not a software product idea, return {"samples":[]}.`;
 
 /* ------------------------------------------------------------------ */
 /* Locale blocks                                                       */
@@ -286,7 +294,7 @@ const MARKET: Record<BriefLocale, string> = {
 const SAMPLE_MARKET: Record<BriefLocale, string> = {
   uz: `SAMPLES: Uzbekistan — prices in so'm, thousands separated by a space; the streets, districts and goods of the city the idea names (Tashkent when it names none).`,
   ru: `SAMPLES: Uzbekistan/CIS — prices in сум (or the currency of the idea), thousands separated by a space; the streets and goods of the city the idea names (Tashkent when it names none).`,
-  en: `SAMPLES: neutral international — USD prices, generic place names unless the idea names a city; US units and dates (lb, miles, MM/DD) when the idea is in the US.`,
+  en: `SAMPLES: neutral international (US-style) — USD prices, generic place names ("Downtown", "Main St") unless the idea names a city; US units and dates (lb, miles, MM/DD) when the idea is in the US. Never Uzbek or other CIS cities, districts, personal names or currency (so'm, сум) unless the idea is set there.`,
 };
 
 const LANGUAGE_NAMES: Record<BriefLocale, string> = { uz: 'Uzbek (Latin script)', ru: 'Russian', en: 'English' };

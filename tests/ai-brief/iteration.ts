@@ -175,8 +175,10 @@ s.group('production chains — round 2 winner (variant c)');
     )
   );
   s.ok(
-    'every chain falls back to kimi-k2.6',
-    BRIEF_PARTS.every(p => BRIEF_PART_CHAINS[p].at(-1)?.model === 'kimi-k2.6')
+    'every chain falls back to deepseek-flash (2026-10-11; kimi-k2.6 without a DeepSeek key)',
+    BRIEF_PARTS.every(
+      p => BRIEF_PART_CHAINS[p].at(-1)?.model === 'deepseek-flash' && BRIEF_PART_CHAINS[p].at(-1)?.ifUnavailable?.model === 'kimi-k2.6'
+    )
   );
   s.eq('a long idea scopes at low effort', LONG_IDEA_SCOPE_CHAIN[0].reasoningEffort, 'low');
   s.ok('the scope hedge starts before its primary times out', SCOPE_HEDGE_MS < BRIEF_PART_CHAINS.scope[0].timeoutMs);
