@@ -1,0 +1,208 @@
+/*
+ * The device (Phone.tsx). 1em = the phone unit (--pu, set on the camera):
+ * the phone is 23em × 48em and its screen 21.9em × 46.9em. Frame colors
+ * come from the scheme variables on the section root (--frame*).
+ */
+
+.phone {
+  position: relative;
+  width: 23em;
+  height: 48em;
+  padding: 0.55em;
+  border-radius: 3.75em;
+  background: linear-gradient(
+    150deg,
+    var(--frame-hi) 0%,
+    var(--frame) 14%,
+    var(--frame) 48%,
+    var(--frame-hi) 62%,
+    var(--frame) 76%,
+    var(--frame-lo) 100%
+  );
+  box-shadow:
+    inset 0 0 0 0.09em var(--frame-edge),
+    inset 0 0 0 0.3em var(--frame),
+    inset 0 0 0 0.38em var(--frame-lo);
+  transform-style: preserve-3d;
+  font-family: var(--font-body);
+  pointer-events: auto;
+}
+
+/* Thickness: two slabs behind the face, visible as an edge when tilted. */
+.slab {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--frame-lo);
+  transform: translateZ(-0.45em);
+}
+
+.slabBack {
+  background: color-mix(in srgb, var(--frame-lo) 70%, var(--frame));
+  transform: translateZ(-0.9em);
+}
+
+.key {
+  position: absolute;
+  width: 0.34em;
+  border-radius: 0.2em;
+  background: linear-gradient(to right, var(--frame-lo), var(--frame-hi), var(--frame));
+  transform: translateZ(-0.45em);
+}
+
+.keyAction {
+  top: 8.6em;
+  left: -0.24em;
+  height: 2.5em;
+}
+
+.keyVolUp {
+  top: 12.6em;
+  left: -0.24em;
+  height: 4.4em;
+}
+
+.keyVolDown {
+  top: 17.8em;
+  left: -0.24em;
+  height: 4.4em;
+}
+
+.keyPower {
+  top: 13.4em;
+  right: -0.24em;
+  height: 6.6em;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 3.2em;
+  background: var(--scr-bg);
+  color: var(--fg);
+  isolation: isolate;
+  transform: translateZ(0.01px);
+}
+
+.status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.2em;
+  padding: 0.35em 1.9em 0 2.3em;
+  font-size: 0.86em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  transition: color 420ms ease;
+}
+
+.status[data-tone='screen'] {
+  color: var(--fg);
+}
+
+.status[data-tone='ink'] {
+  color: var(--ink);
+}
+
+.status[data-tone='paper'] {
+  color: var(--paper);
+}
+
+.statusGlyphs {
+  width: 4.4em;
+  height: 1em;
+}
+
+.island {
+  position: absolute;
+  top: 0.68em;
+  left: 50%;
+  z-index: 8;
+  width: 7.3em;
+  height: 2.15em;
+  margin-left: -3.65em;
+  border-radius: 1.1em;
+  background: var(--island);
+}
+
+/*
+ * The glass glare: screen-sized (its band fades out well inside its edges,
+ * so the scroll and pointer shifts never show an edge). GSAP promotes it
+ * only while it moves; no permanent will-change.
+ */
+.glare {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: linear-gradient(
+    112deg,
+    transparent 30%,
+    color-mix(in srgb, var(--glare) 8%, transparent) 42%,
+    color-mix(in srgb, var(--glare) 3%, transparent) 50%,
+    transparent 62%
+  );
+  pointer-events: none;
+}
+
+/* Every new step: one band of light across the glass (screen-sized, slid across). */
+.sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: linear-gradient(
+    104deg,
+    transparent 32%,
+    color-mix(in srgb, var(--glare) 8%, transparent) 41%,
+    color-mix(in srgb, var(--accent) 16%, transparent) 50%,
+    color-mix(in srgb, var(--glare) 8%, transparent) 59%,
+    transparent 68%
+  );
+  pointer-events: none;
+  opacity: 0;
+  animation: sweep 1.1s cubic-bezier(0.45, 0.05, 0.25, 1) 80ms both;
+}
+
+.homeBar {
+  position: absolute;
+  bottom: 0.55em;
+  left: 50%;
+  z-index: 9;
+  width: 8.4em;
+  height: 0.32em;
+  margin-left: -4.2em;
+  border-radius: 0.2em;
+  background: color-mix(in srgb, var(--fg) 70%, transparent);
+  pointer-events: none;
+  transition: background-color 420ms ease;
+}
+
+.homeBar[data-tone='ink'] {
+  background: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.homeBar[data-tone='paper'] {
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}

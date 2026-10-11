@@ -1,0 +1,447 @@
+/* 12 · ai-demo — the plan card: header and status, title, first-version
+   scope, three key screens, the price and the timeline. Each part is a
+   [data-print] row the print head reveals in turn. Tokens only;
+   --line/--soft/--r-pill come from the section root (aiDemo.module.css). */
+
+.plan {
+  padding: clamp(18px, 2.1vw, 30px);
+  container-type: inline-size;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+}
+
+.tag {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--fg);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Narrow cards: a smaller status, still on the tag's line (it never wraps, so its changing text can't reflow the card). */
+@container (max-width: 480px) {
+  .head {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  /* The tag keeps its one line; the status gives way (ellipsis) instead of squeezing it onto two. */
+  .head > .tag {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .head > .status {
+    min-width: 0;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .head > .status > [data-status-text] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* What the AI is doing right now: a ring while waiting, a spinner while busy, a dot when done. */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font: 500 12px/1.2 var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.statusIcon {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+}
+
+.status[data-state='busy'] {
+  color: var(--fg);
+}
+
+.status[data-state='busy'] .statusIcon {
+  border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
+}
+
+.status[data-state='done'] {
+  color: var(--fg);
+}
+
+.status[data-state='done'] .statusIcon {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.titleBlock {
+  margin-top: 18px;
+}
+
+.kind {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font: 500 12px/1.3 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(clamp(1.25rem, 6.6cqw, 2.4rem) * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.05;
+}
+
+.label {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font: 500 11.5px/1.2 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Narrow: scope, screens, figures stacked. Wide (≥ 500px of card): scope and
+   the figures in a text column, the fanned screens beside them. */
+.body {
+  display: grid;
+  grid-template-areas:
+    'scope'
+    'screens'
+    'figures';
+  gap: 24px;
+  margin-top: 22px;
+}
+
+.scopePart {
+  grid-area: scope;
+}
+
+.screensPart {
+  grid-area: screens;
+  min-width: 0;
+}
+
+@container (min-width: 500px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'scope screens'
+      'figures screens';
+    column-gap: clamp(22px, 4.4cqw, 44px);
+    row-gap: 26px;
+    align-items: start;
+  }
+}
+
+/* scope */
+
+.scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--bg) 40%, transparent);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+@container (max-width: 480px) {
+  .scope {
+    gap: 6px;
+  }
+
+  .pill {
+    gap: 5px;
+    padding: 4px 9px 4px 7px;
+    font-size: 12px;
+  }
+}
+
+.pill svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  color: var(--accent);
+}
+
+/* screens: a fan of three, the middle one in front, at every width (inside, they scale with cqw) */
+
+.phones {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 480px;
+  margin: 4px auto 0;
+  perspective: 1100px;
+}
+
+.phones > * {
+  flex: 0 0 35%;
+}
+
+.phones > :nth-child(1) {
+  transform: rotateY(16deg) scale(0.93);
+  transform-origin: 100% 40%;
+}
+
+.phones > :nth-child(2) {
+  position: relative;
+  z-index: 1;
+  flex-basis: 40%;
+  margin-inline: -4%;
+}
+
+/* The side captions hug their outer edge, clear of the middle phone. */
+.phones > :nth-child(1) > figcaption {
+  padding-left: 6%;
+  text-align: left;
+}
+
+.phones > :nth-child(3) > figcaption {
+  padding-right: 6%;
+  text-align: right;
+}
+
+.phones > :nth-child(3) {
+  transform: rotateY(-16deg) scale(0.93);
+  transform-origin: 0% 40%;
+}
+
+/* price + timeline: the price is the hero; the weeks sit beside it when there is room, the Gantt runs full width */
+
+.figures {
+  grid-area: figures;
+  display: grid;
+  gap: 18px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  container-type: inline-size;
+}
+
+.figTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 32px;
+}
+
+.price {
+  margin: 0;
+  font-family: var(--font-display);
+  /* Sized by its own column (the figures box), so the range never overflows it in any face. */
+  font-size: calc(min(11.4cqw, 4.2rem) * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@container (min-width: 540px) {
+  .price {
+    font-size: calc(clamp(2.4rem, 8cqw, 4.2rem) * var(--display-scale));
+  }
+}
+
+.dash {
+  margin: 0 0.1em;
+  color: var(--accent);
+}
+
+.note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.weeksBlock {
+  padding-bottom: 2px;
+}
+
+.weeks {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(clamp(1.6rem, 7cqw, 2.4rem) * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.weeks small {
+  margin-left: 6px;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.5em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Gantt: one row per phase on a week grid; the hatched tail is the min–max range. */
+.gantt {
+  display: grid;
+  gap: 5px;
+}
+
+.ganttRow {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.ganttName {
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 calc(100% / var(--weeks) - 1px),
+      color-mix(in srgb, var(--fg) 14%, transparent) calc(100% / var(--weeks) - 1px) calc(100% / var(--weeks))
+    ),
+    var(--soft);
+}
+
+.bar,
+.range {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+}
+
+.bar {
+  transform-origin: left center;
+}
+
+.ganttRow:nth-child(1) .bar {
+  background: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+.ganttRow:nth-child(2) .bar {
+  background: var(--accent);
+}
+
+.ganttRow:nth-child(3) .bar {
+  background: var(--accent-2);
+}
+
+.range {
+  background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--accent-2) 60%, transparent) 0 2px, transparent 2px 5px);
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font: 500 10.5px/1.2 var(--font-mono);
+  letter-spacing: 0.03em;
+}
+
+/* footer */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.footnote {
+  flex: 1 1 260px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.footCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--fg);
+  color: var(--bg);
+  font: 600 14px/1 var(--font-body);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.footCta svg {
+  color: inherit;
+}
+
+.footCta:active {
+  transform: scale(0.97);
+}
+
+.footCta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status[data-state='busy'] .statusIcon {
+    animation: none;
+  }
+
+  .footCta {
+    transition: none;
+  }
+}

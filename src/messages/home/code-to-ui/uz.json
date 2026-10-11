@@ -1,0 +1,34 @@
+{
+  "heading": "Koddan mahsulotgacha.",
+  "summary": "Har bir kod bloki mahsulotning oʻzi taʼriflagan qismiga aylanadi: birinchi kartochkadan tayyor ekrangacha.",
+  "lede": "Sahifani aylantiring: har bir kod bloki mahsulotning oʻzi taʼriflagan qismiga aylanadi. Orqaga aylantirsangiz, hammasi qaytadan qismlarga ajraladi.",
+  "stat": "{projects} ta loyihamizdan {react} tasida React (veb) yoki React Native (telefonlar) ishlatilgan.",
+  "editorLabel": "Sahifa aylantirilgani sari React komponentini blokma-blok yozib boruvchi kod muharriri",
+  "status": {
+    "idle": "Onlayn",
+    "typing": "Yozilmoqda",
+    "done": "Yigʻildi"
+  },
+  "preview": "Natija",
+  "updated": "Yangilandi",
+  "ui": {
+    "button": "Ishlashini koʻring",
+    "toggle": "Tungi rejim",
+    "chartTitle": "Platforma boʻyicha loyihalar"
+  },
+  "chartNote": "koʻpi bir nechtasida",
+  "captions": {
+    "ready": "Maket chizildi. Endi uni kod toʻldiradi.",
+    "main": "Bu qator ekranni joylaydi.",
+    "card": "Bu blok biz yaratgan mahsulot kartochkasini chizadi: {kind}.",
+    "btn": "Bu blok koʻrish tugmasini qoʻshadi.",
+    "pressMouse": "Bosing, haqiqiy demo-video ishga tushadi.",
+    "pressTouch": "Bosing, haqiqiy demo-video ishga tushadi.",
+    "toggle": "Bu blok tungi rejim tugmasini qoʻshadi.",
+    "flip": "Bir bosish, barcha ranglar birdan oʻzgaradi.",
+    "chart": "Bu grafik {projects} ta loyihamizni platformalar boʻyicha koʻrsatadi.",
+    "ship": "Yigʻildi. Koddan mahsulotgacha.",
+    "still": "Chapdagi har bir blok oʻngdagi bitta qismni quradi. Tugmani bosib koʻring.",
+    "stillStacked": "Pastdagi har bir kod bloki tepadagi bitta qismni quradi. Tugmani bosib koʻring."
+  }
+}

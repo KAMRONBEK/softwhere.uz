@@ -4,7 +4,7 @@ import css from './style.module.css';
 import { getLocale, getTranslations } from 'next-intl/server';
 
 // Cards that map onto a real /[locale]/services/[service] page — slugs must stay
-// in sync with SERVICE_NAMESPACES in src/app/[locale]/services/[service]/page.tsx.
+// in sync with SERVICE_NAMESPACES in src/app/[locale]/(site)/services/[service]/page.tsx.
 // The rest are offerings we describe here but have no landing page for, so they
 // stay unlinked rather than pointing at a 404.
 const SERVICE_SLUGS: Record<string, string> = {

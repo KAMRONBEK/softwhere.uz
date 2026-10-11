@@ -1,0 +1,39 @@
+{
+  "heading": "Siznikini yaratamiz.",
+  "summary": "Saytlar, mobil ilovalar, Telegram botlar va sunʼiy intellekt bilan avtomatlashtirish — Toshkentda yaratamiz. Gʻoyangizni va qayerga javob berishimizni yozing. Bir ish kuni ichida javob beramiz.",
+  "introLine": "Navbat sizniki.",
+  "form": {
+    "label": "Loyiha boʻyicha soʻrov",
+    "name": "Ismingiz",
+    "contact": "Qayerga javob beraylik",
+    "contactPlaceholder": "Telegram, telefon yoki email",
+    "idea": "Gʻoya",
+    "ideaOptional": "ixtiyoriy",
+    "ideaPlaceholder": "Novvoyxonamiz uchun buyurtma qabul qiladigan Telegram bot",
+    "sending": "Yuborilmoqda",
+    "submit": "Soʻrov yuborish",
+    "errorName": "Ismingizni yozing.",
+    "errorContact": "Telegram, telefon raqami yoki email kiriting.",
+    "errorSend": "Yuborib boʻlmadi. Internetni tekshirib, qayta urinib koʻring yoki bizga toʻgʻridan-toʻgʻri yozing.",
+    "privacy": "Yuborish orqali <link>maxfiylik siyosatiga</link> rozilik bildirasiz."
+  },
+  "success": {
+    "title": "Xabar yuborildi.",
+    "body": "Rahmat, {name}! Qoldirgan kontaktingiz orqali bir ish kuni ichida javob beramiz.",
+    "again": "Yana yozish"
+  },
+  "direct": {
+    "label": "Yoki biz bilan toʻgʻridan-toʻgʻri bogʻlaning",
+    "telegram": "Telegram",
+    "telegramTitle": "Telegram {handle}",
+    "call": "Qoʻngʻiroq",
+    "callTitle": "{phone} raqamiga qoʻngʻiroq qilish",
+    "email": "Pochta",
+    "emailTitle": "{email} manziliga yozish"
+  },
+  "estimate": {
+    "lead": "Hali gaplashishga tayyor emasmisiz?",
+    "link": "Narxni kalkulyatorda bilib oling"
+  },
+  "place": "Toshkent, Oʻzbekiston"
+}

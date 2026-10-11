@@ -1,0 +1,206 @@
+/*
+ * The device. 1em = the phone unit (--pu, set on the stage), so the frame,
+ * the chat and the sheets scale together. Frame and screen colors come from
+ * the scheme variables on the section root (--frame*, --tg-*).
+ */
+
+.phone {
+  position: relative;
+  width: 23em;
+  height: 48em;
+  padding: 0.55em;
+  border-radius: 3.75em;
+  background: linear-gradient(
+    150deg,
+    var(--frame-hi) 0%,
+    var(--frame) 14%,
+    var(--frame) 48%,
+    var(--frame-hi) 62%,
+    var(--frame) 76%,
+    var(--frame-lo) 100%
+  );
+  box-shadow:
+    inset 0 0 0 0.09em var(--frame-edge),
+    inset 0 0 0 0.3em var(--frame),
+    inset 0 0 0 0.38em var(--frame-lo);
+  transform-style: preserve-3d;
+  font-family: var(--font-body);
+  pointer-events: auto;
+}
+
+/* Thickness: two slabs behind the face, visible as an edge when tilted. */
+.slab {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--frame-lo);
+  transform: translateZ(-0.45em);
+}
+
+.slabBack {
+  background: color-mix(in srgb, var(--frame-lo) 70%, var(--frame));
+  transform: translateZ(-0.9em);
+}
+
+.key {
+  position: absolute;
+  width: 0.34em;
+  border-radius: 0.2em;
+  background: linear-gradient(to right, var(--frame-lo), var(--frame-hi), var(--frame));
+  transform: translateZ(-0.45em);
+}
+
+.keyAction {
+  top: 8.6em;
+  left: -0.24em;
+  height: 2.5em;
+}
+
+.keyVolUp {
+  top: 12.6em;
+  left: -0.24em;
+  height: 4.4em;
+}
+
+.keyVolDown {
+  top: 17.8em;
+  left: -0.24em;
+  height: 4.4em;
+}
+
+.keyPower {
+  top: 13.4em;
+  right: -0.24em;
+  height: 6.6em;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 3.2em;
+  background: var(--tg-bg);
+  color: var(--fg);
+  isolation: isolate;
+  transform: translateZ(0.01px);
+}
+
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 60% at 0% 15%, color-mix(in srgb, var(--accent) var(--wall-a), transparent), transparent 62%),
+    radial-gradient(110% 60% at 100% 85%, color-mix(in srgb, var(--accent-2) var(--wall-b), transparent), transparent 62%), var(--tg-bg);
+}
+
+.pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--muted);
+  opacity: var(--wall-pattern);
+}
+
+.top {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  border-bottom: 1px solid var(--tg-edge);
+  background: var(--tg-surface);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.35em;
+  padding: 0.35em 1.9em 0 2.3em;
+  font-size: 0.86em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.status svg {
+  width: 4.4em;
+  height: 1em;
+}
+
+.island {
+  position: absolute;
+  top: 0.68em;
+  left: 50%;
+  z-index: 8;
+  width: 7.3em;
+  height: 2.15em;
+  margin-left: -3.65em;
+  border-radius: 1.1em;
+  background: var(--island);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+.glare {
+  position: absolute;
+  inset: -30% -60%;
+  z-index: 9;
+  background: linear-gradient(
+    112deg,
+    transparent 36%,
+    color-mix(in srgb, var(--glare) 9%, transparent) 44%,
+    color-mix(in srgb, var(--glare) 3%, transparent) 50%,
+    transparent 58%
+  );
+  pointer-events: none;
+  will-change: transform;
+}
+
+.sweep {
+  position: absolute;
+  inset: -10% -90%;
+  z-index: 9;
+  background: linear-gradient(
+    104deg,
+    transparent 41%,
+    color-mix(in srgb, var(--glare) 10%, transparent) 46%,
+    color-mix(in srgb, var(--accent) 22%, transparent) 50%,
+    color-mix(in srgb, var(--glare) 10%, transparent) 54%,
+    transparent 59%
+  );
+  pointer-events: none;
+  transform: translateX(-42%);
+  opacity: 0;
+  animation: sweep 1.15s cubic-bezier(0.45, 0.05, 0.25, 1) 260ms both;
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-42%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(42%);
+    opacity: 0;
+  }
+}
+
+.homeBar {
+  position: absolute;
+  bottom: 0.55em;
+  left: 50%;
+  z-index: 9;
+  width: 8.4em;
+  height: 0.32em;
+  margin-left: -4.2em;
+  border-radius: 0.2em;
+  background: color-mix(in srgb, var(--fg) 70%, transparent);
+  pointer-events: none;
+}

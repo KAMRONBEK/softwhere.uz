@@ -1,0 +1,494 @@
+/*
+ * 18 · Finale — the contact panel the warp drops out into. Sits in normal
+ * flow over the sticky starfield, so the form scrolls and takes the keyboard
+ * like any page content.
+ */
+.panel {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --field-line: color-mix(in srgb, var(--fg) 24%, transparent);
+  --control-radius: calc(var(--radius) * 0.7);
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100svh;
+  padding: calc(76px + env(safe-area-inset-top)) var(--gutter) calc(28px + env(safe-area-inset-bottom));
+  gap: clamp(36px, 6svh, 72px);
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(32px, 6vw, 112px);
+  align-items: center;
+  align-self: center;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* ── Lead ────────────────────────────────────────────────────────────────── */
+
+.heading {
+  margin: 0;
+  font-size: calc(clamp(52px, 8.6vw, 148px) * var(--display-scale));
+  line-height: 0.9;
+  text-wrap: balance;
+}
+
+/* SplitText chars: room for the stretch-in without clipping descenders. */
+.heading :global(.finale-char) {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.deck {
+  max-width: 44ch;
+  margin: clamp(20px, 3svh, 32px) 0 0;
+  color: var(--muted);
+  font: 400 clamp(16px, 1.25vw, 19px) / 1.55 var(--font-body);
+}
+
+.direct {
+  margin-top: clamp(28px, 5svh, 52px);
+}
+
+.directLabel {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font: 500 14px/1.3 var(--font-body);
+}
+
+.directRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.directLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid color-mix(in srgb, var(--fg) 22%, transparent);
+  border-radius: var(--control-radius);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  color: var(--fg);
+  font: 500 15px/1 var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.directLink svg {
+  flex: none;
+  color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .directLink:hover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--bg));
+  }
+}
+
+.estimate {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font: 400 15px/1.5 var(--font-body);
+}
+
+.estimateLink {
+  color: var(--fg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.estimateLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.directLink:active {
+  transform: scale(0.97);
+}
+
+.directLink:focus-visible,
+.submit:focus-visible,
+.again:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── Card: form and success share one grid cell (no layout shift) ──────── */
+
+.card {
+  position: relative;
+  display: grid;
+  /* The page's #contact anchor: a jump lands with the form clear of the fixed header. */
+  scroll-margin-top: calc(var(--lab-header-h, 64px) + 24px);
+  padding: clamp(22px, 2.6vw, 40px);
+  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--fg) 6%, transparent) inset,
+    0 40px 90px -50px var(--glow);
+}
+
+.form,
+.done {
+  grid-area: 1 / 1;
+  transition:
+    opacity 320ms var(--ease-out),
+    transform 420ms var(--ease-out);
+}
+
+.card[data-status='sent'] .form {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+.done {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+.card[data-status='sent'] .done {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.form {
+  display: grid;
+  gap: 6px;
+}
+
+.field {
+  display: grid;
+  gap: 2px;
+}
+
+.field label {
+  color: var(--muted);
+  font: 500 14px/1.3 var(--font-body);
+}
+
+.optional {
+  margin-left: 4px;
+  color: color-mix(in srgb, var(--muted) 80%, transparent);
+  font-weight: 400;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 10px 0 11px;
+  border: 0;
+  border-bottom: 1px solid var(--field-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--fg);
+  /* 16px+ keeps iOS from zooming the page on focus. */
+  font: 400 clamp(17px, 1.3vw, 19px) / 1.4 var(--font-body);
+  outline: none;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.field textarea {
+  min-height: 3.2lh;
+  resize: none;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+  opacity: 1;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+  border-bottom-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+.field[data-invalid='true'] input {
+  border-bottom-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+
+.error {
+  min-height: 1.35em;
+  margin: 4px 0 6px;
+  color: var(--fg);
+  font: 500 13px/1.35 var(--font-body);
+}
+
+.error:empty {
+  min-height: 10px;
+  margin: 0;
+}
+
+.submit {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 58px;
+  margin-top: 14px;
+  border: 0;
+  border-radius: var(--control-radius);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 16px/1 var(--font-body);
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.submit:active {
+  transform: scale(0.98);
+}
+
+.submitLabel {
+  position: relative;
+  z-index: 1;
+}
+
+/* A light streak shoots through the button while the warp jump plays. */
+.submitStreak {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--on-accent) 32%, transparent) 45%, transparent 60%);
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+.submit[data-state='sending'] .submitStreak {
+  /* Until the server answers (the jump itself lasts about two passes). */
+  animation: streak 520ms cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+.submit[aria-disabled='true'] {
+  cursor: default;
+}
+
+/* The lead did not go through: said under the button, the fields keep what was typed. */
+.sendError {
+  margin: 10px 0 0;
+  color: var(--fg);
+  font: 500 14px/1.45 var(--font-body);
+}
+
+.sendError:empty {
+  display: none;
+}
+
+.privacy {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font: 400 13px/1.45 var(--font-body);
+}
+
+.privacy a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--muted) 55%, transparent);
+  text-underline-offset: 2px;
+}
+
+.privacy a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .privacy a:hover {
+    color: var(--fg);
+  }
+}
+
+@keyframes streak {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ── Success ─────────────────────────────────────────────────────────────── */
+
+.check {
+  width: 52px;
+  height: 52px;
+  color: var(--accent);
+}
+
+.check [data-draw] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 700ms var(--ease-out) forwards;
+}
+
+.check [data-draw]:last-child {
+  animation-delay: 260ms;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.doneTitle {
+  margin: 22px 0 0;
+  font: var(--display-weight) calc(clamp(26px, 2.4vw, 36px) * var(--display-scale)) / 1.08 var(--font-display);
+  letter-spacing: var(--display-tracking);
+  text-wrap: balance;
+  outline: none;
+}
+
+.doneBody {
+  max-width: 38ch;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font: 400 16px/1.55 var(--font-body);
+}
+
+.again {
+  margin-top: 22px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--field-line);
+  background: none;
+  color: var(--fg);
+  font: 500 15px/1.2 var(--font-body);
+  cursor: pointer;
+}
+
+/* ── Foot: the active logo ───────────────────────────────────────────────── */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 32px;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  /* Keep the Lab panel button's corner clear. */
+  padding-right: 72px;
+  padding-top: 22px;
+  border-top: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+}
+
+.logoSlot {
+  height: 30px;
+  color: var(--fg);
+}
+
+.logo {
+  height: 100%;
+  width: auto;
+}
+
+.place {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin: 0;
+  color: var(--muted);
+  font: 400 14px/1.4 var(--font-body);
+}
+
+/* ── Phones ──────────────────────────────────────────────────────────────── */
+
+@media (max-width: 860px) {
+  .panel {
+    padding-top: calc(64px + env(safe-area-inset-top));
+  }
+
+  .inner {
+    grid-template-columns: minmax(0, 1fr);
+    align-self: start;
+    gap: 0;
+  }
+
+  /* Phones read top to bottom: heading, deck, form, then the direct links. */
+  .lead {
+    display: contents;
+  }
+
+  .card {
+    order: 1;
+    margin-top: 28px;
+  }
+
+  .direct {
+    order: 2;
+    margin-top: 28px;
+  }
+
+  .directRow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .directLink {
+    flex-direction: column;
+    gap: 6px;
+    min-height: 64px;
+    padding: 10px 6px;
+    font-size: 14px;
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form,
+  .done,
+  .directLink,
+  .submit {
+    transition-duration: 1ms;
+  }
+
+  .done,
+  .card[data-status='sent'] .form {
+    transform: none;
+  }
+
+  .check [data-draw] {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .submit[data-state='sending'] .submitStreak {
+    animation: none;
+  }
+}

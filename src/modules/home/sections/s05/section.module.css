@@ -1,0 +1,192 @@
+/*
+ * Section frame: an intro block, then a tall track whose sticky stage holds
+ * the editor, the preview and its caption. The root is exactly 250svh (the
+ * registry's reservation, --lab-h-code-to-ui); the track takes whatever the
+ * intro leaves. Reduced motion: 150svh, no sticky, the finished state.
+ */
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 250svh;
+}
+
+.intro {
+  display: grid;
+  align-items: end;
+  gap: 20px 48px;
+  padding: clamp(84px, 13svh, 156px) clamp(16px, 4vw, 64px) clamp(24px, 5svh, 56px);
+}
+
+.title {
+  max-width: 11ch;
+  margin: 0;
+  font-size: calc(clamp(46px, 7.4vw, 128px) * var(--display-scale));
+  line-height: 0.92;
+}
+
+.titleCaret {
+  display: inline-block;
+  width: 0.07em;
+  height: 0.78em;
+  margin-left: 0.1em;
+  background: var(--accent);
+  vertical-align: baseline;
+  animation: caret-blink 1.1s steps(1, end) infinite;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.copy {
+  display: grid;
+  gap: 12px;
+  max-width: 44ch;
+}
+
+.lede {
+  margin: 0;
+  font: 400 clamp(16px, 1.25vw, 19px) / 1.5 var(--font-body);
+  color: var(--fg);
+}
+
+.stat {
+  margin: 0;
+  font: 400 14px/1.5 var(--font-body);
+  color: var(--muted);
+}
+
+.track {
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-areas:
+    'preview'
+    'caption'
+    'editor';
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  height: 100svh;
+  padding: calc(52px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+}
+
+/* Phones: the preview is pinned on top, its caption under it, the code below. */
+.editorSlot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-area: editor;
+  min-width: 0;
+  min-height: 0;
+  transform-origin: 50% 0;
+}
+
+.previewSlot {
+  z-index: 2;
+  grid-area: preview;
+}
+
+.captionSlot {
+  z-index: 2;
+  grid-area: caption;
+}
+
+[data-shipping='1'] .editorSlot,
+[data-shipping='1'] .previewSlot,
+[data-shipping='1'] .captionSlot {
+  will-change: transform;
+}
+
+.wire {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  /* The path is rewritten every frame; keep its layout to itself. */
+  contain: size layout style;
+}
+
+.wirePath {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-dasharray: 1 5;
+  opacity: 0.9;
+}
+
+.wireDot {
+  fill: var(--accent);
+}
+
+[data-tier='low'] .wire {
+  display: none;
+}
+
+@media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
+  .intro {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+
+  .copy {
+    padding-bottom: 0.4em;
+  }
+
+  .stage {
+    grid-template-areas:
+      'editor preview'
+      'editor caption';
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+    gap: 4px clamp(14px, 2.4vw, 36px);
+    padding: calc(60px + env(safe-area-inset-top)) clamp(16px, 3vw, 48px) clamp(10px, 2svh, 20px);
+  }
+
+  .editorSlot {
+    transform-origin: 0 0;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .stage {
+    padding-top: calc(44px + env(safe-area-inset-top));
+  }
+}
+
+/* Reduced motion: the finished file and screen, side by side, no scroll story. */
+@media (prefers-reduced-motion: reduce) {
+  /* Intro + one screen of finished code and product: at least the 150svh reservation, with any
+     spare height above the stage (never a blank tail under it). */
+  .root {
+    min-height: 150svh;
+  }
+
+  .track {
+    justify-content: flex-end;
+  }
+
+  .titleCaret {
+    animation: none;
+  }
+
+  .stage {
+    position: relative;
+    flex: none;
+  }
+}

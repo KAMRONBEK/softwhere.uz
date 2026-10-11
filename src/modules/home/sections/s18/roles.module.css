@@ -1,0 +1,490 @@
+.roles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  container-type: inline-size;
+}
+
+/* ---------- "viewing as" switch ---------- */
+
+.switchRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.viewingAs {
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+}
+
+.segmented {
+  position: relative;
+  display: grid;
+  flex: 1 1 320px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 460px;
+  padding: 3px;
+  border-radius: var(--r-md);
+  background: var(--app-sunk);
+  box-shadow: inset 0 0 0 1px var(--app-line);
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  border-radius: var(--r-sm);
+  background: var(--app-surface);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
+    0 4px 12px -6px var(--app-shadow);
+  transform: translateX(calc(var(--i, 0) * 100%));
+  transition: transform 340ms var(--ease-out);
+}
+
+.segment {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.segment[aria-pressed='true'] {
+  color: var(--fg);
+}
+
+.segment:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.segment:active {
+  transform: scale(0.97);
+}
+
+.segmentAvatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 600;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.segment[aria-pressed='true'] .segmentAvatar {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.segmentText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.segmentName {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.segmentPerson {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  opacity: 0.8;
+}
+
+/* ---------- the records list ---------- */
+
+/* The list fills the module, so switching roles never moves what sits below it. */
+.layout {
+  display: grid;
+  flex: 1;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-md);
+  background: var(--app-surface);
+  overflow: hidden;
+}
+
+.panelFoot {
+  flex: none;
+  margin-top: auto;
+  padding: 8px 12px;
+  border-top: 1px solid var(--app-line);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--app-line);
+}
+
+.panelTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.panelCount {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 9%, transparent);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.chip {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.export {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 600;
+  transition:
+    opacity 200ms ease,
+    color 200ms ease;
+}
+
+.export[data-locked] {
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+.exportIcon {
+  width: 13px;
+  height: 13px;
+}
+
+.rows {
+  flex: 0 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 6.2rem;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--app-line);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.rows[data-animate] .row {
+  animation: row-in 380ms var(--ease-out) both;
+  animation-delay: calc(var(--n, 0) * 45ms);
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.client {
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.item {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.stage {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.stage[data-stage='quote'] {
+  background: color-mix(in srgb, var(--accent-2) 20%, transparent);
+}
+
+.stage[data-stage='won'] {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.amount,
+.masked {
+  justify-self: end;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.masked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+
+.maskIcon {
+  width: 12px;
+  height: 12px;
+}
+
+/* ---------- permissions ---------- */
+
+.perms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.perm {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-sm);
+  background: var(--app-surface);
+  transition:
+    border-color 220ms ease,
+    background-color 220ms ease;
+}
+
+.permIcon {
+  display: grid;
+  grid-row: span 2;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  transition:
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+.permIcon svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.5;
+}
+
+.perm[data-access='own'] .permIcon {
+  background: color-mix(in srgb, var(--accent) 35%, var(--app-surface));
+  color: var(--fg);
+}
+
+.perm[data-access='no'] .permIcon {
+  background: color-mix(in srgb, var(--fg) 12%, transparent);
+  color: var(--muted);
+}
+
+.perm[data-access='no'] {
+  border-style: dashed;
+}
+
+.permName {
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.permValue {
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+}
+
+@container (min-width: 640px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 190px;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .perms {
+    align-self: start;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tall windows: roomier records. */
+@container crm-main (min-height: 520px) {
+  .row {
+    min-height: 54px;
+  }
+}
+
+/* Phones: one line per record (the order drops), compact permission tiles. */
+@container (max-width: 420px) {
+  .item,
+  .segmentAvatar {
+    display: none;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto 5.2rem;
+    gap: 8px;
+    min-height: 36px;
+    padding: 4px 10px;
+  }
+
+  .segment {
+    justify-content: center;
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  .panelHead {
+    padding: 8px 10px;
+  }
+
+  .perm {
+    padding: 6px 8px;
+  }
+
+  .permValue {
+    display: none;
+  }
+
+  .permIcon {
+    grid-row: auto;
+  }
+}
+
+/* Short screens: one line per record, slimmer controls. */
+@container crm-main (max-height: 440px) {
+  .roles,
+  .layout {
+    gap: 8px;
+  }
+
+  .item,
+  .permValue {
+    display: none;
+  }
+
+  .segment {
+    min-height: 38px;
+  }
+
+  .row {
+    min-height: 32px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
+
+  .panelHead {
+    padding: 6px 10px;
+  }
+
+  .panelFoot {
+    display: none;
+  }
+
+  .perm {
+    padding: 5px 8px;
+  }
+
+  .permIcon {
+    grid-row: auto;
+  }
+}
+
+@keyframes row-in {
+  from {
+    transform: translateY(8px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thumb {
+    transition-duration: 1ms;
+  }
+}

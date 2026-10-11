@@ -1,0 +1,142 @@
+/* "See all": a calm, justified gallery of every project (rows of equal height, each tile in its own shape). */
+
+.list {
+  --row-h: clamp(140px, 12vw, 200px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 34px 22px;
+  margin: 0;
+  padding: 0 var(--gutter) calc(112px + env(safe-area-inset-bottom));
+  list-style: none;
+}
+
+/* The last row keeps its tiles at row height instead of stretching them. */
+.list::after {
+  content: '';
+  flex-grow: 999;
+}
+
+.item {
+  /* Grow in proportion to the aspect over a basis that includes the mat: every row lands at one height. */
+  flex-grow: var(--aspect, 1.333);
+  flex-basis: calc(var(--row-h) * var(--aspect, 1.333) + 2 * var(--mat, 0px));
+  min-width: 0;
+}
+
+.tile {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.16s ease-out;
+}
+
+.tile:active {
+  transform: scale(0.98);
+}
+
+.tile:focus-visible {
+  outline: none;
+}
+
+/* Mat and hairline frame on the light styles (the wall's --mat, --frame-*). */
+.frame {
+  display: block;
+  margin-bottom: 8px;
+  padding: var(--mat, 0px);
+  border-radius: calc(var(--tile-r, 8px) + var(--mat, 0px));
+  background: var(--frame-bg, transparent);
+  box-shadow: var(--frame-ring, 0 0 0 0 transparent);
+}
+
+.media {
+  position: relative;
+  display: block;
+  aspect-ratio: var(--aspect, 1.333);
+  overflow: hidden;
+  border-radius: var(--tile-r, 8px);
+  background: var(--bg-2);
+}
+
+.media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent);
+  transition: box-shadow 0.25s ease;
+}
+
+.tile:focus-visible .frame {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover .media::after {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+}
+
+.thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb[data-failed] {
+  visibility: hidden;
+}
+
+.name {
+  overflow: hidden;
+  color: var(--fg);
+  font: 600 16px/1.25 var(--font-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  overflow: hidden;
+  color: var(--muted);
+  font: 400 13px/1.35 var(--font-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Phones: a dense mosaic, about three tiles a row. */
+@media (max-width: 760px) {
+  .list {
+    --row-h: 92px;
+    gap: 18px 8px;
+  }
+
+  .frame {
+    margin-bottom: 6px;
+  }
+
+  .name {
+    font-size: 12.5px;
+  }
+
+  .meta {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .media::after {
+    transition: none;
+  }
+}

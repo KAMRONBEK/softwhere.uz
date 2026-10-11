@@ -1,0 +1,593 @@
+.integrations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  container-type: inline-size;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.count {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- tiles, three above the bus and three below ---------- */
+
+.hubArea {
+  --bus-h: 64px;
+  --tile-gap: 10px;
+  /* Centre of the first tile column (the third mirrors it). */
+  --col-0: calc((100% - 2 * var(--tile-gap)) / 6);
+
+  display: grid;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--tile-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slot {
+  min-width: 0;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 12px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-md);
+  background: var(--app-surface);
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    transform 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tile:active {
+  transform: scale(0.97);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.slot[data-on] .tile {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--app-line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.tileIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  background: var(--app-sunk);
+  color: var(--muted);
+  transition:
+    background-color 240ms ease,
+    color 240ms ease;
+}
+
+.tileIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.slot[data-on] .tileIcon {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.monogram {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tileName {
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tileRole {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The on/off pill in the tile's corner. */
+.switch {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 16%, transparent);
+  transition: background-color 240ms ease;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  transition: transform 240ms var(--ease-out);
+}
+
+.slot[data-on] .switch {
+  background: var(--accent);
+}
+
+.slot[data-on] .switch::after {
+  transform: translateX(8px);
+}
+
+/* ---------- the bus: stems from every tile to one line through the hub ---------- */
+
+.bus {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: var(--bus-h);
+}
+
+.busLine {
+  position: absolute;
+  top: 50%;
+  right: var(--col-0);
+  left: var(--col-0);
+  height: 2px;
+  margin-top: -1px;
+  background: var(--app-line);
+  transition: background-color 300ms ease;
+}
+
+.bus[data-live] .busLine {
+  background: color-mix(in srgb, var(--accent) 70%, var(--app-line));
+}
+
+.stem {
+  position: absolute;
+  width: 2px;
+  height: 50%;
+  margin-left: -1px;
+  overflow: hidden;
+  background: var(--app-line);
+}
+
+.stem[data-side='top'] {
+  top: 0;
+}
+
+.stem[data-side='bottom'] {
+  bottom: 0;
+}
+
+.stem[data-col='0'] {
+  left: var(--col-0);
+}
+
+.stem[data-col='1'] {
+  left: 50%;
+}
+
+.stem[data-col='2'] {
+  left: calc(100% - var(--col-0));
+}
+
+.stem::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform 320ms var(--ease-out);
+}
+
+.stem[data-side='top']::before {
+  transform-origin: 50% 0;
+}
+
+.stem[data-side='bottom']::before {
+  transform-origin: 50% 100%;
+}
+
+.stem[data-on]::before {
+  transform: scaleY(1);
+}
+
+/* Data running down (top tiles) and up (bottom tiles) toward the hub. */
+.packet {
+  position: absolute;
+  left: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fg);
+  opacity: 0;
+}
+
+.stem[data-side='top'] .packet {
+  top: -6px;
+}
+
+.stem[data-side='bottom'] .packet {
+  bottom: -6px;
+}
+
+.stem[data-on][data-side='top'] .packet {
+  animation: packet-down 1.4s linear infinite;
+}
+
+.stem[data-on][data-side='bottom'] .packet {
+  animation: packet-up 1.4s linear infinite;
+}
+
+.stem[data-col='1'] .packet {
+  animation-delay: 0.45s;
+}
+
+.stem[data-col='2'] .packet {
+  animation-delay: 0.9s;
+}
+
+.hub {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px 7px 7px;
+  border: 1px solid var(--app-line);
+  border-radius: 999px;
+  background: var(--app-surface);
+  box-shadow: 0 6px 18px -10px var(--app-shadow);
+}
+
+.hub::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border: 2px solid var(--accent);
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bus[data-live] .hub::after {
+  animation: hub-ping 2.2s var(--ease-out) infinite;
+}
+
+.hubMark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+.hubName {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ---------- activity feed: fills the module, newest on top ---------- */
+
+.feed {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-md);
+  background: var(--app-surface);
+}
+
+.feedHead {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--app-line);
+}
+
+.feedTitle {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.liveDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.liveDot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: blink 1.4s ease-in-out infinite;
+}
+
+.feedList {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 0;
+  overflow: hidden;
+  list-style: none;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent);
+}
+
+.feedRow {
+  display: grid;
+  grid-template-columns: auto 20px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 5px 12px;
+  animation: feed-in 360ms var(--ease-out) both;
+}
+
+.feedTime {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.feedRow:first-child .feedTime {
+  color: var(--accent);
+}
+
+.feedSource {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-sm);
+  background: var(--app-sunk);
+  color: var(--muted);
+}
+
+.feedRow:first-child .feedSource {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.feedSource svg {
+  width: 12px;
+  height: 12px;
+}
+
+.feedSource .monogram {
+  font-size: 0.56rem;
+}
+
+.feedText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.feedIdle {
+  padding: 5px 12px;
+  color: var(--muted);
+}
+
+.note {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+/* Phones: tiles stack icon over name; roles drop. */
+@container (max-width: 480px) {
+  .hubArea {
+    --bus-h: 54px;
+    --tile-gap: 8px;
+  }
+
+  .tile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-height: 0;
+    padding: 8px;
+  }
+
+  .tileIcon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .tileIcon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .tileName {
+    max-width: 100%;
+    font-size: 0.72rem;
+  }
+
+  .tileRole {
+    display: none;
+  }
+
+  .feedHead {
+    padding: 7px 10px;
+  }
+
+  .feedRow {
+    gap: 8px;
+    padding: 4px 10px;
+  }
+
+  .feedList {
+    font-size: 0.74rem;
+  }
+}
+
+/* Short screens: the note drops; the feed shows what fits. */
+@container crm-main (max-height: 420px) {
+  .integrations {
+    gap: 8px;
+  }
+
+  .note {
+    display: none;
+  }
+
+  .feedHead {
+    padding: 5px 10px;
+  }
+}
+
+@keyframes packet-down {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(var(--bus-h) / 2 + 6px));
+    opacity: 0;
+  }
+}
+
+@keyframes packet-up {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(var(--bus-h) / -2 - 6px));
+    opacity: 0;
+  }
+}
+
+@keyframes hub-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    transform: scale(1.18, 1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes feed-in {
+  from {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stem[data-on] .packet,
+  .bus[data-live] .hub::after,
+  .feedRow,
+  .liveDot::before {
+    animation: none;
+  }
+
+  .stem::before {
+    transition: none;
+  }
+}

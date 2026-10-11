@@ -1,0 +1,281 @@
+{
+  "heading": "Stekingiz yoki bizniki.",
+  "summary": "Laravel, Django yoki .NETʼda ishlayapsizmi? Jamoangiz qayerda boʻlsa, oʻsha yerdan davom ettiramiz. Noldan boshlayapsizmi? Mahsulotga, byudjetga va uni ishga tushirilgandan keyin kim yuritishiga mos texnologiyani tanlaymiz.",
+  "kicker": "Nimalar bilan ishlaymiz",
+  "titleLines": {
+    "first": "Stekingiz",
+    "second": "yoki bizniki."
+  },
+  "kitsLabel": "Nima yaratyapsiz?",
+  "kitCursor": "Yigʻish",
+  "pullCursor": "Tortish",
+  "plateTag": "{kit} · {layers} ta qatlam · {tools} ta vosita",
+  "plateIdle": "Pastda — maʼlumotlaringiz, tepada — {top}. Bitta blokni tortib oling: nega har bir qatlamni oʻzimiz quramiz, koʻrasiz.",
+  "plateIdleStatic": "Pastda — maʼlumotlaringiz, tepada — {top}. Blok vazifasini bilish uchun kursorni olib boring yoki bosing.",
+  "plateStat": "{total} ta loyihamizdan {count} tasida",
+  "story": {
+    "fallTag": "Stress-test",
+    "fallName": "Bitta qatlam chiqsa, hammasi qulaydi.",
+    "fallBlurb": "Haqiqiy mahsulotlar ham shunday. Shuning uchun toʻrtala qatlamni ham oʻzimiz quramiz.",
+    "rebuildTag": "Qayta qurish · poydevordan",
+    "rebuildName": "Qatlamma-qatlam qaytadan.",
+    "rebuildBlurb": "Maʼlumotlar, mantiq, interfeys, yetkazish: biz aynan shu tartibda ishlab chiqamiz."
+  },
+  "knock": "Poydevorni tortish",
+  "rebuild": "Qayta qurish",
+  "tilt": "Egish",
+  "tiltOn": "Egilmoqda",
+  "tiltBlocked": "Datchik yoʻq",
+  "listLabel": "{subject} qatlamma-qatlam nimalardan iborat",
+  "status": "Koʻrsatilmoqda: {subject}. {layers} ta qatlamda {tools} ta vosita.",
+  "toolDescription": "{layer} qatlami. {blurb}",
+  "extrasLabel": "{forSubject} yana",
+  "extrasMore": "va yana {count} ta",
+  "extrasOpen": "Barcha {total} ta vositani koʻrish",
+  "toolbox": {
+    "kicker": "Toʻliq vositalar toʻplami",
+    "summary": "{areas} ta yoʻnalishda {tools} ta vosita.",
+    "open": "Toʻliq toʻplamni koʻrish ({tools})",
+    "close": "Toʻplamni yopish",
+    "proof": "Loyihalarimizda ishlatilgan",
+    "noteKit": "Belgilangan: {forSubject} odatda kerak boʻladigan vositalar. {rider}",
+    "noteProof": "Belgi: haqiqiy mahsulotlarni chiqarishda ishlatgan vositalarimiz.",
+    "areaCount": "{tools} ta vosita",
+    "wallLabel": "{area}: vositalar",
+    "toolDescription": "{blurb}{used, select, yes { Loyihalarimizda ishlatilgan.} other {}}"
+  },
+  "layers": {
+    "data": {
+      "name": "Maʼlumotlar",
+      "role": "Maʼlumotlaringiz saqlanadigan joy"
+    },
+    "logic": {
+      "name": "Mantiq",
+      "role": "Hammasini ishlatadigan qism"
+    },
+    "interface": {
+      "name": "Interfeys",
+      "role": "Odamlar koʻradigan va bosadigan qism"
+    },
+    "delivery": {
+      "name": "Yetkazish",
+      "role": "Mahsulot odamlarga qanday yetib boradi"
+    }
+  },
+  "kits": {
+    "telegram": {
+      "label": "Telegram bot",
+      "subject": "Telegram bot",
+      "forSubject": "Telegram bot uchun",
+      "headline": "Buyurtma va toʻlov toʻgʻridan-toʻgʻri chatda.",
+      "top": "mijozlaringiz allaqachon foydalanadigan chat",
+      "rider": "Bot yoki Mini App: mijozlaringiz hech narsa oʻrnatmaydi."
+    },
+    "mobile": {
+      "label": "Mobil ilova",
+      "subject": "mobil ilova",
+      "forSubject": "mobil ilova uchun",
+      "headline": "Maʼlumotlaringizdan App Storeʼgacha.",
+      "top": "mijozlaringiz bosadigan ilova",
+      "rider": "Nativ yoki kross-platforma: har bir mahsulot uchun alohida tanlaymiz."
+    },
+    "web": {
+      "label": "Veb-sayt",
+      "subject": "veb-sayt",
+      "forSubject": "veb-sayt uchun",
+      "headline": "Tez ochiladi, oson topiladi, oson tahrirlanadi.",
+      "top": "mijozlaringiz ochadigan sayt",
+      "rider": "Tezlik va qidiruv uchun qurilgan sahifalar hamda jamoangiz oʻzi tahrirlaydigan panel."
+    },
+    "rag": {
+      "label": "Hujjatlarda AI",
+      "subject": "hujjatlaringiz asosidagi AI",
+      "forSubject": "hujjatlaringiz asosidagi AI uchun",
+      "headline": "Fayllaringiz kiradi, manbali javoblar chiqadi.",
+      "top": "jamoangiz soʻraydigan javoblar",
+      "rider": "Bulutdagi modellar yoki oʻz serverlaringiz: tanlov sizda."
+    },
+    "crm": {
+      "label": "CRM va admin panel",
+      "subject": "CRM yoki admin tizim",
+      "forSubject": "CRM yoki admin tizim uchun",
+      "headline": "Yozuvlar, rollar va hisobotlar bir joyda.",
+      "top": "jamoangiz ishlaydigan ekranlar",
+      "rider": "Jamoangiz har kuni, yillar davomida ishlashi uchun quriladi."
+    }
+  },
+  "trades": {
+    "mobile": {
+      "name": "Mobil",
+      "role": "Mijozlaringiz choʻntagida olib yuradigan ilova."
+    },
+    "web": {
+      "name": "Veb",
+      "role": "Istalgan brauzerda ochiladigan saytlar va panellar."
+    },
+    "backend": {
+      "name": "Backend",
+      "role": "Har bir bosish ortidagi mantiq: akkauntlar, buyurtmalar, toʻlovlar."
+    },
+    "data": {
+      "name": "Maʼlumotlar",
+      "role": "Mijozlaringiz buyurtmalari va akkauntlari ishonchli saqlanadigan joy."
+    },
+    "ai": {
+      "name": "AI",
+      "role": "Hujjatlaringizni oʻqiydigan, tinglaydigan va javob beradigan modellar."
+    },
+    "cloud": {
+      "name": "Bulut va DevOps",
+      "role": "Hammasi qayerda ishlaydi va yangilanishlar qanday xavfsiz chiqariladi."
+    },
+    "integrations": {
+      "name": "Integratsiyalar",
+      "role": "Toʻlovlar, xaritalar, kirish va bildirishnomalar — ulangan."
+    },
+    "design": {
+      "name": "Dizayn va animatsiya",
+      "role": "Mahsulot qanday koʻrinadi va qanday harakatlanadi."
+    }
+  },
+  "labels": {
+    "open-llm": "Ochiq kodli LLM",
+    "agents": "AI agentlar",
+    "speech": "Nutqni matnga aylantirish",
+    "vision": "Kompyuter koʻrish",
+    "iap": "Ilova ichidagi xaridlar",
+    "wallet-pay": "Apple Pay va Google Pay"
+  },
+  "tower": {
+    "postgres": "Maʼlumotlaringiz saqlanadigan joy: foydalanuvchilar, buyurtmalar, tarix.",
+    "redis": "Gavjum ekranlar uchun bir zumda javob: kesh va navbatlar.",
+    "firebase": "Kirish, push-bildirishnomalar va jonli maʼlumotlar.",
+    "pgvector": "Parchalarni faqat soʻz boʻyicha emas, maʼno boʻyicha topadi.",
+    "qdrant": "Juda katta hujjatlar toʻplami uchun vektor baza.",
+    "clickhouse": "Millionlab qatorlar boʻyicha hisobotlar soniyalarda.",
+    "nest": "Server: akkauntlar, buyurtmalar va ular ortidagi admin.",
+    "node": "Server qismi: API, kirish va admin vositalar.",
+    "strapi": "Jamoangiz dasturchisiz tahrirlaydigan kontent paneli.",
+    "fastapi": "Oʻqiydigan, qidiradigan va javob beradigan Python servisi.",
+    "rabbitmq": "Yoʻqolmaydigan fon vazifalari: import, xatlar, hisobotlar.",
+    "openai": "Oʻqiydigan, yozadigan va javob beradigan GPT modellari.",
+    "claude": "Anthropic modellari: uzun hujjatlarga eʼtiborli.",
+    "onesignal": "Segment va jadval boʻyicha push-bildirishnomalar.",
+    "stripe": "Butun dunyo boʻyicha karta toʻlovlari va obunalar.",
+    "payme": "Oʻzbekistonda keng tarqalgan toʻlov usullaridan biri.",
+    "click": "Oʻzbekistondagi yana bir keng tarqalgan toʻlov usuli.",
+    "react-native": "iPhone uchun ham, Android uchun ham bitta kod.",
+    "swift": "Ilovaga har bir tezlik ulushi kerak boʻlganda nativ iPhone ekranlari.",
+    "kotlin": "Nativ Android ekranlari, xuddi shu sabablarga koʻra.",
+    "next": "Tez ochiladigan va qidiruv tizimlari oʻqiy oladigan sahifalar.",
+    "react": "Brauzerda tez, interaktiv ekranlar.",
+    "tailwind": "Dizayndan toʻgʻridan-toʻgʻri yagona uslub.",
+    "vite": "Telegram ichida bir zumda ochiladigan Mini App.",
+    "shadcn": "Jamoangiz bir kunda oʻrganadigan tushunarli jadvallar, formalar va filtrlar.",
+    "app-store": "iPhone va iPad foydalanuvchilari ilovani shu yerda topadi.",
+    "google-play": "Android foydalanuvchilari ilovani shu yerda topadi.",
+    "vercel": "Saytni har bir mehmonga yaqin serverdan beradi.",
+    "cloudflare": "Sayt oldida tezlik, DNS va himoya.",
+    "telegram": "Odamlar allaqachon foydalanadigan chat: bot aynan shu yerda.",
+    "mini-apps": "Telegram ichida toʻliq doʻkon yoki bron ekrani, oʻrnatish shart emas.",
+    "docker": "Sizning serverlaringizda ham, bizda ham bir xil ishlaydi.",
+    "aws": "Amazon buluti: serverlar, xotira va zaxira nusxalar.",
+    "github-actions": "Har bir oʻzgarish bir xil xavfsiz yoʻl bilan tekshiriladi va chiqariladi."
+  },
+  "tools": {
+    "react-native": "iPhone va Android ilovalari uchun bitta kod.",
+    "swift": "Tez va nativ iPhone ilovalari uchun Apple tili.",
+    "swiftui": "iPhone va iPad ekranlari uchun Appleʼning zamonaviy vositasi.",
+    "kotlin": "Zamonaviy nativ Android ilovalari tili.",
+    "compose": "Nativ ekranlar uchun Androidʼning zamonaviy vositasi.",
+    "expo": "Yigʻish, doʻkonsiz yangilanishlar va doʻkonlarga joylash.",
+    "flutter": "Silliq ilovalar uchun Googleʼning kross-platforma vositasi.",
+    "dart": "Flutter ilovalari yoziladigan til.",
+    "next": "Qidiruv tizimlari oʻqiy oladigan tez saytlar.",
+    "react": "Veb-ilovalar va panellar uchun interaktiv ekranlar.",
+    "typescript": "Xatolarni foydalanuvchidan oldin ushlaydigan tiplangan kod.",
+    "tailwind": "Dizayn tizimidan toʻgʻridan-toʻgʻri yagona uslub.",
+    "vue": "Interaktiv veb-ilovalar uchun oson freymvork.",
+    "nuxt": "Server rendering bilan Vue: tez va qidiruvda topiladigan saytlar.",
+    "angular": "Katta biznes veb-ilovalari uchun toʻliq freymvork.",
+    "svelte": "Juda kam kod yuboradigan tez veb-ilovalar.",
+    "vite": "Ishlab chiqishda bir zumda yigʻish, prodakshnda yengil fayllar.",
+    "redux": "Murakkab ekranlar uchun oldindan aytsa boʻladigan holat.",
+    "tanstack": "Ekrandagi server maʼlumotlari doim yangi va keshda.",
+    "shadcn": "Oʻzimiz erkin qayta bezaydigan qulay komponentlar.",
+    "mui": "Googleʼning Material Designʼi, React uchun tayyor.",
+    "node": "Serverdagi JavaScript: API, real vaqt, admin vositalar.",
+    "nest": "Jamoa bilan birga oʻsadigan tartibli Node.js backend.",
+    "express": "Node.js API uchun kichik, sinalgan server.",
+    "strapi": "Jamoangiz dasturchisiz tahrirlaydigan kontent paneli.",
+    "python": "Maʼlumotlar, avtomatlashtirish va AI tili.",
+    "fastapi": "Tez, tiplangan Python API: AI uchun tabiiy muhit.",
+    "django": "Hammasi ichida boʻlgan Python freymvorki, admin paneli bilan.",
+    "go": "Katta yuklama uchun yengil va tez servislar.",
+    "rust": "Har bir millisekund muhim joyda tezlik va xotira xavfsizligi.",
+    "java": "Ulkan ekotizimga ega korporativ dasturlashning ishonchli tili.",
+    "spring": "Ishonchli biznes backend uchun Java standarti.",
+    "ktor": "Serverdagi Kotlin, Android bilan umumiy kod.",
+    "dotnet": "Veb-API va biznes tizimlari uchun Microsoft platformasi.",
+    "php": "Internetning katta qismi shunda ishlaydi: doʻkonlardan saytlargacha.",
+    "laravel": "Veb-ilovalar va API uchun PHPʼning eng sevimli freymvorki.",
+    "graphql": "Har bir ekran aynan keragini soʻraydigan yagona API.",
+    "grpc": "Ichki servislar oʻrtasida tez, tiplangan chaqiruvlar.",
+    "websockets": "Jonli yangilanishlar: chat, kuzatuv, panellar.",
+    "postgres": "Foydalanuvchilar, buyurtmalar va tarix uchun ishonchli joy.",
+    "redis": "Kesh, sessiyalar va navbatlar uchun xotira tezligi.",
+    "mysql": "Koʻplab veb-ilovalar ortidagi klassik maʼlumotlar bazasi.",
+    "sqlserver": "Korporativ tizimlar uchun Microsoft maʼlumotlar bazasi.",
+    "mongodb": "Tuzilishi oʻzgaradigan maʼlumotlar uchun moslashuvchan hujjatlar.",
+    "sqlite": "Ilova ichidagi baza: internetsiz ishlash uchun.",
+    "clickhouse": "Millionlab qatorlar boʻyicha hisobotlar soniyalarda.",
+    "elasticsearch": "Xatoni kechiradigan tez toʻliq matnli qidiruv.",
+    "kafka": "Servislar oʻrtasida katta hajmdagi hodisalar oqimi.",
+    "rabbitmq": "Fon vazifalari uchun ishonchli navbatlar.",
+    "prisma": "TypeScript uchun tip-xavfsiz bazaga murojaat.",
+    "drizzle": "TypeScript uchun yengil, tiplangan SQL.",
+    "openai": "Chat, matn yozish va maʼlumot ajratish uchun GPT modellari.",
+    "claude": "Uzun hujjatlar ustida puxta tahlil.",
+    "gemini": "Matn, rasm va ovozni tushunadigan modellar.",
+    "open-llm": "Oʻz serverlaringizda ishlay oladigan modellar.",
+    "rag": "Hujjatlaringizga tayangan, manbasi koʻrsatilgan javoblar.",
+    "pgvector": "PostgreSQL ichida maʼno boʻyicha qidiruv.",
+    "qdrant": "Katta bilimlar bazalari uchun alohida vektor baza.",
+    "langchain": "Koʻp bosqichli AI jarayonlari uchun qurilish bloklari.",
+    "llamaindex": "Modellarni hujjatlaringiz va maʼlumotlaringizga ulaydi.",
+    "agents": "Harakat qiladigan modellar: qidiradi, forma toʻldiradi, yozuvlarni yangilaydi.",
+    "speech": "Qoʻngʻiroqlar va ovozli xabarlar qidirsa boʻladigan matnga aylanadi.",
+    "vision": "Skanlar, rasmlar va cheklarni oʻqiydi.",
+    "aws": "Amazon buluti: serverlar, xotira, kirish.",
+    "gcp": "Google buluti, Firebase va Gemini bilan yonma-yon.",
+    "azure": "Microsoft buluti, .NET uchun qulay.",
+    "docker": "Bir xil ilova noutbukda ham, prodakshnda ham.",
+    "kubernetes": "Koʻplab servislarni boshqaradi va yuklamaga qarab kengaytiradi.",
+    "terraform": "Kod bilan tasvirlangan serverlar: takrorlanadigan va tekshiriladigan.",
+    "github-actions": "Har bir oʻzgarishda testlar va deploy.",
+    "vercel": "Next.js saytlari uchun yaratilgan global hosting.",
+    "cloudflare": "Saytingiz oldida tezlik, DNS va himoya.",
+    "nginx": "Ilovangiz oldidagi sinalgan veb-server.",
+    "stripe": "Butun dunyo boʻyicha karta toʻlovlari va obunalar.",
+    "wallet-pay": "Telefonda va brauzerda bir bosishda toʻlov.",
+    "iap": "App Store va Google Play orqali obunalar.",
+    "google-maps": "Foydalanuvchilaringiz yaqinidagi xaritalar, yoʻnalishlar va joylar.",
+    "firebase": "Kirish, push-bildirishnomalar va jonli maʼlumotlar.",
+    "onesignal": "Segment va jadval boʻyicha push-bildirishnomalar.",
+    "sentry": "Foydalanuvchilar shikoyat qilishidan oldin nosozlik hisobotlari.",
+    "webrtc": "Ilova ichida ovozli va video qoʻngʻiroqlar.",
+    "telegram-bot": "Buyurtma qabul qiladigan, xabar yuboradigan va mijozlarga javob beradigan botlar.",
+    "telegram-mini": "Telegram ichidagi toʻliq ilova, oʻrnatish shart emas.",
+    "payme": "Oʻzbekistonda keng tarqalgan toʻlov usullaridan biri.",
+    "click": "Oʻzbekistondagi yana bir keng tarqalgan toʻlov usuli.",
+    "yandex-maps": "Markaziy Osiyo boʻylab batafsil xaritalar va yoʻnalishlar.",
+    "myid": "Oʻzbekistonda masofadan shaxsni tasdiqlash.",
+    "e-imzo": "Oʻzbekistonda hujjatlar uchun elektron imzo.",
+    "figma": "Har bir ekran avval shu yerda chiziladi va tasdiqlanadi.",
+    "rive": "Bosishga javob beradigan interaktiv animatsiyalar.",
+    "lottie": "Har qanday ekranda aniq koʻrinadigan yengil animatsiyalar.",
+    "blender": "Mahsulot vizuallari uchun 3D modellar va renderlar.",
+    "threejs": "Brauzerda 3D, xuddi shu sahifadagi sahnalar kabi.",
+    "gsap": "Vebda silliq va aniq harakat."
+  }
+}

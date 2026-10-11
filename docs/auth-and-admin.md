@@ -12,8 +12,8 @@ How the admin panel is protected and how its screens work: Neon Auth (Better Aut
 | Neon Auth endpoints | `src/app/api/auth/[...path]/route.ts` | Mounts sign-in/out, session, OAuth |
 | Browser auth client | `authClient` in `src/modules/admin/utils/authClient.ts` | `createAuthClient()` → `/api/auth` |
 | Admin fetch wrapper | `adminFetch()` in `src/modules/admin/utils/adminFetch.ts` | Same-origin cookie; 401 → reload |
-| Admin section gate | `src/app/[locale]/admin/layout.tsx` | Renders login if not admin |
-| Admin screens | `src/app/[locale]/admin/{leads,posts}` | Leads (read-only), Posts (CRUD + generate) |
+| Admin section gate | `src/app/[locale]/(site)/admin/layout.tsx` | Renders login if not admin |
+| Admin screens | `src/app/[locale]/(site)/admin/{leads,posts}` | Leads (read-only), Posts (CRUD + generate) |
 | Admin JSON APIs | `src/app/api/admin/{leads,posts,revalidate}` | All call `requireAdmin()` |
 | Secret entry gesture | `src/shared/components/HomeClientLayer.tsx` | 5 clicks on the top-left corner |
 
@@ -130,7 +130,7 @@ There is **no sign-up UI** — the login card only offers sign-in. New admins ar
 
 ## The admin section gate
 
-`src/app/[locale]/admin/layout.tsx` is the authoritative server-side gate for the whole `/[locale]/admin/*` tree:
+`src/app/[locale]/(site)/admin/layout.tsx` is the authoritative server-side gate for the whole `/[locale]/admin/*` tree:
 
 ```tsx
 export const dynamic = 'force-dynamic';
@@ -168,11 +168,11 @@ export async function adminFetch(url: string, init?: RequestInit): Promise<Respo
 
 ## Admin screens
 
-### Leads — `src/app/[locale]/admin/leads/page.tsx`
+### Leads — `src/app/[locale]/(site)/admin/leads/page.tsx`
 
 A read-only table of contact-form submissions. On mount it fetches `GET /api/admin/leads` via `adminFetch` and renders each lead's date, name, phone (as a `tel:` link), message, source, and Telegram-notification status (`pending`/`sent`/`failed`, color-coded). There are no edit/delete controls — leads are display-only in the UI.
 
-### Posts — `src/app/[locale]/admin/posts/page.tsx`
+### Posts — `src/app/[locale]/(site)/admin/posts/page.tsx`
 
 The content-management screen. It fetches `GET /api/admin/posts` and groups the flat list by `generationGroupId` (posts generated together across locales share one group; ungrouped posts become singleton groups), then renders newest-first. Capabilities:
 
@@ -190,8 +190,8 @@ Renders the selected post: title, created date, locale + status badges, optional
 
 ### Create / edit forms
 
-- `src/app/[locale]/admin/posts/new/page.tsx` — title (auto-slugs via `createSlug`), slug, status, locale, Markdown content; submits `POST /api/admin/posts`, then redirects to the posts list.
-- `src/app/[locale]/admin/posts/edit/[postId]/page.tsx` — loads via `GET /api/admin/posts/{postId}`, submits `PUT /api/admin/posts/{postId}`, shows success then redirects.
+- `src/app/[locale]/(site)/admin/posts/new/page.tsx` — title (auto-slugs via `createSlug`), slug, status, locale, Markdown content; submits `POST /api/admin/posts`, then redirects to the posts list.
+- `src/app/[locale]/(site)/admin/posts/edit/[postId]/page.tsx` — loads via `GET /api/admin/posts/{postId}`, submits `PUT /api/admin/posts/{postId}`, shows success then redirects.
 
 ## Admin JSON API (all behind `requireAdmin`)
 

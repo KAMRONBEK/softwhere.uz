@@ -14,7 +14,8 @@ export default function robots(): MetadataRoute.Robots {
       // be loaded" noise in URL Inspection. (experimental.inlineCss already
       // inlines most CSS, so nothing rendering-critical was blocked in
       // practice — this removes the footgun, not a live outage.)
-      disallow: ['/admin/', '/*/admin/', '/api/'],
+      // /<locale>/lab/ holds hidden prototypes (also noindex in their metadata).
+      disallow: ['/admin/', '/*/admin/', '/api/', '/uz/lab/', '/ru/lab/', '/en/lab/'],
     },
     sitemap: `${ENV.BASE_URL}/sitemap.xml`,
   };

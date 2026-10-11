@@ -88,7 +88,7 @@ The same function is also reused client-side to re-validate a restored draft fro
 `src/shared/utils/security.ts` centralizes escaping:
 
 - **`escapeHtml(input)`** escapes `& < > " '`. Every user/model-controlled field composed into a Telegram message (`parse_mode=HTML`) is passed through it — otherwise raw `<`/`>`/`&` would inject markup (phishing) or 400 the message (`contact/route.ts:53-56`, `estimate/lead/route.ts:152-158`). It is also the first step of the admin markdown preview.
-- **`safeJsonLd(data)`** JSON-stringifies then escapes `<`, `>`, `&` to `<` etc. Plain `JSON.stringify` does **not** escape `<`, so an AI-generated title containing a literal `</script>` inside a `<script type="application/ld+json">` block would be a stored-XSS sink. Used in `src/app/[locale]/layout.tsx:108`, `src/app/[locale]/blog/page.tsx:79`, and `src/modules/blog/lib/seo.tsx:184`.
+- **`safeJsonLd(data)`** JSON-stringifies then escapes `<`, `>`, `&` to `<` etc. Plain `JSON.stringify` does **not** escape `<`, so an AI-generated title containing a literal `</script>` inside a `<script type="application/ld+json">` block would be a stored-XSS sink. Used in `src/app/[locale]/layout.tsx:108`, `src/app/[locale]/(site)/blog/page.tsx:79`, and `src/modules/blog/lib/seo.tsx:184`.
 
 ```ts
 export function safeJsonLd(data: unknown): string {

@@ -1,28 +1,16 @@
-import Footer from '@/shared/components/Footer';
-import Header from '@/shared/components/Header';
-import ScrollToTop from '@/shared/components/ScrollToTop';
-import TelegramChat from '@/shared/components/TelegramChat';
 import ThemeProvider from '@/shared/components/ThemeProvider';
-import { BlogProvider } from '@/modules/blog/context/BlogContext';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
-import { hasLocale, Locale, NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { Inter, Sora, Manrope } from 'next/font/google';
+import { hasLocale, Locale } from 'next-intl';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import React from 'react';
 import { ENV, SOCIAL_LINKS } from '@/core/constants';
-import { CLIENT_MESSAGE_NAMESPACES, pickMessages } from '@/core/messages';
 import { safeJsonLd } from '@/shared/utils/security';
 
-// Inter stays loaded with the Cyrillic subset so RU/UZ text always has full
-// glyph coverage; Sora (display) and Manrope (body) are Latin-only and fall
-// back to Inter for Cyrillic via the --disp/--body stacks in globals.css.
-const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap', variable: '--font-inter' });
-const sora = Sora({ subsets: ['latin'], display: 'swap', variable: '--font-sora', weight: ['400', '500', '600', '700', '800'] });
-const manrope = Manrope({ subsets: ['latin'], display: 'swap', variable: '--font-manrope', weight: ['400', '500', '600', '700', '800'] });
-// JetBrains Mono intentionally NOT loaded here — see src/shared/fonts.ts.
+// The site fonts (Inter, Sora, Manrope) live in (site)/layout.tsx: the
+// homepage never uses them, so it neither preloads nor downloads them.
 
 // Only the three known locales are valid; anything else 404s via the
 // hasLocale() check in the layout body. Do NOT add `dynamicParams = false`
@@ -120,27 +108,14 @@ export default async function RootLayout({ children, params }: Props) {
   // Enables static rendering: without this next-intl reads headers() and the
   // whole tree opts into dynamic rendering.
   setRequestLocale(locale);
-  // Only the namespaces the layout's client tree reads go to the browser. The
-  // full bundle (30–48KB per locale, servicePages/privacy/estimator included)
-  // used to be serialised into every page, so every blog post carried the
-  // service-page copy for nothing. Pages with extra client needs nest their own provider
-  // (src/core/messages.ts, docs/i18n.md).
-  const messages = pickMessages(await getMessages(), CLIENT_MESSAGE_NAMESPACES);
-
   return (
-    <html lang={locale} className={`${inter.variable} ${sora.variable} ${manrope.variable}`} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body>
         <ThemeProvider>
           <StructuredData />
-          <NextIntlClientProvider messages={messages}>
-            <BlogProvider>
-              <Header />
-              {children}
-              <ScrollToTop />
-              <TelegramChat />
-              <Footer />
-            </BlogProvider>
-          </NextIntlClientProvider>
+          {/* The homepage and /lab bring their own chrome and messages; every other
+              page gets the site header, footer and fonts from (site)/layout.tsx. */}
+          {children}
         </ThemeProvider>
         <SpeedInsights />
         <Analytics />

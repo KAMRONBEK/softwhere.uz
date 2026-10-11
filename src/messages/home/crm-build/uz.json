@@ -1,0 +1,360 @@
+{
+  "heading": "Jadvaldan tizimga.",
+  "summary": "Koʻp jamoalar bitta umumiy jadvalda ishlaydi, toki u buzilmaguncha. Biz uni jamoangizning hozirgi ish uslubiga moslangan admin tizimga aylantiramiz.",
+  "lead": "Koʻp jamoalar bitta umumiy jadvalda ishlaydi, toki u buzilmaguncha: toʻrtta nusxa, bitta mijoz ikki marta, hech kim ishonmaydigan jami summa. Biz uni jamoangizning hozirgi ish uslubiga moslangan admin tizimga aylantiramiz.",
+  "leadAction": "Pastga suring va fayl oʻzini qanday tartibga solishini koʻring.",
+  "leadActionStill": "Har bir qismni koʻrish uchun qadamni tanlang. Birinchisi — tizim almashtiradigan eski jadval.",
+  "chapters": {
+    "sheet": {
+      "term": "Jadval",
+      "text": "Koʻp bizneslar shundan boshlaydi. Ikki kishi uni bir vaqtda tahrirlamaguncha ishlaydi."
+    },
+    "pipeline": {
+      "term": "Voronka",
+      "text": "Barcha bitimlar bitta doskada. Bitimni keyingi bosqichga oʻtkazing, jami summalar oʻzi yangilanadi."
+    },
+    "roles": {
+      "term": "Rollar",
+      "text": "Egasi hammasini koʻradi, sotuvchi oʻz bitimlarini, qoʻllab-quvvatlash esa faqat keraklisini."
+    },
+    "automations": {
+      "term": "Avtomatlashtirish",
+      "text": "Yangi ariza soniyalarda kerakli menejerga yetadi va vazifaga aylanadi. Hech kim hech narsani qoʻlda koʻchirmaydi."
+    },
+    "reports": {
+      "term": "Hisobotlar",
+      "text": "Har juma kimdir qayta yigʻadigan jadval oʻrniga oʻsha maʼlumotlardan jonli raqamlar."
+    },
+    "integrations": {
+      "term": "Integratsiyalar",
+      "text": "Buxgalteriya, toʻlovlar, messenjerlar va pochta ulangan, maʼlumotlar oʻzi harakatlanadi."
+    }
+  },
+  "chapterAction": "«{term}» qadamini demoda koʻrsatish",
+  "railLabel": "CRM demo qadamlari",
+  "demoLabel": "Mebel saloni uchun CRMning interaktiv demosi",
+  "cursor": {
+    "show": "Koʻrish",
+    "drag": "Suring"
+  },
+  "timeline": {
+    "label": "Odatiy birinchi versiya",
+    "value": "{min}–{max} hafta",
+    "note": "Birinchi qoʻngʻiroqdan jamoangiz tizimga kirguncha. Aniq sanalar tijorat taklifingizda belgilanadi."
+  },
+  "deliverTitle": "Nimalarga ega boʻlasiz",
+  "deliver": {
+    "admin": "Jamoangiz noutbuk yoki telefondan kiradigan veb-admin",
+    "roles": "Har bir xodim uchun rollar va ruxsatlar",
+    "import": "Hozirgi jadvalingiz koʻchiriladi, takrorlar birlashtiriladi",
+    "process": "Jarayoningizga kerakli avtomatlashtirish, hisobot va integratsiyalar, koʻz-koʻz uchun ortiqcha narsa yoʻq",
+    "ownership": "Kod ham, maʼlumotlar ham sizniki"
+  },
+  "shipped": "Biz yaratgan admin panel va dashboardlar orasida: {list}.",
+  "shippedWork": {
+    "hamd": "ovqat yetkazib berish operatori paneli",
+    "stadium-people": "tadbirlar uchun xodim yollash admin paneli",
+    "novalinq-eld": "hisobotli avtopark nazorati dashboardi",
+    "brand-guard": "jamoa rollari bilan brend monitoringi dashboardi",
+    "hello-box": "Telegram-bot doʻkoni ortidagi admin panel"
+  },
+  "and": "va",
+  "next": "Navbatdagisi sizniki boʻlishi mumkin.",
+  "cta": "Narx oraligʻini bepul bilish",
+  "replay": "Jadvalga qaytish",
+  "money": {
+    "som": "{amount} soʻm",
+    "millions": "{amount} mln"
+  },
+  "app": {
+    "business": "Sizning salon",
+    "businessMark": "SS",
+    "product": "CRM",
+    "search": "Mijoz, bitim qidirish…",
+    "nav": {
+      "pipeline": "Voronka",
+      "roles": "Jamoa va rollar",
+      "automations": "Avtomatlashtirish",
+      "reports": "Hisobotlar",
+      "integrations": "Integratsiyalar",
+      "settings": "Sozlamalar"
+    },
+    "navShort": {
+      "pipeline": "Bitimlar",
+      "roles": "Jamoa",
+      "automations": "Avto",
+      "reports": "Hisobot",
+      "integrations": "Ilovalar"
+    },
+    "locked": "Bu rol uchun ruxsat yoʻq",
+    "imported": "{deals} ta bitim koʻchirildi · {merged} ta takror birlashtirildi",
+    "notifications": "{count, plural, =0 {Yangi bildirishnoma yoʻq} other {# ta yangi bildirishnoma}}"
+  },
+  "sheet": {
+    "file": "arizalar_FINAL_v3 ({manager}).xlsx",
+    "tabs": {
+      "first": "Arizalar",
+      "second": "Arizalar_final",
+      "current": "Arizalar_final_v3 ({manager})",
+      "copy": "Arizalar nusxasi (2)"
+    },
+    "columns": {
+      "client": "Mijoz",
+      "phone": "Telefon",
+      "item": "Mahsulot",
+      "amount": "Summa",
+      "status": "Holat",
+      "manager": "Menejer"
+    },
+    "rows": {
+      "r1": {
+        "item": "Burchak divan «Milano»",
+        "status": "oldindan toʻlov??"
+      },
+      "r2": {
+        "item": "Oshxona 3,2m",
+        "status": "QAYTA QOʻNGʻIROQ!!!"
+      },
+      "r3": {
+        "item": "Shkaf oʻrnatma",
+        "status": "SOTILDI"
+      },
+      "r4": {
+        "item": "burchak divan",
+        "status": ""
+      },
+      "r5": {
+        "item": "Stol+6 stul",
+        "status": "seshanba oʻlchov?"
+      },
+      "r6": {
+        "item": "Ofis stollari x12",
+        "status": "taklif yuborildi"
+      },
+      "r7": {
+        "item": "Karavot + 2 tumba",
+        "status": "yarmi toʻlandi"
+      },
+      "r8": {
+        "item": "oshxona",
+        "status": "???"
+      }
+    },
+    "total": "JAMI",
+    "flags": {
+      "duplicate": "Bitta mijoz, ikki marta kiritilgan",
+      "formula": "Buzilgan formula",
+      "tabs": "Toʻrtta nusxa. Qaysi biri dolzarb?"
+    },
+    "label": "Mebel buyurtmalarining tartibsiz umumiy jadvali: takroriy mijozlar, aralash raqam formatlari, buzilgan jami summa va faylning toʻrtta nusxasi."
+  },
+  "deals": {
+    "jasur": "Oshxona mebeli, 3,2 m",
+    "bekzod": "Ovqat stoli + 6 stul",
+    "dilnoza": "Burchak divan",
+    "nodira": "Ofis stollari ×12",
+    "malika": "Oʻrnatma shkaf",
+    "timur": "Karavot + 2 tumba"
+  },
+  "stages": {
+    "new": "Yangi",
+    "quote": "Taklif",
+    "won": "Sotildi"
+  },
+  "pipeline": {
+    "title": "Voronka",
+    "hintTouch": "Kartani bosib turib suring yoki oldinga surish uchun teging",
+    "hintPointer": "Kartani boshqa bosqichga suring yoki oldinga surish uchun bosing",
+    "yourTurn": "Navbat sizda",
+    "cardLabel": "{client}, {item}, {stage}.",
+    "cardAction": "«{next}» bosqichiga oʻtkazish uchun bosing. Strelkalar bosqichlarni almashtiradi.",
+    "cardActionWon": "Sotildi. Strelkalar bosqichlarni almashtiradi.",
+    "moved": "{client}: «{stage}» bosqichiga oʻtkazildi.",
+    "columnLabel": "{stage}: {count} ta bitim, {total}"
+  },
+  "owner": {
+    "name": "Siz",
+    "initials": "SZ"
+  },
+  "roles": {
+    "owner": {
+      "name": "Egasi",
+      "view": "Barcha bitimlar"
+    },
+    "sales": {
+      "name": "Sotuv",
+      "view": "Mening bitimlarim"
+    },
+    "support": {
+      "name": "Yordam",
+      "view": "Mijozlar"
+    },
+    "viewingAs": "Kim sifatida",
+    "permissions": "Ruxsatlar",
+    "permission": {
+      "amounts": "Summalarni koʻrish",
+      "edit": "Bitimlarni tahrirlash",
+      "export": "Maʼlumotlarni eksport qilish",
+      "settings": "Sozlamalar"
+    },
+    "access": {
+      "yes": "Ha",
+      "own": "Faqat oʻziniki",
+      "no": "Yoʻq"
+    },
+    "hidden": "Yashirin",
+    "readOnly": "Faqat oʻqish",
+    "export": "Eksport",
+    "supportStage": {
+      "new": "Oʻlchov",
+      "quote": "Kutilmoqda",
+      "won": "Yetkazish belgilangan"
+    },
+    "switchLabel": "Qaysi rol sifatida koʻrayotganingizni almashtiring",
+    "scope": {
+      "owner": "Barcha {total} ta bitim, hamma summalar",
+      "sales": "{total} tadan {shown} ta bitim: faqat {person}ning oʻziniki",
+      "support": "Barcha {total} ta mijoz, summalar yashirin"
+    }
+  },
+  "automation": {
+    "title": "Yangi ariza kelganda",
+    "ruleNote": "Hamma tushunadigan bitta qoida: shu boʻlsa, buni qil.",
+    "kickers": {
+      "when": "Qachon",
+      "then": "Keyin",
+      "and": "Va"
+    },
+    "lead": "Yangi ariza",
+    "task": "Vazifa yaratildi",
+    "leadSources": "Sayt, Instagram yoki Telegram-bot",
+    "alertTitle": "Telegram xabarnomasi",
+    "alertBot": "Salon xabarlari",
+    "notifyRule": "Ariza biriktirilgan menejerga xabar yuborish",
+    "taskRule": "15 daqiqa muddatli qoʻngʻiroq vazifasini yaratish",
+    "message": "Yangi ariza: {client}, {item} ({source}). Masʼul: {manager}.",
+    "taskTitle": "Qoʻngʻiroq qilish: {client}",
+    "due": "Muddat: 15 daqiqa",
+    "button": "Test ariza yuborish",
+    "running": "Bajarilmoqda…",
+    "runs": "Bugun {count} marta ishladi",
+    "rulesTitle": "Qoidalar",
+    "rulesCount": "{count} ta yoqilgan",
+    "rules": {
+      "lead": {
+        "when": "Yangi ariza",
+        "then": "Menejerni ogohlantirish, vazifa yaratish"
+      },
+      "deposit": {
+        "when": "Oldindan toʻlov qilindi",
+        "then": "«Sotildi»ga oʻtkazish, chek yuborish"
+      },
+      "noReply": {
+        "when": "2 kun javob yoʻq",
+        "then": "Menejerga eslatish"
+      },
+      "delivery": {
+        "when": "Ertaga yetkazish",
+        "then": "Mijozga vaqtni SMS qilish"
+      }
+    },
+    "logTitle": "Ishga tushirish jurnali",
+    "log": {
+      "lead": "{client}: {manager} ogohlantirildi, qoʻngʻiroq vazifasi yaratildi",
+      "deposit": "{client}: «Sotildi»ga oʻtkazildi, chek yuborildi",
+      "delivery": "{client}: yetkazish vaqti SMS orqali yuborildi",
+      "noReply": "{manager}: {client} boʻyicha eslatma"
+    },
+    "leads": {
+      "kitchen": {
+        "item": "Oshxona mebeli",
+        "source": "Saytdagi forma"
+      },
+      "wardrobe": {
+        "item": "Kupe shkaf",
+        "source": "Instagram"
+      },
+      "sofa": {
+        "item": "Divan-karavot",
+        "source": "Telegram-bot"
+      }
+    }
+  },
+  "reports": {
+    "sample": "Namunaviy maʼlumotlar",
+    "kpis": {
+      "won": "Bu oy sotildi",
+      "open": "Ochiq bitimlar",
+      "rate": "Konversiya"
+    },
+    "chartTitle": {
+      "revenue": "Oylar boʻyicha tushum",
+      "deals": "Oylar boʻyicha sotuvlar"
+    },
+    "metric": {
+      "revenue": "Tushum",
+      "deals": "Bitimlar"
+    },
+    "sourcesTitle": "Arizalar qayerdan keladi",
+    "liveNote": "Joriy oy doskadagi kartalarni surganingizda yangilanadi.",
+    "months": {
+      "may": "May",
+      "jun": "Iyun",
+      "jul": "Iyul",
+      "aug": "Avg",
+      "sep": "Sen",
+      "oct": "Okt"
+    },
+    "sources": {
+      "instagram": "Instagram",
+      "website": "Sayt",
+      "channel": "Telegram",
+      "walkIn": "Salonga kelib",
+      "referral": "Tavsiya"
+    }
+  },
+  "integrations": {
+    "hub": "Sizning CRM",
+    "title": "Ulangan xizmatlar",
+    "count": "{on}/{total} ulangan",
+    "note": "Rasmiy yoʻl bilan ulaymiz. Agar xizmat bunga ruxsat bermasa, ishni boshlashdan oldin aytamiz.",
+    "activity": "Faollik",
+    "live": "Jonli",
+    "idle": "Maʼlumotlar oqimini koʻrish uchun xizmatni ulang.",
+    "connect": "Ulash: {name}",
+    "disconnect": "Uzish: {name}",
+    "connectors": {
+      "sheets": {
+        "role": "Import va eksport",
+        "first": "Eski jadval koʻchirildi: {count} ta bitim",
+        "then": "Haftalik eksport Google Sheetsga saqlandi"
+      },
+      "messenger": {
+        "role": "Bot va xabarnomalar",
+        "first": "Telegram-botdan ariza: {client}",
+        "then": "Kunlik voronka hisoboti egasiga yuborildi"
+      },
+      "payments": {
+        "role": "Toʻlovlar",
+        "first": "Oldindan toʻlov olindi: {client}, {amount}",
+        "then": "Toʻlov havolasi yuborildi: {client}"
+      },
+      "accounting": {
+        "role": "Buxgalteriya",
+        "first": "Hisob-faktura {tool}ga yuborildi: {client}",
+        "then": "Toʻlov {tool}dan sinxronlandi: {client}"
+      },
+      "email": {
+        "name": "Pochta",
+        "role": "Takliflar va cheklar",
+        "first": "Taklif pochtaga yuborildi: {client}",
+        "then": "Chek pochtaga yuborildi: {client}"
+      },
+      "sms": {
+        "role": "Eslatmalar",
+        "first": "Eslatma yuborildi: yetkazish ertaga, {time}",
+        "then": "Oʻlchov tashrifi tasdiqlandi: {client}"
+      }
+    }
+  }
+}

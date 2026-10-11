@@ -1,0 +1,392 @@
+/*
+ * 04 · Assembly — section layout: a tall section with a sticky stage. The
+ * copy column, the two measuring boxes (build / launch) and the 3D wrappers
+ * live here; the mini site itself is in site.module.css. Tokens only.
+ *
+ * Design geometry of the mini site (read back by JS from the DOM):
+ *   narrow (< 720px):  page 356 x 676, browser chrome 32
+ *   wide   (>= 720px): page 1040 x 540, browser chrome 38
+ */
+
+.root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --page-w: 356px;
+  --page-h: 676px;
+  --chrome: 32px;
+  --floor: color-mix(in srgb, var(--accent) 34%, transparent);
+
+  position: relative;
+  /* Keep in sync with MIN_HEIGHT.assembly in sections/registry.ts. */
+  height: 200svh;
+  color: var(--fg);
+}
+
+.root[data-scheme='light'] {
+  --floor: color-mix(in srgb, var(--fg) 22%, transparent);
+}
+
+@media (min-width: 720px) {
+  .root {
+    --page-w: 1040px;
+    --page-h: 540px;
+    --chrome: 38px;
+  }
+}
+
+/* ── Sticky viewport ──────────────────────────────────────────────────── */
+
+.sticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'copy' 'stage' 'caption';
+  gap: 12px;
+  height: 100svh;
+  padding: calc(56px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));
+  overflow: hidden;
+  background: radial-gradient(
+    80% 60% at 60% 62%,
+    color-mix(in srgb, var(--accent) 7%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 3%, transparent) 45%,
+    transparent 80%
+  );
+}
+
+@media (min-width: 1024px) {
+  .sticky {
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'copy stage';
+    column-gap: clamp(24px, 3vw, 56px);
+    padding: 72px clamp(24px, 3vw, 48px) 48px clamp(24px, 4.4vw, 72px);
+  }
+}
+
+/* ── Copy column: title, intro, stage list ────────────────────────────── */
+
+.copyCol {
+  grid-area: copy;
+  position: relative;
+  z-index: 3;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .copyCol {
+    align-self: center;
+    gap: 0;
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: calc(clamp(30px, 8.6vw, 44px) * var(--display-scale));
+  line-height: 1.02;
+}
+
+.intro {
+  max-width: 34ch;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font: 400 16px/1.55 var(--font-body);
+}
+
+@media (min-width: 1024px) {
+  .title {
+    font-size: calc(clamp(44px, 4.3vw, 70px) * var(--display-scale));
+    line-height: 0.98;
+  }
+}
+
+@media (max-width: 1023px) {
+  .intro {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+.steps {
+  position: relative;
+  padding: 12px 0 0;
+}
+
+.stepList {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 14%, transparent);
+}
+
+.railFill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(var(--p, 0));
+  transform-origin: left center;
+}
+
+.step {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  min-width: 0;
+  opacity: 0.42;
+  transition: opacity 320ms var(--ease-out);
+}
+
+.step[data-state='done'] {
+  opacity: 0.66;
+}
+
+.step[data-state='active'] {
+  opacity: 1;
+}
+
+.stepNum {
+  color: var(--accent);
+  font: 500 11px/1.3 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepLabel {
+  font: 600 12.5px/1.2 var(--font-body);
+}
+
+.stepText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .steps {
+    margin-top: 36px;
+    padding: 0 0 0 24px;
+  }
+
+  .stepList {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .rail {
+    top: 6px;
+    bottom: 6px;
+    right: auto;
+    width: 2px;
+    height: auto;
+  }
+
+  .railFill {
+    transform: scaleY(var(--p, 0));
+    transform-origin: center top;
+  }
+
+  .step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    column-gap: 6px;
+  }
+
+  .stepNum {
+    padding-top: 3px;
+    font-size: 12px;
+  }
+
+  .stepLabel {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+
+  .stepText {
+    position: static;
+    grid-column: 2;
+    width: auto;
+    height: auto;
+    margin: 4px 0 0;
+    overflow: visible;
+    clip: auto;
+    color: var(--muted);
+    font: 400 14px/1.5 var(--font-body);
+    white-space: normal;
+  }
+}
+
+/* Caption: the active stage's sentence on phones; on desktop only the launch
+   line (the copy column, which carries the others, has gone by then). */
+.captions {
+  grid-area: caption;
+  position: relative;
+  z-index: 3;
+  display: grid;
+  min-height: 2.9em;
+  padding-right: 64px;
+}
+
+.caption {
+  grid-area: 1 / 1;
+  margin: 0;
+  font: 400 15px/1.4 var(--font-body);
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+
+/* The outgoing line leaves first, so two sentences never overlap. */
+.caption[data-state='active'] {
+  opacity: 1;
+  transition: opacity 280ms var(--ease-out) 140ms;
+}
+
+.captionNum {
+  margin-right: 8px;
+  color: var(--accent);
+  font: 500 12px/1 var(--font-mono);
+}
+
+@media (min-width: 1024px) {
+  .captions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    min-height: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  .caption:not(:last-child) {
+    display: none;
+  }
+
+  .caption {
+    color: var(--muted);
+  }
+}
+
+/* ── Measuring boxes (empty): where the composite fits while building, and
+      at launch. geometry.ts reads their rects. ───────────────────────── */
+
+.buildBox {
+  grid-area: stage;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.launchBox {
+  position: absolute;
+  top: calc(50px + env(safe-area-inset-top));
+  left: 10px;
+  right: 10px;
+  bottom: calc(68px + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .launchBox {
+    top: 60px;
+    left: max(20px, 3.4vw);
+    right: max(20px, 3.4vw);
+    bottom: 56px;
+  }
+}
+
+/* ── 3D stage ─────────────────────────────────────────────────────────── */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.root[data-ready] .stage {
+  visibility: visible;
+}
+
+/* The browser-sized composite. JS places it with translate + scale. */
+.fit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--page-w);
+  height: calc(var(--chrome) + var(--page-h));
+  transform-origin: 0 0;
+}
+
+/* Only during the launch zoom: the scale changes every frame. */
+.root[data-asm-zooming] .fit {
+  will-change: transform;
+}
+
+/* Soft floor under the launched browser: a pre-blurred gradient on a flat
+   sibling of the 3D tree (no box-shadow on a 3D plane). */
+.floor {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 46%;
+  bottom: -16%;
+  background: radial-gradient(
+    closest-side,
+    var(--floor) 0%,
+    color-mix(in srgb, var(--floor) 60%, transparent) 45%,
+    color-mix(in srgb, var(--floor) 20%, transparent) 75%,
+    transparent 100%
+  );
+  opacity: 0;
+}
+
+.persp {
+  position: absolute;
+  inset: 0;
+  perspective: 1700px;
+  perspective-origin: 50% 36%;
+}
+
+.lean,
+.tilt {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.camera {
+  position: absolute;
+  top: var(--chrome);
+  left: 0;
+  width: var(--page-w);
+  height: var(--page-h);
+  transform-style: preserve-3d;
+}
+
+/* Launched and flat: collapse the 3D contexts (crisp text, fewer layers). */
+.root[data-asm-flat] .lean,
+.root[data-asm-flat] .tilt,
+.root[data-asm-flat] .camera {
+  transform-style: flat;
+}

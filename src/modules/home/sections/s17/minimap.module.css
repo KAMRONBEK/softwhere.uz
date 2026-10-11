@@ -1,0 +1,69 @@
+/*
+ * The phone-only index thumbnail in an answer's status row (the full map sits
+ * beside the chat from 760px, where it is hidden). Static: no animation, so it
+ * costs nothing while the answer streams.
+ */
+.mini {
+  flex: none;
+  width: 84px;
+  height: auto;
+  aspect-ratio: 600 / 420;
+  border: 1px solid var(--rag-edge);
+  border-radius: var(--rag-radius-sm);
+  background: var(--rag-well);
+  overflow: hidden;
+}
+
+.cloud {
+  fill: color-mix(in srgb, var(--fg) 9%, transparent);
+}
+
+.query {
+  fill: var(--accent);
+}
+
+.link {
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--muted));
+  stroke-width: 9px;
+  stroke-linecap: round;
+}
+
+.hit {
+  fill: color-mix(in srgb, var(--accent) 55%, var(--muted));
+}
+
+[data-cite] > .link {
+  stroke: var(--accent);
+}
+
+[data-cite] > .hit {
+  fill: var(--accent);
+}
+
+/* Blocked (HR only) and missing: the snippets it reached are hollow, as on the map. */
+.mini[data-outcome='blocked'] .link,
+.mini[data-outcome='missing'] .link {
+  stroke: var(--muted);
+  stroke-dasharray: 10 14;
+}
+
+.mini[data-outcome='blocked'] .hit,
+.mini[data-outcome='missing'] .hit {
+  fill: var(--bg);
+  stroke: var(--muted);
+  stroke-width: 9px;
+}
+
+.threshold {
+  fill: color-mix(in srgb, var(--muted) 10%, transparent);
+  stroke: var(--muted);
+  stroke-width: 9px;
+  stroke-dasharray: 6 16;
+  stroke-linecap: round;
+}
+
+@media (min-width: 760px) {
+  .mini {
+    display: none;
+  }
+}

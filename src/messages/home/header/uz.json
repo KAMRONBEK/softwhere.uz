@@ -1,0 +1,71 @@
+{
+  "homeLabel": "SoftWhere, yuqoriga qaytish",
+  "navLabel": "Asosiy menyu",
+  "menu": {
+    "open": "Menyu",
+    "close": "Yopish",
+    "label": "Sayt menyusi"
+  },
+  "build": {
+    "label": "Qanday yaratamiz",
+    "title": "Hikoyani tanlang"
+  },
+  "stories": {
+    "telegram": {
+      "label": "Telegram bot",
+      "note": "Bot va Mini App, xabarma-xabar"
+    },
+    "mobile-build": {
+      "label": "Mobil ilova",
+      "note": "Ekranlar, backend, doʻkonlarga joylash"
+    },
+    "web-build": {
+      "label": "Veb-sayt",
+      "note": "Maketdan tez va qidiruvda chiqadigan sahifagacha"
+    },
+    "rag-build": {
+      "label": "Hujjatlaringizda AI",
+      "note": "Manbasi koʻrsatilgan javoblar"
+    },
+    "crm-build": {
+      "label": "CRM yoki admin panel",
+      "note": "Rollar, yozuvlar, jarayonlar, hisobotlar"
+    }
+  },
+  "links": {
+    "ai-demo": "Bepul baholash",
+    "work-wall": "Loyihalar",
+    "process": "Ish jarayoni",
+    "stack-physics": "Texnologiyalar"
+  },
+  "theme": {
+    "label": "Mavzu",
+    "trigger": "Mavzu: {name}. Boshqa koʻrinishni tanlash",
+    "title": "Koʻrinishni tanlang",
+    "hint": "Bitta sahifa, toʻrt xil koʻrinish. Tanlovingiz shu qurilmada saqlanadi.",
+    "nudge": "4 koʻrinishni sinang",
+    "dark": "Qorongʻi",
+    "light": "Yorugʻ"
+  },
+  "styles": {
+    "A": "Observatoriya",
+    "B": "Beton",
+    "C": "Ipak",
+    "D": "Anor"
+  },
+  "moods": {
+    "A": "Tun",
+    "B": "Plakat",
+    "C": "Kunduz",
+    "D": "Kino"
+  },
+  "swatch": {
+    "lead": "Jonli",
+    "headline": "ilovalar."
+  },
+  "language": {
+    "label": "Til",
+    "current": "{language}, joriy til"
+  },
+  "ctaShort": "Bogʻlanish"
+}

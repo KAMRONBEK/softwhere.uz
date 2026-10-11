@@ -10,12 +10,12 @@ Everything is Next.js App Router file-conventions or route handlers. Base URL co
 | --- | --- | --- |
 | Sitemap | `src/app/sitemap.ts` | `/sitemap.xml` — static roots + per-post URLs with hreflang |
 | Robots | `src/app/robots.ts` | `/robots.txt` — allow/disallow rules + sitemap ref |
-| RSS feed | `src/app/[locale]/feed.xml/route.ts` | `/{locale}/feed.xml` — RSS 2.0, one per locale |
+| RSS feed | `src/app/[locale]/(site)/feed.xml/route.ts` | `/{locale}/feed.xml` — RSS 2.0, one per locale |
 | OG image | `src/app/api/og/route.tsx` | `/api/og` — 1200×630 PNG (edge runtime) |
 | Post JSON-LD | `src/modules/blog/lib/seo.tsx` | `BlogPosting` + `BreadcrumbList` |
 | Site JSON-LD | `src/app/[locale]/layout.tsx` | `Organization` + `WebSite`; home metadata |
-| Post metadata | `src/app/[locale]/blog/[slug]/page.tsx` | canonical, hreflang, OG/Twitter, robots index rules, reading time |
-| Blog-list metadata | `src/app/[locale]/blog/page.tsx` | canonical/hreflang, RSS `alternates.types`, `CollectionPage` JSON-LD |
+| Post metadata | `src/app/[locale]/(site)/blog/[slug]/page.tsx` | canonical, hreflang, OG/Twitter, robots index rules, reading time |
+| Blog-list metadata | `src/app/[locale]/(site)/blog/page.tsx` | canonical/hreflang, RSS `alternates.types`, `CollectionPage` JSON-LD |
 | IndexNow | `src/modules/blog/utils/indexnow.ts` | POST to `api.indexnow.org` on publish |
 | Slugs | `src/shared/utils/slug.ts` | transliterated slug + cluster-root helper |
 | Meta clamp | `src/modules/blog/utils/meta.ts` | boundary-aware 160-char description clamp |
@@ -51,7 +51,7 @@ if (!currentCanonical || new Date(post.createdAt) < new Date(currentCanonical.cr
 }
 ```
 
-The whole dynamic block is wrapped in `try/catch`: on a DB error it logs (`logger.error(..., 'SEO')`) and then **throws at request time** — Next keeps serving the last good sitemap and retries within seconds — but returns **static-only** URLs at build time so a mid-build blip does not break the deploy. The blog index page (`src/app/[locale]/blog/page.tsx`), which has no revalidate window, fails the build on the same outage first.
+The whole dynamic block is wrapped in `try/catch`: on a DB error it logs (`logger.error(..., 'SEO')`) and then **throws at request time** — Next keeps serving the last good sitemap and retries within seconds — but returns **static-only** URLs at build time so a mid-build blip does not break the deploy. The blog index page (`src/app/[locale]/(site)/blog/page.tsx`), which has no revalidate window, fails the build on the same outage first.
 
 ## Robots — `src/app/robots.ts`
 
@@ -61,7 +61,7 @@ The whole dynamic block is wrapped in `try/catch`: on a DB error it logs (`logge
 - `disallow: ['/admin/', '/*/admin/', '/api/', '/_next/']` — admin is locale-prefixed (`/uz/admin/...`), so both shapes are blocked.
 - `sitemap: ${ENV.BASE_URL}/sitemap.xml`.
 
-## Per-locale RSS feed — `src/app/[locale]/feed.xml/route.ts`
+## Per-locale RSS feed — `src/app/[locale]/(site)/feed.xml/route.ts`
 
 One RSS 2.0 feed per locale at `/{locale}/feed.xml` (`/uz/feed.xml`, `/ru/feed.xml`, `/en/feed.xml`). `revalidate = 86400`. The locale is normalized with `validateLocale(rawLocale, 'en')`.
 
@@ -73,7 +73,7 @@ Content comes from `listForFeed(locale, 20)` (newest 20 published posts, that lo
 <atom:link href="${baseUrl}/${locale}/feed.xml" rel="self" type="application/rss+xml"/>
 ```
 
-Response: `Content-Type: application/rss+xml; charset=utf-8`, `Cache-Control: public, s-maxage=86400, stale-while-revalidate=604800`. On error it logs and returns `500 Feed unavailable`. The feed is advertised to crawlers from the blog-list page via `alternates.types['application/rss+xml']` (`src/app/[locale]/blog/page.tsx`).
+Response: `Content-Type: application/rss+xml; charset=utf-8`, `Cache-Control: public, s-maxage=86400, stale-while-revalidate=604800`. On error it logs and returns `500 Feed unavailable`. The feed is advertised to crawlers from the blog-list page via `alternates.types['application/rss+xml']` (`src/app/[locale]/(site)/blog/page.tsx`).
 
 ## OG image — `src/app/api/og/route.tsx`
 
@@ -117,11 +117,11 @@ const author = authorName
 
 The root locale layout renders `<StructuredData>` for every page: an **`Organization`** (logo, `sameAs` Telegram/Instagram from `SOCIAL_LINKS`, a `ContactPoint` with phone + `availableLanguage`) and a **`WebSite`** node.
 
-### Blog-list schema — `src/app/[locale]/blog/page.tsx`
+### Blog-list schema — `src/app/[locale]/(site)/blog/page.tsx`
 
 A **`CollectionPage`** node describing the blog index (`name`, `description`, `url`, `isPartOf` WebSite, `inLanguage`).
 
-## Blog-post metadata construction — `src/app/[locale]/blog/[slug]/page.tsx`
+## Blog-post metadata construction — `src/app/[locale]/(site)/blog/[slug]/page.tsx`
 
 `generateMetadata()` is where per-post SEO is assembled. Key mechanics:
 

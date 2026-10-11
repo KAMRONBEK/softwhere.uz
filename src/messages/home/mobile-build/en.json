@@ -1,0 +1,165 @@
+{
+  "heading": "Your app, from sticky note to store.",
+  "summary": "This is how we build a mobile app: scope, wireframes, design, code, testing and release. A typical first version takes about two months.",
+  "lead": "This is how we build a mobile app. Scroll, and a delivery app grows on the phone: scope, wireframes, design, code, testing and release. A typical first version takes about two months.",
+  "stepsLabel": "How we build a mobile app",
+  "stepAction": "Show step {number}: {title}",
+  "getLabel": "You get",
+  "planLabel": "A typical first version, week by week",
+  "weekTag": "W{week}",
+  "hintTouch": "Live demo · tap the app",
+  "hintPointer": "Live demo · click the app",
+  "demoLabel": "A delivery app being built, step by step, on a phone",
+  "cursor": { "show": "Show", "light": "Light", "dark": "Dark", "order": "Order", "add": "Add", "open": "Open", "get": "Get" },
+  "proof": "{count} apps from our portfolio are live in the app stores, among them {examples}.",
+  "listAnd": "{rest} and {last}",
+  "next": "Next could be yours.",
+  "payments": { "intl": "card payments", "uz": "Click and Payme payments" },
+  "price": "An app like this one, with ordering, {payments} and live courier tracking, comes to <b>{range}</b> and <b>{weeks}</b> in our estimator.",
+  "weeks": "{min}–{max} weeks",
+  "cta": "Price your app idea",
+  "footnote": "A range, not a quote: the exact price comes once we agree the details and write the technical specification. Weeks are for a typical first version.",
+  "steps": {
+    "scope": {
+      "title": "Idea & scope",
+      "short": "Scope",
+      "when": "Week 1",
+      "text": "We start with your idea, not with code: who it is for, what they do in the app, and what can wait for version two.",
+      "get": "A written scope and a price range for it."
+    },
+    "wire": {
+      "title": "Wireframes",
+      "short": "Wireframes",
+      "when": "Week 2",
+      "text": "Every screen as gray boxes first, so you can tap through the whole flow on your own phone before anything is drawn.",
+      "get": "A clickable prototype, the technical specification and a fixed price."
+    },
+    "design": {
+      "title": "Design",
+      "short": "Design",
+      "when": "From week 2",
+      "text": "Colors, type and icons, in light and dark mode. Design stays a week or two ahead of the code, so nobody waits.",
+      "get": "Every screen in its final look, ready to build."
+    },
+    "build": {
+      "title": "Build",
+      "short": "Build",
+      "when": "Weeks 3–8",
+      "text": "One codebase (React Native) runs on iPhone and Android, so you pay for one app, not two. The server, payments and maps are built alongside.",
+      "get": "A new version on your phone every week and a short written update every day."
+    },
+    "test": {
+      "title": "Test on real devices",
+      "short": "Testing",
+      "when": "Every build",
+      "text": "Small and large phones, old and new, on slow networks too. Crash reports are on from the first test build, so we catch problems before your customers do.",
+      "get": "A version real people have already used, ready for the stores."
+    },
+    "release": {
+      "title": "Store release",
+      "short": "Release",
+      "when": "Week 9",
+      "text": "We prepare the listings, screenshots and privacy forms and take the app through App Store and Google Play review.",
+      "get": "Your app in both stores, with the code and accounts in your name and 12 months of bug fixes."
+    }
+  },
+  "notes": {
+    "taps": "Order in three taps",
+    "card": "Pay by card",
+    "track": "Track the courier live",
+    "push": "Push: “on its way”",
+    "points": "Loyalty points",
+    "chat": "Chat with the courier"
+  },
+  "dishes": {
+    "croissant": { "name": "Butter croissant", "shop": "Bakery · 15 min" },
+    "pizza": { "name": "Margherita", "shop": "Pizza · 25 min" },
+    "coffee": { "name": "Cold brew", "shop": "Coffee · 10 min" },
+    "salad": { "name": "Green salad", "shop": "Fresh · 20 min" }
+  },
+  "categories": { "croissant": "Bakery", "coffee": "Coffee", "pizza": "Pizza", "salad": "Fresh" },
+  "units": { "soum": "so’m" },
+  "app": {
+    "name": "Your App",
+    "category": "Food delivery",
+    "deliverTo": "Deliver to",
+    "address": "Home",
+    "search": "Search dishes and shops",
+    "promoTitle": "Free delivery",
+    "promoText": "on your first order",
+    "popular": "Popular near you",
+    "seeAll": "See all",
+    "add": "Add {name} to the cart",
+    "cart": "{count, plural, =0 {Cart is empty} one {Cart, # item: place the order} other {Cart, # items: place the order}}",
+    "toLight": "Switch the app to light mode",
+    "toDark": "Switch the app to dark mode",
+    "tabsLabel": "App tabs",
+    "tabs": { "home": "Home", "search": "Search", "orders": "Orders", "profile": "Profile" },
+    "toast": "Order placed",
+    "pushWhen": "now",
+    "pushText": "Your order is on its way. Arriving in about 12 min.",
+    "pushOpen": "Open the order",
+    "trackTitle": "On its way",
+    "trackEta": "about 12 min",
+    "trackSteps": { "accepted": "Accepted", "cooking": "Cooking", "onTheWay": "On the way", "delivered": "Delivered" },
+    "orderLabel": "Your order",
+    "courier": "Your courier",
+    "courierRole": "Bike · 1.8 km away"
+  },
+  "scope": {
+    "board": "Idea board",
+    "scoped": "Scope · version 1",
+    "title": "Delivery app",
+    "v1": "Version 1",
+    "later": "Later",
+    "laterTag": "v2",
+    "signed": "Scope agreed"
+  },
+  "wire": { "flow": "Flow: search → add → order" },
+  "test": {
+    "build": "Beta {version}",
+    "title": "Testing on real devices",
+    "crashFree": "Crash-free sessions",
+    "crashValue": "99.8%",
+    "passed": "{passed} of {total} passed",
+    "ready": "Ready for the stores",
+    "devices": {
+      "ios-s": "iOS · 4.7″",
+      "ios-l": "iOS · 6.7″",
+      "and-l": "Android · 6.5″",
+      "and-old": "Android 10 · budget",
+      "tab": "Tablet · 11″",
+      "slow": "Slow 3G"
+    }
+  },
+  "store": {
+    "back": "Search",
+    "get": "Get",
+    "open": "Open",
+    "installing": "Installing",
+    "installLabel": "Install {app}",
+    "meta": { "status": "Status", "age": "Age", "category": "Category" },
+    "statusValue": "New",
+    "categoryValue": "Food",
+    "whatsNew": "What’s new",
+    "version": "Version 1.0 · First release",
+    "reviews": "Ratings & reviews",
+    "reviewSlot": "Your first review",
+    "reviewSlotText": "Your customers write this part, after launch."
+  },
+  "satellites": {
+    "flowTitle": "User flow",
+    "screens": { "home": "Home", "dish": "Dish", "cart": "Cart", "track": "Track" },
+    "paletteTitle": "Design system",
+    "swatches": { "accent": "Accent", "second": "Second", "ink": "Ink", "paper": "Paper" },
+    "headings": "Headings",
+    "body": "Text",
+    "themeLabel": "App theme",
+    "light": "Light",
+    "dark": "Dark",
+    "buildTitle": "Build {version}",
+    "sent": "Sent to your phone",
+    "approved": "Approved · Version 1.0",
+    "live": "Live in both stores"
+  }
+}

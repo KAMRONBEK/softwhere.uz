@@ -1,0 +1,56 @@
+{
+  "heading": "Kutilmagan holatlarsiz, haftama-hafta",
+  "summary": "Nimani imzolaysiz, qachon toʻlaysiz, har hafta nimani koʻrasiz va ishga tushirilgandan keyin nima boʻladi.",
+  "hint": "Marshrut boʻylab yurish uchun aylantiring",
+  "counterLabel": "Hafta",
+  "counterCaption": "odatiy birinchi versiya boʻyicha",
+  "outro": "Keyin navbatdagi versiya boshlanadi.",
+  "footnote": "Muddatlar mobil ilovaning odatiy birinchi versiyasi uchun; yirikroq mahsulotlar koʻproq vaqt oladi.",
+  "stepsLabel": "Biz qanday ishlaymiz",
+  "progressLabel": "Ish bosqichlari",
+  "jumpTo": "{number}-bosqichga oʻtish: {title}",
+  "factsLabel": "{title}: siz nima olasiz",
+  "sprintLabel": "2 haftalik sprint",
+  "weekTag": "H{week}",
+  "when": {
+    "single": "{from}-hafta",
+    "range": "{from}–{to}-haftalar",
+    "open": "{from}-haftadan keyin"
+  },
+  "steps": {
+    "discover": {
+      "title": "Tahlil",
+      "summary": "Kod yozishdan oldin biznesingizni oʻrganamiz."
+    },
+    "design": {
+      "title": "Dizayn",
+      "summary": "Ilova yaratilmasdan oldin uni bosib koʻrasiz."
+    },
+    "build": {
+      "title": "Ishlab chiqish",
+      "summary": "Ikki haftalik ish davrlari — sprintlar, har hafta sinab koʻrish uchun yangi versiya."
+    },
+    "launch": {
+      "title": "Ishga tushirish",
+      "summary": "Haqiqiy foydalanuvchilarga chiqaramiz va diqqat bilan kuzatamiz."
+    },
+    "grow": {
+      "title": "Rivojlantirish",
+      "summary": "Ishga tushirish kuni — marra emas, start chizigʻi."
+    }
+  },
+  "facts": {
+    "nda": "Avval NDA, agar xohlasangiz",
+    "range": "Narx oraligʻi darhol",
+    "spec": "Texnik topshiriq birga yoziladi",
+    "fixedPrice": "Keyin bitta qatʼiy narx",
+    "contract": "Hajm va narx shartnomada",
+    "deposit": "Oldindan toʻlov, keyin bosqichma-bosqich",
+    "dailyUpdate": "Har kuni yozma hisobot",
+    "changes": "Oʻzgarishlar boshlanishdan oldin baholanadi",
+    "accounts": "Kod, bulut va domenlar sizning nomingizda",
+    "ownership": "Toʻlaganingiz sari kod sizniki boʻladi",
+    "bugFixes": "12 oy xatolarni tuzatish — narx ichida",
+    "support": "Keyin oylik qoʻllab-quvvatlash, agar xohlasangiz"
+  }
+}

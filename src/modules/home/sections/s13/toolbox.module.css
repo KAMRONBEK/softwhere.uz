@@ -1,0 +1,626 @@
+/* 17 · Stack Physics, part two: the full toolbox drawer. Colors come only from the lab tokens. */
+
+.root {
+  --gutter: clamp(16px, 4vw, 56px);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --brick-h: 34px;
+  --brick-fs: 13.5px;
+  --brick-pad: 12px;
+  --brick-radius: min(var(--radius), 8px);
+  position: relative;
+  /* Width-driven only (no svh): the closed drawer's height is a function of the width alone. */
+  padding: clamp(36px, 5vw, 64px) var(--gutter) clamp(56px, 6vw, 96px);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* ---------- the bar (the closed drawer) ---------- */
+
+.bar {
+  display: grid;
+  gap: 20px;
+  align-items: end;
+}
+
+.barMain {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kicker,
+.kitsLabel {
+  margin: 0;
+  font: 500 11px / 1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.summary {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(clamp(28px, 3.4vw, 48px) * var(--display-scale));
+  line-height: 1;
+  color: var(--fg);
+}
+
+/* Every area by name: the richness at a glance, before anyone opens anything. */
+.areasClip {
+  overflow: hidden;
+}
+
+.areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  /* = one dot and its margins: the dot that opens each line sits outside the clip. */
+  margin: 0 0 0 -23px;
+  font: 400 14px / 1.5 var(--font-body);
+  color: var(--muted);
+}
+
+.areas > span {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 3px;
+  height: 3px;
+  margin: 0 10px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.toggle,
+.foot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 1px solid var(--accent);
+  border-radius: max(var(--radius), 2px);
+  background: transparent;
+  color: var(--fg);
+  font: 500 12px / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.toggle:active,
+.foot:active {
+  transform: scale(0.97);
+}
+
+.toggle:focus-visible,
+.foot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.chevron {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  transition: transform 260ms var(--ease-out);
+}
+
+.toggle[aria-expanded='true'] .chevron,
+.foot .chevron {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .toggle:hover,
+  .foot:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}
+
+/* ---------- the open drawer ---------- */
+
+.panel {
+  padding-top: clamp(28px, 4vw, 48px);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.kitsLabel {
+  margin-bottom: 10px;
+}
+
+.sentinel {
+  height: 0;
+}
+
+/* The picker rides along under the section badge while the walls scroll by. */
+.dock {
+  --kit-gutter: var(--gutter);
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 44px);
+  z-index: 6;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 8px var(--gutter);
+  background: var(--bg);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--fg) 8%, transparent);
+}
+
+/* While the visitor header shows (it slides in on scroll-up), a stuck picker steps down under it. */
+.dock[data-stuck='true'] {
+  transition: transform 300ms var(--ease-out);
+}
+
+:global(:root:has([data-lab-header]:not([data-hidden='true']))) .dock[data-stuck='true'] {
+  transform: translateY(calc(var(--lab-header-h, 0px) - env(safe-area-inset-top, 0px) - 44px));
+}
+
+/* Paints the strip between the viewport top and the stuck picker (the badge floats above it). */
+.dock::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: calc(env(safe-area-inset-top, 0px) + 44px);
+  background: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dock[data-stuck='true']::before {
+  opacity: 1;
+}
+
+/* What the chosen kit means. Three lines reserved, so a pick never moves the walls; and far
+   enough below the chips that the desktop cursor's size tag never lands on it. */
+.note {
+  max-width: 72ch;
+  min-height: calc(3 * 1.45em);
+  margin: 30px 0 0;
+  font: 400 14px / 1.45 var(--font-body);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+/* ---------- the walls ---------- */
+
+.shelves {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  margin-top: 14px;
+}
+
+.shelf {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shelfHead {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  transition: opacity 0.24s ease;
+}
+
+.shelfNumber,
+.shelfCount {
+  font: 500 11px / 1 var(--font-mono);
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+
+.shelfNumber {
+  color: var(--accent);
+}
+
+.shelfName {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(clamp(20px, 1.6vw, 26px) * var(--display-scale));
+  line-height: 1;
+  color: var(--fg);
+}
+
+.shelfCount {
+  margin-left: auto;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.shelfRole {
+  margin: 4px 0 10px;
+  font: 400 13.5px / 1.35 var(--font-body);
+  color: var(--muted);
+  transition: opacity 0.24s ease;
+}
+
+/* An area the chosen kit doesn't draw on steps back. */
+.shelves[data-kit='telegram'] .shelf:not([data-kits~='telegram']) :is(.shelfHead, .shelfRole),
+.shelves[data-kit='mobile'] .shelf:not([data-kits~='mobile']) :is(.shelfHead, .shelfRole),
+.shelves[data-kit='web'] .shelf:not([data-kits~='web']) :is(.shelfHead, .shelfRole),
+.shelves[data-kit='rag'] .shelf:not([data-kits~='rag']) :is(.shelfHead, .shelfRole),
+.shelves[data-kit='crm'] .shelf:not([data-kits~='crm']) :is(.shelfHead, .shelfRole) {
+  opacity: 0.45;
+}
+
+/*
+ * Phones: each area is one row that scrolls sideways (snapping brick to
+ * brick), its kit's tools first; the row fades at the edge it continues past.
+ */
+.wall {
+  display: flex;
+  gap: 4px;
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 2px var(--gutter) 3px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  list-style: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+}
+
+.wall::-webkit-scrollbar {
+  display: none;
+}
+
+.brick {
+  display: flex;
+  flex: none;
+  height: var(--brick-h);
+  scroll-snap-align: start;
+}
+
+.face {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--brick-pad);
+  border: 1px solid color-mix(in srgb, var(--fg) 15%, transparent);
+  border-radius: var(--brick-radius);
+  background: var(--bg-2);
+  color: var(--fg);
+  /* The same bottom lip as the tower's bricks. */
+  box-shadow:
+    var(--ring, 0 0 0 0 transparent),
+    inset 0 -2px 0 color-mix(in srgb, currentColor 13%, transparent);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.22s ease var(--wave, 0ms),
+    border-color 0.22s ease var(--wave, 0ms),
+    color 0.22s ease var(--wave, 0ms),
+    transform 0.16s var(--ease-out),
+    box-shadow 0.18s ease;
+}
+
+.name {
+  font: 500 var(--brick-fs) / 1 var(--font-body);
+  white-space: nowrap;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The chosen kit's tools light up in a wave across the walls. */
+.shelves[data-kit='telegram'] .brick[data-kits~='telegram'] .face,
+.shelves[data-kit='mobile'] .brick[data-kits~='mobile'] .face,
+.shelves[data-kit='web'] .brick[data-kits~='web'] .face,
+.shelves[data-kit='rag'] .brick[data-kits~='rag'] .face,
+.shelves[data-kit='crm'] .brick[data-kits~='crm'] .face {
+  --wave: min(calc(var(--order, 0) * 5ms), 460ms);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* …and hop as they do (high tier, pointer only: on a phone the tap must stay cheap). */
+.shelves[data-hop='on'][data-kit='telegram'] .brick[data-kits~='telegram'] .face,
+.shelves[data-hop='on'][data-kit='mobile'] .brick[data-kits~='mobile'] .face,
+.shelves[data-hop='on'][data-kit='web'] .brick[data-kits~='web'] .face,
+.shelves[data-hop='on'][data-kit='rag'] .brick[data-kits~='rag'] .face,
+.shelves[data-hop='on'][data-kit='crm'] .brick[data-kits~='crm'] .face {
+  animation: hop 0.5s var(--ease-out) var(--wave) backwards;
+}
+
+@keyframes hop {
+  0% {
+    transform: translateY(0);
+  }
+
+  38% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Phones: the kit's tools lead their row. */
+@media (max-width: 599.98px) {
+  .shelves[data-kit='telegram'] .brick[data-kits~='telegram'],
+  .shelves[data-kit='mobile'] .brick[data-kits~='mobile'],
+  .shelves[data-kit='web'] .brick[data-kits~='web'],
+  .shelves[data-kit='rag'] .brick[data-kits~='rag'],
+  .shelves[data-kit='crm'] .brick[data-kits~='crm'] {
+    order: -1;
+  }
+}
+
+/* "Used in our projects": the tools a real portfolio project lists get a mark. */
+.face::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  background: var(--accent);
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.22s var(--ease-out);
+}
+
+.root[data-proof='on'] .brick[data-proof='true'] .face::after {
+  transform: rotate(45deg) scale(1);
+  transition-delay: min(calc(var(--order, 0) * 4ms), 360ms);
+}
+
+.root[data-proof='on'] .brick[data-proof='true'] .face {
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.shelves[data-kit='telegram'] .brick[data-kits~='telegram'] .face::after,
+.shelves[data-kit='mobile'] .brick[data-kits~='mobile'] .face::after,
+.shelves[data-kit='web'] .brick[data-kits~='web'] .face::after,
+.shelves[data-kit='rag'] .brick[data-kits~='rag'] .face::after,
+.shelves[data-kit='crm'] .brick[data-kits~='crm'] .face::after {
+  background: var(--on-accent);
+}
+
+/* The brick the tag is about (an ink ring: it reads on a lit brick and a plain one alike). */
+.brick[data-active='true'] .face {
+  --ring: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--fg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Lit bricks keep their accent border: their selector outweighs this one. */
+  .brick:hover .face {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  }
+}
+
+/* The floor each wall stands on: the tower's ruler, in miniature. */
+.shelfFloor {
+  height: 8px;
+  margin-top: 2px;
+  border-top: 1px solid color-mix(in srgb, var(--fg) 34%, transparent);
+  background: repeating-linear-gradient(to right, color-mix(in srgb, var(--fg) 30%, transparent) 0 1px, transparent 1px 12px);
+  background-size: 100% 5px;
+  background-repeat: no-repeat;
+  transform-origin: 0 50%;
+}
+
+.foot {
+  margin-top: clamp(36px, 4vw, 56px);
+}
+
+/* ---------- the tag ---------- */
+
+.tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 8;
+  width: min(300px, calc(100% - 2 * var(--gutter)));
+  pointer-events: none;
+}
+
+/* Gliding from brick to brick; a fresh tag simply appears where it belongs. */
+.tip[data-glide='true'] {
+  transition: transform 0.18s var(--ease-out);
+}
+
+/* Opaque: nothing under it may show through. */
+.tipBody {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px 13px;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  border-radius: min(var(--radius), 14px);
+  background: var(--bg-2);
+  box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--fg) 40%, transparent);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(4px) scale(0.97);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 0.12s ease,
+    transform 0.2s var(--ease-out),
+    visibility 0s linear 0.12s;
+}
+
+.tip[data-open='true'] .tipBody {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.12s ease,
+    transform 0.2s var(--ease-out),
+    visibility 0s;
+}
+
+.tipTag {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 500 10.5px / 1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tipProof {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.proofMark {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+.tipName {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(20px * var(--display-scale));
+  line-height: 1.05;
+  color: var(--fg);
+}
+
+.tipBlurb {
+  margin: 0;
+  font: 400 13.5px / 1.4 var(--font-body);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+/* ---------- wider screens: brick walls ---------- */
+
+@media (min-width: 600px) {
+  .root {
+    --brick-h: 34px;
+    --brick-fs: 13.5px;
+    --brick-pad: 11px;
+  }
+
+  .bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px 48px;
+  }
+
+  .shelves {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 32px;
+    margin-top: 18px;
+  }
+
+  .shelfRole {
+    margin: 6px 0 12px;
+  }
+
+  .note {
+    min-height: calc(2 * 1.45em);
+  }
+
+  /*
+   * A small brick wall: courses fill from the floor up (wrap-reverse), full
+   * courses stretch to the wall's width, and the top course stays ragged,
+   * like a wall still being laid. Laid in reverse (row-reverse, `order`), so
+   * the eye still reads the area's first tools first, top left.
+   */
+  .wall {
+    flex-direction: row-reverse;
+    flex-wrap: wrap-reverse;
+    margin: auto 0 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .wall::after {
+    content: '';
+    order: 9999;
+    flex: 999 1 0px;
+    min-width: 0;
+  }
+
+  .brick {
+    flex: 1 0 auto;
+    order: calc(var(--n, 0) - var(--i, 0));
+  }
+}
+
+@media (min-width: 900px) {
+  .note {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .root {
+    --brick-h: 36px;
+    --brick-fs: 14px;
+    --brick-pad: 12px;
+  }
+
+  .shelves {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 52px 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .face,
+  .face::after,
+  .tip[data-glide='true'],
+  .dock[data-stuck='true'],
+  .tipBody,
+  .shelfHead,
+  .shelfRole,
+  .chevron,
+  .toggle,
+  .foot {
+    transition: none;
+  }
+
+  .shelves[data-kit] .brick .face {
+    animation: none;
+  }
+}

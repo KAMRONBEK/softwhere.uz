@@ -1,0 +1,125 @@
+/* 17 · Stack Physics: the kit picker (KitPicker.tsx). Colors come only from the lab tokens. */
+
+.row {
+  --chip-h: 40px;
+  --gutter-x: var(--kit-gutter, 16px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  /* Phones: one row that scrolls sideways, fading at the edge it continues past. */
+  margin: -4px calc(var(--gutter-x) * -1);
+  padding: 4px var(--gutter-x);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  pointer-events: auto;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--chip-h);
+  padding: 0 15px;
+  border: 1px solid color-mix(in srgb, var(--fg) 22%, transparent);
+  border-radius: calc(var(--radius) * 99);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  color: var(--fg);
+  font: 500 14px / 1 var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.16s ease-out;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* The chosen kit: an accent pill that glides from chip to chip (Flip). */
+.chip[aria-pressed='true']:not(.proof) {
+  border-color: transparent;
+  color: var(--on-accent);
+  cursor: default;
+}
+
+.pill {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--accent);
+  box-shadow: 0 10px 26px -12px var(--glow);
+}
+
+.label,
+.mark {
+  position: relative;
+  z-index: 1;
+}
+
+.rule {
+  flex: none;
+  width: 1px;
+  height: 22px;
+  margin: 0 4px;
+  background: color-mix(in srgb, var(--fg) 20%, transparent);
+}
+
+/* A switch: outlined in the accent while on. */
+.proof[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mark {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .chip[aria-pressed='false']:hover {
+    border-color: color-mix(in srgb, var(--fg) 55%, transparent);
+  }
+
+  .proof[aria-pressed='true']:hover {
+    border-color: var(--accent);
+  }
+}
+
+/* Wide screens: every chip on the page, wrapping; no sideways scroll, no edge fade. */
+@media (min-width: 900px) {
+  .row {
+    flex-wrap: wrap;
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    transition: none;
+  }
+}

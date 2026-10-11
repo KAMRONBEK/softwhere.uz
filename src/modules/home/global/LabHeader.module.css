@@ -1,0 +1,616 @@
+/*
+ * Visitor header. Only lab tokens (colours, faces, radius), so it reads as
+ * part of whichever style is active. Phones first: logo, theme swatch, a
+ * compact "Book a call" and a menu button; from 1280px the chapter links
+ * join the bar and the menu goes (LINKS_QUERY in LabHeaderMenu.tsx). The bar
+ * is 64px tall from 900px (--lab-header-h in LabShell.module.css).
+ */
+
+.header {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --bar-h: 56px;
+  /* The hero's gutter, so the logo lines up with the headline below it. */
+  --gutter: clamp(20px, 5.5vw, 96px);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  color: var(--fg);
+  font-family: var(--font-body);
+  /* No transform at rest: the phone sheet is position: fixed inside, and any
+     transform would make the header its containing block. */
+  transition:
+    transform 300ms var(--ease-out),
+    opacity 200ms ease;
+}
+
+.header[data-hidden='true'] {
+  /* A couple of px more than its height, so the hairline goes too. */
+  transform: translateY(calc(-100% - 2px));
+  transition-duration: 240ms;
+}
+
+@media (min-width: 900px) {
+  .header {
+    --bar-h: 64px;
+  }
+}
+
+/* ── Bar ─────────────────────────────────────────────────────────────────── */
+
+.bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: calc(var(--bar-h) + env(safe-area-inset-top, 0px));
+  padding: env(safe-area-inset-top, 0px) max(var(--gutter), env(safe-area-inset-right, 0px)) 0
+    max(var(--gutter), env(safe-area-inset-left, 0px));
+}
+
+/* The frosted ground, on its own layer (a backdrop-filter on the header
+   itself would also trap the fixed sheet). Clear at the very top, where the
+   bar sits on the hero. */
+.bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--fg) 9%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  transition: opacity 240ms ease;
+}
+
+.header[data-at-top='true'] .bar::before {
+  opacity: 0;
+}
+
+.header[data-menu='open'] .bar::before {
+  background: var(--bg);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (min-width: 1280px) {
+  /* Logo left, links centred on the page, actions right. */
+  .bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+  }
+}
+
+.home {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-self: start;
+  height: 44px;
+  margin-left: -6px;
+  padding: 0 6px;
+  border-radius: min(var(--radius), 10px);
+  color: var(--fg);
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+.home:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.logo {
+  height: 24px;
+  width: auto;
+}
+
+@media (min-width: 900px) {
+  .logo {
+    height: 26px;
+  }
+}
+
+/* ── Chapter links (1280px and up) ───────────────────────────────────────── */
+
+.nav {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .nav {
+    display: block;
+  }
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 clamp(8px, 0.9vw, 14px);
+  border-radius: min(var(--radius), 10px);
+  color: var(--muted);
+  font: 500 14.5px / 1 var(--font-body);
+  white-space: nowrap;
+  text-decoration: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    color 160ms ease,
+    transform 140ms var(--ease-out);
+}
+
+/* The current chapter: an accent rule that draws in from the left. */
+.link::after {
+  content: '';
+  position: absolute;
+  left: clamp(8px, 0.9vw, 14px);
+  right: clamp(8px, 0.9vw, 14px);
+  bottom: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 280ms var(--ease-out);
+}
+
+.link[aria-current='true'] {
+  color: var(--fg);
+}
+
+.link[aria-current='true']::after {
+  transform: scaleX(1);
+}
+
+.link:active {
+  transform: scale(0.97);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link:hover {
+    color: var(--fg);
+  }
+}
+
+/* ── Actions ─────────────────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 6px;
+  margin-left: auto;
+}
+
+@media (min-width: 600px) {
+  .actions {
+    gap: 10px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .actions {
+    margin-left: 0;
+  }
+}
+
+/* Always in the bar: the page's main action. Compact on phones. */
+.cta {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: min(var(--radius), 18px);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 14px / 1 var(--font-body);
+  white-space: nowrap;
+  text-decoration: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    transform 140ms var(--ease-out),
+    background-color 180ms ease;
+}
+
+/* A 44px-tall hit area around the pill. */
+.cta::before {
+  content: '';
+  position: absolute;
+  inset: -4px -2px;
+}
+
+@media (min-width: 600px) {
+  .cta {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: min(var(--radius), 20px);
+    font-size: 14.5px;
+  }
+
+  .cta::before {
+    inset: -2px;
+  }
+}
+
+/* Phones show the short label (Russian and Uzbek "Book a call" would push the menu button off the bar). */
+.ctaShort {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .ctaFull {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .ctaShort {
+    display: inline;
+  }
+}
+
+/* The narrowest phones: logo, swatch and menu only (the sheet keeps the CTA). */
+@media (max-width: 339px) {
+  .cta {
+    display: none;
+  }
+}
+
+.cta:active {
+  transform: scale(0.97);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover {
+    background: color-mix(in srgb, var(--accent) 84%, var(--fg));
+  }
+}
+
+/* ── Languages ───────────────────────────────────────────────────────────── */
+
+/* In the bar from 1280px: three codes, the current one in the page's colour. */
+.languages {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .languages {
+    display: block;
+  }
+}
+
+.languages > ul,
+.sheetLanguages > ul {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.language {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 40px;
+  padding: 0 6px;
+  border-radius: min(var(--radius), 10px);
+  color: var(--muted);
+  font: 500 12.5px / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: color 160ms ease;
+}
+
+.language[aria-current='true'] {
+  color: var(--fg);
+}
+
+.language:focus-visible,
+.sheetLanguage:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .language:hover {
+    color: var(--fg);
+  }
+}
+
+/* In the phone sheet: the three names side by side, 44px tall. */
+.sheetLanguages > ul {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sheetLanguage {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  border-radius: min(var(--radius), 22px);
+  color: var(--fg);
+  font: 500 15px / 1 var(--font-body);
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+}
+
+.sheetLanguage[aria-current='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Menu button (below 900px) ───────────────────────────────────────────── */
+
+.menuSlot {
+  display: flex;
+  margin-right: -10px;
+}
+
+@media (min-width: 1280px) {
+  .menuSlot {
+    display: none;
+  }
+}
+
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: min(var(--radius), 22px);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 140ms var(--ease-out);
+}
+
+.menuButton:active {
+  transform: scale(0.94);
+}
+
+.menuButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Two bars that cross into an X. */
+.menuBars {
+  position: relative;
+  width: 20px;
+  height: 12px;
+}
+
+.menuBars > span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.75px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 260ms var(--ease-out);
+}
+
+.menuBars > span:first-child {
+  top: 1px;
+}
+
+.menuBars > span:last-child {
+  bottom: 1px;
+}
+
+.menuButton[aria-expanded='true'] .menuBars > span:first-child {
+  transform: translateY(4.125px) rotate(45deg);
+}
+
+.menuButton[aria-expanded='true'] .menuBars > span:last-child {
+  transform: translateY(-4.125px) rotate(-45deg);
+}
+
+/* ── Phone sheet ─────────────────────────────────────────────────────────── */
+
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: calc(var(--bar-h) + env(safe-area-inset-top, 0px) + 12px) max(var(--gutter), env(safe-area-inset-right, 0px))
+    calc(20px + env(safe-area-inset-bottom, 0px)) max(var(--gutter), env(safe-area-inset-left, 0px));
+  background: var(--bg);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: sheet-in 200ms ease-out;
+}
+
+@media (min-width: 1280px) {
+  .sheet {
+    display: none;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheetNav {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sheetLinks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sheetGroup .sheetLabel,
+.sheetGroup li,
+.sheetLinks > li,
+.sheetTheme,
+.sheetLanguageGroup,
+.sheetCta {
+  animation: rise 420ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 30ms + 30ms);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.sheetLink {
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  padding: 4px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--fg) 11%, transparent);
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-size: calc(clamp(26px, 7.4vw, 36px) * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.05;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  transition: color 160ms ease;
+}
+
+.sheetLink[aria-current='true'] {
+  color: var(--accent);
+}
+
+.sheetLink:active {
+  color: var(--accent);
+}
+
+.sheetLink:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.sheetLabel {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font: 500 11px / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sheetHint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font: 400 13px / 1.45 var(--font-body);
+}
+
+.sheetCta {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  margin-top: auto;
+  border-radius: min(var(--radius), 27px);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 600 17px / 1 var(--font-body);
+  text-decoration: none;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.sheetCta:active {
+  background: color-mix(in srgb, var(--accent) 84%, var(--fg));
+}
+
+.sheetCta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── Reduced motion: fades only, nothing slides ──────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .header {
+    transition: opacity 180ms ease;
+  }
+
+  .header[data-hidden='true'] {
+    transform: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sheetGroup .sheetLabel,
+  .sheetGroup li,
+  .sheetLinks > li,
+  .sheetTheme,
+  .sheetLanguageGroup,
+  .sheetCta {
+    animation-name: sheet-in;
+    animation-duration: 200ms;
+    animation-delay: 0ms;
+  }
+
+  .link::after,
+  .menuBars > span {
+    transition: none;
+  }
+
+  .link:active,
+  .cta:active,
+  .menuButton:active {
+    transform: none;
+  }
+}

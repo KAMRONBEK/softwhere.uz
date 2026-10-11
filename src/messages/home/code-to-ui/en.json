@@ -1,0 +1,26 @@
+{
+  "heading": "Lines in. Product out.",
+  "summary": "Each block of code turns into the part of the product it describes, from the first card to the finished screen.",
+  "lede": "Scroll, and each block of code turns into the part of the product it describes. Scroll back to take it apart.",
+  "stat": "{react} of our {projects} projects use React (web) or React Native (phones).",
+  "editorLabel": "A code editor typing a React component block by block as you scroll",
+  "status": { "idle": "Live", "typing": "Typing", "done": "Compiled" },
+  "preview": "Preview",
+  "updated": "Updated",
+  "ui": { "button": "Watch it run", "toggle": "Dark mode", "chartTitle": "Projects per platform" },
+  "chartNote": "many ship on several",
+  "captions": {
+    "ready": "The wireframe is drawn. Now the code fills it in.",
+    "main": "This line lays down the screen.",
+    "card": "This block draws a card for {kind} we built.",
+    "btn": "This adds the Watch button.",
+    "pressMouse": "Click it, and the real walkthrough plays.",
+    "pressTouch": "Tap it, and the real walkthrough plays.",
+    "toggle": "This adds a dark-mode switch.",
+    "flip": "One flip, and every color follows.",
+    "chart": "This charts our {projects} projects by platform.",
+    "ship": "Compiled. Lines in, product out.",
+    "still": "Each block on the left builds one part on the right. Try the switch.",
+    "stillStacked": "Each block of code below builds one part above. Try the switch."
+  }
+}

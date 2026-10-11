@@ -1,0 +1,62 @@
+{
+  "heading": "Built in Tashkent. Shipped to {continents, plural, =1 {one continent} =2 {two continents} =3 {three continents} =4 {four continents} =5 {five continents} =6 {six continents} =7 {seven continents} other {# continents}}.",
+  "headingLines": {
+    "first": "Built in Tashkent.",
+    "second": "Shipped to {continents, plural, =1 {one continent} =2 {two continents} =3 {three continents} =4 {four continents} =5 {five continents} =6 {six continents} =7 {seven continents} other {# continents}}."
+  },
+  "summary": "From our studio in Tashkent to clients in the US, Europe and Central Asia.",
+  "hintMouse": "Drag to spin the globe",
+  "hintTouch": "Swipe sideways to spin",
+  "cursor": "Drag",
+  "routeLabel": "Jump to a stop on the route",
+  "stopLabel": "{stop}: {count, plural, one {# product} other {# products}}",
+  "km": "km",
+  "pins": {
+    "tashkent": "Tashkent",
+    "gb": "United Kingdom",
+    "nl": "Netherlands",
+    "ny": "New York",
+    "ca": "Canada",
+    "cal": "California",
+    "au": "Australia"
+  },
+  "pinsShort": {
+    "gb": "UK"
+  },
+  "examples": "{list}.",
+  "examplesMore": "{list} and {rest} more.",
+  "listAnd": "{head} and {last}",
+  "beats": {
+    "home": {
+      "stop": "Tashkent",
+      "title": "in Uzbekistan",
+      "body": "Home base: products for clients across the country.",
+      "detail": "{examples}"
+    },
+    "europe": {
+      "stop": "Europe",
+      "title": "in Europe",
+      "body": "For teams in the United Kingdom, the Netherlands and across Europe.",
+      "detail": "{examples} Up to {km} km from home."
+    },
+    "north-america": {
+      "stop": "North America",
+      "title": "in North America",
+      "body": "{us} in the US and {ca} in Canada, from New York to California.",
+      "detail": "{examples} Up to {km} km from home."
+    },
+    "oceania": {
+      "stop": "Australia",
+      "title": "in Australia",
+      "body": "For Australian teams, from {first} to {last}.",
+      "bodyShort": "For Australian teams.",
+      "detail": "{examples} {km} km from home."
+    },
+    "finale": {
+      "stop": "All",
+      "title": "{count, plural, one {product, one team} other {products, one team}}",
+      "body": "{countries, plural, =1 {One country} =2 {Two countries} =3 {Three countries} =4 {Four countries} =5 {Five countries} =6 {Six countries} =7 {Seven countries} =8 {Eight countries} =9 {Nine countries} =10 {Ten countries} other {# countries}} on the map, one studio in Tashkent.",
+      "detail": "{abroad} for clients abroad, including {worldwide} for teams spread across several countries. Whatever the time zone, a written update lands every day."
+    }
+  }
+}

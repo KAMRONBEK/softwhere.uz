@@ -1,0 +1,171 @@
+{
+  "heading": "A bakery opens online in four weeks.",
+  "summary": "How we build a website, shown on an example bakery: six steps from grey boxes to launch day.",
+  "lead": "How we build a website, shown on an example bakery: six steps from grey boxes to launch day. Scroll to build it, then resize it, switch it to dark or edit today’s special yourself.",
+  "leadStill": "How we build a website, shown on an example bakery: six steps from grey boxes to launch day. Pick a step to see it, then resize the site, switch it to dark or edit today’s special yourself.",
+  "stepsLabel": "How we build a website",
+  "stepAction": "{term}, {when}. Show this step",
+  "getLabel": "You get",
+  "timeline": "A company site with an admin panel usually takes 3–4 weeks, first call to launch.",
+  "deliverTitle": "What you get",
+  "deliver": {
+    "site": "The site on your own domain, fast on phones and easy for Google to read",
+    "admin": "An admin panel to change texts, photos and prices yourself",
+    "analytics": "Analytics from launch day",
+    "ownership": "The code, hosting account and domain in your name from day one",
+    "fixes": "12 months of bug fixes on everything we ship"
+  },
+  "proof": "{count} web projects in our portfolio so far, among them {examples}.",
+  "proofShort": "{count} web projects in our portfolio so far.",
+  "listAnd": "{rest} and {last}",
+  "next": "Next could be yours.",
+  "cta": "Price your website",
+  "footnote": "Weeks are for a typical company site. Your quote sets the real dates.",
+  "demoLabel": "Interactive demo: building an example bakery website, step by step",
+  "exampleTag": "Example",
+  "cursor": { "show": "Show" },
+  "toolbar": {
+    "label": "Preview controls",
+    "widthLabel": "Screen width",
+    "modes": { "desktop": "Desktop", "tablet": "Tablet", "phone": "Phone" },
+    "dark": "Dark mode"
+  },
+  "domain": "yourbakery.com",
+  "address": {
+    "wire": "prototype · v1",
+    "design": "prototype · v2",
+    "code": "preview.{domain}",
+    "content": "{domain}/admin"
+  },
+  "live": "Live",
+  "steps": {
+    "wire": {
+      "term": "Wireframe",
+      "when": "Days 1–3",
+      "text": "Grey boxes before colour: we agree where everything goes and what a visitor should do first.",
+      "get": "A layout of every page, agreed before design starts."
+    },
+    "design": {
+      "term": "Design",
+      "when": "Week 1",
+      "text": "One set of colours and fonts, so every page matches, in light and in dark.",
+      "get": "Designs for phone and desktop, approved by you."
+    },
+    "code": {
+      "term": "Code",
+      "when": "Weeks 2–3",
+      "text": "One site that rearranges itself for desktops, tablets and phones.",
+      "get": "A demo every week and a short written update every day."
+    },
+    "checks": {
+      "term": "Speed & SEO",
+      "when": "Week 3",
+      "text": "Fast on phones and easy for Google to read: we test speed, accessibility and search basics.",
+      "get": "A speed and search report before launch."
+    },
+    "content": {
+      "term": "Admin panel",
+      "when": "Weeks 3–4",
+      "text": "Your team changes texts, photos and prices itself, no developer needed.",
+      "get": "Logins for your team, and an admin to run the site."
+    },
+    "launch": {
+      "term": "Launch",
+      "when": "Week 4",
+      "text": "Your domain, a secure connection and analytics go live together, so you see visitors and orders from day one.",
+      "get": "The live site on your domain, in your name."
+    }
+  },
+  "site": {
+    "brand": "Your Bakery",
+    "specialBefore": "Today: pistachio croissants, out of the oven at {time}",
+    "specialAfter": "Today: warm cinnamon buns from {time}",
+    "nav": { "menu": "Menu", "about": "About", "visit": "Visit us" },
+    "navCta": "Order ahead",
+    "navCtaShort": "Order",
+    "heroTitle": "Baked before sunrise.",
+    "heroText": "Sourdough, croissants and buns from our own oven, every morning. Order ahead and skip the queue.",
+    "ctaPrimary": "Order for pickup",
+    "ctaSecondary": "See the menu",
+    "freshTitle": "Fresh today",
+    "products": {
+      "loaf": "Sourdough loaf",
+      "croissant": "Butter croissant",
+      "bun": "Cinnamon bun"
+    },
+    "outAt": "Out at {time}",
+    "footer": "Open daily {hours} · Pickup and delivery"
+  },
+  "wireLabels": {
+    "special": "Announcement",
+    "logo": "Logo",
+    "nav": "Menu",
+    "order": "Order",
+    "title": "Headline",
+    "text": "Intro",
+    "actions": "Buttons",
+    "photo": "Photo",
+    "fresh": "Products",
+    "footer": "Footer"
+  },
+  "panels": {
+    "wire": { "title": "Design note", "text": "Order button at the top, on every screen size." },
+    "design": {
+      "title": "Design system",
+      "colours": "Colour",
+      "swatches": { "brand": "Brand", "accent": "Accent", "ink": "Ink", "paper": "Paper" },
+      "type": "Type",
+      "headings": "Headings",
+      "body": "Text",
+      "shape": "Corners & spacing",
+      "note": "One set, light and dark."
+    },
+    "code": {
+      "layout": { "desktop": "3 columns", "tablet": "2 columns", "phone": "1 column" },
+      "chip": "Same page, three screens"
+    },
+    "checks": {
+      "title": "Speed & SEO report",
+      "device": "on a phone",
+      "scores": { "perf": "Performance", "a11y": "Accessibility", "best": "Best practices", "seo": "SEO" },
+      "scoreOf": "{label}: {value} of 100",
+      "vitalsTitle": "Core Web Vitals",
+      "vitals": {
+        "lcp": { "label": "Load", "value": "1.2 s" },
+        "inp": { "label": "Response", "value": "90 ms" },
+        "cls": { "label": "Stability", "value": "0.02" }
+      },
+      "good": "Good",
+      "rows": {
+        "local": "Hours & address marked up for Google",
+        "meta": "Page titles, previews & sitemap",
+        "a11y": "Works with screen readers"
+      }
+    },
+    "content": {
+      "title": "Admin · Home page",
+      "field": "Today’s special",
+      "publish": "Publish",
+      "publishing": "Publishing…",
+      "published": "Published",
+      "draft": "Draft",
+      "hoursLabel": "Opening hours",
+      "photoLabel": "Hero photo"
+    },
+    "launch": {
+      "title": "Analytics · today",
+      "deployed": "Live · secure",
+      "now": "Visitors now",
+      "today": "Visitors today",
+      "orders": "Pre-orders",
+      "conversion": "Conversion",
+      "toast": "New pre-order · {item}",
+      "items": {
+        "croissants": "2 butter croissants",
+        "loaf": "Sourdough loaf",
+        "buns": "Box of cinnamon buns",
+        "pistachio": "Pistachio croissant"
+      }
+    }
+  }
+}

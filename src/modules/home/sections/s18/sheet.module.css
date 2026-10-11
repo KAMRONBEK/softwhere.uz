@@ -1,0 +1,294 @@
+/*
+ * The messy spreadsheet. Its highlighter fills are content (the colours
+ * people actually paint cells with), so they are fixed hues; every surface,
+ * line and text colour around them comes from the style tokens. The morph
+ * drains the fills by writing each .fill's own opacity (a handful of
+ * elements, so a frame never restyles the whole grid).
+ */
+
+.sheet {
+  --hl-yellow: #f2c200;
+  --hl-green: #2fa35a;
+  --hl-red: #e0483c;
+  --hl-blue: #2f6fe4;
+  --hl-orange: #f08a24;
+  --hl-alert: #c2362b;
+  --sheet-line: color-mix(in srgb, var(--fg) 13%, transparent);
+  --sheet-head: color-mix(in srgb, var(--fg) 6%, var(--sheet-bg));
+  --row-h: 30px;
+
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--sheet-bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1;
+  container-type: inline-size;
+  pointer-events: none;
+}
+
+/* ---------- formula bar ---------- */
+
+.formula {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--sheet-line);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+}
+
+.cellRef {
+  min-width: 44px;
+  padding: 4px 6px;
+  border: 1px solid var(--sheet-line);
+  color: var(--muted);
+  text-align: center;
+}
+
+.fx {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.formulaText {
+  color: var(--fg);
+}
+
+/* ---------- grid ---------- */
+
+.grid {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    26px minmax(84px, 1.1fr) minmax(108px, 1.25fr) minmax(128px, 1.5fr) minmax(84px, 1fr) minmax(92px, 1fr)
+    minmax(62px, 0.8fr);
+  height: var(--row-h);
+  border-bottom: 1px solid var(--sheet-line);
+}
+
+.row[data-loud] .cell {
+  font-weight: 700;
+}
+
+.row[data-loud] .cell[data-col='4'] {
+  color: var(--hl-alert);
+}
+
+.num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--sheet-line);
+  background: var(--sheet-head);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 8px;
+  overflow: hidden;
+  border-right: 1px solid var(--sheet-line);
+  white-space: nowrap;
+}
+
+/* A highlighter fill: a whole row someone painted, or one status cell. */
+.fill {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.row > .fill[data-fill='yellow'] {
+  background: color-mix(in srgb, var(--hl-yellow) 26%, transparent);
+}
+
+.cell > .fill[data-fill='yellow'] {
+  background: color-mix(in srgb, var(--hl-yellow) 38%, transparent);
+}
+
+.fill[data-fill='green'] {
+  background: color-mix(in srgb, var(--hl-green) 32%, transparent);
+}
+
+.fill[data-fill='red'] {
+  background: color-mix(in srgb, var(--hl-red) 30%, transparent);
+}
+
+.fill[data-fill='blue'] {
+  background: color-mix(in srgb, var(--hl-blue) 26%, transparent);
+}
+
+.fill[data-fill='orange'] {
+  background: color-mix(in srgb, var(--hl-orange) 34%, transparent);
+}
+
+/* Over the cell's own fill. */
+.cellText {
+  position: relative;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+/* While the morph scrubs, the moving parts get their own layers. */
+.sheet[data-morphing] [data-line],
+.sheet[data-morphing] .flag,
+.sheet[data-morphing] .fill {
+  will-change: transform, opacity;
+}
+
+.cell[data-error] {
+  overflow: visible;
+  color: var(--hl-alert);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.letters,
+.head {
+  background: var(--sheet-head);
+}
+
+.letters .cell {
+  justify-content: center;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.letters {
+  height: 24px;
+}
+
+.head .cell {
+  font-weight: 700;
+}
+
+.totalRow .cell:nth-child(2) {
+  font-weight: 700;
+}
+
+/* ---------- sheet tabs ---------- */
+
+.tabs {
+  position: relative;
+  display: flex;
+  flex: none;
+  gap: 2px;
+  height: 32px;
+  padding: 0 6px;
+  border-top: 1px solid var(--sheet-line);
+  background: var(--sheet-head);
+}
+
+.tab {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.tab[data-current] {
+  background: var(--sheet-bg);
+  color: var(--fg);
+  font-weight: 600;
+  box-shadow: inset 0 2px 0 var(--hl-green);
+}
+
+/* ---------- problem callouts (the morph fades them in, then out) ---------- */
+
+.flag {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 9px 0 7px;
+  border-radius: 999px;
+  background: var(--hl-alert);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--hl-alert) 70%, transparent);
+  transform-origin: 0 50%;
+}
+
+.flag::before {
+  content: '!';
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--hl-alert);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.flagRow {
+  top: 4px;
+  right: 10px;
+  transform-origin: 100% 50%;
+}
+
+.flagCell {
+  top: 4px;
+  left: calc(100% + 6px);
+}
+
+.flagTabs {
+  right: 10px;
+  bottom: calc(100% + 8px);
+  transform-origin: 100% 100%;
+}
+
+/* ---------- narrow windows: the columns a phone would show ---------- */
+
+@container (max-width: 560px) {
+  .row {
+    grid-template-columns: 22px minmax(72px, 1fr) minmax(96px, 1.25fr) minmax(70px, 0.9fr) minmax(80px, 1fr);
+  }
+
+  /* Phone and Manager (and their letters) drop off the edge. */
+  .row > [data-col='1'],
+  .row > [data-col='5'] {
+    display: none;
+  }
+
+  .cell {
+    padding: 0 6px;
+  }
+
+  /* Under the total (the row above carries a duplicate flag). */
+  .flagCell {
+    top: calc(100% + 4px);
+    left: 4px;
+  }
+}

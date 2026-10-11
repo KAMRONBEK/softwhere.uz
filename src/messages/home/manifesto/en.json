@@ -1,0 +1,32 @@
+{
+  "heading": "Demos are easy. Shipping is hard. We ship.",
+  "summary": "What we build: websites, mobile apps, Telegram bots, Mini Apps, AI agents and automation.",
+  "summaryLinked": "What we build: <web>websites</web>, <mobile>mobile apps</mobile>, <bots>Telegram bots</bots>, Mini Apps, AI agents and automation.",
+  "statement": {
+    "easy": "Demos are easy.",
+    "hard": "Shipping is hard.",
+    "payoff": "We ship."
+  },
+  "servicesLabel": "What we build",
+  "services": {
+    "websites": "Websites",
+    "mobileApps": "Mobile apps",
+    "telegramBots": "Telegram bots",
+    "miniApps": "Mini Apps",
+    "aiAgents": "AI agents",
+    "automation": "Automation"
+  },
+  "outcomesLabel": "Products we have shipped",
+  "outcomes": {
+    "booking": "Booking apps",
+    "stores": "Online stores",
+    "taxi": "Taxi apps",
+    "delivery": "Delivery apps",
+    "tracking": "Live tracking",
+    "admin": "Admin panels",
+    "messengers": "Messengers",
+    "signatures": "E-signatures",
+    "payments": "In-app payments",
+    "healthcare": "Healthcare apps"
+  }
+}

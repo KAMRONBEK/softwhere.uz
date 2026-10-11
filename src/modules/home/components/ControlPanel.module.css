@@ -1,0 +1,381 @@
+/* The panel is founder tooling, not part of any style direction: it keeps its
+   own neutral palette and system font so it stays legible on every style. */
+.dock {
+  --panel-bg: rgba(18, 18, 22, 0.94);
+  --panel-fg: #f2f1ee;
+  --panel-muted: #a3a1a8;
+  --panel-line: rgba(255, 255, 255, 0.12);
+  --panel-hi: #ffffff;
+  position: fixed;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--panel-fg);
+}
+
+.bar {
+  display: flex;
+  gap: 8px;
+}
+
+.toggle,
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--panel-line);
+  border-radius: 999px;
+  background: var(--panel-bg);
+  color: var(--panel-fg);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.pill {
+  color: var(--accent);
+}
+
+.status {
+  font:
+    500 12px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  color: var(--panel-muted);
+}
+
+.panel {
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(72svh, 680px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 14px;
+  border: 1px solid var(--panel-line);
+  border-radius: 20px;
+  background: var(--panel-bg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  transform-origin: bottom right;
+  animation: panel-in 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.title {
+  flex: 1;
+  font-size: 15px;
+}
+
+.ghost,
+.wide {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--panel-fg);
+  font-size: 13px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.wide {
+  width: 100%;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+
+.group {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-muted);
+}
+
+.segmented {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.segment {
+  min-height: 44px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--panel-fg);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.segment[aria-pressed='true'] {
+  background: var(--panel-hi);
+  color: #111;
+}
+
+.segment:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dim:not([aria-pressed='true']) {
+  color: var(--panel-muted);
+}
+
+/* Style and logo pickers: two-column cards (styles 2×2, logos 1×2). Each style
+   card paints itself in its own palette and display face; logo cards preview
+   on the active style. */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 5px 5px 8px;
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--panel-fg);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 160ms ease,
+    transform 120ms ease-out;
+}
+
+.card[aria-pressed='true'] {
+  border-color: var(--panel-hi);
+  box-shadow: inset 0 0 0 1px var(--panel-hi);
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.card:focus-visible,
+.segment:focus-visible,
+.toggle:focus-visible,
+.ghost:focus-visible {
+  outline: 2px solid var(--panel-hi);
+  outline-offset: 2px;
+}
+
+.swatch {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 58px;
+  padding: 6px 8px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.swatchType {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.swatchDots {
+  display: flex;
+  gap: 4px;
+  padding-bottom: 3px;
+}
+
+.swatchDots > span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(127, 127, 127, 0.25);
+}
+
+.cardLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 3px;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cardKey {
+  font:
+    500 11px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  color: var(--panel-muted);
+}
+
+.logoPreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100px;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Big enough to see the drawing itself; the 32px and 16px beside it are real size. */
+.logoMarkLarge {
+  width: 72px;
+  height: 72px;
+}
+
+.logoSizes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoMark32 {
+  width: 32px;
+  height: 32px;
+}
+
+.logoMark16 {
+  width: 16px;
+  height: 16px;
+}
+
+.fonts {
+  margin: 4px 2px 0;
+  font-size: 12px;
+  color: var(--panel-fg);
+}
+
+.note {
+  margin: 6px 2px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--panel-muted);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  gap: 4px;
+  border-top: 1px solid var(--panel-line);
+}
+
+.row[data-active='true'] .jump {
+  color: var(--accent);
+}
+
+.jump {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--panel-fg);
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.num {
+  font:
+    500 12px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  color: var(--panel-muted);
+}
+
+.solo {
+  min-width: 56px;
+  margin: 6px 0;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--panel-muted);
+  font-size: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+@media (hover: hover) {
+  .jump:hover,
+  .solo:hover,
+  .ghost:hover {
+    color: var(--panel-hi);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+
+  .card:active {
+    transform: none;
+  }
+}

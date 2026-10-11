@@ -1,22 +1,13 @@
 import { toast } from 'react-toastify';
-import { trackEvent } from '@/shared/utils/analytics';
+import { postLead } from '@/shared/utils/lead';
 
-const FORM_SOURCE_MAP: Record<string, 'hero' | 'discuss' | 'contact'> = {
-  consultation: 'hero',
-  discuss: 'discuss',
-  '': 'contact',
-};
+export { postLead, type LeadInput } from '@/shared/utils/lead';
 
 const sender = async function (id: string, name: string, phone: string, message: string, from: string) {
   try {
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, phone, message, from }),
-    });
+    const isSent = await postLead({ name, phone, message, from });
 
-    if (res.ok) {
-      trackEvent('form_submit', { source: FORM_SOURCE_MAP[from] ?? 'contact' });
+    if (isSent) {
       toast.update(id, {
         render: 'Message sent successfully!',
         type: 'success',

@@ -1,0 +1,200 @@
+/*
+ * The 3D set (Stage.tsx). The stage is a size container; the camera's font
+ * size is the phone unit (--pu), fitted so the phone (23em × 48em) plus the
+ * hint above it fill the stage without overflowing. Desktop leaves room at
+ * the sides for the satellites. The camera carries the perspective; ONE
+ * plane inside it (the rig) carries the phone, its floor and the
+ * satellites, so the phone face and its slabs are the only 3D layers.
+ */
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+}
+
+.camera {
+  --pu: clamp(7px, min(calc(100cqh / 51.5), calc(100cqw / 24.5)), 15.5px);
+
+  position: absolute;
+  top: calc(50% + 1.5em);
+  left: 50%;
+  width: 23em;
+  height: 48em;
+  margin: -24em 0 0 -11.5em;
+  font-size: var(--pu);
+  perspective: 105em;
+  perspective-origin: 11.5em 22em;
+}
+
+/* ---------- hint ---------- */
+
+.hint {
+  position: absolute;
+  bottom: calc(100% + 0.9em);
+  left: 11.5em;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 7px 14px 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-2) 80%, transparent);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition:
+    opacity 380ms ease,
+    transform 420ms var(--ease-out);
+}
+
+.hint[data-hide] {
+  opacity: 0;
+  transform: translate(-50%, 6px);
+}
+
+.hintDot {
+  position: relative;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hintDot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: beacon 1.8s var(--ease-out) infinite;
+}
+
+/* ---------- the rig: pose per step ---------- */
+
+.rig {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: 11.5em 24em;
+  /* The plane would win 3D hit-testing over the leaning phone. */
+  pointer-events: none;
+  transition: transform 1200ms var(--ease-camera);
+}
+
+/* useRig writes the transform every frame it moves: no CSS transition. */
+.rig[data-driven] {
+  transition: none;
+}
+
+/*
+ * Without useRig (reduced motion, low tier): a still pose per step, the
+ * resting sway included. Phones: gentle poses (the phone is the screen).
+ */
+.stage[data-step='scope'] .rig {
+  transform: rotateX(13deg) rotateY(-10deg) rotateZ(-2deg);
+}
+
+.stage[data-step='wire'] .rig {
+  transform: rotateX(7deg) rotateY(-13deg) rotateZ(0.6deg);
+}
+
+.stage[data-step='design'] .rig {
+  transform: rotateX(6deg) rotateY(1deg) rotateZ(-0.6deg);
+}
+
+.stage[data-step='build'] .rig {
+  transform: rotateX(8deg) rotateY(-15deg) rotateZ(0.8deg);
+}
+
+.stage[data-step='test'] .rig {
+  transform: rotateX(5deg) rotateY(-7deg) scale(0.97);
+}
+
+.stage[data-step='release'] .rig {
+  transform: translateY(-0.4em) rotateX(4deg) rotateY(-10deg);
+}
+
+.floor {
+  position: absolute;
+  top: 46.4em;
+  left: 2em;
+  width: 19em;
+  height: 4.4em;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--floor), transparent);
+  transform: translateZ(-1.5em);
+  pointer-events: none;
+}
+
+@keyframes beacon {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* ---------- desktop: room for the satellites, bigger poses ---------- */
+
+@media (min-width: 900px) {
+  .camera {
+    --pu: clamp(8px, min(calc(100cqh / 51), calc(100cqw / 52)), 17px);
+
+    top: calc(50% + 1.4em);
+    perspective: 115em;
+  }
+
+  .stage[data-step='scope'] .rig {
+    transform: translateY(0.4em) rotateX(21deg) rotateY(-19deg) rotateZ(-3deg);
+  }
+
+  .stage[data-step='wire'] .rig {
+    transform: rotateX(9deg) rotateY(-27deg) rotateZ(1deg);
+  }
+
+  .stage[data-step='design'] .rig {
+    transform: rotateX(8deg) rotateY(5deg) rotateZ(-1deg);
+  }
+
+  .stage[data-step='build'] .rig {
+    transform: rotateX(12deg) rotateY(-30deg) rotateZ(1.2deg);
+  }
+
+  .stage[data-step='test'] .rig {
+    transform: rotateX(7deg) rotateY(-13deg) scale(0.95);
+  }
+
+  .stage[data-step='release'] .rig {
+    transform: translateY(-0.6em) rotateX(6deg) rotateY(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hintDot::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .rig,
+  .hint {
+    transition-duration: 1ms;
+  }
+}
+
+/* Phones held sideways: no room above the phone for the hint. */
+@media (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  .hint {
+    display: none;
+  }
+}

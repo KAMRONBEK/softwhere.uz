@@ -1,0 +1,39 @@
+{
+  "heading": "{projects} real products.",
+  "headingRest": "{projects, plural, one {real product.} other {real products.}}",
+  "summary": "Every tile is a walkthrough of something we shipped. {us} were built for the US market, {liveInStore} are live in the app stores.",
+  "hintPointer": "Drag the wall. Click a tile to open it.",
+  "hintTouch": "Swipe the wall. Tap a tile to open it.",
+  "cursorDrag": "Drag",
+  "cursorOpen": "Open",
+  "wallLabel": "Project wall",
+  "wallInstructions": "Arrow keys move between projects and the wall follows. Enter opens a project. Drag or swipe to explore with a pointer.",
+  "listLabel": "All projects",
+  "showList": "See all as a list",
+  "showWall": "Back to the wall",
+  "filtersLabel": "Filter projects",
+  "filterChipLabel": "{filter}, {status}. Show filters",
+  "filters": {
+    "all": "All",
+    "mobile": "Mobile",
+    "web": "Web",
+    "ai": "AI & bots"
+  },
+  "status": {
+    "all": "{count, plural, one {# project} other {# projects}}",
+    "mobile": "{count, plural, one {# mobile app} other {# mobile apps}}",
+    "web": "{count, plural, one {# web product} other {# web products}}",
+    "ai": "{count, plural, one {# product with AI or a bot inside} other {# products with AI or a bot inside}}"
+  },
+  "cardLabel": "{name}, {category}, {market}. Open walkthrough",
+  "lightbox": {
+    "category": "Category",
+    "market": "Market",
+    "platforms": "Platforms",
+    "website": "Website",
+    "stack": "Built with",
+    "close": "Close",
+    "previous": "Previous project",
+    "next": "Next project"
+  }
+}

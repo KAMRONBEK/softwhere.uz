@@ -1,0 +1,238 @@
+/*
+ * 16 · Process — phone (and reduced-motion) layout: the line leaves the
+ * heading's full stop, runs down a gutter past each stage's words and fact
+ * flags, and swings out into each stage's figure. A small HUD rides the
+ * bottom-left corner (the top-left belongs to the section badge).
+ */
+
+.vRoot {
+  display: flex;
+  min-height: var(--s12-h);
+  flex-direction: column;
+  padding: calc(76px + env(safe-area-inset-top)) 0 calc(84px + env(safe-area-inset-bottom));
+}
+
+.column {
+  --g: 20px;
+
+  position: relative;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  width: min(calc(100% - 32px), 640px);
+  margin: 0 auto;
+}
+
+.vHeader {
+  position: relative;
+  z-index: 1;
+}
+
+.vTitle {
+  max-width: 11ch;
+  margin: 0;
+  font-size: calc(clamp(40px, 11.5vw, 76px) * var(--display-scale));
+  line-height: 0.98;
+}
+
+/* Leaves the right margin to the line coming down from the full stop. */
+.vLede {
+  max-width: min(34ch, calc(100% - 40px));
+  margin: 16px 0 0;
+  color: var(--muted);
+  font:
+    400 16px/1.5 var(--font-body),
+    sans-serif;
+}
+
+.vSteps {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  margin: 92px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vStep {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+.vHead {
+  position: relative;
+  z-index: 1;
+  padding-left: 52px;
+}
+
+.vHead > [data-node] {
+  --node: 40px;
+
+  top: 40px;
+  left: var(--g);
+}
+
+.vHead h3 {
+  margin-top: 10px;
+  font-size: calc(clamp(36px, 10vw, 52px) * var(--display-scale));
+}
+
+.vHead p:last-of-type {
+  max-width: 32ch;
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+.vFlags {
+  position: relative;
+  z-index: 1;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+/* A flag row: dot on the gutter, a short leader, the words. */
+.vFlag {
+  position: relative;
+  padding: 6px 0 6px 52px;
+}
+
+.vFlag > :first-child {
+  top: calc(50% - 5.5px);
+  left: calc(var(--g) - 5.5px);
+}
+
+.vFlag > :nth-child(2) {
+  top: 50%;
+  left: calc(var(--g) + 9px);
+  width: 16px;
+  height: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.vFlag > :last-child {
+  position: static;
+  display: block;
+  transform: translateX(-8px);
+}
+
+.vFlag[data-on='true'] > :nth-child(2) {
+  transform: none;
+}
+
+/* Figure zones: floors sized so the tallest style (Concrete) fits the 2780px reserve on a 360px phone. */
+.vZone {
+  flex: 1 0 auto;
+  min-height: 160px;
+}
+
+.vZone[data-zone='1'] {
+  min-height: 228px;
+}
+
+.vZone[data-zone='2'],
+.vZone[data-zone='3'] {
+  min-height: 206px;
+}
+
+.vZone[data-zone='4'] {
+  min-height: 170px;
+}
+
+/* The bottom margin is where the HUD pill comes to rest, clear of the footnote. */
+.vOutro {
+  position: relative;
+  z-index: 1;
+  margin: 8px 0 64px 52px;
+}
+
+.vOutro > :first-child {
+  font-size: calc(clamp(26px, 7.4vw, 40px) * var(--display-scale));
+}
+
+.vOutro > :nth-child(2) {
+  font-size: 13px;
+}
+
+/* The HUD: at the end of the column so it can stick to the viewport bottom. */
+.vHud {
+  position: sticky;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 30;
+  height: 0;
+  pointer-events: none;
+}
+
+.pill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: 36px;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  padding: 0 14px 0 11px;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  border-radius: var(--pill-r);
+  background: var(--bg-2);
+  box-shadow: 0 10px 30px -16px color-mix(in srgb, var(--fg) 40%, transparent);
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 300ms ease,
+    transform 420ms var(--ease-out);
+}
+
+[data-step]:not([data-step='-1']) .pill {
+  opacity: 1;
+  transform: none;
+}
+
+.pillIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.pillWeek {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font:
+    500 11px/1 var(--font-mono),
+    monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pillWeek > span {
+  color: var(--fg);
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.pillDivider {
+  width: 1px;
+  height: 14px;
+  background: color-mix(in srgb, var(--fg) 20%, transparent);
+}
+
+.pillName {
+  color: var(--fg);
+  font:
+    600 13px/1.2 var(--font-body),
+    sans-serif;
+}
+
+.pillFill {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}

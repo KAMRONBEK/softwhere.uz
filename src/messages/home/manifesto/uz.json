@@ -1,0 +1,32 @@
+{
+  "heading": "Demo yasash oson. Ishga tushirish qiyin. Biz ishga tushiramiz.",
+  "summary": "Nimalar yaratamiz: saytlar, mobil ilovalar, Telegram botlar, Mini Apps, AI agentlar va avtomatlashtirish.",
+  "summaryLinked": "Nimalar yaratamiz: <web>saytlar</web>, <mobile>mobil ilovalar</mobile>, <bots>Telegram botlar</bots>, Mini Apps, AI agentlar va avtomatlashtirish.",
+  "statement": {
+    "easy": "Demo yasash oson.",
+    "hard": "Ishga tushirish qiyin.",
+    "payoff": "Biz ishga tushiramiz."
+  },
+  "servicesLabel": "Nimalar yaratamiz",
+  "services": {
+    "websites": "Saytlar",
+    "mobileApps": "Mobil ilovalar",
+    "telegramBots": "Telegram botlar",
+    "miniApps": "Mini Apps",
+    "aiAgents": "AI agentlar",
+    "automation": "Avtomatlashtirish"
+  },
+  "outcomesLabel": "Ishga tushirgan mahsulotlarimiz",
+  "outcomes": {
+    "booking": "Bron qilish ilovalari",
+    "stores": "Onlayn doʻkonlar",
+    "taxi": "Taksi ilovalari",
+    "delivery": "Yetkazib berish",
+    "tracking": "Xaritada kuzatish",
+    "admin": "Admin panellar",
+    "messengers": "Messenjerlar",
+    "signatures": "Elektron imzo",
+    "payments": "Ilova ichida toʻlov",
+    "healthcare": "Tibbiyot ilovalari"
+  }
+}

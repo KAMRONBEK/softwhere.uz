@@ -1,0 +1,380 @@
+/*
+ * 01 · Hero "Signal". The section is 120svh: a 100svh sticky stage holds the
+ * particle canvas while the copy scrolls away naturally; the wind strips the
+ * mark away within half a screen, and the manifesto arrives under it after
+ * 0.2 of a screen, so there is never a screen without words.
+ *
+ * Mark geometry (--mark, --mark-x, --mark-y) mirrors LANDSCAPE / PORTRAIT in
+ * s01/SignalScene.tsx so the CSS still, the glow and the hint sit exactly
+ * where the particles form.
+ */
+.root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --gutter: clamp(20px, 5.5vw, 96px);
+  --mark: min(74cqh, 41cqw);
+  --mark-x: 75cqw;
+  --mark-y: 48cqh;
+  position: relative;
+  height: 120svh;
+}
+
+@media (max-aspect-ratio: 11 / 10) {
+  .root {
+    --mark: min(76cqw, 34cqh);
+    --mark-x: 50cqw;
+    --mark-y: 29cqh;
+  }
+}
+
+/* ── Stage (sticky, behind the copy) ─────────────────────────────────────── */
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  container-type: size;
+  /* Vertical swipes scroll the page; sideways swipes are wind (s01/input.ts). */
+  touch-action: pan-y;
+  /* A long press charges the pulse: no text selection, loupe or callout. */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle calc(var(--mark) * 0.75) at var(--mark-x) var(--mark-y),
+      color-mix(in srgb, var(--logo-ink, var(--accent)) 13%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      circle calc(var(--mark) * 1.1) at calc(var(--mark-x) + var(--mark) * 0.28) calc(var(--mark-y) + var(--mark) * 0.24),
+      color-mix(in srgb, var(--accent-2) 9%, transparent),
+      transparent
+    );
+  pointer-events: none;
+}
+
+/* On a pale ground a second (possibly black) bleed reads as a smudge: one soft accent wash. */
+.root[data-scheme='light'] .backdrop {
+  background: radial-gradient(
+    circle calc(var(--mark) * 0.8) at var(--mark-x) var(--mark-y),
+    color-mix(in srgb, var(--logo-ink, var(--accent)) 8%, transparent),
+    transparent
+  );
+}
+
+/* The mark as a dot-matrix still: first paint, no-WebGL and crash fallback. */
+.still {
+  position: absolute;
+  left: var(--mark-x);
+  top: var(--mark-y);
+  width: var(--mark);
+  height: var(--mark);
+  translate: -50% -50%;
+  color: var(--fg);
+  -webkit-mask: radial-gradient(circle, #000 0 38%, transparent 46%) 0 0 / 6px 6px;
+  mask: radial-gradient(circle, #000 0 38%, transparent 46%) 0 0 / 6px 6px;
+  opacity: 0.85;
+  transition: opacity 1100ms var(--ease-out);
+  pointer-events: none;
+}
+
+.still[data-hidden='true'] {
+  opacity: 0;
+}
+
+.stillMark {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvasWrap {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 1200ms var(--ease-out);
+}
+
+.canvasWrap[data-ready='true'] {
+  opacity: 1;
+}
+
+/* Bottom fade that hands the stage over to the next section. */
+.edge {
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Desktop: the custom cursor shows "Pulse" over the mark (CursorLayer reads data-cursor). */
+.markZone {
+  position: absolute;
+  left: var(--mark-x);
+  top: var(--mark-y);
+  width: calc(var(--mark) * 0.86);
+  height: calc(var(--mark) * 0.86);
+  translate: -50% -50%;
+  border-radius: 50%;
+}
+
+/* Off-screen copy of the active Mark, rasterised into particle targets. */
+.markHost {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Copy (scrolls away over the sticky stage) ───────────────────────────── */
+
+.content {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  height: 100svh;
+  container-type: size;
+  pointer-events: none;
+}
+
+.copy {
+  position: absolute;
+  left: var(--gutter);
+  bottom: calc(clamp(40px, 10cqh, 112px) + env(safe-area-inset-bottom));
+  width: min(57cqw, 1120px);
+  pointer-events: auto;
+}
+
+.titleWrap {
+  position: relative;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(clamp(40px, min(5.7cqw, 11cqh), 112px) * var(--display-scale));
+  line-height: 0.98;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+/*
+ * The headline's dot-matrix twin: the same text in the particles' accent and
+ * grain, legible on the first frame. Each character fades out as its solid
+ * counterpart locks on (S01Hero entrance). Hidden until the entrance runs.
+ */
+.ghost {
+  position: absolute;
+  inset: 0;
+  color: var(--logo-ink, var(--accent));
+  -webkit-mask: radial-gradient(circle, #000 0 42%, transparent 52%) 0 0 / max(3px, 0.068em) max(3px, 0.068em);
+  mask: radial-gradient(circle, #000 0 42%, transparent 52%) 0 0 / max(3px, 0.068em) max(3px, 0.068em);
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.word {
+  white-space: nowrap;
+}
+
+.subline {
+  margin: clamp(20px, 3.2cqh, 34px) 0 0;
+  max-width: 34em;
+  font: 400 clamp(16px, 1.3cqw, 20px) / 1.55 var(--font-body);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: clamp(24px, 4.4cqh, 44px);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 26px;
+  border-radius: var(--radius);
+  font: 500 16px / 1 var(--font-body);
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.cta:active {
+  transform: scale(0.97);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.secondary {
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  color: var(--fg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 30%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primary:hover {
+    background: color-mix(in srgb, var(--accent) 84%, var(--fg));
+  }
+
+  .secondary:hover {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 70%, transparent);
+  }
+}
+
+/* ── Interaction hint (under the mark, gone after the first nudge of scroll) ── */
+
+.hintAnchor {
+  position: absolute;
+  left: var(--mark-x);
+  top: calc(var(--mark-y) + var(--mark) * 0.5 + 14px);
+  translate: -50% 0;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 400 13px / 1.3 var(--font-body);
+  color: var(--muted);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out) 1200ms;
+}
+
+.hint[data-ready='true'] {
+  opacity: 1;
+}
+
+/* After the first pulse: fade, then leave the hit-testing too (the iOS tilt button lives here). */
+.hint[data-done='true'] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 600ms var(--ease-out) 1800ms,
+    visibility 0s linear 2400ms;
+}
+
+.hintDot {
+  position: relative;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hintDot::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hintDot::after {
+    animation: hint-pulse 2.4s var(--ease-out) infinite;
+  }
+}
+
+@keyframes hint-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+.tilt {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+  color: var(--fg);
+  font: 500 13px / 1 var(--font-body);
+  pointer-events: auto;
+}
+
+/* ── Short landscape (phones on their side): tighten ───────────────────────── */
+
+@media (min-aspect-ratio: 11 / 10) and (max-height: 520px) {
+  .subline {
+    font-size: 15px;
+  }
+}
+
+/* ── Portrait: mark on top, copy below ───────────────────────────────────── */
+
+@media (max-aspect-ratio: 11 / 10) {
+  .copy {
+    right: var(--gutter);
+    width: auto;
+    bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .title {
+    font-size: calc(clamp(36px, min(12.6cqw, 6cqh), 84px) * var(--display-scale));
+  }
+
+  .subline {
+    margin-top: 14px;
+    font-size: 16px;
+  }
+
+  .actions {
+    margin-top: 22px;
+    gap: 10px;
+  }
+
+  .cta {
+    min-height: 50px;
+    padding: 0 22px;
+  }
+}
+
+/* Short phones (SE-class): the hint would collide with the copy. */
+@media (max-aspect-ratio: 11 / 10) and (max-height: 740px) {
+  .hintAnchor {
+    display: none;
+  }
+}

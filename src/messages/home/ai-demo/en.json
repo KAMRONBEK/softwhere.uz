@@ -1,0 +1,185 @@
+{
+  "heading": "Describe your idea. Get a plan in a minute.",
+  "headingLines": {
+    "first": "Describe your idea.",
+    "second": "Get a plan in a minute."
+  },
+  "summary": "Write it the way you would tell a friend. Our AI scopes the first version, sketches the key screens, and our own estimator gives the price range and weeks.",
+  "eyebrow": "Free AI plan",
+  "tryIt": "Try it with your idea",
+  "estimator": {
+    "lead": "Prefer to pick features yourself?",
+    "link": "Try the step-by-step estimator"
+  },
+  "exampleTag": "Example idea",
+  "placeholder": "Describe what you want to build…",
+  "chipsLabel": "More examples",
+  "ownIdea": "Write your own",
+  "generate": "Generate plan",
+  "thinking": "Thinking",
+  "replay": "Replay example",
+  "next": "Next example",
+  "stepsLabel": "How the plan is made",
+  "steps": {
+    "read": { "short": "Read", "long": "Reading the idea" },
+    "scope": { "short": "Scope", "long": "Scoping the first version" },
+    "sketch": { "short": "Sketch", "long": "Sketching the key screens" },
+    "price": { "short": "Price", "long": "Pricing with our estimator" }
+  },
+  "waiting": "Waiting for an idea",
+  "ready": "Plan ready",
+  "resultTag": "Example brief",
+  "scopeLabel": "First version",
+  "screensLabel": "Key screens",
+  "wireframeLabel": "Wireframe: {screen}",
+  "priceLabel": "Price range",
+  "priceNote": "From our estimator, for this scope",
+  "timelineLabel": "Timeline for this scope",
+  "weeksUnit": "{count, plural, one {week} other {weeks}}",
+  "weekAxis": "Week {week}",
+  "phases": { "design": "Design", "build": "Build", "launch": "Launch" },
+  "footnote": "A scripted example: our estimator’s range for this scope.",
+  "footCta": "Get one for your idea",
+  "liveDone": "Example brief ready: {title}. {min} to {max}, {minWeeks} to {maxWeeks} weeks.",
+  "rail": {
+    "label": "How your plan is made",
+    "steps": {
+      "idea": { "name": "Your idea", "short": "Idea", "caption": "Written the way you would tell a friend" },
+      "features": { "name": "Features", "short": "Features", "caption": "Mapped to our estimator’s catalog" },
+      "price": { "name": "Price and weeks", "short": "Price", "caption": "Calculated by our estimator, not the AI" },
+      "screens": { "name": "Key screens", "short": "Screens", "caption": "Sketched as lo-fi wireframes" }
+    },
+    "idea": "Members <m>book classes</m>, <m>pay by card</m> and join a <m>waitlist</m>.",
+    "features": {
+      "booking": "Booking",
+      "payments": "Payments",
+      "waitlist": "Waitlist",
+      "admin": "Admin panel"
+    },
+    "range": "Range",
+    "weeks": "Weeks"
+  },
+  "wire": {
+    "bot": "bot",
+    "card": "Card",
+    "week": { "mon": "M", "tue": "T", "wed": "W", "thu": "T", "fri": "F", "sat": "S", "sun": "S" }
+  },
+  "examples": {
+    "barber": {
+      "chip": "Barbershop",
+      "idea": "A booking app for my barbershop: clients pick a barber and a time, pay by card or Apple Pay, and get a reminder before the visit.",
+      "kind": "Mobile app",
+      "title": "Barbershop booking app",
+      "platforms": "iOS and Android",
+      "scope": {
+        "login": "SMS login",
+        "profiles": "Barber profiles and reviews",
+        "booking": "Time-slot booking",
+        "payments": "Stripe and Apple Pay",
+        "reminders": "Push reminders",
+        "admin": "Admin panel"
+      },
+      "choose": {
+        "name": "Choose a barber",
+        "header": "Barbers",
+        "search": "Search",
+        "filters": { "haircut": "Haircut", "beard": "Beard", "kids": "Kids" },
+        "slots": { "today1": "Today 11:30", "today2": "Today 14:00", "tomorrow": "Tomorrow", "saturday": "Saturday" },
+        "nav": { "home": "Home", "visits": "Visits", "profile": "Profile" }
+      },
+      "time": {
+        "name": "Pick a time",
+        "service": "Haircut · 45 min",
+        "note": "Free cancellation until 2 hours before",
+        "button": "Book 11:30"
+      },
+      "confirm": {
+        "name": "Pay and confirm",
+        "header": "Confirm",
+        "service": "Haircut and beard",
+        "when": "Friday, 11:30",
+        "yourName": "Your name",
+        "phone": "Phone number",
+        "note": "Reminder 1 hour before",
+        "button": "Pay"
+      }
+    },
+    "bakery": {
+      "chip": "Bakery bot",
+      "idea": "A Telegram bot with a Mini App for my bakery: customers browse the menu, order and pay inside Telegram, and every order lands in our group chat.",
+      "kind": "Telegram bot",
+      "title": "Bakery shop in Telegram",
+      "platforms": "Bot and Mini App",
+      "scope": {
+        "catalog": "Menu catalog",
+        "checkout": "Cart and checkout",
+        "status": "Order status",
+        "payments": "Card payments (Stripe)",
+        "group": "Orders to your group chat",
+        "admin": "Admin panel"
+      },
+      "chat": {
+        "name": "Bot chat",
+        "bot": "Bakery bot",
+        "fresh": "Fresh bread is out of the oven.",
+        "menuAsk": "Show me the menu",
+        "tap": "Tap below to order.",
+        "pickup": "Can I pick it up at 6?",
+        "pickupYes": "Yes, choose pickup at checkout.",
+        "open": "Open menu",
+        "keys": { "menu": "Menu", "orders": "My orders", "contacts": "Contacts" }
+      },
+      "menu": {
+        "name": "Menu",
+        "tabs": { "bread": "Bread", "pastry": "Pastry", "cakes": "Cakes" },
+        "items": { "non": "Non", "samsa": "Samsa", "croissant": "Croissant", "napoleon": "Napoleon" },
+        "cart": "Cart · 3"
+      },
+      "checkout": {
+        "name": "Checkout",
+        "header": "Your order",
+        "lines": { "non": "Non ×2", "samsa": "Samsa ×1" },
+        "address": "Address",
+        "time": "Delivery time",
+        "button": "Pay"
+      }
+    },
+    "assistant": {
+      "chip": "AI assistant",
+      "idea": "An AI assistant for our Telegram channel that answers customer questions from our price list and FAQ, and hands tricky ones to a manager.",
+      "kind": "AI assistant",
+      "title": "AI support assistant",
+      "platforms": "Telegram and admin panel",
+      "scope": {
+        "answers": "Answers from your documents",
+        "upload": "Price list and FAQ upload",
+        "handoff": "Hand-off to a manager",
+        "alerts": "Telegram alerts",
+        "admin": "Admin panel"
+      },
+      "chat": {
+        "name": "Customer chat",
+        "bot": "Assistant",
+        "sunday": "Do you deliver on Sundays?",
+        "sundayYes": "Yes, from 9:00 to 18:00.",
+        "district": "And to Chilonzor?",
+        "districtYes": "Yes, Chilonzor is in our delivery zone.",
+        "faq": "Answered from FAQ",
+        "message": "Message"
+      },
+      "handoff": {
+        "name": "Hand-off",
+        "invoice": "Can I pay by invoice?",
+        "connect": "Let me connect you to a manager.",
+        "joined": "Manager joined the chat",
+        "manager": "Hi, this is Dilnoza. Yes, I will send it now."
+      },
+      "kb": {
+        "name": "Knowledge base",
+        "upload": "Upload a file",
+        "files": { "prices": "Price list", "faq": "FAQ", "delivery": "Delivery terms", "returns": "Return policy" },
+        "nav": { "chats": "Chats", "files": "Files", "stats": "Stats" }
+      }
+    }
+  }
+}

@@ -1,0 +1,228 @@
+/*
+ * 18 · Finale "Warp". The section is a 120svh warp track followed by the
+ * contact panel (≥ 100svh). One sticky stage spans the whole section behind
+ * both, so the starfield spools up while the section scrolls in, peaks under
+ * the lead-in, and is still there, calm, behind the form.
+ */
+.root {
+  --gutter: clamp(16px, 5.5vw, 96px);
+  /* Must match TRACK_VIEWPORTS in engine.ts. */
+  --track: 120svh;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ── Stage (sticky for the whole section) ────────────────────────────────── */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* The light at the end of the tunnel; JS moves and scales it with the warp. */
+.glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 92vmax;
+  height: 92vmax;
+  margin: -46vmax 0 0 -46vmax;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 30%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 9%, transparent) 22%,
+    transparent 58%
+  );
+  opacity: 0.35;
+  will-change: transform, opacity;
+}
+
+.root[data-scheme='light'] .glow {
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--bg-2) 96%, transparent) 0%,
+    color-mix(in srgb, var(--accent) 7%, transparent) 26%,
+    transparent 60%
+  );
+}
+
+/* Long-exposure still: no WebGL, low tier, crash, and before the canvas mounts. */
+.still {
+  --still-ink: color-mix(in srgb, var(--fg) 30%, transparent);
+  --still-hot: color-mix(in srgb, var(--accent) 55%, transparent);
+  position: absolute;
+  inset: -20%;
+  background:
+    repeating-conic-gradient(from 3deg at 50% 50%, var(--still-ink) 0deg 0.22deg, transparent 0.22deg 2.9deg),
+    repeating-conic-gradient(from 0deg at 50% 50%, var(--still-hot) 0deg 0.3deg, transparent 0.3deg 7.3deg);
+  -webkit-mask: radial-gradient(circle at 50% 50%, transparent 0 14%, rgb(0 0 0 / 0.3) 24%, #000 52%);
+  mask: radial-gradient(circle at 50% 50%, transparent 0 14%, rgb(0 0 0 / 0.3) 24%, #000 52%);
+  opacity: 0.5;
+}
+
+.root[data-scheme='light'] .still {
+  --still-ink: color-mix(in srgb, var(--muted) 34%, transparent);
+  --still-hot: color-mix(in srgb, var(--accent) 40%, transparent);
+  opacity: 0.6;
+}
+
+/* The project names streaming past (positioned by JS from the stage centre). */
+.names {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+.name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: calc(40px * var(--display-scale));
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 22px color-mix(in srgb, var(--bg) 80%, transparent);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Soft floor so the panel reads over the stars without a hard edge (JS fades it in). */
+.floor {
+  position: absolute;
+  inset: auto 0 0;
+  height: 70%;
+  background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 70%, transparent) 72%);
+  opacity: 0;
+  will-change: opacity;
+}
+
+/* Reduced motion: no scroll story, so the floor is simply there. */
+.root[data-motion='still'] .floor {
+  opacity: 1;
+}
+
+/* ── Warp track and the lead-in ──────────────────────────────────────────── */
+
+.track {
+  position: relative;
+  height: var(--track);
+  pointer-events: none;
+}
+
+/*
+ * The lead-in rides a rail of its own: the whole section while the warp
+ * plays (it scatters long before the panel arrives), just the track under
+ * reduced motion (it scrolls away as the panel comes up).
+ */
+.introRail {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.root[data-motion='still'] .introRail {
+  bottom: auto;
+  height: var(--track);
+}
+
+.introSticky {
+  position: sticky;
+  top: 0;
+  display: grid;
+  place-items: center;
+  height: 100svh;
+  padding: 0 var(--gutter);
+}
+
+.intro {
+  position: relative;
+  margin: 0;
+  text-align: center;
+  will-change: transform, opacity;
+}
+
+.intro :global(.finale-intro-char) {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+/* Three real products, by kind, then the promise. */
+.introNames {
+  display: block;
+  margin: 0 0 clamp(10px, 1.6svh, 18px);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(clamp(18px, 4.6vw, 38px) * var(--display-scale));
+  line-height: 1.1;
+  /* "A ride-hailing app.": condensed faces (Concrete) shrink the space after a one-letter word to nothing. */
+  word-spacing: 0.08em;
+  text-wrap: balance;
+}
+
+.introLine {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  /* One line from 360px up in every style; scattering never scales it past the gutters. */
+  font-size: calc(clamp(32px, 9.4vw, 112px) * var(--display-scale));
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.cue {
+  position: absolute;
+  left: 50%;
+  bottom: calc(28px + env(safe-area-inset-bottom));
+  width: 1px;
+  height: 56px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--fg) 18%, transparent);
+}
+
+.cue::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 18px;
+  background: var(--accent);
+  animation: cue 1.8s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+@keyframes cue {
+  from {
+    transform: translateY(-18px);
+  }
+  to {
+    transform: translateY(56px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue::after {
+    animation: none;
+    transform: translateY(19px);
+  }
+}

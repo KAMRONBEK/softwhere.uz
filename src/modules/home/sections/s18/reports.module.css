@@ -1,0 +1,430 @@
+.reports {
+  --c0: var(--accent);
+  --c1: var(--accent-2);
+  --c2: color-mix(in srgb, var(--accent) 45%, var(--app-surface));
+  --c3: color-mix(in srgb, var(--accent-2) 42%, var(--app-surface));
+  --c4: color-mix(in srgb, var(--fg) 28%, var(--app-surface));
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  container-type: inline-size;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sample {
+  padding: 3px 9px;
+  border: 1px dashed color-mix(in srgb, var(--fg) 30%, transparent);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.metric {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--r-sm);
+  background: var(--app-sunk);
+  box-shadow: inset 0 0 0 1px var(--app-line);
+}
+
+.metricButton {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: calc(var(--r-sm) - 2px);
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.metricButton[aria-pressed='true'] {
+  background: var(--app-surface);
+  color: var(--fg);
+  box-shadow: 0 1px 3px var(--app-shadow-soft);
+}
+
+.metricButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---------- KPIs ---------- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.kpi {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-md);
+  background: var(--app-surface);
+}
+
+.kpi[data-live] {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--app-line));
+}
+
+.kpi dt {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.kpi dd {
+  margin: 4px 0 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* ---------- charts: they take the rest of the module, the bars grow into it ---------- */
+
+.charts {
+  display: grid;
+  flex: 1;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-md);
+  background: var(--app-surface);
+}
+
+.cardTitle {
+  margin-bottom: 10px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.bars {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  min-height: 96px;
+  /* Quarter gridlines over the bars' range (the month labels sit under it). */
+  background:
+    linear-gradient(var(--app-line), var(--app-line)) 0 calc(100% - 20px) / 100% 1px no-repeat,
+    repeating-linear-gradient(
+        to top,
+        transparent 0,
+        transparent calc((100% - 21px) / 4 - 1px),
+        color-mix(in srgb, var(--fg) 6%, transparent) calc((100% - 21px) / 4 - 1px),
+        color-mix(in srgb, var(--fg) 6%, transparent) calc((100% - 21px) / 4)
+      )
+      0 0 / 100% calc(100% - 20px) no-repeat;
+}
+
+.barCol {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bar {
+  flex: 1;
+  width: 100%;
+  max-width: 44px;
+  border-radius: min(var(--radius), 4px) min(var(--radius), 4px) 0 0;
+  background: color-mix(in srgb, var(--accent-2) 55%, var(--app-surface));
+  transform: scaleY(var(--h, 0));
+  transform-origin: 50% 100%;
+  transition: transform 760ms var(--ease-out);
+  transition-delay: calc(var(--n, 0) * 55ms);
+}
+
+.barCol[data-live] .bar {
+  background: var(--accent);
+}
+
+.barValue {
+  position: absolute;
+  bottom: calc(20px + (100% - 20px) * var(--h, 0) + 4px);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 300ms ease 600ms;
+}
+
+.reports[data-shown] .barValue {
+  opacity: 1;
+}
+
+.month {
+  flex: none;
+  height: 14px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 14px;
+}
+
+.barCol[data-live] .month {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.liveNote {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.sources {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 16px;
+}
+
+.donut {
+  flex: none;
+  width: 112px;
+  height: 112px;
+  transform: rotate(-90deg);
+}
+
+.donutTrack {
+  fill: none;
+  stroke: var(--app-sunk);
+  stroke-width: 16;
+}
+
+.segment {
+  fill: none;
+  stroke-width: 16;
+  transition: stroke-dasharray 900ms var(--ease-out);
+  transition-delay: calc(var(--n, 0) * 90ms);
+}
+
+.segment[data-n='0'],
+.swatch[data-n='0'] {
+  stroke: var(--c0);
+  background: var(--c0);
+}
+
+.segment[data-n='1'],
+.swatch[data-n='1'] {
+  stroke: var(--c1);
+  background: var(--c1);
+}
+
+.segment[data-n='2'],
+.swatch[data-n='2'] {
+  stroke: var(--c2);
+  background: var(--c2);
+}
+
+.segment[data-n='3'],
+.swatch[data-n='3'] {
+  stroke: var(--c3);
+  background: var(--c3);
+}
+
+.segment[data-n='4'],
+.swatch[data-n='4'] {
+  stroke: var(--c4);
+  background: var(--c4);
+}
+
+.legend {
+  display: grid;
+  flex: 1;
+  gap: 5px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legendName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.legendValue {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@container (min-width: 640px) {
+  .charts {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  /* Beside the bars, the donut stands over its legend. */
+  .sources {
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .donut {
+    width: min(160px, 70%);
+    height: auto;
+    aspect-ratio: 1;
+  }
+
+  .legend {
+    flex: none;
+    width: 100%;
+  }
+}
+
+@container (max-width: 420px) {
+  .kpi {
+    padding: 8px 9px;
+  }
+
+  .kpi dd {
+    font-size: 0.86rem;
+  }
+
+  .bars {
+    min-height: 80px;
+    gap: 6px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .cardTitle {
+    margin-bottom: 8px;
+  }
+
+  .liveNote {
+    display: none;
+  }
+
+  .donut {
+    width: 84px;
+    height: 84px;
+  }
+
+  .legend {
+    gap: 3px;
+  }
+
+  .legendRow {
+    font-size: 0.7rem;
+  }
+}
+
+/* Short screens: smaller charts; the sources card drops on the shortest. */
+@container crm-main (max-height: 440px) {
+  .reports,
+  .charts {
+    gap: 8px;
+  }
+
+  .kpi {
+    padding: 6px 8px;
+  }
+
+  .bars {
+    min-height: 60px;
+  }
+
+  .card {
+    padding: 8px 10px;
+  }
+
+  .liveNote {
+    display: none;
+  }
+
+  .donut {
+    width: 60px;
+    height: 60px;
+  }
+
+  .legendRow {
+    font-size: 0.66rem;
+  }
+
+  .legend {
+    gap: 1px;
+  }
+}
+
+@container crm-main (max-height: 340px) {
+  .charts > :last-child {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar,
+  .segment,
+  .barValue {
+    transition: none;
+  }
+}

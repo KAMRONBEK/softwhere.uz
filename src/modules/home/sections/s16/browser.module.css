@@ -1,0 +1,298 @@
+/*
+ * The browser window, its scaled page and the preview toolbar. Chrome colours
+ * come from the lab tokens (the frame belongs to the studio, the page inside
+ * to the example bakery).
+ */
+
+.browser {
+  --chrome-h: 40px;
+  --frame-r: min(var(--radius), 14px);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* The step cards place themselves by the frame's width (panels.module.css). */
+  container: frame / inline-size;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  border-radius: var(--frame-r);
+  background: var(--bg-2);
+  box-shadow: 0 30px 80px -36px var(--b-shadow);
+}
+
+.chrome {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  height: var(--chrome-h);
+  padding: 0 10px 0 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--fg) 10%, transparent);
+}
+
+.dots {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fg) 22%, transparent);
+}
+
+.address {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 6%, var(--bg));
+  color: var(--muted);
+  font: 500 12px/1 var(--font-mono);
+}
+
+.addressIcon {
+  flex: none;
+  width: 13px;
+  height: 13px;
+}
+
+.browser[data-live] .addressIcon {
+  color: var(--accent);
+}
+
+/* Its own line box: the address's 1-line box would clip descenders (y, p) under overflow: hidden. */
+.url {
+  overflow: hidden;
+  min-width: 0;
+  padding-block: 2px;
+  color: var(--fg);
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  animation: url-in 420ms var(--ease-out);
+}
+
+@keyframes url-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+
+.liveTag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.liveTag::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-dot 1.6s ease-in-out infinite;
+}
+
+@keyframes live-dot {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.example {
+  flex: none;
+  padding: 4px 8px;
+  border: 1px dashed color-mix(in srgb, var(--fg) 24%, transparent);
+  border-radius: 999px;
+  color: var(--muted);
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The canvas behind the page: a dot grid, like a design tool or device mode. */
+.area {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0 0 var(--frame-r) var(--frame-r);
+  background:
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--fg) 16%, transparent) 1px, transparent 1.4px) 0 0 / 14px 14px,
+    color-mix(in srgb, var(--fg) 3%, var(--bg));
+  /* Its own compositing context: the layouts' fades and morphs never repaint the frame around them. */
+  isolation: isolate;
+  contain: strict;
+}
+
+/* ---------- toolbar ---------- */
+
+.toolbar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.segmented {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  border-radius: max(min(var(--radius), 14px), 2px);
+  background: color-mix(in srgb, var(--bg-2) 88%, transparent);
+}
+
+.thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 44px;
+  height: calc(100% - 6px);
+  border-radius: max(calc(min(var(--radius), 14px) - 3px), 0px);
+  background: var(--accent);
+  transition: transform 320ms var(--ease-out);
+}
+
+.segment {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    color 200ms ease,
+    transform 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.segment svg {
+  width: 19px;
+  height: 19px;
+}
+
+.segment[aria-checked='true'] {
+  color: var(--on-accent);
+}
+
+.segment:active {
+  transform: scale(0.94);
+}
+
+.segment:focus-visible,
+.darkToggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.readout {
+  min-width: 5.2em;
+  color: var(--muted);
+  font: 500 12px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.darkToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px 0 10px;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  border-radius: max(min(var(--radius), 14px), 2px);
+  background: color-mix(in srgb, var(--bg-2) 88%, transparent);
+  color: var(--fg);
+  font: 600 13px/1 var(--font-body);
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 200ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.darkToggle[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.darkToggle:active {
+  transform: scale(0.97);
+}
+
+.darkIcon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+
+.darkIcon svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .segment:hover {
+    color: var(--fg);
+  }
+
+  .segment[aria-checked='true']:hover {
+    color: var(--on-accent);
+  }
+
+  .darkToggle:hover {
+    background: color-mix(in srgb, var(--fg) 7%, var(--bg-2));
+  }
+}
+
+/* Phones: an icon-only dark switch keeps the Lab button's corner clear. */
+@media (max-width: 599px) {
+  .darkToggle {
+    justify-content: center;
+    width: 44px;
+    padding: 0;
+  }
+
+  .darkLabel {
+    display: none;
+  }
+}
+
+/* Narrow frames: the address bar gets the room the window dots took. */
+@container frame (max-width: 559px) {
+  .dots {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .url,
+  .liveTag::before {
+    animation: none;
+  }
+
+  .thumb {
+    transition-duration: 1ms;
+  }
+}

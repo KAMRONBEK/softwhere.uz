@@ -1,0 +1,148 @@
+{
+  "heading": "Ask your own documents.",
+  "summary": "We connect AI to your company’s files: PDFs, spreadsheets, wiki pages. Your team asks in plain words and gets an answer with its sources, or an honest “I don’t know”.",
+  "lead": "We connect AI to your company’s files: PDFs, spreadsheets, wiki pages. Your team asks in plain words and gets an answer with its sources, or an honest “I don’t know”. Try it on a sample logistics company.",
+  "privacyTitle": "Private by design.",
+  "privacy": "Your files stay in your own database, every answer checks who is asking, and it can all run on your own servers.",
+  "hintTouch": "Live demo · tap a question",
+  "hintPointer": "Live demo · click a question",
+  "demoLabel": "Interactive demo: an AI assistant that answers from a logistics company’s own files",
+  "stepsLabel": "How it works, in five steps",
+  "steps": {
+    "read": { "term": "Read", "text": "Your PDFs, spreadsheets and wiki pages, cut into short snippets." },
+    "index": { "term": "Index", "text": "Snippets about the same topic sit together, so the right ones are found in a blink." },
+    "answer": { "term": "Answer", "text": "Ask in plain words. Every answer shows the file it came from." },
+    "guard": { "term": "Guard", "text": "People only see the files their role allows. No source, no answer." },
+    "insights": { "term": "Insights", "text": "See what your team asks, and what your files don’t cover yet." }
+  },
+  "stepAction": "{term}: {text} Show “{term}” in the demo",
+  "cursor": { "show": "Show", "open": "Open", "ask": "Ask" },
+  "getTitle": "What you get",
+  "get": {
+    "assistant": "An assistant your team uses in the browser or in Telegram",
+    "admin": "An admin panel to add and remove files",
+    "roles": "Roles that decide who sees which files",
+    "report": "A report of what people ask and what your files are missing"
+  },
+  "weeksLabel": "Typical first version",
+  "weeks": "{min}–{max} weeks",
+  "timeline": {
+    "assistant": "An assistant on your files, with an admin panel",
+    "roles": "Plus roles and reports, like this demo"
+  },
+  "weeksNote": "Weeks from our estimator. Your quote sets the real dates.",
+  "proof": "Shipped: an AI study platform whose tutor answers only from the material you upload, in Uzbek, English and Russian.",
+  "next": "Contracts, manuals, tenders, a support inbox: next could be yours.",
+  "cta": "Price an assistant for your files",
+  "replay": "Replay demo",
+  "docs": {
+    "rates": "Rate card 2026",
+    "handbook": "Driver handbook",
+    "customs": "Customs & borders",
+    "warehouse": "Warehouse SOP",
+    "hr": "HR policy 2026"
+  },
+  "units": {
+    "sheets": "{count, plural, one {# sheet} other {# sheets}}",
+    "pages": "{count, plural, one {# page} other {# pages}}"
+  },
+  "clusters": {
+    "rates": "Rates",
+    "customs": "Customs",
+    "fleet": "Fleet & drivers",
+    "warehouse": "Warehouse",
+    "hr": "HR & pay"
+  },
+  "roles": {
+    "dispatcher": "Dispatcher",
+    "hr": "HR manager"
+  },
+  "library": {
+    "title": "Your files",
+    "count": "{count, plural, one {# file} other {# files}}",
+    "hrOnly": "HR only",
+    "reading": "Reading…",
+    "passages": "{count, plural, one {# snippet} other {# snippets}}",
+    "cited": "Source {n}"
+  },
+  "map": {
+    "title": "Index",
+    "count": "{count, plural, one {# snippet} other {# snippets}}",
+    "caption": "Each dot is a snippet from your files. Similar topics sit together, so the assistant finds the right ones fast.",
+    "label": "Map of the indexed snippets, grouped by topic",
+    "locked": "HR only",
+    "nothingClose": "No good match"
+  },
+  "chat": {
+    "title": "Staff assistant",
+    "subtitle": "Your Logistics Co.",
+    "tabs": { "chat": "Chat", "insights": "Insights" },
+    "signedInAs": "Signed in as",
+    "reading": "Reading {count, plural, one {# file} other {# files}}…",
+    "indexing": "Sorting {count, plural, one {# snippet} other {# snippets}} by topic…",
+    "greeting": "Hi! I’ve read {count, plural, one {# file} other {# files}}. Ask about rates, routes or rules, and I’ll show where every answer comes from.",
+    "searching": "Searching {count, plural, one {# snippet} other {# snippets}}…",
+    "roleNote": {
+      "hr": "Signed in as HR manager. HR files are open to you.",
+      "dispatcher": "Signed in as Dispatcher. HR files are hidden from you."
+    },
+    "asWho": "as {role}",
+    "sources": "Sources",
+    "closest": "Closest snippet",
+    "match": "{score} match",
+    "citeLabel": "Source {n}: {doc}",
+    "tryAsking": "Try asking"
+  },
+  "questions": {
+    "surcharge": { "chip": "Fuel surcharge?", "text": "What’s the fuel surcharge on long-haul routes?" },
+    "salary": { "chip": "Dispatcher salary?", "text": "What’s the salary range for dispatchers?" },
+    "charity": { "chip": "Charity discount?", "text": "Do we give a discount for charity shipments?" }
+  },
+  "found": {
+    "answered": "Found {count, plural, one {# snippet} other {# snippets}} · best match {best}",
+    "blocked": "Found {count, plural, one {# snippet} other {# snippets}} · all in HR-only files",
+    "missing": "No good match (best was {best})"
+  },
+  "replies": {
+    "surcharge": "Routes over 500 km carry a 12% fuel surcharge on the base rate [1]. It’s reviewed on the 1st of each month, and cross-border trips also pay a customs handling fee [2].",
+    "salaryBlocked": "That’s in the HR policy, which only the HR team can open, so I can’t show it to you. Ask HR, or sign in as an HR manager.",
+    "salaryOpen": "Dispatchers are on pay grade 4. The salary band and the yearly review date are in section 3.2 of the HR policy [1].",
+    "charity": "I couldn’t find that in your files, so I won’t guess. The closest snippet is about volume discounts [1], which isn’t the same thing. I’ve logged the question so someone can add the answer."
+  },
+  "badges": {
+    "hrOnly": "Access rule · HR only",
+    "logged": "Not in your files · logged"
+  },
+  "sources": {
+    "surcharge": {
+      "where": "Surcharges, row 14",
+      "quote": "Long-haul (500 km+): fuel surcharge 12% of base rate, reviewed monthly."
+    },
+    "customsFee": {
+      "where": "Handling fees",
+      "quote": "Every cross-border shipment pays a handling fee per declaration."
+    },
+    "payGrades": {
+      "where": "§3.2 Pay grades",
+      "quote": "Grade 4: dispatch and route planning. Band and review date in Table 3."
+    },
+    "volume": {
+      "where": "Volume discounts",
+      "quote": "5% off the base rate from 40 shipments a month."
+    }
+  },
+  "insights": {
+    "title": "What your team asks",
+    "tag": "This demo",
+    "stats": { "asked": "Asked", "answered": "Answered", "blocked": "Blocked", "missing": "Missing" },
+    "empty": "No questions yet. Ask one in the chat and it shows up here.",
+    "outcome": {
+      "answered": "Answered · {count, plural, one {# source} other {# sources}}",
+      "blocked": "Blocked · HR only",
+      "missing": "Not in files · logged"
+    },
+    "gapTitle": "Missing from your files",
+    "gap": "Charity discounts: no file covers them. Add a line to the rate card and the assistant can answer next time.",
+    "footnote": "Live, this covers every question your team asks, by topic, team and week."
+  }
+}

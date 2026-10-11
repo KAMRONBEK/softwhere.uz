@@ -1,0 +1,10 @@
+/*
+ * The logos are static by default; the entrance (logos/entrance.ts) is GSAP
+ * and only runs when `animate` is set and motion is allowed, so reduced-motion
+ * users and every static use get the finished logo with no hidden parts.
+ */
+.logo {
+  display: block;
+  /* The chevrons slide in from outside the box during the entrance. */
+  overflow: visible;
+}

@@ -1,0 +1,35 @@
+{
+  "heading": "Maket emas, ishlayotgan mahsulot.",
+  "summary": "Biz yaratgan mahsulotlarning haqiqiy ekranlari, noutbuk va telefonda.",
+  "intro": "Haqiqiy mahsulotlarning haqiqiy ekranlari: noutbukda {laptopKind}, telefonda {phoneApps} ta ilova. Ishga tushirish uchun sahifani aylantiring.",
+  "stageLabel": "Biz yaratgan {phoneApps} ta ilova ekranlari ochilgan telefon va yonida biz yaratgan {laptopKind} ochilgan noutbuk",
+  "appPosition": "{total} tadan {index}-si:",
+  "apps": {
+    "tes-chat": {
+      "tag": "Chat",
+      "oneLiner": "Real vaqtda ishlaydigan messenjer: guruhlar, kanallar, ovozli va video qoʻngʻiroqlar. Android va veb uchun."
+    },
+    "nexus": {
+      "tag": "Sarmoya",
+      "oneLiner": "Kriptovalyuta, mavzuli toʻplamlar va koʻchmas mulk ulushlari bitta portfelda, KYC tekshiruvi bilan. iOS va Android uchun."
+    },
+    "rasta-market": {
+      "tag": "Auksion",
+      "oneLiner": "Hafta davomida lotlarga ovoz berish, shanba kechasi jonli auksion. Sotuvchilar ilovasi va admin panel bilan."
+    }
+  },
+  "outroTitle": "Birinchi pikseldan doʻkonga.",
+  "outroText": "App Store va Google Play doʻkonlarida {liveApps} ta ilovamiz ishlayapti: {markets} bozorlari uchun. Ularni bitta jamoa loyihalaydi, ishlab chiqadi va chiqaradi.",
+  "grab": {
+    "cursor": "Torting",
+    "mouse": {
+      "first": "Tortib",
+      "second": "buring"
+    },
+    "touch": {
+      "first": "Surib",
+      "second": "buring"
+    }
+  },
+  "listJoin": "{rest} va {last}"
+}

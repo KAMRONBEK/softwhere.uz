@@ -1,0 +1,40 @@
+.root {
+  /* The visitor header's bar (global/LabHeader), safe area included. Sections
+     that pin content to the top can keep clear of it while it shows. */
+  --lab-header-h: calc(56px + env(safe-area-inset-top, 0px));
+  /* How much of the top the header covers right now: its height while it
+     shows, 0 once it has slid away. Sticky bars and badges sit under it. */
+  --lab-header-offset: 0px;
+  position: relative;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.crash {
+  margin: 0;
+  padding: 0 16px 24px;
+  text-align: center;
+  font: 400 15px/1.4 var(--font-body);
+  color: var(--muted);
+}
+
+@media (min-width: 900px) {
+  .root {
+    --lab-header-h: calc(64px + env(safe-area-inset-top, 0px));
+  }
+}
+
+.root:has(> [data-lab-header]:not([data-hidden='true'])) {
+  --lab-header-offset: var(--lab-header-h);
+}
+
+/* Header jumps move focus to the target section (tabindex -1) so keyboard
+   users continue from there; the whole section needs no focus ring. */
+.root :global([data-section]:focus) {
+  outline: none;
+}

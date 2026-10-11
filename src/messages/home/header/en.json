@@ -1,0 +1,71 @@
+{
+  "homeLabel": "SoftWhere, back to the top",
+  "navLabel": "Main",
+  "menu": {
+    "open": "Menu",
+    "close": "Close",
+    "label": "Site menu"
+  },
+  "build": {
+    "label": "How we build",
+    "title": "Jump to a story"
+  },
+  "stories": {
+    "telegram": {
+      "label": "Telegram bot",
+      "note": "A bot and Mini App, chat by chat"
+    },
+    "mobile-build": {
+      "label": "Mobile app",
+      "note": "Screens, backend, store release"
+    },
+    "web-build": {
+      "label": "Website",
+      "note": "From layout to a fast, findable page"
+    },
+    "rag-build": {
+      "label": "AI on your documents",
+      "note": "Answers that point to their source"
+    },
+    "crm-build": {
+      "label": "CRM or admin system",
+      "note": "Roles, records, workflows, reports"
+    }
+  },
+  "links": {
+    "ai-demo": "Free estimate",
+    "work-wall": "Work",
+    "process": "Working with us",
+    "stack-physics": "Stack"
+  },
+  "theme": {
+    "label": "Theme",
+    "trigger": "Theme: {name}. Choose another look",
+    "title": "Pick a look",
+    "hint": "Same page in four looks. Your pick is saved on this device.",
+    "nudge": "Try 4 looks",
+    "dark": "Dark",
+    "light": "Light"
+  },
+  "styles": {
+    "A": "Observatory",
+    "B": "Concrete",
+    "C": "Silk",
+    "D": "Pomegranate"
+  },
+  "moods": {
+    "A": "Night sky",
+    "B": "Poster",
+    "C": "Daylight",
+    "D": "Cinema"
+  },
+  "swatch": {
+    "lead": "Apps that",
+    "headline": "feel alive."
+  },
+  "language": {
+    "label": "Language",
+    "current": "{language}, current language"
+  },
+  "ctaShort": "Book a call"
+}

@@ -1,0 +1,27 @@
+/*
+ * Global rules for the lab page only — every selector is gated on the lab
+ * root being in the document, so importing this file cannot leak into the
+ * rest of the site.
+ */
+
+/* globals.css sets `scroll-behavior: smooth` on html; with Lenis driving the
+   scroll every frame that would make the browser re-smooth each step. */
+html:has([data-lab-root]) {
+  scroll-behavior: auto;
+}
+
+/* Overscroll / rubber-band areas show the style's background, not the site's.
+   (--bg reaches html through the html:has() rules in theme/tokens.ts.) */
+html:has([data-lab-root]),
+html:has([data-lab-root]) body {
+  background-color: var(--bg);
+}
+
+/* globals.css turns every property change into a 0.01ms transition under
+   reduced motion (transition-property defaults to `all`). On the shell's
+   section frames that holds the old min-height for a frame whenever a
+   section mounts or unmounts, so the page jumps. The frames never animate. */
+[data-lab-root] [data-section],
+[data-lab-root] [data-section] > [data-mounted] {
+  transition: none !important;
+}

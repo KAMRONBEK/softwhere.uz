@@ -1,0 +1,369 @@
+/*
+ * 02 · Manifesto — kinetic type. Tokens only (four styles, light and dark).
+ * The engine (engine.ts, tapes.ts) writes transforms and opacity inline;
+ * everything here is the static composition, which is also the
+ * reduced-motion poster: the statement with the two tapes sealed across the
+ * foot of "We ship.".
+ */
+
+.root {
+  --pad-x: clamp(16px, 3.6vw, 64px);
+  /* 1: the wide band climbs to the right (its highest point under the end of
+     "WE SHIP."); -1: it climbs to the left, biting the feet of "We" and
+     diving under the tail of the "p" (sentence-case faces). */
+  --tilt-dir: 1;
+  --tilt-services: calc(-3deg * var(--tilt-dir));
+  --tilt-outcomes: calc(2.5deg * var(--tilt-dir));
+  --band-fs: calc(clamp(38px, 5.8vw, 100px) * var(--display-scale));
+  --tape-gap: clamp(3px, 0.32vw, 6px);
+  /* The tapes box, centred on the crossing: the tilted bands' spread across
+     the screen plus the wide band and the shadow under it. */
+  --tapes-h: calc(100vw * tan(3.5deg) + var(--band-fs) * 1.45 + 32px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top) + clamp(64px, 9svh, 116px)) var(--pad-x) clamp(28px, 5svh, 72px);
+  overflow-x: clip;
+  color: var(--fg);
+}
+
+:global([data-style='C']) .root,
+:global([data-style='D']) .root {
+  --tilt-dir: -1;
+}
+
+@media (max-width: 719px) {
+  .root {
+    --tilt-services: calc(-5deg * var(--tilt-dir));
+    --tilt-outcomes: calc(4deg * var(--tilt-dir));
+    --tapes-h: calc(100vw * tan(5.5deg) + var(--band-fs) * 1.45 + 24px);
+  }
+}
+
+/* ── statement ─────────────────────────────────────────────────────────── */
+
+.statement {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: clamp(4px, 0.8vw, 14px);
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.line {
+  /* Echo ink: the second colour of each line (outline in Observatory, solid elsewhere). */
+  --echo-ink: var(--accent);
+  position: relative;
+  isolation: isolate;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  /* --fs comes from useFitLines; the fallback is close enough for the first paint. */
+  font-size: var(--fs, calc(clamp(44px, 8.4vw, 150px) * var(--display-scale)));
+  line-height: 0.94;
+  transform-origin: 50% 55%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.root[data-mode='full'] .line {
+  will-change: transform;
+}
+
+:global([data-style='A']) .line,
+:global([data-style='B']) .line {
+  text-transform: uppercase;
+}
+
+/* Sentence case has ascenders and descenders to clear. */
+:global([data-style='C']) .line,
+:global([data-style='D']) .line {
+  line-height: 1.04;
+}
+
+/* Only the line box takes clicks (tap to replay): glyph content areas of the
+   huge payoff would otherwise reach up over the line above. */
+.line * {
+  pointer-events: none;
+}
+
+.alignEnd {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.payoff {
+  --echo-ink: var(--accent-2);
+  color: var(--accent);
+}
+
+.word {
+  white-space: nowrap;
+}
+
+.char {
+  position: relative;
+  display: inline-block;
+}
+
+/* High tier: letters are their own layers only while the type moves. */
+.root[data-k-live][data-tier='high'] .char {
+  will-change: transform;
+}
+
+/* The same letter at the contrasting weight, stacked on the glyph. */
+.alt {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  font-weight: var(--alt-weight, 900);
+  color: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.payoff .alt {
+  color: var(--fg);
+}
+
+/* Decode slot: a stand-in glyph in the same face, for a beat, where the letter sits. */
+.flip {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  pointer-events: none;
+}
+
+.payoff .flip {
+  color: var(--fg);
+}
+
+/* Echo copies trailing the line while it moves. Hidden (no paint, no layer)
+   while the type rests. */
+.echo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: var(--echo-ink);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.root[data-k-live] .echo {
+  visibility: visible;
+  will-change: transform, opacity;
+}
+
+.echo + .echo {
+  z-index: -2;
+}
+
+/* Observatory: engraved outlines, like the instrument scales — a solid
+   offset of a second colour reads as a misprint on the lapis night. */
+:global([data-style='A']) .echo {
+  color: transparent;
+  -webkit-text-stroke: max(1px, 0.014em) var(--echo-ink);
+}
+
+.echoChar {
+  display: inline-block;
+}
+
+.narrowBreak {
+  display: none;
+}
+
+/* Keep in sync with NARROW_QUERY in useFitLines.ts. */
+@media (max-width: 719px) {
+  .narrowBreak {
+    display: inline;
+  }
+
+  .gap {
+    display: none;
+  }
+}
+
+/* ── tapes ─────────────────────────────────────────────────────────────── */
+
+/* Centred on the crossing: pulled up by half its height, then moved by
+   --tapes-shift (useFitLines) so the wide band rides up into "We ship.". */
+.tapes {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  height: var(--tapes-h);
+  margin: calc(var(--tapes-h) * -0.5 + var(--tapes-shift, 0px)) calc(var(--pad-x) * -1) 0;
+  pointer-events: none;
+}
+
+.tape {
+  --tilt: var(--tilt-services);
+  position: absolute;
+  top: 50%;
+  left: -20%;
+  width: 140%;
+  transform: translateY(-50%) rotate(var(--tilt));
+}
+
+.reel {
+  overflow: hidden;
+}
+
+.counter {
+  display: flex;
+}
+
+.lean {
+  display: flex;
+  flex: none;
+}
+
+.track {
+  display: flex;
+  flex: none;
+  animation: marquee var(--dur, 48s) linear infinite;
+}
+
+.tape[data-dir='-1'] .track {
+  animation-direction: reverse;
+}
+
+.root[data-inview='false'] .track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translate3d(-25%, 0, 0);
+  }
+}
+
+/* Full mode: the bands wait off-screen until the seal pulls them across
+   (tapes.ts writes the inline transforms from the first frame on). */
+.root[data-mode='full'] .tape[data-side='-1'] .reel {
+  transform: translate3d(-100%, 0, 0);
+}
+
+.root[data-mode='full'] .tape[data-side='-1'] .counter {
+  transform: translate3d(100%, 0, 0);
+}
+
+.root[data-mode='full'] .tape[data-side='1'] .reel {
+  transform: translate3d(100%, 0, 0);
+}
+
+.root[data-mode='full'] .tape[data-side='1'] .counter {
+  transform: translate3d(-100%, 0, 0);
+}
+
+.tapes[data-k-sealing] .reel,
+.tapes[data-k-sealing] .counter,
+.root[data-k-live] .lean {
+  will-change: transform;
+}
+
+.group {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.item {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.sep {
+  display: block;
+  flex: none;
+  width: auto;
+  height: 0.66em;
+  margin: 0 0.55em;
+}
+
+/* What we build: the wide accent band on top. */
+.tapeServices {
+  z-index: 2;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: var(--band-fs);
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+}
+
+.tapeServices .reel {
+  padding: 0.14em 0 0.2em;
+  background: var(--accent);
+  color: var(--on-accent);
+  /* A ring of page colour parts the band from the accent payoff it lies on,
+     so the letters read as running under it instead of melting into it. */
+  box-shadow:
+    0 0 0 var(--tape-gap) var(--bg),
+    0 24px 64px -28px var(--glow);
+}
+
+/* The logo's accent parts would vanish on the accent fill: ink them. */
+.tapeServices .track {
+  --accent: var(--on-accent);
+  --logo-ink: var(--on-accent);
+}
+
+:global([data-style='A']) .tapeServices,
+:global([data-style='B']) .tapeServices {
+  text-transform: uppercase;
+}
+
+/* What clients get: the thin ink band underneath, crossing the other way. */
+.tapeOutcomes {
+  --tilt: var(--tilt-outcomes);
+  /* Crosses a little under the wide band's centre, so it peeks out below "We". */
+  top: calc(50% + var(--band-fs) * 0.28);
+  --dur: 64s;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: clamp(12px, 1.3vw, 19px);
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.tapeOutcomes .reel {
+  padding: 1em 0;
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.tapeOutcomes .track {
+  --accent: var(--bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none !important;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

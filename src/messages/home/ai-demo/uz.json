@@ -1,0 +1,263 @@
+{
+  "heading": "Gʻoyangizni yozing. Bir daqiqada reja oling.",
+  "headingLines": {
+    "first": "Gʻoyangizni yozing.",
+    "second": "Bir daqiqada reja oling."
+  },
+  "summary": "Doʻstingizga aytgandek yozing. AI birinchi versiya hajmini belgilaydi, asosiy ekranlarni chizadi, oʻz kalkulyatorimiz esa narx oraligʻi va muddatni haftalarda beradi.",
+  "eyebrow": "Bepul AI reja",
+  "tryIt": "Oʻz gʻoyangiz bilan sinang",
+  "estimator": {
+    "lead": "Funksiyalarni oʻzingiz tanlamoqchimisiz?",
+    "link": "Bosqichma-bosqich kalkulyator"
+  },
+  "exampleTag": "Namunaviy gʻoya",
+  "placeholder": "Nima yaratmoqchi ekaningizni yozing…",
+  "chipsLabel": "Boshqa misollar",
+  "ownIdea": "Oʻzingiz yozing",
+  "generate": "Reja tuzish",
+  "thinking": "Oʻylayapman",
+  "replay": "Misolni takrorlash",
+  "next": "Keyingi misol",
+  "stepsLabel": "Reja qanday tuziladi",
+  "steps": {
+    "read": {
+      "short": "Oʻqish",
+      "long": "Gʻoya oʻqilmoqda"
+    },
+    "scope": {
+      "short": "Hajm",
+      "long": "Birinchi versiya belgilanmoqda"
+    },
+    "sketch": {
+      "short": "Eskiz",
+      "long": "Asosiy ekranlar chizilmoqda"
+    },
+    "price": {
+      "short": "Narx",
+      "long": "Kalkulyatorimizda hisoblanmoqda"
+    }
+  },
+  "waiting": "Gʻoya kutilmoqda",
+  "ready": "Reja tayyor",
+  "resultTag": "Namunaviy brif",
+  "scopeLabel": "Birinchi versiya",
+  "screensLabel": "Asosiy ekranlar",
+  "wireframeLabel": "Ekran maketi: {screen}",
+  "priceLabel": "Narx oraligʻi",
+  "priceNote": "Kalkulyatorimizdan, shu hajm uchun",
+  "timelineLabel": "Shu hajm uchun muddat",
+  "weeksUnit": "hafta",
+  "weekAxis": "{week}-hafta",
+  "phases": {
+    "design": "Dizayn",
+    "build": "Ishlab chiqish",
+    "launch": "Ishga tushirish"
+  },
+  "footnote": "Ssenariy boʻyicha misol: kalkulyatorimizning shu hajm uchun narx oraligʻi.",
+  "footCta": "Oʻz gʻoyangiz uchun oling",
+  "liveDone": "Namunaviy brif tayyor: {title}. {min} dan {max} gacha, {minWeeks}–{maxWeeks} hafta.",
+  "rail": {
+    "label": "Rejangiz qanday tuziladi",
+    "steps": {
+      "idea": {
+        "name": "Gʻoyangiz",
+        "short": "Gʻoya",
+        "caption": "Doʻstingizga aytgandek yozilgan"
+      },
+      "features": {
+        "name": "Funksiyalar",
+        "short": "Funksiyalar",
+        "caption": "Kalkulyatorimiz katalogiga moslangan"
+      },
+      "price": {
+        "name": "Narx va muddat",
+        "short": "Narx",
+        "caption": "AI emas, kalkulyatorimiz hisoblaydi"
+      },
+      "screens": {
+        "name": "Asosiy ekranlar",
+        "short": "Ekranlar",
+        "caption": "Oddiy maketlar sifatida chizilgan"
+      }
+    },
+    "idea": "Aʼzolar <m>darslarga yoziladi</m>, <m>karta bilan toʻlaydi</m> va <m>kutish roʻyxatiga</m> qoʻshiladi.",
+    "features": {
+      "booking": "Bron qilish",
+      "payments": "Toʻlovlar",
+      "waitlist": "Kutish roʻyxati",
+      "admin": "Admin panel"
+    },
+    "range": "Narx",
+    "weeks": "Haftalar"
+  },
+  "wire": {
+    "bot": "bot",
+    "card": "Karta",
+    "week": {
+      "mon": "Du",
+      "tue": "Se",
+      "wed": "Ch",
+      "thu": "Pa",
+      "fri": "Ju",
+      "sat": "Sh",
+      "sun": "Ya"
+    }
+  },
+  "examples": {
+    "barber": {
+      "chip": "Sartaroshxona",
+      "idea": "Sartaroshxonam uchun yozilish ilovasi: mijozlar usta va vaqtni tanlaydi, Click yoki Payme orqali toʻlaydi va tashrifdan oldin eslatma oladi.",
+      "kind": "Mobil ilova",
+      "title": "Sartaroshxonaga yozilish ilovasi",
+      "platforms": "iOS va Android",
+      "scope": {
+        "login": "SMS orqali kirish",
+        "profiles": "Usta profillari va sharhlar",
+        "booking": "Vaqt boʻyicha yozilish",
+        "payments": "Click va Payme",
+        "reminders": "Push eslatmalar",
+        "admin": "Admin panel"
+      },
+      "choose": {
+        "name": "Usta tanlash",
+        "header": "Ustalar",
+        "search": "Qidiruv",
+        "filters": {
+          "haircut": "Soch olish",
+          "beard": "Soqol",
+          "kids": "Bolalar"
+        },
+        "slots": {
+          "today1": "Bugun 11:30",
+          "today2": "Bugun 14:00",
+          "tomorrow": "Ertaga",
+          "saturday": "Shanba"
+        },
+        "nav": {
+          "home": "Asosiy",
+          "visits": "Tashriflar",
+          "profile": "Profil"
+        }
+      },
+      "time": {
+        "name": "Vaqt tanlash",
+        "service": "Soch olish · 45 daq",
+        "note": "2 soat oldingacha bepul bekor qilish",
+        "button": "11:30 ga yozilish"
+      },
+      "confirm": {
+        "name": "Toʻlov va tasdiqlash",
+        "header": "Tasdiqlash",
+        "service": "Soch va soqol",
+        "when": "Juma, 11:30",
+        "yourName": "Ismingiz",
+        "phone": "Telefon raqami",
+        "note": "1 soat oldin eslatamiz",
+        "button": "Toʻlash"
+      }
+    },
+    "bakery": {
+      "chip": "Novvoyxona boti",
+      "idea": "Novvoyxonam uchun Mini App bilan Telegram-bot: mijozlar menyuni koʻradi, Telegramning oʻzida buyurtma berib toʻlaydi, har bir buyurtma esa guruh chatimizga tushadi.",
+      "kind": "Telegram-bot",
+      "title": "Telegramdagi novvoyxona",
+      "platforms": "Bot va Mini App",
+      "scope": {
+        "catalog": "Menyu katalogi",
+        "checkout": "Savat va rasmiylashtirish",
+        "status": "Buyurtma holati",
+        "payments": "Click va Payme",
+        "group": "Buyurtmalar guruh chatingizga",
+        "admin": "Admin panel"
+      },
+      "chat": {
+        "name": "Bot bilan chat",
+        "bot": "Novvoyxona boti",
+        "fresh": "Yangi non tandirdan uzildi.",
+        "menuAsk": "Menyuni koʻrsating",
+        "tap": "Buyurtma berish uchun pastdagi tugmani bosing.",
+        "pickup": "Soat 6 da olib ketsam boʻladimi?",
+        "pickupYes": "Ha, rasmiylashtirishda olib ketishni tanlang.",
+        "open": "Menyuni ochish",
+        "keys": {
+          "menu": "Menyu",
+          "orders": "Buyurtmalarim",
+          "contacts": "Kontaktlar"
+        }
+      },
+      "menu": {
+        "name": "Menyu",
+        "tabs": {
+          "bread": "Non",
+          "pastry": "Pishiriqlar",
+          "cakes": "Tortlar"
+        },
+        "items": {
+          "non": "Non",
+          "samsa": "Somsa",
+          "croissant": "Kruassan",
+          "napoleon": "Napoleon"
+        },
+        "cart": "Savat · 3"
+      },
+      "checkout": {
+        "name": "Rasmiylashtirish",
+        "header": "Buyurtmangiz",
+        "lines": {
+          "non": "Non ×2",
+          "samsa": "Somsa ×1"
+        },
+        "address": "Manzil",
+        "time": "Yetkazish vaqti",
+        "button": "Toʻlash"
+      }
+    },
+    "assistant": {
+      "chip": "AI yordamchi",
+      "idea": "Telegram kanalimiz uchun AI yordamchi: mijozlar savollariga narxlar roʻyxati va FAQ asosida javob beradi, murakkablarini esa menejerga oʻtkazadi.",
+      "kind": "AI yordamchi",
+      "title": "AI qoʻllab-quvvatlash yordamchisi",
+      "platforms": "Telegram va admin panel",
+      "scope": {
+        "answers": "Hujjatlaringiz asosida javoblar",
+        "upload": "Narxlar roʻyxati va FAQ yuklash",
+        "handoff": "Menejerga oʻtkazish",
+        "alerts": "Telegram xabarnomalari",
+        "admin": "Admin panel"
+      },
+      "chat": {
+        "name": "Mijoz bilan chat",
+        "bot": "Yordamchi",
+        "sunday": "Yakshanba kunlari yetkazib berasizmi?",
+        "sundayYes": "Ha, 9:00 dan 18:00 gacha.",
+        "district": "Chilonzorga ham?",
+        "districtYes": "Ha, Chilonzor yetkazish hududimizda.",
+        "faq": "FAQ asosida javob berildi",
+        "message": "Xabar"
+      },
+      "handoff": {
+        "name": "Menejerga oʻtkazish",
+        "invoice": "Hisob-faktura orqali toʻlasam boʻladimi?",
+        "connect": "Sizni menejerga ulayman.",
+        "joined": "Menejer chatga qoʻshildi",
+        "manager": "Salom, men Dilnoza. Ha, hozir yuboraman."
+      },
+      "kb": {
+        "name": "Bilimlar bazasi",
+        "upload": "Fayl yuklash",
+        "files": {
+          "prices": "Narxlar roʻyxati",
+          "faq": "FAQ",
+          "delivery": "Yetkazish shartlari",
+          "returns": "Qaytarish qoidalari"
+        },
+        "nav": {
+          "chats": "Chatlar",
+          "files": "Fayllar",
+          "stats": "Statistika"
+        }
+      }
+    }
+  }
+}

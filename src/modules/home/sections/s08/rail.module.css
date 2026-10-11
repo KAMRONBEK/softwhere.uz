@@ -1,0 +1,657 @@
+/* 12 · ai-demo — the build rail (theme tokens only; inherits --line, --line-strong,
+   --panel and --ease-out from the section root). Phones and tablets: one line of
+   four steps. From 960px: four cards, each with a small picture of the step. */
+
+.rail {
+  --gap: 12px;
+  --dim: 0.42;
+  --ink-soft: color-mix(in srgb, var(--fg) 14%, transparent);
+  --ink-faint: color-mix(in srgb, var(--fg) 8%, transparent);
+  --mark: color-mix(in srgb, var(--accent) 32%, transparent);
+
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 clamp(18px, 2.4vw, 28px);
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-body);
+}
+
+/* ------------------------------------------------------------------ */
+/* Phones and tablets: dot · label ——— dot · label ——— …               */
+/* ------------------------------------------------------------------ */
+
+/* Each step grows by the same share, so the connectors between labels of
+   different lengths come out equal. */
+.step {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+}
+
+.step:last-child {
+  flex: none;
+}
+
+.step:not(:last-child)::after {
+  flex: 1 1 auto;
+  min-width: 10px;
+  height: 1px;
+  margin-inline: 8px;
+  background: var(--line-strong);
+  content: '';
+  transition: background-color 300ms ease;
+}
+
+.step[data-state='done']:not(:last-child)::after {
+  background: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.num,
+.name,
+.art,
+.caption {
+  display: none;
+}
+
+.short {
+  color: var(--fg);
+  font: 500 11.5px/1.2 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity 300ms ease;
+}
+
+/* rest: a filled accent dot · pending: a hollow ring · active: a pulsing dot · done: a check */
+.dot {
+  position: relative;
+  display: grid;
+  order: -1;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--on-accent);
+}
+
+.dot::before {
+  position: absolute;
+  inset: 3.5px;
+  border-radius: 50%;
+  background: var(--accent);
+  content: '';
+  transition:
+    transform 260ms var(--ease-out),
+    background-color 200ms ease;
+}
+
+.dot svg {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity 200ms ease,
+    transform 260ms var(--ease-out);
+}
+
+.step[data-state='pending'] .dot::before {
+  inset: 3px;
+  border: 1.5px solid var(--line-strong);
+  background: transparent;
+}
+
+.step[data-state='pending'] .short {
+  opacity: 0.6;
+}
+
+.step[data-state='active'] .dot::after {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  content: '';
+  animation: rail-ping 1.4s var(--ease-out) infinite;
+}
+
+.step[data-state='done'] .dot::before {
+  inset: 0;
+}
+
+.step[data-state='done'] .dot svg {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Wide: four cards with a picture of each step                        */
+/* ------------------------------------------------------------------ */
+
+@media (min-width: 960px) {
+  .rail {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: var(--gap);
+  }
+
+  .step {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 12px;
+    padding: 14px 16px 14px;
+    border: 1px solid var(--line);
+    border-radius: calc(var(--radius) * 1.1);
+    background: var(--panel);
+    transition: border-color 300ms ease;
+  }
+
+  /* A small arrow in the gap: the plan moves left to right. */
+  .step:not(:last-child)::after {
+    position: absolute;
+    top: 50%;
+    right: calc(var(--gap) / -2 - 4px);
+    z-index: 1;
+    width: 7px;
+    min-width: 0;
+    height: 7px;
+    margin: -3.5px 0 0;
+    border-top: 1.5px solid var(--line-strong);
+    border-right: 1.5px solid var(--line-strong);
+    background: none;
+    transform: rotate(45deg);
+    transition: border-color 300ms ease;
+  }
+
+  .step[data-state='done']:not(:last-child)::after {
+    border-color: var(--accent);
+    background: none;
+  }
+
+  .step[data-state='active'] {
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+
+  .head {
+    gap: 10px;
+  }
+
+  .num {
+    display: inline;
+    color: var(--accent);
+    font: 500 11px/1 var(--font-mono);
+    letter-spacing: 0.06em;
+  }
+
+  .name {
+    display: inline;
+    overflow: hidden;
+    color: var(--fg);
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .short {
+    display: none;
+  }
+
+  .dot {
+    order: 0;
+    margin-left: auto;
+  }
+
+  .step[data-state='rest'] .dot {
+    visibility: hidden;
+  }
+
+  .art {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 92px;
+    overflow: hidden;
+    transition: opacity 300ms ease;
+  }
+
+  .caption {
+    display: block;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.4;
+    transition: opacity 300ms ease;
+  }
+
+  .step[data-state='pending'] .art,
+  .step[data-state='pending'] .caption,
+  .step[data-state='pending'] .name {
+    opacity: var(--dim);
+  }
+
+  /* Working: a soft band sweeps across the picture while the brief is on this step. */
+  .step[data-state='active'] .art::after {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 34%;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 16%, transparent), transparent);
+    content: '';
+    animation: rail-sweep 1.5s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* ---------- 01 · the idea, its key words highlighted ---------- */
+
+.quote {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.mark {
+  position: relative;
+  background: none;
+  color: var(--fg);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mark::before {
+  position: absolute;
+  inset: 0.12em -0.14em 0.04em;
+  z-index: -1;
+  border-radius: 3px;
+  background: var(--mark);
+  content: '';
+  transform-origin: left center;
+}
+
+/* ---------- 02 · features ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: calc(var(--radius) * 4);
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+  color: var(--fg);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Implied by the idea, not written in it. */
+.chipImplied {
+  border-style: dashed;
+  border-color: var(--line-strong);
+  background: transparent;
+}
+
+/* ---------- 03 · price range and weeks ---------- */
+
+.priceArt {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px 12px;
+  width: 100%;
+}
+
+.artLabel {
+  color: var(--muted);
+  font: 500 10px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* A ruler with ticks; the range sits on it between two caps. */
+.ruler {
+  position: relative;
+  display: block;
+  height: 16px;
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) 0 50% / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 12.5%) 0 50% / 100% 7px no-repeat;
+}
+
+.range {
+  position: absolute;
+  top: 50%;
+  left: 22%;
+  width: 52%;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-2), var(--accent));
+}
+
+/* Each cap is a box as wide as the range with one visible edge, so it can slide
+   in from the range's middle by half its own width. */
+.cap {
+  position: absolute;
+  top: 0;
+  left: calc(22% - 1px);
+  box-sizing: border-box;
+  width: calc(52% + 2px);
+  height: 16px;
+}
+
+.capMin {
+  border-left: 2px solid var(--fg);
+}
+
+.capMax {
+  border-right: 2px solid var(--fg);
+}
+
+.gantt {
+  display: grid;
+  gap: 4px;
+}
+
+.phase {
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--accent);
+  transform-origin: left center;
+}
+
+.phase:nth-child(1) {
+  width: 28%;
+  background: var(--accent-2);
+}
+
+.phase:nth-child(2) {
+  width: 62%;
+  margin-left: 22%;
+}
+
+.phase:nth-child(3) {
+  width: 22%;
+  margin-left: 78%;
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+/* ---------- 04 · key screens ---------- */
+
+.phones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+}
+
+.phone {
+  display: flex;
+  width: 50px;
+  height: 88px;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 6px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: min(calc(var(--radius) * 0.9), 10px);
+}
+
+.block {
+  display: block;
+  border-radius: 2px;
+  background: var(--ink-soft);
+}
+
+.blockBar {
+  height: 7px;
+  background: var(--accent);
+}
+
+.blockQuiet {
+  background: var(--ink-soft);
+}
+
+.blockRow {
+  height: 8px;
+  background:
+    radial-gradient(circle at 4px 50%, var(--ink-soft) 3.5px, transparent 4px) 0 0 / 100% 100% no-repeat,
+    linear-gradient(var(--ink-faint), var(--ink-faint)) 11px 50% / calc(100% - 11px) 4px no-repeat;
+}
+
+.grid {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.blockCell {
+  background: var(--ink-faint);
+}
+
+.blockButton {
+  height: 8px;
+  margin-top: auto;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Entrance: armed (paused on its first frame) on mount, played once in view */
+/* ------------------------------------------------------------------ */
+
+@media (min-width: 960px) {
+  .rail[data-motion] .mark::before,
+  .rail[data-motion] .chip,
+  .rail[data-motion] .range,
+  .rail[data-motion] .cap,
+  .rail[data-motion] .phase,
+  .rail[data-motion] .block {
+    animation-play-state: paused;
+    animation-fill-mode: both;
+  }
+
+  .rail[data-motion='play'] .mark::before,
+  .rail[data-motion='play'] .chip,
+  .rail[data-motion='play'] .range,
+  .rail[data-motion='play'] .cap,
+  .rail[data-motion='play'] .phase,
+  .rail[data-motion='play'] .block {
+    animation-play-state: running;
+  }
+
+  /* 01: the highlighter sweeps over each key phrase. */
+  .rail[data-motion] .mark::before {
+    animation-name: rail-sweep-in;
+    animation-duration: 460ms;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+    animation-delay: calc(200ms + var(--i) * 280ms);
+  }
+
+  /* 02: the features arrive one by one. */
+  .rail[data-motion] .chip {
+    animation-name: rail-pop;
+    animation-duration: 340ms;
+    animation-timing-function: var(--ease-out);
+    animation-delay: calc(820ms + var(--i) * 90ms);
+  }
+
+  /* 03: the range opens out from its middle and its caps settle; the phases fill in. */
+  .rail[data-motion] .range {
+    animation-name: rail-open;
+    animation-duration: 640ms;
+    animation-timing-function: var(--ease-out);
+    animation-delay: 1180ms;
+  }
+
+  .rail[data-motion] .capMin {
+    animation-name: rail-cap-min;
+    animation-duration: 640ms;
+    animation-timing-function: var(--ease-out);
+    animation-delay: 1180ms;
+  }
+
+  .rail[data-motion] .capMax {
+    animation-name: rail-cap-max;
+    animation-duration: 640ms;
+    animation-timing-function: var(--ease-out);
+    animation-delay: 1180ms;
+  }
+
+  .rail[data-motion] .phase {
+    animation-name: rail-grow;
+    animation-duration: 420ms;
+    animation-timing-function: var(--ease-out);
+    animation-delay: calc(1340ms + var(--i) * 120ms);
+  }
+
+  /* 04: the screens build from the top. */
+  .rail[data-motion] .block {
+    animation-name: rail-rise;
+    animation-duration: 300ms;
+    animation-timing-function: var(--ease-out);
+    animation-delay: calc(1700ms + var(--i) * 55ms);
+  }
+}
+
+@keyframes rail-sweep-in {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rail-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rail-open {
+  from {
+    opacity: 0;
+    transform: scaleX(0.15);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The caps start at the range's middle and settle at its ends. */
+@keyframes rail-cap-min {
+  from {
+    opacity: 0;
+    transform: translateX(50%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rail-cap-max {
+  from {
+    opacity: 0;
+    transform: translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rail-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rail-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rail-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+@keyframes rail-ping {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.5);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step[data-state='active'] .dot::after,
+  .step[data-state='active'] .art::after {
+    animation: none;
+  }
+
+  .step,
+  .step::after,
+  .short,
+  .art,
+  .caption,
+  .dot::before,
+  .dot svg {
+    transition: none;
+  }
+}

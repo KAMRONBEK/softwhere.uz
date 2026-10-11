@@ -1,27 +1,13 @@
 import { format } from 'date-fns';
 import type { Locale as DateFnsLocale } from 'date-fns';
 import { ru, uz } from 'date-fns/locale';
-import { unstable_cache } from 'next/cache';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { validateLocale } from '@/core/auth';
-import { listPublished, type PostSummary } from '../model/posts.repository';
+import { getLatestPosts } from '../lib/latestPosts';
 
 const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
-
-// Shares the 'blog-posts' tag with the blog listing so admin writes bust both.
-// No catch INSIDE the cached fn: a thrown error is never persisted (a failed
-// background refresh keeps the previous good entry), while a returned []
-// would be cached as a success for a day and hide the section.
-// The window here also CLAMPS the homepage route's `revalidate` — keep it in
-// sync with `revalidate = 86400` in app/[locale]/page.tsx. Freshness comes
-// from the tag bust on publish, not this window.
-const getLatestPosts = unstable_cache(
-  async (locale: string): Promise<PostSummary[]> => listPublished(validateLocale(locale, 'en'), 3),
-  ['home-latest-posts'],
-  { tags: ['blog-posts'], revalidate: 86400 }
-);
 
 /**
  * Server-rendered latest-posts block for the homepage. Gives crawlers a path
@@ -30,12 +16,8 @@ const getLatestPosts = unstable_cache(
  */
 export default async function LatestPostsSection({ locale }: { locale: string }) {
   const validLocale = validateLocale(locale, 'en');
-  let posts: PostSummary[] = [];
-  try {
-    posts = await getLatestPosts(validLocale);
-  } catch {
-    // DB unreachable with no cached entry — render the homepage without the section.
-  }
+  // [] when the DB is unreachable with nothing cached: no section.
+  const posts = await getLatestPosts(validLocale);
   if (posts.length === 0) return null;
 
   const t = await getTranslations({ locale: validLocale, namespace: 'latestPosts' });

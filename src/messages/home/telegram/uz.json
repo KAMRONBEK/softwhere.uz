@@ -1,0 +1,140 @@
+{
+  "heading": "Doʻkoningiz Telegram ichida.",
+  "summary": "Bot buyurtma, toʻlov va olib ketish vaqtini mijozlaringiz har kuni ishlatadigan chatning oʻzida qabul qiladi. Hech narsa oʻrnatish yoki roʻyxatdan oʻtish shart emas.",
+  "lead": "Bot buyurtma, toʻlov va olib ketish vaqtini mijozlaringiz har kuni ishlatadigan chatning oʻzida qabul qiladi. Hech narsa oʻrnatish yoki roʻyxatdan oʻtish shart emas. Sinab koʻring: qahvaga buyurtma bering.",
+  "legend": {
+    "bot": {
+      "term": "Bot",
+      "text": "Menyu, tanlov va toʻlov: hammasi bir bosishda.",
+      "action": "Demoda botni koʻrsatish"
+    },
+    "admin": {
+      "term": "Admin panel",
+      "text": "Har bir toʻlangan buyurtma darhol jamoangiz ekraniga tushadi.",
+      "action": "Demoda admin panelni koʻrsatish"
+    },
+    "mini": {
+      "term": "Mini App",
+      "text": "Chatning ichida ochiladigan toʻliq onlayn doʻkon.",
+      "action": "Demoda Mini Appni koʻrsatish"
+    }
+  },
+  "reach": "Mijozlaringiz Telegramda emasmi? Xuddi shu jarayonni sayt yoki mobil ilova sifatida ham ishga tushiramiz. Uchalasini ham biz qilamiz.",
+  "proof": "Topshirilgan loyiha: Telegram-bot orqali savdo qiladigan doʻkon uchun admin panel. Botingiz birinchi buyurtmasini kelasi oydayoq qabul qilishi mumkin.",
+  "replay": "Demoni qayta koʻrish",
+  "hintTouch": "Jonli demo · tugmalarni bosing",
+  "hintPointer": "Jonli demo · tugmalarni bosing",
+  "demoLabel": "Kafe uchun Telegram-botning interaktiv demosi",
+  "cursor": {
+    "tap": "Bosing",
+    "show": "Koʻrish"
+  },
+  "units": {
+    "soum": "soʻm"
+  },
+  "cafe": "Kafengiz",
+  "menu": {
+    "cappuccino": "Kapuchino",
+    "latte": "Latte",
+    "flat": "Flet uayt",
+    "matcha": "Matcha latte",
+    "croissant": "Kruassan",
+    "samsa": "Somsa"
+  },
+  "sizes": {
+    "s": "Kichik",
+    "m": "Oʻrta",
+    "l": "Katta"
+  },
+  "times": {
+    "now": {
+      "name": "Hozir · 10 daq.",
+      "pickup": "10 daqiqada"
+    },
+    "t20": {
+      "name": "20 daqiqada",
+      "pickup": "20 daqiqada"
+    },
+    "t30": {
+      "name": "30 daqiqada",
+      "pickup": "30 daqiqada"
+    }
+  },
+  "orderLine": "{item}, {size}",
+  "chat": {
+    "subtitle": "bot",
+    "typing": "yozmoqda…",
+    "today": "Bugun",
+    "inputPlaceholder": "Xabar",
+    "menuButton": "Menyu",
+    "hello": "Salom! Qahva buyurtma qilsam boʻladimi?",
+    "greet": "Xayrli tong! Bugun nima ichasiz?",
+    "askSize": "Ajoyib tanlov. Qaysi hajmda?",
+    "askTime": "Qachonga tayyor boʻlsin?",
+    "cartTitle": "Buyurtmangiz",
+    "pickupLabel": "Olib ketish",
+    "totalLabel": "Jami",
+    "pay": "{total} toʻlash",
+    "startOver": "Qaytadan boshlash",
+    "receiptTitle": "#{number} buyurtma tasdiqlandi",
+    "receiptPaid": "{total} •• {last4} karta orqali toʻlandi",
+    "receiptPickup": "Olib ketish: {pickup}. Kassada shu raqamni ayting.",
+    "ready": "{item} tayyor, peshtaxtadan olib keting. Yoqimli ishtaha!",
+    "menuPrompt": "Keyingi safar toʻliq menyudan buyurtma bering.",
+    "openMenu": "Menyuni ochish"
+  },
+  "pay": {
+    "title": "Toʻlov",
+    "order": "#{number} buyurtma",
+    "cardLabel": "Uzcard kartasi",
+    "cardHolder": "A. KARIMOVA",
+    "codeLabel": "SMS-kod",
+    "codeSentTo": "Yuborildi: +998 •• ••• •• 17",
+    "button": "{total} toʻlash",
+    "processing": "Bajarilmoqda…",
+    "done": "Toʻlandi",
+    "secure": "Toʻlov Payme orqali: karta maʼlumotlari toʻlov tizimida qoladi."
+  },
+  "admin": {
+    "title": "Buyurtmalar",
+    "live": "Jonli",
+    "status": {
+      "new": "Yangi",
+      "preparing": "Tayyorlanyapti",
+      "ready": "Tayyor"
+    },
+    "columns": {
+      "new": "Yangi",
+      "preparing": "Jarayonda",
+      "ready": "Tayyor"
+    },
+    "markReady": "Tayyor boʻldi",
+    "paid": "Toʻlandi · {total}",
+    "pickup": "Olib ketish: {pickup}",
+    "miniSource": "Mini App",
+    "botSource": "Bot",
+    "previousStatus": "Olib ketildi",
+    "packetReady": "Tayyor",
+    "incoming": "Yangi buyurtma…",
+    "boardLabel": "Kafengizning buyurtmalar ekrani",
+    "today": "Bugun",
+    "kitchen": "{cafe} · oshxona",
+    "waiting": "Buyurtmalar kutilmoqda"
+  },
+  "mini": {
+    "close": "Yopish",
+    "subtitle": "mini app",
+    "greeting": "Xayrli tong",
+    "note": "Taxminan 10 daqiqada olib ketasiz",
+    "categories": {
+      "coffee": "Qahva",
+      "bakery": "Pishiriqlar",
+      "tea": "Choy"
+    },
+    "add": "{name} qoʻshish",
+    "remove": "Bitta {name} olib tashlash",
+    "view": "Buyurtma · {count} ta · {total}",
+    "sending": "Buyurtma berilmoqda…",
+    "sent": "#{number} buyurtma qabul qilindi"
+  }
+}

@@ -1,0 +1,385 @@
+/*
+ * Global cursor layer — desktop, fine pointer, motion allowed (CursorLayer.tsx).
+ *
+ * The hardware cursor is the precise point (a themed dot, CursorLayer.native.ts).
+ * Around it: four focus brackets that spring after it and lock
+ * onto whatever the pointer targets, a size chip, a label badge with glyphs, a
+ * text caret, a click pulse and a tapered 2D-canvas trail. Everything here is
+ * fixed, pointer-events: none and moved with transforms/opacity only; JS
+ * writes the transforms, CSS keyframes animate the glyphs.
+ *
+ * Style-aware through the lab tokens alone: ink is --fg, highlights are
+ * --accent / --on-accent, and every shape follows --radius, so the brackets
+ * read as a round telescope reticle in Observatory and Silk, a cinema
+ * viewfinder in Pomegranate and a sharp square frame in Concrete.
+ */
+
+.layer {
+  --cursor-stroke: 1.5px;
+  --cursor-ink: color-mix(in srgb, var(--fg) 82%, transparent);
+  --cursor-round: calc(var(--radius) * 100);
+  --cursor-ease: cubic-bezier(0.65, 0, 0.35, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  contain: strict;
+  opacity: 0;
+}
+
+/* Concrete: poster-weight ink. Silk: a finer, quieter line. */
+:global([data-style='B']) .layer {
+  --cursor-stroke: 2px;
+  --cursor-ink: var(--fg);
+}
+
+:global([data-style='C']) .layer {
+  --cursor-stroke: 1.25px;
+  --cursor-ink: color-mix(in srgb, var(--fg) 72%, transparent);
+}
+
+/* Over links, buttons and labelled targets the brackets take the accent. */
+.layer[data-tone='accent'] {
+  --cursor-ink: var(--accent);
+}
+
+.trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dot,
+.caret,
+.corner,
+.badge,
+.chip,
+.pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+
+/*
+ * Stand-in for the hardware dot where the system cursor is hidden but the
+ * layer has no shape of its own there (oversized links), and under
+ * automation, where screenshots never include the OS cursor. Round
+ * everywhere except Concrete, where it is a square.
+ */
+.dot {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: var(--cursor-round);
+  background: var(--accent);
+  /* A hairline of page colour keeps it visible over accent-filled buttons. */
+  box-shadow: 0 0 0 1.5px var(--bg);
+  opacity: 0;
+}
+
+/* Text caret the cursor turns into over selectable text (scaled to the font). */
+.caret {
+  width: 2px;
+  height: 64px;
+  margin: -32px 0 0 -1px;
+  border-radius: var(--cursor-round);
+  background: var(--accent);
+  opacity: 0;
+}
+
+/* Parked over text: it blinks like an editor's caret. */
+.layer[data-parked='true'][data-mode='text'] .caret {
+  animation: blink 1.06s steps(1, end) infinite;
+}
+
+/*
+ * One focus bracket, drawn as the top-left corner; the others are the same
+ * piece rotated about its outer vertex (transform-origin 0 0). Its curve is
+ * the style's own corner radius.
+ */
+.corner {
+  width: 12px;
+  height: 12px;
+  border: 0 solid var(--cursor-ink);
+  border-width: var(--cursor-stroke) 0 0 var(--cursor-stroke);
+  border-top-left-radius: min(var(--radius), 12px);
+  transform-origin: 0 0;
+  /* A hairline halo of page colour keeps the ink legible over glyphs of the same colour. */
+  filter: drop-shadow(0 0 0.6px var(--bg)) drop-shadow(0 0 0.6px var(--bg));
+}
+
+/* Inspector chip: the framed element's size, like a design tool's selection label. */
+.chip {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: min(var(--radius), 10px);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 500 10px / 1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transform-origin: 50% 0;
+  opacity: 0;
+}
+
+.chip[data-side='above'] {
+  transform-origin: 50% 100%;
+}
+
+/* ── Label badge ─────────────────────────────────────────────────────────── */
+
+.badge {
+  width: var(--badge-size, 78px);
+  height: var(--badge-size, 78px);
+  border-radius: var(--cursor-round);
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 12px 32px -10px var(--glow);
+  opacity: 0;
+}
+
+.badgeFace {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.badgeText {
+  display: block;
+  font: 600 11px / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.glyph {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 18px;
+  overflow: hidden;
+}
+
+.glyph svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  stroke-width: 2;
+}
+
+.glyph[hidden],
+.chevrons[hidden] {
+  display: none;
+}
+
+/* Drag: chevrons in the gap between the disc and the brackets, in the accent. */
+.chevrons {
+  position: absolute;
+  inset: 0;
+  color: var(--accent);
+}
+
+.chevronLeft,
+.chevronRight {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  stroke-width: 2.4;
+}
+
+.chevronLeft {
+  right: calc(100% + 3px);
+}
+
+.chevronRight {
+  left: calc(100% + 3px);
+}
+
+/* Grab: an open hand that closes while the button is down. */
+.handShut,
+.layer[data-down='true'] .handOpen {
+  display: none;
+}
+
+.layer[data-down='true'] .handShut {
+  display: block;
+}
+
+/* Glyph motion runs only while a badge is up. */
+.layer[data-mode='label'] .chevronLeft {
+  animation: nudge-left 1.4s var(--cursor-ease) infinite;
+}
+
+.layer[data-mode='label'] .chevronRight {
+  animation: nudge-right 1.4s var(--cursor-ease) infinite;
+}
+
+.layer[data-mode='label'][data-down='true'] .chevronLeft {
+  animation: none;
+  transform: translateX(3px);
+}
+
+.layer[data-mode='label'][data-down='true'] .chevronRight {
+  animation: none;
+  transform: translateX(-3px);
+}
+
+.layer[data-mode='label'] .glyphOpen {
+  animation: open-arrow 1.8s var(--cursor-ease) infinite;
+}
+
+.tapRing {
+  transform-box: fill-box;
+  transform-origin: center;
+  stroke-width: 1.6;
+}
+
+.layer[data-mode='label'] .tapRing {
+  animation: tap-ring 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.glyphEye {
+  transform-origin: 50% 50%;
+}
+
+.layer[data-mode='label'] .glyphEye {
+  animation: eye-blink 3.2s ease-in-out infinite;
+}
+
+.layer[data-mode='label'] .glyphSpin {
+  animation: spin 2.4s var(--cursor-ease) infinite;
+}
+
+.layer[data-mode='label'][data-down='true'] .glyphSpin {
+  animation-duration: 0.7s;
+}
+
+.layer[data-mode='label'] .glyphBeat {
+  animation: beat 1.3s ease-out infinite;
+}
+
+.layer[data-mode='label'] .glyphBlink {
+  animation: blink 1.06s steps(1, end) infinite;
+}
+
+.pulse {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border: 1.5px solid var(--accent);
+  border-radius: var(--cursor-round);
+  opacity: 0;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes nudge-left {
+  50% {
+    transform: translateX(-3px);
+  }
+}
+
+@keyframes nudge-right {
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes open-arrow {
+  0%,
+  52% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+
+  66% {
+    transform: translate(6px, -6px);
+    opacity: 0;
+  }
+
+  67% {
+    transform: translate(-6px, 6px);
+    opacity: 0;
+  }
+
+  84%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes tap-ring {
+  0% {
+    transform: scale(0.4);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes eye-blink {
+  0%,
+  86%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  91% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes beat {
+  0%,
+  60%,
+  100% {
+    transform: scale(1);
+  }
+
+  12% {
+    transform: scale(1.2);
+  }
+
+  26% {
+    transform: scale(0.96);
+  }
+
+  38% {
+    transform: scale(1.1);
+  }
+}

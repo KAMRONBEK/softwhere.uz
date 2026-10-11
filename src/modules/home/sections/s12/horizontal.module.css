@@ -1,0 +1,320 @@
+/*
+ * 16 · Process — desktop layout: sticky stage, camera-followed track, the
+ * stage words above the line, fact flags hanging below it, and the bottom HUD
+ * (the week counter is the one big number; the stages double as navigation).
+ */
+
+.hRoot {
+  --hud-h: 112px;
+
+  height: var(--s12-h);
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.parallax {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  will-change: transform;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--fg) 13%, transparent) 1px, transparent 1.6px);
+  background-size: 32px 32px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 4%, #000 22%, #000 76%, transparent 94%);
+  mask-image: linear-gradient(to bottom, transparent 4%, #000 22%, #000 76%, transparent 94%);
+}
+
+.track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  will-change: transform;
+}
+
+/* The intro is placed (top, in px) so the heading's full stop sits on the baseline. */
+.intro {
+  position: absolute;
+  left: 0;
+  width: min(46vw, 680px);
+  padding: 0 24px 0 max(32px, 5vw);
+  transition: opacity 600ms ease;
+}
+
+/* Once the camera has carried the heading past the screen edge, it steps back like a finished stage. */
+[data-intro='out'] .intro {
+  opacity: 0.3;
+}
+
+.title {
+  max-width: 10ch;
+  margin: 0;
+  font-size: calc(clamp(52px, 5.4vw, 100px) * var(--display-scale));
+  line-height: 0.95;
+}
+
+.lede {
+  max-width: 30ch;
+  margin: 30px 0 0;
+  color: var(--muted);
+  font:
+    400 18px/1.5 var(--font-body),
+    sans-serif;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 22px;
+  color: var(--muted);
+  font:
+    500 12px/1 var(--font-mono),
+    monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hintArrow {
+  width: 12px;
+  height: 16px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-motion][data-inview][data-drawn='false'] .hintArrow {
+  animation: s12-bob 1.6s ease-in-out 6;
+}
+
+.steps {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Focus follows the pen: once the next stage takes over, the words and flags
+ * behind it step back (they also slide out at the left edge as the camera
+ * moves, so a half-cut title never competes with the active one).
+ */
+.stageItem > .block,
+.stageItem > .flags {
+  transition: opacity 600ms ease;
+}
+
+.stageItem[data-state='done'] > .block,
+.stageItem[data-state='done'] > .flags {
+  opacity: 0.3;
+}
+
+/* A stage's words stand on the line: bottom-aligned in a box that ends above its station. */
+.block {
+  position: absolute;
+  top: 0;
+  justify-content: flex-end;
+}
+
+.flags {
+  margin: 0;
+  padding: 0;
+}
+
+/* A flag hangs from a point on the baseline: dot, leader down, words at its foot. */
+.flag {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.flag > :first-child {
+  top: -5.5px;
+  left: -5.5px;
+}
+
+.flag > :nth-child(2) {
+  top: 9px;
+  left: -0.5px;
+  width: 1px;
+  height: calc(var(--depth) - 9px);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.flag > :last-child {
+  top: calc(var(--depth) - 10px);
+  left: -1px;
+  width: max-content;
+  max-width: var(--flag-w);
+  padding-left: 14px;
+  transform: translateY(-6px);
+}
+
+.flag > :last-child::before {
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 9px;
+  height: 1px;
+  background: color-mix(in srgb, var(--fg) 34%, transparent);
+  content: '';
+}
+
+.flag[data-on='true'] > :nth-child(2) {
+  transform: none;
+}
+
+/* Width comes from the geometry (it must end inside the screen in the last frame). */
+.outro {
+  position: absolute;
+}
+
+.hud {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(28px, 3.4vw, 64px);
+  height: var(--hud-h);
+  padding: 0 120px calc(22px + env(safe-area-inset-bottom)) max(32px, 5vw);
+  background: linear-gradient(to top, var(--bg) 48%, color-mix(in srgb, var(--bg) 0%, transparent));
+  pointer-events: none;
+}
+
+.counter {
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.counterIcon {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 8px;
+}
+
+.counterText {
+  display: grid;
+  gap: 8px;
+}
+
+.counterLabel {
+  color: var(--muted);
+  font:
+    500 11px/1 var(--font-mono),
+    monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.counterDigits {
+  font-family: var(--font-display);
+  font-size: calc(58px * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+}
+
+.counterCaption {
+  max-width: 11ch;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font:
+    400 12px/1.3 var(--font-body),
+    sans-serif;
+}
+
+.progress {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 820px;
+  margin-bottom: 6px;
+  pointer-events: auto;
+}
+
+.progressBtn {
+  display: grid;
+  gap: 10px;
+  padding: 10px 0 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font:
+    500 13px/1.2 var(--font-body),
+    sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.progressBtn:focus-visible {
+  border-radius: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+.progressBtn[data-state='done'] {
+  color: color-mix(in srgb, var(--fg) 72%, var(--muted));
+}
+
+.progressBtn[data-state='active'] {
+  color: var(--fg);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .progressBtn:hover {
+    color: var(--fg);
+  }
+}
+
+.pNum {
+  margin-right: 8px;
+  font:
+    500 11px/1 var(--font-mono),
+    monospace;
+}
+
+.pTrack {
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--fg) 14%, transparent);
+}
+
+.pFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+@keyframes s12-bob {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+
+  50% {
+    transform: translateY(3px);
+  }
+}

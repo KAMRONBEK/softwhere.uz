@@ -341,6 +341,218 @@
     "leadErrorPhone": "To'g'ri telefon raqamini kiriting",
     "leadErrorSubmit": "Yuborib bo'lmadi — qayta urinib ko'ring yoki Telegram orqali yozing"
   },
+  "aiBrief": {
+    "meta": {
+      "title": "Bepul AI reja: gʻoyangizni yozing, narx oraligʻini oling | SoftWhere",
+      "description": "Mahsulotingizni oddiy soʻzlar bilan tasvirlang va asosiy ekranlar, nimadan boshlash kerakligi, muddatlar va kalkulyatorimiz hisoblagan narx oraligʻini oling."
+    },
+    "intro": {
+      "heading": "Gʻoyangizni yozing. Biz uni chizib, rejalashtirib, narxini hisoblaymiz.",
+      "lede": "Doʻstingizga tushuntirgandek yozing. Taxminan bir daqiqada asosiy ekranlar, birinchi versiya, muddatlar va narx oraligʻini olasiz. Barcha raqamlarni AI emas, kalkulyatorimiz hisoblaydi."
+    },
+    "composer": {
+      "label": "Sizning gʻoyangiz",
+      "placeholder": "Masalan: Toshkentdagi oshxonamiz uchun yetkazib berish ilovasi. Mijoz menyudan tanlaydi, Payme yoki Click orqali toʻlaydi va kuryerni xaritada kuzatadi.",
+      "examplesLabel": "Yoki namunadan boshlang",
+      "examples": {
+        "booking": {
+          "label": "Sartaroshxona uchun bron",
+          "text": "Sartaroshxonalar tarmogʻimiz uchun mobil ilova: mijoz filial, usta va vaqtni tanlab navbat oladi, Payme yoki Click orqali oldindan toʻlaydi va eslatma oladi. Ustalar oʻz jadvalini koʻradi, biz esa admin paneldan boshqaramiz."
+        },
+        "bot": {
+          "label": "Novvoyxona uchun Telegram bot",
+          "text": "Novvoyxonamiz uchun Telegram bot: mijozlar menyudan non va shirinliklarni tanlaydi, Payme yoki Click orqali toʻlaydi, yetkazib berish yoki olib ketishni tanlaydi. Yangi buyurtmalar xodimlar guruhiga tushsin."
+        },
+        "delivery": {
+          "label": "Ovqat yetkazib berish",
+          "text": "Toshkentdagi 3 ta oshxonamiz uchun ovqat yetkazib berish ilovasi: menyu, savat, Payme va Click orqali toʻlov, kuryerni xaritada kuzatish. Kuryerlar uchun alohida ilova va buyurtmalar uchun admin panel kerak."
+        },
+        "marketplace": {
+          "label": "Fermerlar bozori",
+          "text": "Fermerlar va xaridorlar uchun marketpleys: fermerlar meva-sabzavotlarini narxi bilan joylaydi, xaridorlar buyurtma beradi va onlayn toʻlaydi. Sotuvchilarga buyurtmalar va qoldiqlar kabineti kerak."
+        },
+        "ai": {
+          "label": "Doʻkon uchun AI yordamchi",
+          "text": "Maishiy texnika doʻkonimiz uchun AI yordamchi: Telegramda mijozlarning savollariga katalogimiz asosida javob beradi, mos tovar tavsiya qiladi va murakkab savollarni operatorga oʻtkazadi."
+        }
+      },
+      "count": "{count} / {max}",
+      "privacy": "Roʻyxatdan oʻtish va kontakt shart emas. AI gʻoyangizni oʻqishidan oldin telefon, email va havolalarni olib tashlaymiz.",
+      "freeNote": "Har bir tashrif buyuruvchiga 24 soatda bitta bepul AI reja.",
+      "exactNote": "Siz narx oraligʻini olasiz. Aniq narxni tafsilotlarni kelishib, texnik topshiriqni birga yozganimizdan keyin aytamiz.",
+      "submit": "Reja tuzish",
+      "submitting": "Reja tuzilmoqda",
+      "shortcut": "{key} + Enter",
+      "tooShort": "Biroz batafsilroq yozing: undan kim foydalanadi va unda nima qilish kerak?",
+      "tooLong": "{max} belgidan koʻp. Eng muhimini qoldiring.",
+      "yourIdea": "Sizning gʻoyangiz",
+      "edit": "Gʻoyani tahrirlash"
+    },
+    "sample": {
+      "caption": "Gʻoyangiz uchun shunday eskizlar chizamiz",
+      "name": "Mashgʻulotga yozilish",
+      "header": "Mashgʻulotlar",
+      "search": "Mashgʻulot qidirish",
+      "tabs": "Bugun|Ertaga|Hafta",
+      "list": "Ertalabki yoga 7:00|Kuch yogasi 12:15|Choʻzilish 18:30",
+      "featured": "Hafta ommaboplari",
+      "cards": "Yangi boshlovchilar|Pilates|Yin yoga|Homiladorlar",
+      "button": "Yozilish",
+      "nav": "Mashgʻulotlar|Yozuvlar|Profil",
+      "adminName": "Jadval",
+      "adminHeader": "Studiya admini",
+      "adminNav": "Jadval|Mijozlar|Toʻlovlar",
+      "adminStats": "Bugungi yozuvlar|Navbat|Tushum",
+      "adminTable": "Mashgʻulot|Murabbiy|Joylar"
+    },
+    "progress": {
+      "heading": "Rejangiz tuzilmoqda",
+      "steps": {
+        "read": "Gʻoyangizni oʻqiyapmiz",
+        "scope": "Funksiyalarni tanlayapmiz",
+        "price": "Kalkulyatorimizda hisoblayapmiz",
+        "screens": "Ekranlarni chizyapmiz",
+        "plan": "Rejani yozyapmiz"
+      },
+      "elapsed": "{seconds} s",
+      "typical": "Odatda 30–60 soniya. Sahifani yopmang.",
+      "done": "Reja {seconds} soniyada tayyor"
+    },
+    "result": {
+      "audience": "Kim uchun",
+      "complexity": "Loyihani nima murakkablashtiradi",
+      "screens": "Asosiy ekranlar",
+      "screensHint": "Birinchi versiyaning qoralama eskizlari. Bu dizayn uchun boshlangʻich nuqta, yakuniy koʻrinish emas.",
+      "screensMissing": "Bu safar ekranlarni chizib boʻlmadi. Reja va raqamlar toʻliq.",
+      "screenCount": "{current} / {total}",
+      "prevScreen": "Oldingi ekran",
+      "nextScreen": "Keyingi ekran",
+      "phaseMvp": "Birinchi versiya",
+      "phaseLater": "Keyinroq",
+      "sketchOf": "“{name}” ekrani eskizi: {blocks}",
+      "buildFirst": "Avval nimani qurish kerak",
+      "why": "Nega",
+      "scopeMvp": "Birinchi versiyada",
+      "scopeLater": "Keyinroqqa rejalashtirilgan",
+      "integrations": "Ulanadigan servislar",
+      "canWait": "Nima kutishi mumkin",
+      "notPriced": "Hozircha smetada yoʻq",
+      "timeline": "Muddatlar",
+      "phase": "{n}-bosqich",
+      "weekAxis": "{n}-hafta",
+      "risks": "Hisobga olish kerak boʻlgan xavflar",
+      "mitigation": "Buni qanday hal qilamiz",
+      "questions": "Qoʻngʻiroqda nimalarni soʻraymiz",
+      "assumptions": "Nimalarni taxmin qildik",
+      "stack": "Taxminiy texnologiyalar",
+      "policyAsk": "Gʻoyaning bir qismini boshqacha qilish kerak",
+      "showAll": "Toʻliq rejani koʻrsatish",
+      "showLess": "Yigʻish",
+      "fullTitle": "Toʻliq reja tayyor",
+      "fullBody": "Avval nimani qurish kerakligi, bosqichlar boʻyicha muddatlar, xavflar va qoʻngʻiroqda sizga beradigan savollarimiz.",
+      "openFull": "Toʻliq rejani ochish",
+      "writing": "Rejaning bu qismi yozilmoqda",
+      "phases": "Bosqichlar"
+    },
+    "estimate": {
+      "title": "Birinchi versiya",
+      "cost": "Taxminiy narx",
+      "weeks": "{min}–{max} hafta",
+      "rangeNote": "Bu narx oraligʻi. Aniq narxni tafsilotlarni kelishib, texnik topshiriqni birga yozganimizdan keyin aytamiz.",
+      "spread": {
+        "low": "Ixcham, oddiy dizayn",
+        "high": "Maxsus dizayn, toʻliq ishlangan"
+      },
+      "full": "Keyinroqqa rejalashtirilgan hamma narsa bilan",
+      "extras": "Keyinroq qilinadigan alohida mahsulotlar",
+      "confidence": {
+        "low": "Ochiq savollar bor: ayrim qismlarini qoʻngʻiroqda aniqlashtirish kerak",
+        "medium": "Hajm tushunarli, tafsilotlarni qoʻngʻiroqda aniqlaymiz",
+        "high": "Gʻoya batafsil tasvirlangan: hajm aniq"
+      },
+      "team": "Jamoa",
+      "drivers": "Narx nimadan tashkil topadi",
+      "unpriced": "Bu raqamlarga kirmaydi",
+      "howTitle": "Buni qanday hisobladik",
+      "howBody": "AI faqat kalkulyatorimiz katalogidan variantlarni tanladi — bosqichma-bosqich kalkulyatorda oʻzingiz tanlaydigan variantlarni. Bu sahifadagi har bir narx va muddatni kalkulyatorning oʻzi hisobladi.",
+      "config": {
+        "product": "Mahsulot",
+        "platforms": "Platformalar",
+        "approach": "Yondashuv",
+        "level": "Daraja",
+        "design": "Dizayn",
+        "languages": "Interfeys tillari",
+        "screens": "Ekranlar",
+        "urgency": "Surʼat"
+      },
+      "bothPlatforms": "iOS va Android",
+      "openEstimator": "Kalkulyatorda aniqlashtirish",
+      "discovery": {
+        "title": "Avval tanishuv suhbati kerak",
+        "body": "Bunday hajmdagi loyihani qisqa tavsif asosida toʻgʻri baholab boʻlmaydi. Avval modullar, maʼlumotlaringiz va joriy etish tartibini siz bilan birga aniqlaymiz, keyin birinchi modul narxini hisoblaymiz.",
+        "reasonsTitle": "Nega narx koʻrsatilmagan",
+        "reasons": {
+          "core_system": "Loyiha kompaniyaning asosiy tizimini (ERP) almashtiradi",
+          "enterprise_scale": "Loyiha katta tashkilot boʻylab joriy etiladi",
+          "engine_size": "Birinchi versiyaning oʻzi tavsif asosida baholanadigan hajmdan katta"
+        },
+        "howTitle": "Reja nimaga asoslangan",
+        "howBody": "AI birinchi modul uchun kalkulyatorimiz katalogidan variantlarni tanladi. Bunday hajmdagi loyiha uchun narx va muddatni koʻrsatmaymiz: ular tanishuv suhbatidan keyin aniqlanadi.",
+        "unpriced": "Suhbatda yana nimalarni koʻrib chiqamiz"
+      }
+    },
+    "cta": {
+      "title": "Buni qurmoqchimisiz?",
+      "body": "Rejani siz bilan birga koʻrib chiqamiz, ochiq savollarga javob beramiz, tafsilotlarni kelishib olamiz va texnik topshiriqni birga yozamiz. Shundan soʻng aniq narxni aytamiz.",
+      "button": "Shu reja boʻyicha gaplashish",
+      "newIdea": "Boshqa gʻoyani rejalashtirish",
+      "message": "Assalomu alaykum! Saytingizda bepul AI reja tuzdim: {title}.\n\nMening gʻoyam:\n{idea}\n\nBirinchi versiya: {price}, {weeks}.",
+      "discoveryTitle": "Loyihani birga koʻrib chiqamiz",
+      "discoveryBody": "Suhbatda modullar, maʼlumotlaringiz va joriy etish tartibini koʻrib chiqamiz, birinchi modulga nimalar kirishini kelishib olamiz. Shundan soʻng narxni yuboramiz.",
+      "discoveryButton": "Tanishuv suhbatiga yozilish",
+      "messageDiscovery": "Assalomu alaykum! Saytingizda bepul AI reja tuzdim: {title}.\n\nMening gʻoyam:\n{idea}\n\nRejada avval tanishuv suhbati kerakligi aytilgan. Vaqtini kelishib olaylik."
+    },
+    "limit": {
+      "title": "Bepul AI rejangizdan foydalanib boʻldingiz",
+      "body": "Har bir tashrif buyuruvchi 24 soatda bitta AI rejani bepul oladi. Hozircha loyihangiz haqida bizga yozing yoki uni bosqichma-bosqich kalkulyatorda oʻzingiz hisoblab koʻring.",
+      "next": "{day, select, today {Keyingi bepul reja bugun soat {time} da ochiladi — oldingisidan 24 soat oʻtib.} other {Keyingi bepul reja ertaga soat {time} da ochiladi — oldingisidan 24 soat oʻtib.}}",
+      "usedNote": "{day, select, today {Bu sizning bepul rejangiz edi. Boshqa gʻoyani bugun soat {time} da rejalashtirishingiz mumkin — bundan 24 soat oʻtib.} other {Bu sizning bepul rejangiz edi. Boshqa gʻoyani ertaga soat {time} da rejalashtirishingiz mumkin — bundan 24 soat oʻtib.}}",
+      "talk": "Loyihangiz haqida gaplashish",
+      "estimator": "Bosqichma-bosqich kalkulyatorni sinab koʻrish",
+      "message": "Assalomu alaykum! Loyiham haqida gaplashmoqchiman.\n\nMening gʻoyam:\n{idea}"
+    },
+    "flags": {
+      "payments": "Toʻlovlar",
+      "realtime": "Real vaqtda yangilanish",
+      "geo_tracking": "Jonli geolokatsiya",
+      "two_sided_marketplace": "Ikki tomonlama marketpleys",
+      "multi_role": "Bir nechta rollar",
+      "regulated": "Tartibga solinadigan maʼlumotlar",
+      "personal_data": "Shaxsiy maʼlumotlar",
+      "ai_quality": "AI javoblari sifati",
+      "offline_first": "Oflayn ishlash",
+      "high_load": "Yuqori yuklama",
+      "legacy_integration": "Mavjud tizimlar",
+      "hardware": "Uskunalar",
+      "content_moderation": "Kontent moderatsiyasi",
+      "multi_language": "Bir nechta til"
+    },
+    "errors": {
+      "too_short": "Biroz batafsilroq yozing: bu qanday mahsulot, undan kim foydalanadi va unda nima qiladi?",
+      "too_vague": "Reja tuzish uchun biroz koʻproq maʼlumot kerak. Bu qanday mahsulot, undan kim foydalanadi va unda nima qilish kerak?",
+      "not_software": "Bu biz rejalashtira oladigan dasturiy mahsulotga oʻxshamaydi. Qurmoqchi boʻlgan ilova, sayt, bot yoki tizimni tasvirlang.",
+      "abusive": "Bunday soʻrovni rejalashtira olmaymiz. Qurmoqchi boʻlgan mahsulotingizni tasvirlang.",
+      "rate_limited": "Ketma-ket bir nechta gʻoya yubordingiz. {minutes} daqiqadan keyin qayta urinib koʻring.",
+      "rate_limited_later": "Bugun bir nechta gʻoya yubordingiz. Keyinroq qayta urinib koʻring yoki bosqichma-bosqich kalkulyatordan foydalaning.",
+      "declinedTitle": "Bu biz oladigan ishlar doirasidan tashqarida",
+      "declinedBody": "Biz bu sohada mahsulot qilmaymiz, shuning uchun uni baholamaymiz. Boshqa gʻoyangiz boʻlsa, mamnuniyat bilan rejalashtiramiz.",
+      "busy": "AI rejalashtiruvchi bugungi limitga yetdi. Bosqichma-bosqich kalkulyator usiz ham ishlaydi.",
+      "failed": "Bu safar AI rejani tugata olmadi. Gʻoyangiz saqlanib qoldi — qayta urinib koʻrishingiz mumkin.",
+      "network": "Serverga ulanib boʻlmadi. Internetni tekshirib, qayta urinib koʻring.",
+      "retry": "Qayta urinish",
+      "estimator": "Bosqichma-bosqich kalkulyatorni ochish"
+    }
+  },
   "hero": {
     "title": "Har qanday murakkablikdagi mobil ilovalar va veb-xizmatlarni ishlab chiqish.",
     "description": "Biz IOS, Android uchun mobil ilovalarni yaratamiz, ular sizning biznesingizni mijozlaringiz mobil ilovalariga o'tkazadi.",
@@ -633,7 +845,7 @@
     }
   },
   "metadata": {
-    "title": "Softwhere — mobil ilova, veb-sayt va Telegram bot yaratish",
-    "description": "Biznesingizni maxsus mobil ilovalar, zamonaviy veb-saytlar va kuchli Telegram botlar bilan o'zgartiring. Professional ishlab chiqish va 1 yillik bepul hosting."
+    "title": "SoftWhere — Toshkentda mobil ilova, sayt va Telegram bot yaratish",
+    "description": "Toshkentdagi studiya: iOS va Android uchun mobil ilovalar, saytlar, Telegram botlar va sunʼiy intellekt bilan avtomatlashtirish. Oʻzbekiston, AQSH va Yevropadagi mijozlar uchun 50 dan ortiq mahsulot ishga tushirdik. Narx oraligʻi va muddatlar — bepul."
   }
 }

@@ -1,0 +1,140 @@
+{
+  "heading": "Your shop, inside Telegram.",
+  "summary": "A bot that takes the order, the payment and the pickup time, right in the chat your customers already use. Nothing to install, no sign-up.",
+  "lead": "A bot that takes the order, the payment and the pickup time, right in the chat your customers already use. Nothing to install, no sign-up. Go on, order a coffee.",
+  "legend": {
+    "bot": {
+      "term": "Bot",
+      "text": "Menus, choices and payment, one tap at a time.",
+      "action": "Show the bot in the demo"
+    },
+    "admin": {
+      "term": "Admin panel",
+      "text": "Every paid order lands on your team’s screen, live.",
+      "action": "Show the admin panel in the demo"
+    },
+    "mini": {
+      "term": "Mini App",
+      "text": "A full storefront that opens inside the chat.",
+      "action": "Show the Mini App in the demo"
+    }
+  },
+  "reach": "Customers not on Telegram? The same flow ships as a website or a mobile app. We build all three.",
+  "proof": "Shipped: the admin panel for a shop that sells through a Telegram bot. Your bot could take its first order next month.",
+  "replay": "Replay demo",
+  "hintTouch": "Live demo · tap the buttons",
+  "hintPointer": "Live demo · click the buttons",
+  "demoLabel": "Interactive Telegram bot demo for a café",
+  "cursor": {
+    "tap": "Tap",
+    "show": "Show"
+  },
+  "units": {
+    "soum": "so’m"
+  },
+  "cafe": "Your Café",
+  "menu": {
+    "cappuccino": "Cappuccino",
+    "latte": "Latte",
+    "flat": "Flat white",
+    "matcha": "Matcha latte",
+    "croissant": "Croissant",
+    "samsa": "Samsa"
+  },
+  "sizes": {
+    "s": "Small",
+    "m": "Medium",
+    "l": "Large"
+  },
+  "times": {
+    "now": {
+      "name": "Now · 10 min",
+      "pickup": "in 10 min"
+    },
+    "t20": {
+      "name": "In 20 min",
+      "pickup": "in 20 min"
+    },
+    "t30": {
+      "name": "In 30 min",
+      "pickup": "in 30 min"
+    }
+  },
+  "orderLine": "{item}, {size}",
+  "chat": {
+    "subtitle": "bot",
+    "typing": "typing…",
+    "today": "Today",
+    "inputPlaceholder": "Message",
+    "menuButton": "Menu",
+    "hello": "Hi! Can I order a coffee?",
+    "greet": "Good morning! What are you having today?",
+    "askSize": "Great choice. Which size?",
+    "askTime": "When should it be ready?",
+    "cartTitle": "Your order",
+    "pickupLabel": "Pickup",
+    "totalLabel": "Total",
+    "pay": "Pay {total}",
+    "startOver": "Start over",
+    "receiptTitle": "Order #{number} confirmed",
+    "receiptPaid": "Paid {total} by card •• {last4}",
+    "receiptPickup": "Pickup {pickup}. Show this number at the counter.",
+    "ready": "Your {itemLower} is ready at the counter. Enjoy!",
+    "menuPrompt": "Next time, order from the full menu.",
+    "openMenu": "Open menu"
+  },
+  "pay": {
+    "title": "Checkout",
+    "order": "Order #{number}",
+    "cardLabel": "Debit card",
+    "cardHolder": "A. KARIMOVA",
+    "codeLabel": "SMS code",
+    "codeSentTo": "Sent to +998 •• ••• •• 17",
+    "button": "Pay {total}",
+    "processing": "Processing…",
+    "done": "Paid",
+    "secure": "Card details stay with the payment provider."
+  },
+  "admin": {
+    "title": "Orders",
+    "live": "Live",
+    "status": {
+      "new": "New",
+      "preparing": "Preparing",
+      "ready": "Ready"
+    },
+    "columns": {
+      "new": "New",
+      "preparing": "Preparing",
+      "ready": "Ready"
+    },
+    "markReady": "Mark ready",
+    "paid": "Paid · {total}",
+    "pickup": "Pickup {pickup}",
+    "miniSource": "Mini App",
+    "botSource": "Bot",
+    "previousStatus": "Picked up",
+    "packetReady": "Ready",
+    "incoming": "Incoming order…",
+    "boardLabel": "Your café’s order screen",
+    "today": "Today",
+    "kitchen": "{cafe} · kitchen",
+    "waiting": "Waiting for orders"
+  },
+  "mini": {
+    "close": "Close",
+    "subtitle": "mini app",
+    "greeting": "Good morning",
+    "note": "Pickup in about 10 min",
+    "categories": {
+      "coffee": "Coffee",
+      "bakery": "Bakery",
+      "tea": "Tea"
+    },
+    "add": "Add {name}",
+    "remove": "Remove one {name}",
+    "view": "View order · {count, plural, one {# item} other {# items}} · {total}",
+    "sending": "Placing order…",
+    "sent": "Order #{number} placed"
+  }
+}

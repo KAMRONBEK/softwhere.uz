@@ -1,0 +1,32 @@
+{
+  "heading": "Демо — легко. Запуск — сложно. Мы запускаем.",
+  "summary": "Что мы делаем: сайты, мобильные приложения, Telegram-боты, Mini Apps, ИИ-агенты и автоматизацию.",
+  "summaryLinked": "Что мы делаем: <web>сайты</web>, <mobile>мобильные приложения</mobile>, <bots>Telegram-боты</bots>, Mini Apps, ИИ-агенты и автоматизацию.",
+  "statement": {
+    "easy": "Демо — легко.",
+    "hard": "Запуск — сложно.",
+    "payoff": "Мы запускаем."
+  },
+  "servicesLabel": "Что мы делаем",
+  "services": {
+    "websites": "Сайты",
+    "mobileApps": "Мобильные приложения",
+    "telegramBots": "Telegram-боты",
+    "miniApps": "Mini Apps",
+    "aiAgents": "ИИ-агенты",
+    "automation": "Автоматизация"
+  },
+  "outcomesLabel": "Что мы уже запустили",
+  "outcomes": {
+    "booking": "Онлайн-бронирование",
+    "stores": "Интернет-магазины",
+    "taxi": "Приложения такси",
+    "delivery": "Сервисы доставки",
+    "tracking": "Отслеживание на карте",
+    "admin": "Админ-панели",
+    "messengers": "Мессенджеры",
+    "signatures": "Электронная подпись",
+    "payments": "Оплата в приложении",
+    "healthcare": "Медицинские приложения"
+  }
+}

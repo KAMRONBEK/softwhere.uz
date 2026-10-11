@@ -1,0 +1,626 @@
+/*
+ * The example bakery site. Sizes are VIRTUAL px: each copy of the site is laid
+ * out at its layout's fixed width (1280 / 820 / 390) and scaled to the stage
+ * by useViewportMorph, which also sets --s (that layer's scale) so labels and
+ * hairlines keep a constant on-screen size. Mobile first; the container
+ * queries are Tailwind's md (768px) and lg (1024px). Nothing here changes
+ * size after first layout (the announcement bar has a fixed height), so the
+ * live edits and the light/dark switch never shift the page.
+ *
+ * Palette: derived from the lab style's two poles, so it re-colours with
+ * every style. The light pole is --fg on the dark styles and --bg-2 on the
+ * light ones; the dark pole is the other end. Accent fills always carry
+ * --on-accent text.
+ */
+
+.stack {
+  --pole-light: var(--fg);
+  --pole-dark: var(--bg);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+  /* Light site (default). */
+  --s-bg: color-mix(in srgb, var(--pole-light) 96%, var(--accent-2));
+  --s-bg-2: color-mix(in srgb, var(--pole-light) 91%, var(--pole-dark));
+  --s-ink: var(--pole-dark);
+  --s-muted: color-mix(in srgb, var(--pole-dark) 66%, var(--pole-light));
+  --s-line: color-mix(in srgb, var(--pole-dark) 13%, transparent);
+  --s-art: color-mix(in srgb, var(--accent) 22%, var(--s-bg));
+  --s-art-2: color-mix(in srgb, var(--accent) 9%, var(--s-bg));
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.stack[data-lab-scheme='light'] {
+  --pole-light: var(--bg-2);
+  --pole-dark: var(--fg);
+}
+
+.stack[data-site-scheme='dark'] {
+  --s-bg: color-mix(in srgb, var(--pole-dark) 93%, var(--pole-light));
+  --s-bg-2: color-mix(in srgb, var(--pole-dark) 85%, var(--pole-light));
+  --s-ink: var(--pole-light);
+  --s-muted: color-mix(in srgb, var(--pole-light) 66%, var(--pole-dark));
+  --s-line: color-mix(in srgb, var(--pole-light) 14%, transparent);
+  --s-art: color-mix(in srgb, var(--accent) 26%, var(--s-bg));
+  --s-art-2: color-mix(in srgb, var(--accent) 12%, var(--s-bg));
+}
+
+/* The page's paper: full width, scaled on X to the current layout's width (a plain fill scales cleanly). */
+.paper {
+  position: absolute;
+  inset: 0;
+  background: var(--s-bg);
+  transform-origin: 50% 0;
+  transition: background-color 320ms ease;
+}
+
+/* DevTools-style resize handles on the paper's edges (shown while the page is narrower than the frame). */
+.handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 3;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.5px;
+  width: 1px;
+  background: color-mix(in srgb, var(--fg) 26%, transparent);
+}
+
+.handle::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - 22px);
+  left: -3px;
+  width: 6px;
+  height: 44px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--fg) 45%, var(--bg-2));
+}
+
+/* One copy of the site per layout, laid out once at its virtual width. */
+.layer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  width: 1280px;
+  container: site / inline-size;
+  contain: layout paint style;
+  transform-origin: 50% 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.layer[data-layer='tablet'] {
+  width: 820px;
+}
+
+.layer[data-layer='phone'] {
+  width: 390px;
+}
+
+.site {
+  --r: min(var(--radius), 18px);
+  --hair: calc(1px / var(--s, 1));
+
+  color: var(--s-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.45;
+  transition: color 320ms ease;
+}
+
+.site *,
+.site *::before,
+.site *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- blocks (phone layout first) ---------- */
+
+/* Two lines tall on phones whatever the text, so an edit never moves the page. */
+.special {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: calc(2 * 1.35em + 24px);
+  padding: 0 20px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.specialText {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  animation: special-in 520ms var(--ease-out);
+}
+
+@keyframes special-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 66px;
+  padding: 0 20px;
+  border-bottom: var(--hair) solid var(--s-line);
+}
+
+.logo {
+  position: relative;
+  flex: none;
+}
+
+.logoInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  white-space: nowrap;
+}
+
+.mark {
+  width: 26px;
+  height: 26px;
+}
+
+.links {
+  position: relative;
+  display: none;
+  gap: 26px;
+  margin-left: 28px;
+  color: var(--s-muted);
+  font-size: 15px;
+}
+
+.order {
+  position: relative;
+  flex: none;
+  margin-left: auto;
+  padding: 9px 16px;
+  border-radius: var(--r);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 14px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.orderLong {
+  display: none;
+}
+
+/* A visitor's order on launch day: a ring pulses off the button. */
+.ping {
+  position: absolute;
+  inset: -2px;
+  border: 3px solid var(--accent);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: ping 900ms var(--ease-out) forwards;
+}
+
+@keyframes ping {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.35, 1.8);
+  }
+}
+
+.burger {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  color: var(--s-ink);
+}
+
+.burger svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* Phones: the headline first, the photo under the buttons. */
+.hero {
+  display: grid;
+  gap: 22px;
+  padding: 26px 20px 28px;
+}
+
+.heroCopy {
+  display: grid;
+  gap: 14px;
+}
+
+.heroTitle {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: calc(44px * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.heroText {
+  position: relative;
+  color: var(--s-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.actions {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.primary,
+.secondary {
+  padding: 14px 12px;
+  border-radius: var(--r);
+  font-size: 15px;
+  font-weight: 650;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.secondary {
+  border: max(1.5px, var(--hair)) solid color-mix(in srgb, var(--s-ink) 30%, transparent);
+}
+
+/* A product shot: the loaf on a softly lit, tinted backdrop. */
+.photo {
+  position: relative;
+  display: grid;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: calc(var(--r) * 1.4);
+  background: radial-gradient(ellipse 70% 60% at 50% 38%, var(--s-art-2), transparent 75%), var(--s-art);
+  transition: background-color 320ms ease;
+}
+
+.photoArt {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  color: var(--s-ink);
+}
+
+.steam {
+  width: 40%;
+  margin-bottom: -3%;
+  opacity: 0.3;
+}
+
+.loaf {
+  width: 70%;
+}
+
+.fresh {
+  position: relative;
+  margin: 0 20px 26px;
+}
+
+.freshInner {
+  display: grid;
+  gap: 14px;
+}
+
+.freshTitle {
+  font-family: var(--font-display);
+  font-size: calc(26px * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  align-items: center;
+  padding: 10px;
+  border-radius: var(--r);
+  background: var(--s-bg-2);
+  transition: background-color 320ms ease;
+}
+
+.cardArt {
+  display: grid;
+  grid-row: span 2;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  border-radius: calc(var(--r) * 0.8);
+  background: radial-gradient(ellipse 70% 60% at 50% 40%, var(--s-art-2), transparent 75%), var(--s-art);
+  transition: background-color 320ms ease;
+}
+
+.cardArt svg {
+  width: 84%;
+}
+
+.cardName {
+  align-self: end;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.cardNote {
+  align-self: start;
+  color: var(--s-muted);
+  font-size: 13px;
+}
+
+.footer {
+  position: relative;
+  padding: 18px 20px;
+  border-top: var(--hair) solid var(--s-line);
+  color: var(--s-muted);
+  font-size: 13px;
+}
+
+/* ---------- md: tablets ---------- */
+
+@container site (min-width: 768px) {
+  .special {
+    height: calc(1.35em + 24px);
+    font-size: 15px;
+  }
+
+  .specialText {
+    -webkit-line-clamp: 1;
+  }
+
+  .nav {
+    height: 74px;
+    padding: 0 36px;
+  }
+
+  .links {
+    display: flex;
+  }
+
+  .orderLong {
+    display: inline;
+  }
+
+  .orderShort,
+  .burger {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1.05fr 1fr;
+    align-items: center;
+    gap: 32px;
+    padding: 36px 36px 40px;
+  }
+
+  .heroTitle {
+    font-size: calc(54px * var(--display-scale));
+  }
+
+  .actions {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    justify-content: start;
+  }
+
+  .primary,
+  .secondary {
+    padding: 14px 22px;
+  }
+
+  .photo {
+    aspect-ratio: 1;
+  }
+
+  .fresh {
+    margin: 0 36px 36px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    grid-template-columns: 1fr;
+    row-gap: 4px;
+    padding: 12px 12px 16px;
+  }
+
+  .cardArt {
+    grid-row: auto;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 8px;
+  }
+
+  .footer {
+    padding: 20px 36px;
+  }
+}
+
+/* ---------- lg: desktops ---------- */
+
+@container site (min-width: 1024px) {
+  .nav {
+    height: 80px;
+    padding: 0 64px;
+  }
+
+  .links {
+    margin-left: 48px;
+    gap: 34px;
+  }
+
+  .hero {
+    gap: 56px;
+    padding: 52px 64px 56px;
+  }
+
+  .heroTitle {
+    font-size: calc(76px * var(--display-scale));
+  }
+
+  .heroText {
+    max-width: 32ch;
+    font-size: 18px;
+  }
+
+  .photo {
+    aspect-ratio: 5 / 4;
+  }
+
+  .fresh {
+    margin: 0 64px 48px;
+  }
+
+  .freshTitle {
+    font-size: calc(32px * var(--display-scale));
+  }
+
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .footer {
+    padding: 22px 64px;
+  }
+}
+
+/* ---------- wireframe overlays ---------- */
+
+/*
+ * Every [data-wire] block gets an opaque grey box with its label on top.
+ * Blank: nothing shows. Wire: the boxes draw in, top to bottom, and the real
+ * content underneath stays hidden (still laid out: the boxes are the real
+ * blocks' size, so the swap to the design never moves anything). Design: the
+ * boxes lift away in the same order, revealing the styled block.
+ */
+.site [data-wire] {
+  transition:
+    background-color 320ms ease calc(var(--i, 0) * 70ms),
+    color 320ms ease,
+    border-color 320ms ease calc(var(--i, 0) * 70ms);
+}
+
+.site [data-wire]::after {
+  content: attr(data-wire);
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 0 calc(4px / var(--s, 1));
+  border: calc(1.25px / var(--s, 1)) dashed color-mix(in srgb, var(--s-ink) 34%, transparent);
+  border-radius: calc(var(--r) * 0.7);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--s-ink) 7%, var(--s-bg)) 0 calc(5px / var(--s, 1)),
+      var(--s-bg) 0 calc(10px / var(--s, 1))
+    ),
+    var(--s-bg);
+  color: var(--s-muted);
+  /* A constant on-screen size, capped so a small box on a far-zoomed page keeps its whole label. */
+  font: 500 min(calc(10.5px / var(--s, 1)), 16px) / 1.1 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+  transition:
+    opacity 380ms var(--ease-out) calc(var(--i, 0) * 70ms),
+    transform 480ms var(--ease-out) calc(var(--i, 0) * 70ms);
+}
+
+.site[data-phase='wire'] [data-wire]::after {
+  opacity: 1;
+  transform: none;
+}
+
+/* Under the boxes (and before they arrive) the block is an empty outline. */
+.site[data-phase='blank'] [data-wire],
+.site[data-phase='wire'] [data-wire] {
+  border-color: transparent;
+  background: transparent;
+}
+
+.site[data-phase='blank'] [data-wire] > *,
+.site[data-phase='wire'] [data-wire] > * {
+  visibility: hidden;
+}
+
+.site[data-phase='blank'] .burger,
+.site[data-phase='wire'] .burger {
+  opacity: 0.25;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper,
+  .site,
+  .site [data-wire],
+  .site [data-wire]::after,
+  .photo,
+  .card,
+  .cardArt {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+
+  .specialText,
+  .ping {
+    animation: none;
+  }
+}

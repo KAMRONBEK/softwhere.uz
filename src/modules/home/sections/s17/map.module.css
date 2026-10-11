@@ -1,0 +1,520 @@
+/*
+ * The index map. The box keeps the map's aspect ratio (600 × 420 units), so
+ * the SVG and the HTML overlay (labels and match pills, positioned in %)
+ * share one coordinate system. It sits on the stage's canvas without a frame
+ * of its own: the constellation is the stage's hero. Dots are ink on light
+ * styles and starlight on dark ones; only transforms and opacity animate, and
+ * the looping bits (the question's halo, the search sweep) are HTML on top of
+ * everything else in the map, so they stay on the compositor.
+ */
+
+.map {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* The box, its head and its caption share one width: the stage may narrow it (--map-w). */
+.head,
+.box,
+.caption {
+  width: var(--map-w, 100%);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  color: var(--fg);
+}
+
+.count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.box {
+  position: relative;
+  aspect-ratio: 600 / 420;
+  isolation: isolate;
+}
+
+/* A faint plotting grid that melts into the canvas at the edges. */
+.grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px) 0 0 / 10% 14.2857%,
+    linear-gradient(to bottom, color-mix(in srgb, var(--fg) 7%, transparent) 1px, transparent 1px) 0 0 / 10% 14.2857%;
+  -webkit-mask-image: radial-gradient(closest-side, #000 50%, transparent);
+  mask-image: radial-gradient(closest-side, #000 50%, transparent);
+  pointer-events: none;
+}
+
+/* Soft topic clouds behind each cluster: faint before indexing, full once it starts. */
+.hull {
+  position: absolute;
+  width: calc(var(--s) * 560%);
+  aspect-ratio: 1 / 0.86;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent-2) var(--hull, 14%), transparent), transparent);
+  opacity: 0.45;
+  transform: translate(-50%, -50%) scale(0.86);
+  transition:
+    opacity 900ms ease,
+    transform 1200ms var(--ease-out);
+  pointer-events: none;
+}
+
+.map:is([data-pipeline='indexing'], [data-pipeline='ready']) .hull {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
+.hull[data-locked] {
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--muted) 16%, transparent), transparent);
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ---------- snippets ---------- */
+
+.dots {
+  transition: opacity 500ms ease;
+}
+
+.dots[data-dim] {
+  opacity: 0.38;
+}
+
+/* Where the snippets will land: a dim constellation from the first paint. */
+.ghost {
+  fill: color-mix(in srgb, var(--fg) 26%, transparent);
+  transition: opacity 700ms ease 200ms;
+}
+
+.map[data-pipeline='ready'] .ghost {
+  opacity: 0;
+}
+
+/* The index graph: near neighbours linked, drawn out once the snippets have settled. */
+.links {
+  fill: none;
+  stroke: color-mix(in srgb, var(--fg) 18%, transparent);
+  stroke-width: calc(var(--u, 1) * 1px);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.map[data-pipeline='ready'] .links {
+  animation: draw 1400ms cubic-bezier(0.45, 0, 0.2, 1) forwards;
+}
+
+.dot {
+  fill: var(--rag-dot);
+  stroke: transparent;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+  transition:
+    fill 1400ms ease,
+    stroke 400ms ease,
+    opacity 500ms ease;
+}
+
+.map:is([data-pipeline='idle'], [data-pipeline='reading']) .dot {
+  opacity: 0;
+}
+
+/* In flight: the snippets carry the second accent, then cool to ink. */
+.map[data-pipeline='indexing'] .dot {
+  fill: var(--accent-2);
+  transition-duration: 0ms, 400ms, 500ms;
+}
+
+/* Locked for this user: HR snippets are hollow. */
+.dots[data-locked] .dot[data-hr] {
+  fill: transparent;
+  stroke: color-mix(in srgb, var(--muted) 80%, transparent);
+}
+
+/* ---------- a question: query point, retrieval lines, hits ---------- */
+
+.query {
+  fill: var(--accent);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 520ms var(--ease-out) both;
+}
+
+.link {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+/* Answered: the lines draw out to the snippets, best match first. */
+.map[data-outcome='answered'] .link {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 620ms var(--ease-out) calc(var(--k) * 120ms) forwards;
+}
+
+.map[data-outcome='answered'] .link:not([data-cite]) {
+  stroke: color-mix(in srgb, var(--accent) 45%, var(--muted));
+  opacity: 0.6;
+}
+
+/* Blocked or not found: dashed, muted, never "connected". */
+.map:is([data-outcome='blocked'], [data-outcome='missing']) .link {
+  stroke: var(--muted);
+  stroke-dasharray: 3 5;
+  opacity: 0;
+  animation: fade 500ms ease calc(var(--k) * 110ms) forwards;
+}
+
+.link[data-focus] {
+  stroke-width: 3px;
+  opacity: 1;
+}
+
+.hit {
+  opacity: 0;
+  animation: fade 360ms var(--ease-out) calc(var(--k) * 120ms + 300ms) forwards;
+}
+
+.hitDot {
+  fill: color-mix(in srgb, var(--accent) 55%, var(--muted));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pop 420ms var(--ease-out) calc(var(--k) * 120ms + 300ms) both;
+}
+
+.hitDot[data-cite] {
+  fill: var(--accent);
+}
+
+.map[data-outcome='blocked'] .hitDot,
+.map[data-outcome='missing'] .hitDot {
+  fill: var(--bg);
+  stroke: var(--muted);
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.hitRing {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1px;
+  opacity: 0.45;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 200ms ease,
+    transform 300ms var(--ease-out);
+}
+
+.map:is([data-outcome='blocked'], [data-outcome='missing']) .hitRing {
+  stroke: var(--muted);
+  opacity: 0.3;
+}
+
+.hitRing[data-focus] {
+  opacity: 1;
+  stroke-width: 2px;
+  transform: scale(1.35);
+}
+
+/* Not found: the "close enough" circle around the question is empty. */
+.threshold {
+  fill: color-mix(in srgb, var(--muted) 7%, transparent);
+  stroke: var(--muted);
+  stroke-width: 1.5px;
+  stroke-dasharray: 2 6;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-in 700ms var(--ease-out) both;
+}
+
+/* ---------- HTML overlay: labels and match pills ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.55;
+  transform: translate(-50%, -50%);
+  transition: opacity 600ms ease 500ms;
+}
+
+.label[data-align='start'] {
+  transform: translateY(-50%);
+}
+
+.label[data-align='end'] {
+  transform: translate(-100%, -50%);
+}
+
+.map[data-pipeline='ready'] .label {
+  opacity: 1;
+}
+
+.label svg {
+  width: 11px;
+  height: 11px;
+}
+
+.label[data-locked] {
+  color: var(--fg);
+}
+
+.label[data-locked] svg {
+  color: var(--accent);
+}
+
+.labelNote {
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--fg);
+  letter-spacing: 0.04em;
+}
+
+.score {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px 3px 5px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-2) 90%, transparent);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(10px, -50%);
+  animation: fade 360ms ease calc(var(--k) * 120ms + 420ms) forwards;
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+.score[data-side='left'] {
+  transform: translate(calc(-100% - 10px), -50%);
+}
+
+.score b {
+  display: grid;
+  place-items: center;
+  min-width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.6875rem;
+}
+
+.score svg {
+  width: 10px;
+  height: 10px;
+  color: var(--accent);
+}
+
+.score[data-low] {
+  border-color: color-mix(in srgb, var(--muted) 50%, transparent);
+  color: var(--muted);
+}
+
+.score[data-focus] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--bg-2));
+}
+
+.gap {
+  position: absolute;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--muted) 45%, transparent);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-50%);
+  animation: fade 400ms ease 500ms forwards;
+}
+
+/* ---------- looping effects: HTML, transform/opacity, painted last ---------- */
+
+.fx {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The question's halo: three breaths, then still. */
+.halo {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
+  opacity: 0;
+  animation: halo 2.2s var(--ease-out) 3 both;
+}
+
+/* Searching: a sonar sweep from the query point. */
+.scan {
+  position: absolute;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.1);
+  animation: scan 1100ms var(--ease-out) infinite;
+}
+
+.caption {
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+/* Phones: the pipeline's caption explains the map, so the map and the chat fit one screen. */
+@media (max-width: 759px) {
+  .caption {
+    display: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes halo {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+
+@keyframes scan {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(0.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ring-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .query,
+  .hitDot,
+  .threshold {
+    animation: none;
+  }
+
+  .halo {
+    animation: none;
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+
+  .map[data-outcome='answered'] .link,
+  .map[data-pipeline='ready'] .links {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .map:is([data-outcome='blocked'], [data-outcome='missing']) .link,
+  .hit,
+  .score,
+  .gap {
+    animation: none;
+    opacity: 1;
+  }
+
+  .map[data-outcome='answered'] .link:not([data-cite]) {
+    opacity: 0.6;
+  }
+
+  .hull,
+  .label,
+  .ghost,
+  .dot {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+}

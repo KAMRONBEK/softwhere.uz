@@ -1,0 +1,66 @@
+/* The static stand-in: centred under the header for the first screen of the
+   section's reserved height, in the active style's tokens. */
+.root {
+  position: relative;
+}
+
+.inner {
+  position: sticky;
+  top: 0;
+  display: grid;
+  align-content: center;
+  gap: 16px;
+  min-height: 100svh;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: calc(var(--lab-header-h, 56px) + 24px) 16px 48px;
+  color: var(--fg);
+}
+
+.heading {
+  margin: 0;
+  font-size: calc(clamp(2rem, 6vw, 4.5rem) * var(--display-scale, 1));
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+.summary {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* Real links in the static stand-ins (service pages, the estimator, the studio's channels). */
+.summary a,
+.extra a {
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 70%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.summary a:hover,
+.extra a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.extra {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

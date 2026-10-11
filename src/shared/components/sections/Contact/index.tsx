@@ -14,6 +14,7 @@ import css from './style.module.css';
 
 import Button from '@/shared/components/Button';
 import { trackEvent } from '@/shared/utils/analytics';
+import { useContactPrefill } from '@/shared/utils/contactPrefill';
 import { sender } from '@/shared/utils/send';
 import { toast } from 'react-toastify';
 import { useTranslations } from 'next-intl';
@@ -27,6 +28,8 @@ function Contact() {
   const [nameError, setNameError] = useState<boolean>(false);
   const t = useTranslations('contact');
   const tM = useTranslations('toastMessage');
+  // "Talk to us about this plan" (AI brief) hands over a drafted message; nothing is sent until the visitor submits.
+  useContactPrefill(setMessage);
 
   const validateForm = () => {
     const phoneDigits = phone.replace(/\D/g, '');

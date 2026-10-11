@@ -1,0 +1,802 @@
+/* Checkout sheet and Mini App sheet inside the phone (em = phone unit). */
+
+/* ---------- shared ---------- */
+
+.layer,
+.miniLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.miniLayer {
+  z-index: 6;
+}
+
+.layer[data-open],
+.miniLayer[data-open] {
+  pointer-events: auto;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  opacity: 0;
+  transition: opacity 360ms ease;
+}
+
+.layer[data-open] .scrim {
+  opacity: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+/* ---------- checkout ---------- */
+
+.sheet {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0.6em 1.1em 1.9em;
+  border-radius: 1.7em 1.7em 0 0;
+  background: var(--tg-surface);
+  color: var(--fg);
+  box-shadow: 0 -1em 2.4em -1em var(--tg-shadow);
+  transform: translateY(104%);
+  transition: transform 560ms var(--ease-drawer);
+}
+
+.layer[data-open] .sheet {
+  transform: none;
+}
+
+.handle {
+  display: block;
+  width: 2.6em;
+  height: 0.3em;
+  margin: 0 auto 0.75em;
+  border-radius: 0.2em;
+  background: color-mix(in srgb, var(--muted) 45%, transparent);
+}
+
+.payHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15em;
+}
+
+.payTitle {
+  font-weight: 700;
+}
+
+.payMerchant {
+  color: var(--muted);
+  font-size: 0.76em;
+}
+
+.amountWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 4.1em;
+}
+
+.amount {
+  font-family: var(--font-display);
+  font-size: calc(2.1em * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  transition:
+    transform 320ms var(--ease-out),
+    opacity 200ms ease;
+}
+
+.amountWrap[data-done] .amount {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.success {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3.3em;
+  height: 3.3em;
+  margin: -1.65em 0 0 -1.65em;
+  opacity: 0;
+}
+
+.amountWrap[data-done] .success {
+  opacity: 1;
+}
+
+.successRing {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.successRing circle {
+  stroke-dasharray: 145;
+  stroke-dashoffset: 145;
+}
+
+.successRing path {
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+}
+
+.amountWrap[data-done] .successRing circle {
+  animation: draw 520ms var(--ease-out) forwards;
+}
+
+.amountWrap[data-done] .successRing path {
+  animation: draw 360ms var(--ease-out) 320ms forwards;
+}
+
+.spark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.36em;
+  height: 0.36em;
+  margin: -0.18em;
+  border-radius: 50%;
+  background: var(--accent-2);
+  opacity: 0;
+}
+
+.spark:nth-child(odd) {
+  background: var(--accent);
+}
+
+.amountWrap[data-done] .spark {
+  animation: spark 720ms var(--ease-out) 260ms both;
+}
+
+.bankCard {
+  position: relative;
+  display: grid;
+  grid-template:
+    'chip label' auto
+    '. .' 1fr
+    'num holder' auto / 1fr auto;
+  height: 7.2em;
+  margin-top: 0.2em;
+  padding: 0.85em 1em 0.8em;
+  overflow: hidden;
+  border-radius: 0.95em;
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--on-accent) 16%, transparent), transparent 55%),
+    linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2)));
+  color: var(--on-accent);
+}
+
+.chip {
+  grid-area: chip;
+  width: 1.9em;
+  height: 1.45em;
+  border-radius: 0.3em;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--on-accent) 55%, var(--accent)),
+    color-mix(in srgb, var(--on-accent) 25%, var(--accent))
+  );
+}
+
+.cardLabel {
+  grid-area: label;
+  font-size: 0.72em;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.cardNumber {
+  grid-area: num;
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+  letter-spacing: 0.08em;
+}
+
+.cardHolder {
+  grid-area: holder;
+  align-self: end;
+  font-size: 0.62em;
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+.contactless {
+  position: absolute;
+  top: 50%;
+  right: 1em;
+  width: 1.6em;
+  height: 1.6em;
+  margin-top: -0.9em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  opacity: 0.7;
+}
+
+.code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6em;
+  margin-top: 0.8em;
+}
+
+.codeLabel {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8em;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.codeLabel span {
+  color: var(--muted);
+  font-size: 0.85em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.codeBoxes {
+  display: flex;
+  gap: 0.22em;
+}
+
+.codeBox {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.45em;
+  height: 1.9em;
+  border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+  border-radius: 0.4em;
+  font-size: 0.95em;
+}
+
+/* Accent rim and the digit dot: opacity only, each on its own delay. */
+.codeBox::before,
+.codeBox::after {
+  content: '';
+  position: absolute;
+  opacity: 0;
+}
+
+.codeBox::before {
+  inset: -1px;
+  border: 1px solid var(--accent);
+  border-radius: inherit;
+}
+
+.codeBox::after {
+  width: 0.42em;
+  height: 0.42em;
+  border-radius: 50%;
+  background: var(--fg);
+}
+
+.code[data-active] .codeBox::before,
+.code[data-active] .codeBox::after {
+  animation: codeIn 160ms var(--ease-out) var(--d) both;
+}
+
+.codeBox[data-filled]::before,
+.codeBox[data-filled]::after {
+  opacity: 1;
+}
+
+.payButton {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 2.95em;
+  margin-top: 0.9em;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0.9em;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  font-size: 0.95em;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.payButton:not(:disabled):active,
+.payButton[data-ghost] {
+  transform: scale(0.97);
+}
+
+.payButton:disabled {
+  cursor: default;
+}
+
+.payButton:focus-visible,
+.mainButton:focus-visible,
+.miniClose:focus-visible,
+.stepPlus:focus-visible,
+.stepMinus:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.payLabel,
+.payBusy,
+.payDone {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  transition:
+    transform 300ms var(--ease-out),
+    opacity 200ms ease;
+}
+
+.payDone svg {
+  width: 1.2em;
+}
+
+.payBusy,
+.payDone {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.payButton[data-state='busy'] .payLabel,
+.payButton[data-state='done'] .payLabel,
+.payButton[data-state='done'] .payBusy {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.payButton[data-state='busy'] .payBusy,
+.payButton[data-state='done'] .payDone {
+  transform: none;
+  opacity: 1;
+}
+
+.secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  margin-top: 0.7em;
+  color: var(--muted);
+  font-size: 0.68em;
+}
+
+.secure svg {
+  width: 1.1em;
+}
+
+/* ---------- Mini App ---------- */
+
+.mini {
+  position: absolute;
+  top: 2.9em;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.6em 1.6em 0 0;
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: 0 -1.2em 2.6em -1em var(--tg-shadow);
+  transform: translateY(104%);
+  transition: transform 640ms var(--ease-drawer);
+}
+
+.miniLayer[data-open] .mini {
+  transform: none;
+}
+
+.miniBar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 3.2em;
+  padding: 0 0.9em;
+  border-bottom: 1px solid var(--tg-edge);
+  background: var(--tg-surface);
+}
+
+.miniClose {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  min-width: 4.6em;
+  padding: 0.4em 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.86em;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.miniClose svg {
+  width: 1.05em;
+}
+
+.miniTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.9em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.miniTitle span {
+  color: var(--muted);
+  font-size: 0.78em;
+  font-weight: 500;
+}
+
+.miniMore {
+  display: inline-flex;
+  justify-content: flex-end;
+  width: 4.6em;
+  color: var(--muted);
+}
+
+.miniMore svg {
+  width: 1.3em;
+}
+
+.miniBody {
+  flex: 1;
+  min-height: 0;
+  padding: 0.9em 0.85em 0;
+  overflow: hidden;
+}
+
+.miniGreeting {
+  font-family: var(--font-display);
+  font-size: calc(1.75em * var(--display-scale));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+}
+
+.miniNote {
+  margin: 0.35em 0 0.7em;
+  color: var(--muted);
+  font-size: 0.78em;
+}
+
+.chips {
+  display: flex;
+  gap: 0.35em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  padding: 0.36em 0.85em;
+  border-radius: 1em;
+  background: color-mix(in srgb, var(--fg) 7%, transparent);
+  font-size: 0.74em;
+  font-weight: 600;
+}
+
+.chips li[data-active] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.menuGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+  margin: 0.75em 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menuCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22em;
+  padding: 0.45em 0.5em 0.5em;
+  border: 1px solid var(--tg-edge);
+  border-radius: 1em;
+  background: var(--bg-2);
+}
+
+.miniLayer[data-open] .menuCard {
+  animation: cardIn 560ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 55ms + 240ms);
+}
+
+.menuArt {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 4.5em;
+  border-radius: 0.75em;
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+}
+
+.menuArt svg {
+  width: 3.9em;
+  height: 3.9em;
+}
+
+.menuBadge {
+  position: absolute;
+  top: 0.35em;
+  right: 0.35em;
+  display: grid;
+  place-items: center;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.3em;
+  border-radius: 0.7em;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.7em;
+  font-weight: 700;
+  animation: pop 320ms var(--ease-out);
+}
+
+.menuName {
+  margin-top: 0.1em;
+  overflow: hidden;
+  font-size: 0.8em;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menuFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3em;
+}
+
+.menuPrice {
+  color: var(--muted);
+  font-size: 0.72em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stepper {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.stepPlus,
+.stepMinus {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.75em;
+  height: 1.75em;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--ease-out),
+    opacity 180ms ease,
+    background-color 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stepPlus svg,
+.stepMinus svg {
+  width: 0.95em;
+}
+
+.stepPlus {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.stepPlus:not(:disabled):active,
+.stepPlus[data-ghost],
+.stepMinus:not(:disabled):active {
+  transform: scale(0.9);
+}
+
+.stepMinus {
+  position: absolute;
+  right: 2.05em;
+  background: color-mix(in srgb, var(--fg) 9%, transparent);
+  color: var(--fg);
+  transform: translateX(1em) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.stepper[data-count] .stepMinus {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mainButtonWrap {
+  position: absolute;
+  right: 0.85em;
+  bottom: 1.55em;
+  left: 0.85em;
+  transform: translateY(170%);
+  transition: transform 460ms var(--ease-drawer);
+}
+
+.mainButtonWrap[data-show] {
+  transform: none;
+}
+
+.mainButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  width: 100%;
+  height: 2.95em;
+  border: 0;
+  border-radius: 0.9em;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0.7em 1.6em -0.6em var(--glow);
+  font: inherit;
+  font-size: 0.86em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mainButton:not(:disabled):active,
+.mainButton[data-ghost] {
+  transform: scale(0.97);
+}
+
+.mainButton:disabled {
+  cursor: default;
+}
+
+.mainCheck {
+  width: 1.2em;
+}
+
+/* Touch screens: bigger steppers (the card has room for them). */
+@media (pointer: coarse) {
+  .stepPlus,
+  .stepMinus {
+    width: 2.25em;
+    height: 2.25em;
+  }
+
+  .stepMinus {
+    right: 2.5em;
+  }
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes spark {
+  0% {
+    transform: rotate(var(--a)) translateY(0) scale(0.4);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--a)) translateY(-3em) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes cardIn {
+  from {
+    transform: translateY(1.4em) scale(0.96);
+    opacity: 0;
+  }
+}
+
+@keyframes codeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.6);
+  }
+}
+
+@media (hover: hover) {
+  .payButton:not(:disabled):hover,
+  .mainButton:not(:disabled):hover,
+  .stepPlus:not(:disabled):hover {
+    background: color-mix(in srgb, var(--accent) 86%, var(--fg));
+  }
+
+  .stepMinus:not(:disabled):hover {
+    background: color-mix(in srgb, var(--fg) 14%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .mini,
+  .mainButtonWrap {
+    transition-duration: 1ms;
+  }
+
+  .miniLayer[data-open] .menuCard,
+  .code[data-active] .codeBox::before,
+  .code[data-active] .codeBox::after,
+  .amountWrap[data-done] .spark,
+  .menuBadge {
+    animation: none;
+  }
+
+  .amountWrap[data-done] .successRing circle,
+  .amountWrap[data-done] .successRing path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

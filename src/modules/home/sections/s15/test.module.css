@@ -1,0 +1,314 @@
+/*
+ * Step 5 · Test (TestScreen.tsx). Defaults are the finished dashboard (the
+ * still version); the reveal animations run only while the layer is on
+ * (`[data-layer-on]`, set by Phone.tsx), so they restart on every visit.
+ */
+
+.test {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--a-bg);
+  color: var(--a-fg);
+}
+
+.head {
+  position: absolute;
+  top: 3.7em;
+  right: 1.3em;
+  left: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.build {
+  color: var(--a-muted);
+  font-family: var(--font-mono);
+  font-size: 0.64em;
+  letter-spacing: 0.05em;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 1.4em;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.05;
+}
+
+.health {
+  position: absolute;
+  top: 8.4em;
+  right: 1.3em;
+  left: 1.3em;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  height: 7em;
+  padding: 0 1em;
+  border-radius: calc(var(--a-r) * 1.2);
+  background: var(--a-surface);
+}
+
+.ring {
+  flex: none;
+  width: 5em;
+  height: 5em;
+  transform: rotate(-90deg);
+}
+
+.ringTrack,
+.ringFill {
+  fill: none;
+  stroke-width: 4.4;
+}
+
+.ringTrack {
+  stroke: var(--a-raised);
+}
+
+.ringFill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0.2;
+}
+
+.healthText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  min-width: 0;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: 1.7em;
+  font-weight: var(--display-weight);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+}
+
+.label {
+  color: var(--a-muted);
+  font-size: 0.7em;
+}
+
+.passed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  color: var(--a-accent-ink);
+  font-size: 0.7em;
+  font-weight: 700;
+}
+
+.passedIcon {
+  width: 1.2em;
+  height: 1.2em;
+  stroke-width: 2.6;
+}
+
+.grid {
+  position: absolute;
+  top: 16.3em;
+  right: 1.3em;
+  left: 1.3em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  height: 7.4em;
+  padding: 0 0.6em;
+  border-radius: calc(var(--a-r) * 1.1);
+  background: var(--a-surface);
+}
+
+.device {
+  position: relative;
+  flex: none;
+  width: 2.7em;
+  height: 5.4em;
+  padding: 0.16em;
+  border-radius: 0.5em;
+  background: color-mix(in srgb, var(--a-fg) 78%, var(--a-bg));
+}
+
+.device[data-shape='small'] {
+  width: 2.8em;
+  height: 4.8em;
+}
+
+.device[data-shape='tall'] {
+  width: 2.55em;
+  height: 5.8em;
+}
+
+.device[data-shape='tablet'] {
+  width: 4.4em;
+  height: 5.8em;
+  border-radius: 0.4em;
+}
+
+.deviceScreen {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 0.36em;
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  min-width: 0;
+}
+
+.tileLabel {
+  font-size: 0.66em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.status {
+  position: relative;
+  width: 1.3em;
+  height: 1.3em;
+}
+
+.spin {
+  position: absolute;
+  inset: 0;
+  border: 0.16em solid var(--a-raised);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.ok {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.18em;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  stroke-width: 3;
+}
+
+.ready {
+  position: absolute;
+  bottom: 2.4em;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.65em 1.1em 0.65em 0.9em;
+  border-radius: max(calc(var(--a-r) * 1.6), 0.2em);
+  background: var(--a-fg);
+  color: var(--a-bg);
+  font-size: 0.8em;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.readyIcon {
+  width: 1.2em;
+  height: 1.2em;
+  stroke-width: 2.6;
+}
+
+/* ---------- the run, every time the screen comes on ---------- */
+
+[data-layer-on] .ringFill {
+  animation: fill 2.8s cubic-bezier(0.3, 0.7, 0.2, 1) 600ms both;
+}
+
+[data-layer-on] .spin {
+  animation:
+    spin 800ms linear infinite,
+    gone 1ms linear calc(900ms + var(--i) * 420ms) both;
+}
+
+[data-layer-on] .ok {
+  animation: pop 460ms var(--ease-spring) calc(900ms + var(--i) * 420ms) both;
+}
+
+[data-layer-on] .passed {
+  animation: arrive 420ms var(--ease-out) 3.5s both;
+}
+
+[data-layer-on] .ready {
+  animation: rise 560ms var(--ease-spring) 3.8s both;
+}
+
+@keyframes fill {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes gone {
+  from {
+    visibility: visible;
+  }
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes arrive {
+  from {
+    transform: translateY(0.5em);
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translate(-50%, 1.2em);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-layer-on] .ringFill,
+  [data-layer-on] .spin,
+  [data-layer-on] .ok,
+  [data-layer-on] .passed,
+  [data-layer-on] .ready {
+    animation: none;
+  }
+}

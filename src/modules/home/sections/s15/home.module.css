@@ -1,0 +1,1115 @@
+/*
+ * The demo app's home screen (HomeScreen.tsx). 1em = the phone unit; the
+ * screen is 21.9em × 46.9em and every block sits at a fixed offset so the
+ * wireframe, the design and the flow pins line up exactly.
+ *
+ * Palette: `.palette[data-theme]` maps the section's --paper/--ink (scheme
+ * aware, section.module.css) to the app's --a-* colours for its light and
+ * dark mode. Accent fills always carry --on-accent.
+ */
+
+.palette[data-theme='dark'] {
+  --a-bg: var(--ink);
+  --a-surface: color-mix(in srgb, var(--paper) 7%, var(--ink));
+  --a-raised: color-mix(in srgb, var(--paper) 13%, var(--ink));
+  --a-fg: var(--paper);
+  --a-muted: color-mix(in srgb, var(--paper) 62%, var(--ink));
+  --a-line: color-mix(in srgb, var(--paper) 11%, transparent);
+  --a-accent-ink: var(--accent);
+  --a-shadow: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.palette[data-theme='light'] {
+  --a-bg: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  --a-surface: var(--paper);
+  --a-raised: color-mix(in srgb, var(--ink) 7%, var(--paper));
+  --a-fg: var(--ink);
+  --a-muted: color-mix(in srgb, var(--ink) 58%, var(--paper));
+  --a-line: color-mix(in srgb, var(--ink) 10%, transparent);
+  --a-accent-ink: color-mix(in srgb, var(--accent) 62%, var(--ink));
+  --a-shadow: color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.home {
+  --a-r: var(--radius);
+  --wire-paper: color-mix(in srgb, var(--paper) 96%, var(--ink));
+  --wire-ink: color-mix(in srgb, var(--ink) 13%, var(--wire-paper));
+  --wire-line: color-mix(in srgb, var(--ink) 30%, var(--wire-paper));
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--a-fg);
+  font-size: 1em;
+  line-height: 1.2;
+}
+
+.home[data-variant='wire'] {
+  background: var(--wire-paper);
+  color: var(--wire-line);
+}
+
+/* The theme the wipe grows over, and the wipe itself (from the switch). */
+.base {
+  position: absolute;
+  inset: 0;
+  background: var(--a-bg);
+}
+
+.wipe {
+  /* Screen-sized and clipped (no oversized scaled disc layer): a circle grows from the switch. */
+  position: absolute;
+  inset: 0;
+  background: var(--a-bg);
+  clip-path: circle(0 at 15.4em 5.2em);
+  animation: wipe 780ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  transition:
+    transform 520ms var(--ease-drawer),
+    opacity 420ms ease;
+}
+
+.content[data-away] {
+  opacity: 0.35;
+  transform: translateX(-22%);
+}
+
+.icon {
+  display: block;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+/* ---------- wireframe primitives ---------- */
+
+.bar {
+  display: inline-block;
+  width: var(--w);
+  max-width: 100%;
+  height: 0.62em;
+  border-radius: 0.31em;
+  background: var(--wire-ink);
+  vertical-align: middle;
+}
+
+.dot {
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.11em solid var(--wire-line);
+  border-radius: 50%;
+}
+
+.placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0.1em solid var(--wire-line);
+  border-radius: calc(var(--a-r) * 0.5);
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.06em), var(--wire-line) 50%, transparent calc(50% + 0.06em)),
+    linear-gradient(to top left, transparent calc(50% - 0.06em), var(--wire-line) 50%, transparent calc(50% + 0.06em));
+}
+
+.wireBox {
+  border: 0.11em solid var(--wire-line);
+  background: transparent;
+}
+
+.home[data-variant='wire'] .search,
+.home[data-variant='wire'] .promo,
+.home[data-variant='wire'] .card,
+.home[data-variant='wire'] .tabs {
+  border: 0.1em solid var(--wire-line);
+  background: transparent;
+  box-shadow: none;
+}
+
+.home[data-variant='wire'] .catArt,
+.home[data-variant='wire'] .cardArt {
+  padding: 0;
+  background: transparent;
+}
+
+.home[data-variant='wire'] .toggle,
+.home[data-variant='wire'] .cart,
+.home[data-variant='wire'] .add {
+  border: 0.11em solid var(--wire-line);
+  background: transparent;
+}
+
+/* The tab bar covers the second row of cards, as in the app. */
+.home[data-variant='wire'] .tabs {
+  background: var(--wire-paper);
+}
+
+/* ---------- header ---------- */
+
+.header {
+  position: absolute;
+  top: 3.4em;
+  right: 1.3em;
+  left: 1.3em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  height: 3.6em;
+}
+
+.where {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.whereLabel {
+  color: var(--a-muted);
+  font-size: 0.72em;
+}
+
+.whereValue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: 1.02em;
+  font-weight: 700;
+}
+
+.pin {
+  width: 1.05em;
+  height: 1.05em;
+  color: var(--a-accent-ink);
+}
+
+.chev {
+  width: 0.9em;
+  height: 0.9em;
+  color: var(--a-muted);
+}
+
+.toggle {
+  position: relative;
+  flex: none;
+  width: 3.7em;
+  height: 2.1em;
+  padding: 0;
+  border: 0;
+  border-radius: max(calc(var(--a-r) * 1.6), 0.2em);
+  background: var(--a-raised);
+  color: var(--a-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 420ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggleSun,
+.toggleMoon {
+  position: absolute;
+  top: 0.5em;
+  z-index: 1;
+  width: 1.1em;
+  height: 1.1em;
+  transition: color 300ms ease;
+}
+
+.toggleSun {
+  left: 0.5em;
+}
+
+.toggleMoon {
+  right: 0.5em;
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 0.2em;
+  left: 0.2em;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: max(calc(var(--a-r) * 1.4), 0.15em);
+  background: var(--accent);
+  transition: transform 420ms var(--ease-spring);
+}
+
+.toggle[aria-checked='true'] .toggleKnob {
+  transform: translateX(1.6em);
+}
+
+.toggle[aria-checked='true'] .toggleMoon,
+.toggle[aria-checked='false'] .toggleSun {
+  color: var(--on-accent);
+}
+
+.cart {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.8em;
+  height: 2.8em;
+  padding: 0;
+  border: 0;
+  border-radius: max(calc(var(--a-r) * 1.6), 0.2em);
+  background: var(--a-raised);
+  color: var(--a-fg);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 420ms ease,
+    color 420ms ease,
+    transform 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.badge {
+  position: absolute;
+  top: -0.4em;
+  right: -0.4em;
+  display: grid;
+  place-items: center;
+  min-width: 1.9em;
+  height: 1.9em;
+  padding: 0 0.45em;
+  border-radius: 1em;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.66em;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  animation: bump 420ms var(--ease-spring) both;
+}
+
+/* ---------- search, promo, categories ---------- */
+
+.search {
+  position: absolute;
+  top: 7.6em;
+  right: 1.3em;
+  left: 1.3em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  height: 2.9em;
+  padding: 0 1em;
+  border-radius: max(calc(var(--a-r) * 1.6), 0.2em);
+  background: var(--a-surface);
+  color: var(--a-muted);
+  font-size: 1em;
+}
+
+.search > :last-child {
+  font-size: 0.82em;
+}
+
+.searchIcon {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.promo {
+  position: absolute;
+  top: 11.2em;
+  right: 1.3em;
+  left: 1.3em;
+  height: 6.2em;
+  overflow: hidden;
+  border-radius: calc(var(--a-r) * 1.2);
+  background: linear-gradient(115deg, var(--accent) 45%, color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
+  color: var(--on-accent);
+}
+
+.promoText {
+  position: absolute;
+  top: 1.15em;
+  left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  max-width: 11em;
+}
+
+.promoText strong {
+  font-family: var(--font-display);
+  font-size: 1.4em;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1;
+}
+
+.promoText span {
+  font-size: 0.78em;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.promoArt {
+  position: absolute;
+  right: 0.6em;
+  bottom: -0.9em;
+  width: 6.4em;
+  height: 6.4em;
+  transform: rotate(-14deg);
+}
+
+.home[data-variant='wire'] .promoArt {
+  top: 0.9em;
+  right: 1em;
+  bottom: auto;
+  width: 4.4em;
+  height: 4.4em;
+  transform: none;
+}
+
+.cats {
+  position: absolute;
+  top: 18.1em;
+  right: 1.3em;
+  left: 1.3em;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.catArt {
+  display: block;
+  width: 3.4em;
+  height: 3.4em;
+  padding: 0.55em;
+  border-radius: max(calc(var(--a-r) * 1.6), 0.2em);
+  background: var(--a-surface);
+  transition: background-color 420ms ease;
+}
+
+.catName {
+  color: var(--a-muted);
+  font-size: 0.7em;
+  font-weight: 600;
+}
+
+/* ---------- popular dishes ---------- */
+
+.rowTitle {
+  position: absolute;
+  top: 24em;
+  right: 1.3em;
+  left: 1.3em;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.rowTitle strong {
+  font-size: 1.02em;
+}
+
+.rowTitle span {
+  color: var(--a-accent-ink);
+  font-size: 0.74em;
+  font-weight: 600;
+}
+
+.grid {
+  position: absolute;
+  top: 26.4em;
+  right: 1.3em;
+  left: 1.3em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  height: 11.6em;
+  padding: 0.55em;
+  border-radius: calc(var(--a-r) * 1.1);
+  background: var(--a-surface);
+}
+
+.cardArt {
+  display: block;
+  height: 6.1em;
+  padding: 0.7em 1.4em;
+  border-radius: calc(var(--a-r) * 0.8);
+  background: var(--a-raised);
+  transition: background-color 420ms ease;
+}
+
+.cardName,
+.cardShop,
+.cardPrice {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cardName {
+  margin-top: 0.55em;
+  font-size: 0.84em;
+  font-weight: 700;
+}
+
+.cardShop {
+  margin-top: 0.3em;
+  color: var(--a-muted);
+  font-size: 0.66em;
+}
+
+.cardPrice {
+  position: absolute;
+  bottom: 0.95em;
+  left: 0.7em;
+  max-width: 5.6em;
+  font-size: 0.86em;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* So'm prices ("89 000 soʻm") run twice as long as dollars: a smaller face keeps them clear of the add button. */
+.cardPrice[data-currency='uzs'] {
+  max-width: 6.6em;
+  font-size: 0.72em;
+}
+
+.add {
+  position: absolute;
+  right: 0.55em;
+  bottom: 0.55em;
+  display: grid;
+  place-items: center;
+  width: 2.4em;
+  height: 2.4em;
+  padding: 0;
+  border: 0;
+  border-radius: max(calc(var(--a-r) * 1.4), 0.2em);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.add:active,
+.cart:active {
+  transform: scale(0.92);
+}
+
+/* ---------- tab bar ---------- */
+
+.tabs {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: 5.3em;
+  padding: 0.5em 0.6em 1.4em;
+  border-top: 1px solid var(--a-line);
+  background: var(--a-surface);
+}
+
+.home[data-variant='wire'] .tabs {
+  border-width: 0.1em 0 0;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--a-muted);
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+span.tab {
+  cursor: default;
+}
+
+.tabIcon {
+  display: grid;
+  place-items: center;
+  width: 3em;
+  height: 1.8em;
+  border-radius: max(calc(var(--a-r) * 1.4), 0.2em);
+  transition:
+    background-color 300ms ease,
+    color 300ms ease;
+}
+
+.tabLabel {
+  font-size: 0.62em;
+  font-weight: 600;
+}
+
+.tab[aria-current='page'] {
+  color: var(--a-fg);
+}
+
+.tab[aria-current='page'] .tabIcon {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+/* ---------- Orders tab: the courier on the map ---------- */
+
+.track {
+  position: absolute;
+  top: 3.2em;
+  right: 0;
+  bottom: 5.3em;
+  left: 0;
+  z-index: 2;
+  background: var(--a-bg);
+  transform: translateX(104%);
+  transition:
+    transform 560ms var(--ease-drawer),
+    background-color 420ms ease;
+}
+
+.track[data-open] {
+  transform: none;
+}
+
+.trackHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.7em 1.3em 0;
+}
+
+.trackHead strong {
+  font-family: var(--font-display);
+  font-size: 1.45em;
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+}
+
+.trackHead span {
+  color: var(--a-muted);
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.map {
+  position: absolute;
+  top: 3.6em;
+  right: 1em;
+  left: 1em;
+  height: 20.2em;
+  overflow: hidden;
+  border-radius: calc(var(--a-r) * 1.2);
+  background: var(--a-surface);
+}
+
+.mapArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.park {
+  fill: color-mix(in srgb, var(--accent) 16%, var(--a-surface));
+}
+
+.water {
+  fill: color-mix(in srgb, var(--accent-2) 20%, var(--a-surface));
+}
+
+.street,
+.streetMinor,
+.route,
+.routeBed {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.street {
+  stroke: color-mix(in srgb, var(--a-fg) 11%, var(--a-surface));
+  stroke-width: 3.4;
+}
+
+.streetMinor {
+  stroke: color-mix(in srgb, var(--a-fg) 6%, var(--a-surface));
+  stroke-width: 1.6;
+}
+
+.routeBed {
+  stroke: color-mix(in srgb, var(--accent) 28%, transparent);
+  stroke-width: 5.6;
+}
+
+.route {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  stroke-dasharray: 107;
+  stroke-dashoffset: 0;
+}
+
+.track[data-open] .route {
+  animation: draw 900ms var(--ease-out) both;
+}
+
+.shop,
+.destination {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  margin: -1.1em 0 0 -1.1em;
+  border-radius: 50%;
+}
+
+.shop {
+  top: 22%;
+  left: 18%;
+  background: var(--a-fg);
+  color: var(--a-bg);
+}
+
+.shop .icon,
+.destination .icon,
+.courier .icon {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.destination {
+  top: 64%;
+  left: 82%;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 0.35em color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.track[data-open] .destination {
+  animation: drop 700ms var(--ease-spring) 250ms both;
+}
+
+/* The courier rides the route: the box is map-sized, so % translates are map %. */
+.courierPath {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: ride 6.2s linear 400ms both;
+}
+
+.courier {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 2.3em;
+  height: 2.3em;
+  margin: -1.15em 0 0 -1.15em;
+  border: 0.18em solid var(--a-surface);
+  border-radius: 50%;
+  background: var(--a-fg);
+  color: var(--a-bg);
+}
+
+.sheet {
+  position: absolute;
+  top: 24.6em;
+  right: 1em;
+  bottom: 0.8em;
+  left: 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.progress li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45em;
+  color: var(--a-muted);
+}
+
+.progress li + li::before {
+  content: '';
+  position: absolute;
+  top: 0.45em;
+  right: 50%;
+  width: 100%;
+  height: 0.16em;
+  background: var(--a-line);
+}
+
+.progress li[data-state]::before {
+  background: var(--accent);
+}
+
+.progressDot {
+  position: relative;
+  z-index: 1;
+  width: 1.05em;
+  height: 1.05em;
+  border: 0.16em solid var(--a-line);
+  border-radius: 50%;
+  background: var(--a-bg);
+}
+
+.progress li[data-state] .progressDot {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.progress li[data-state='now'] .progressDot {
+  box-shadow: 0 0 0 0.3em color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.progress li[data-state='now'] {
+  color: var(--a-fg);
+}
+
+.progressLabel {
+  font-size: 0.6em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.courierRow {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  padding: 0.8em;
+  border-radius: calc(var(--a-r) * 1.1);
+  background: var(--a-surface);
+}
+
+.avatar,
+.call {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: 50%;
+}
+
+.avatar {
+  background: color-mix(in srgb, var(--accent) 22%, var(--a-surface));
+  color: var(--a-fg);
+}
+
+.call {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.courierText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.courierText strong {
+  font-size: 0.86em;
+}
+
+.courierText span {
+  color: var(--a-muted);
+  font-size: 0.68em;
+}
+
+.orderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8em;
+  padding: 0 0.3em;
+}
+
+.orderText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+
+.orderText strong {
+  font-size: 0.78em;
+}
+
+.orderText span {
+  overflow: hidden;
+  color: var(--a-muted);
+  font-size: 0.66em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.orderTotal {
+  flex: none;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- toast and push ---------- */
+
+.toast {
+  position: absolute;
+  bottom: 6.3em;
+  left: 50%;
+  z-index: 4;
+  margin: 0;
+  padding: 0.6em 1.1em;
+  border-radius: max(calc(var(--a-r) * 1.6), 0.2em);
+  background: var(--a-fg);
+  color: var(--a-bg);
+  font-size: 0.8em;
+  font-weight: 700;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 0.8em);
+  transition:
+    opacity 260ms ease,
+    transform 420ms var(--ease-out);
+  pointer-events: none;
+}
+
+.toast[data-show] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.push {
+  position: absolute;
+  top: 3.3em;
+  right: 0.7em;
+  left: 0.7em;
+  /* Above the status bar, below the island (Phone.tsx). */
+  z-index: 8;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7em;
+  padding: 0.8em 0.9em;
+  border: 1px solid var(--a-line);
+  border-radius: max(calc(var(--a-r) * 1.4), 0.3em);
+  background: color-mix(in srgb, var(--a-surface) 94%, var(--a-fg));
+  box-shadow: 0 1em 2em -0.8em var(--a-shadow);
+  color: var(--a-fg);
+  font: inherit;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(-70%) scale(0.9);
+  transition:
+    transform 620ms var(--ease-spring),
+    opacity 200ms ease;
+  cursor: pointer;
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.push[data-show] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.pushIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: max(calc(var(--a-r) * 0.9), 0.25em);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.pushBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25em;
+  min-width: 0;
+}
+
+.pushTop {
+  display: flex;
+  justify-content: space-between;
+}
+
+.pushTop strong {
+  font-size: 0.8em;
+}
+
+.pushTop span {
+  color: var(--a-muted);
+  font-size: 0.68em;
+}
+
+.pushText {
+  font-size: 0.76em;
+  line-height: 1.3;
+}
+
+/* ---------- the autopilot's touch ---------- */
+
+.touch {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 3.2em;
+  height: 3.2em;
+  margin: -1.6em 0 0 -1.6em;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--a-fg) 34%, transparent);
+  pointer-events: none;
+  animation: touch 520ms var(--ease-out) forwards;
+}
+
+.toggle:focus-visible,
+.cart:focus-visible,
+.add:focus-visible,
+.tab:focus-visible,
+.push:focus-visible {
+  outline: 0.14em solid var(--accent);
+  outline-offset: 0.14em;
+}
+
+@keyframes wipe {
+  to {
+    clip-path: circle(46em at 15.4em 5.2em);
+  }
+}
+
+@keyframes bump {
+  0% {
+    transform: scale(0.5);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes touch {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(0.85);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 107;
+  }
+}
+
+@keyframes drop {
+  0% {
+    transform: translateY(-1.8em);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Route waypoints (map %), timed by segment length: 44, 42 and 20 units. */
+@keyframes ride {
+  0% {
+    transform: translate(18%, 22%);
+  }
+  41.5% {
+    transform: translate(62%, 22%);
+  }
+  81% {
+    transform: translate(62%, 64%);
+  }
+  100% {
+    transform: translate(82%, 64%);
+  }
+}
+
+@media (hover: hover) {
+  .add:hover,
+  .cart:hover {
+    filter: brightness(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wipe {
+    animation-duration: 1ms;
+  }
+
+  .badge,
+  .touch,
+  .track[data-open] .route,
+  .track[data-open] .destination {
+    animation: none;
+  }
+
+  /* The still frame: the courier halfway down the route. */
+  .courierPath {
+    animation: none;
+    transform: translate(62%, 40%);
+  }
+
+  .content,
+  .track,
+  .push,
+  .toast,
+  .toggleKnob {
+    transition-duration: 1ms;
+  }
+}

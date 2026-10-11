@@ -1,0 +1,800 @@
+/*
+ * Live preview pane. Two layers render the same UI: `.layer` in the style's
+ * own palette and `.inverted` with the palette flipped (its "dark mode" on the
+ * light styles, "light mode" on the dark ones). All colors are lab tokens or
+ * mixes of them.
+ *
+ * Every animated part is its own element (`data-fx`): the engine writes its
+ * transform/opacity inline. The CSS below is the opening frame: wireframes
+ * (`*Wire`, `*Skel`) shown, real parts hidden.
+ */
+
+.slot {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Soft lift under the pane while the product steps forward (opacity only). */
+.lift {
+  position: absolute;
+  inset: 4% 3% 0;
+  border-radius: var(--radius);
+  box-shadow:
+    0 60px 120px -40px var(--glow),
+    0 30px 60px -36px var(--glow);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pane {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.layer {
+  --p-bg: var(--bg);
+  --p-surface: var(--bg-2);
+  --p-fg: var(--fg);
+  --p-muted: var(--muted);
+  --p-accent: var(--accent);
+  --p-btn-bg: var(--accent);
+  --p-btn-fg: var(--on-accent);
+  --p-line: color-mix(in srgb, var(--fg) 13%, transparent);
+  --p-wire: color-mix(in srgb, var(--accent) 70%, transparent);
+  --p-glow: var(--glow);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--p-bg);
+  color: var(--p-fg);
+}
+
+.inverted {
+  --p-bg: var(--fg);
+  --p-surface: color-mix(in srgb, var(--fg) 93%, var(--bg));
+  --p-fg: var(--bg);
+  --p-muted: color-mix(in srgb, var(--bg) 62%, var(--fg));
+  --p-accent: color-mix(in srgb, var(--accent) 55%, var(--bg));
+  --p-btn-bg: var(--bg);
+  --p-btn-fg: var(--fg);
+  --p-line: color-mix(in srgb, var(--bg) 14%, transparent);
+  --p-wire: color-mix(in srgb, var(--accent) 55%, var(--bg));
+  --p-glow: color-mix(in srgb, var(--bg) 30%, transparent);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* ── The theme wipe: a circle grows from the switch (transform only) ─── */
+
+.reveal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.revealInner {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+[data-flipping='1'] .reveal,
+[data-flipping='1'] .revealInner {
+  will-change: transform;
+}
+
+/* ── Header: live dot, hot-reload flash, state readout ────────────────── */
+
+.head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--p-line);
+  font: 500 12px/1 var(--font-body);
+  color: var(--p-muted);
+  white-space: nowrap;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--p-fg);
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--p-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-accent) 22%, transparent);
+}
+
+.hmr {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-accent) 14%, transparent);
+  color: var(--p-fg);
+  font: 500 10.5px/1 var(--font-mono);
+  opacity: 0;
+}
+
+.hmrDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--p-accent);
+}
+
+.readout {
+  font: 400 11px/1 var(--font-mono);
+  color: var(--p-muted);
+}
+
+.readout b {
+  font-weight: 500;
+  color: var(--p-accent);
+}
+
+/* ── Canvas ───────────────────────────────────────────────────────────── */
+
+.canvas {
+  position: relative;
+  display: grid;
+  flex: 1;
+  place-items: center;
+  min-height: 0;
+  container-type: size;
+  background-image: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--p-fg) 16%, transparent) 1px, transparent 1.6px);
+  background-position: center;
+  background-size: 22px 22px;
+}
+
+.canvas::before {
+  content: '';
+  position: absolute;
+  inset: 12% 8%;
+  background: radial-gradient(closest-side, var(--p-glow), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── The rendered screen (<main>) ─────────────────────────────────────── */
+
+.main {
+  --pad: 18px;
+  --gap: 22px;
+  --r: calc(var(--radius) * 1.3);
+  position: relative;
+  display: grid;
+  gap: var(--gap);
+  width: min(420px, calc(100cqw - 40px));
+  padding: var(--pad);
+  border-radius: var(--r);
+  isolation: isolate;
+}
+
+.mainSurface,
+.mainWire,
+.mainClip {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.mainSurface {
+  z-index: -2;
+  border: 1px solid var(--p-line);
+  background: var(--p-surface);
+  box-shadow: 0 34px 70px -42px var(--p-glow);
+  opacity: 0;
+}
+
+.mainWire {
+  border: 1.5px dashed var(--p-wire);
+}
+
+.mainClip {
+  z-index: 3;
+  overflow: hidden;
+}
+
+/* The "shipped" light sweep across the finished screen. */
+.mainSheen {
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 38%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    color-mix(in srgb, var(--p-fg) 9%, transparent) 45%,
+    color-mix(in srgb, var(--p-accent) 16%, transparent) 55%,
+    transparent
+  );
+  opacity: 0;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  gap: 12px;
+}
+
+.cardWire,
+.btnWire,
+.toggleWire,
+.chartWire {
+  position: absolute;
+  inset: -6px;
+  border: 1px dashed var(--p-wire);
+  border-radius: calc(var(--radius) + 4px);
+  pointer-events: none;
+}
+
+.mediaSlot {
+  position: relative;
+  height: clamp(84px, 27cqh, 216px);
+  border-radius: calc(var(--radius) * 0.9);
+}
+
+.mediaWire {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed color-mix(in srgb, var(--p-fg) 30%, transparent);
+  border-radius: inherit;
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--p-fg) 6%, transparent) 0 1px, transparent 1px 10px);
+}
+
+.cardText {
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+
+/* Text skeleton bars sit behind the text (siblings, so text opacity does not hide them). */
+.titleSkel,
+.subSkel {
+  position: absolute;
+  left: 0;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--p-fg) 10%, transparent);
+  pointer-events: none;
+}
+
+.titleSkel {
+  top: 2px;
+  width: 46%;
+  height: calc(26px * var(--display-scale));
+}
+
+.subSkel {
+  bottom: 3px;
+  width: 64%;
+  height: 11px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: calc(26px * var(--display-scale));
+  font-weight: var(--display-weight);
+  line-height: 1.05;
+  letter-spacing: var(--display-tracking);
+  opacity: 0;
+}
+
+.cardSub {
+  margin: 0;
+  font: 400 13px/1.4 var(--font-body);
+  color: var(--p-muted);
+  opacity: 0;
+}
+
+/* ── Controls row: button + dark-mode switch ─────────────────────────── */
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  border: 0;
+  border-radius: calc(var(--radius) * 0.7 + 4px);
+  background: none;
+  color: var(--p-btn-fg);
+  font: 600 14px/1 var(--font-body);
+  cursor: pointer;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btnWire {
+  inset: 0;
+  border-width: 1.5px;
+  border-radius: inherit;
+}
+
+.btn:focus-visible,
+.toggle:focus-visible {
+  outline: 2px solid var(--p-accent);
+  outline-offset: 4px;
+}
+
+.btnGlow,
+.btnFill,
+.btnShine {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.btnGlow {
+  z-index: -2;
+  box-shadow: 0 16px 30px -14px var(--p-glow);
+  opacity: 0;
+}
+
+.btnFill {
+  z-index: -1;
+  background: var(--p-btn-bg);
+  opacity: 0;
+}
+
+.btnShine {
+  z-index: -1;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.btnSheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--p-btn-fg) 18%, transparent), transparent);
+  transform: translate3d(-120%, 0, 0) skewX(-14deg);
+}
+
+.btnContent {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+}
+
+.btnIcon {
+  display: inline-flex;
+}
+
+.btnIcon svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* The whole label + switch is the control. */
+.toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 6px 0 6px 6px;
+  border: 0;
+  background: none;
+  color: var(--p-fg);
+  font: 500 14px/1 var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggleWire {
+  inset: 0 -6px 0 0;
+}
+
+.toggleLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.switch {
+  --track-w: 46px;
+  --knob: 20px;
+  position: relative;
+  flex: none;
+  width: var(--track-w);
+  height: calc(var(--knob) + 6px);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--p-fg) 16%, transparent);
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.switchOn {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--p-accent);
+  opacity: 0;
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: var(--knob);
+  height: var(--knob);
+  border-radius: 50%;
+  background: var(--p-surface);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--p-fg) 14%, transparent),
+    0 2px 5px color-mix(in srgb, var(--p-fg) 22%, transparent);
+}
+
+/* ── Chart ────────────────────────────────────────────────────────────── */
+
+.chart {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--p-line);
+}
+
+.chartWire {
+  inset: 6px -6px -6px;
+}
+
+.chartHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font: 500 12.5px/1.2 var(--font-body);
+  opacity: 0;
+}
+
+.chartNote {
+  font: 400 11px/1.3 var(--font-body);
+  color: var(--p-muted);
+  white-space: nowrap;
+}
+
+.barRow {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 10px;
+  height: 20px;
+}
+
+.barLabel {
+  font: 400 12px/1 var(--font-body);
+  color: var(--p-muted);
+  opacity: 0;
+}
+
+.barTrack {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--p-fg) 9%, transparent);
+}
+
+.barFill {
+  position: absolute;
+  inset: 0;
+  background: var(--p-accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.barCount {
+  height: 1.25em;
+  font: 500 12px/1.25 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  opacity: 0;
+  /* Counts tick every frame while the bars grow: keep each change local. */
+  contain: strict;
+}
+
+/* ── Compact screens (phones, short or narrow panes) ──────────────────── */
+
+@container (max-height: 540px) or (max-width: 420px) {
+  .main {
+    --pad: 12px;
+    --gap: 11px;
+    width: min(400px, calc(100cqw - 20px));
+  }
+
+  .mediaSlot {
+    height: clamp(60px, 28cqh, 150px);
+  }
+
+  .card {
+    gap: 9px;
+  }
+
+  .cardTitle {
+    font-size: calc(19px * var(--display-scale));
+  }
+
+  .titleSkel {
+    height: calc(19px * var(--display-scale));
+  }
+
+  .cardSub {
+    font-size: 11.5px;
+  }
+
+  .btn {
+    height: 34px;
+    padding: 0 14px 0 11px;
+    font-size: 12.5px;
+  }
+
+  .btnContent {
+    gap: 8px;
+  }
+
+  .btnIcon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .toggle {
+    gap: 9px;
+    font-size: 12.5px;
+  }
+
+  .switch {
+    --track-w: 38px;
+    --knob: 16px;
+  }
+
+  .chart {
+    gap: 5px;
+    padding-top: 10px;
+  }
+
+  .chartHead {
+    font-size: 11.5px;
+  }
+
+  .chartNote {
+    font-size: 10.5px;
+  }
+
+  .barRow {
+    grid-template-columns: 50px minmax(0, 1fr) 22px;
+    gap: 8px;
+    height: 14px;
+  }
+
+  .barLabel,
+  .barCount {
+    font-size: 11px;
+  }
+
+  .barTrack {
+    height: 6px;
+  }
+}
+
+/* ── Shared overlays: video, inspector, ping, scripted pointer ────────── */
+
+.media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  transform-origin: 0 0;
+  overflow: hidden;
+  border-radius: calc(var(--radius) * 0.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mediaInner {
+  position: absolute;
+  /* 1px overscan: no seam of whatever is behind at fractional scales. */
+  inset: -1px;
+  transform: scale(1.08);
+}
+
+.video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  opacity: 0;
+}
+
+.badge svg {
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  fill: currentColor;
+}
+
+.insp {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  background: var(--accent);
+  transform-origin: 0 0;
+}
+
+.handle {
+  position: absolute;
+  top: -3.5px;
+  left: -3.5px;
+  box-sizing: border-box;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--accent);
+  background: var(--bg-2);
+}
+
+.inspTag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 15px;
+  padding: 0 5px;
+  border-radius: min(3px, var(--radius));
+  background: var(--accent);
+  color: var(--on-accent);
+  font: 500 10px/1 var(--font-mono);
+  white-space: nowrap;
+}
+
+.inspTag b {
+  font-weight: 600;
+}
+
+.inspSize {
+  opacity: 0.72;
+}
+
+/* One-shot ring when a block lands (WAAPI, transform/opacity). */
+.ping {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  border: 1.5px solid var(--accent);
+  border-radius: calc(var(--radius) + 6px);
+  box-shadow: 0 0 22px var(--glow);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pointer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.arrow {
+  display: block;
+  width: 22px;
+  height: 22px;
+  margin: -2px 0 0 -2px;
+  fill: var(--fg);
+  stroke: var(--bg);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transform-origin: 2px 2px;
+}
+
+.finger {
+  position: absolute;
+  top: -17px;
+  left: -17px;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid color-mix(in srgb, var(--fg) 70%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fg) 24%, transparent);
+}
+
+.ripple {
+  position: absolute;
+  top: -18px;
+  left: -18px;
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+@media (max-width: 599px) {
+  .head {
+    gap: 8px;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .readout {
+    font-size: 10px;
+  }
+
+  .hmr {
+    padding: 3px 7px;
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "heading": "Let’s build yours.",
+  "summary": "Websites, mobile apps, Telegram bots and AI automation, made in Tashkent. Tell us the idea and where to reply. We reply within one business day.",
+  "introLine": "Yours is next.",
+  "form": {
+    "label": "Project inquiry",
+    "name": "Your name",
+    "contact": "Where to reply",
+    "contactPlaceholder": "Email, phone or Telegram",
+    "idea": "The idea",
+    "ideaOptional": "optional",
+    "ideaPlaceholder": "An online ordering site for our bakery",
+    "sending": "Sending",
+    "submit": "Send request",
+    "errorName": "Add your name.",
+    "errorContact": "Add an email, phone number or Telegram.",
+    "errorSend": "It didn’t go through. Check your connection and try again, or message us directly.",
+    "privacy": "By sending, you agree to our <link>privacy policy</link>."
+  },
+  "success": {
+    "title": "Message sent.",
+    "body": "Thank you, {name}. We reply within one business day, to the contact you left.",
+    "again": "Send another message"
+  },
+  "direct": {
+    "label": "Or reach us directly",
+    "telegram": "Telegram",
+    "telegramTitle": "Telegram {handle}",
+    "call": "Call",
+    "callTitle": "Call {phone}",
+    "email": "Email",
+    "emailTitle": "Email {email}"
+  },
+  "estimate": {
+    "lead": "Not ready to talk yet?",
+    "link": "Get a price range in our estimator"
+  },
+  "place": "Tashkent, Uzbekistan"
+}

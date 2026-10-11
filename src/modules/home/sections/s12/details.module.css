@@ -1,0 +1,267 @@
+/*
+ * 16 · Process — decorations along the route (lens flow, phone UI, demo dots,
+ * sprint bracket, countdown, burst, versions, arrow). Each group carries
+ * data-on and plays its entrance when the pen passes it. Tokens and easing
+ * variables are inherited from the section root (process.module.css).
+ * --accent-2 is for these glyph highlights only; the line itself is --accent.
+ */
+
+.dDraw {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 700ms var(--ease-out) calc(var(--k, 0) * 90ms);
+}
+
+[data-on='true'] .dDraw {
+  stroke-dashoffset: 0;
+}
+
+.dPop {
+  fill: var(--bg);
+  stroke: var(--accent-2);
+  stroke-width: 2;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.4);
+  transition:
+    transform 520ms var(--ease-spring) calc(var(--k, 0) * 120ms),
+    opacity 200ms ease calc(var(--k, 0) * 120ms);
+}
+
+[data-on='true'] .dPop {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dFlow .dDraw {
+  stroke: var(--accent-2);
+  opacity: 0.8;
+}
+
+.dImage {
+  fill: color-mix(in srgb, var(--accent-2) 18%, transparent);
+  opacity: 0;
+  transition: opacity 600ms ease 150ms;
+}
+
+.dSun {
+  fill: var(--accent-2);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.4);
+  transition:
+    transform 500ms var(--ease-spring) 300ms,
+    opacity 200ms ease 300ms;
+}
+
+.dButton {
+  fill: var(--accent);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scaleX(0.4);
+  transition:
+    transform 600ms var(--ease-out) 420ms,
+    opacity 300ms ease 420ms;
+}
+
+.dCursor {
+  opacity: 0;
+  transform: translate(34px, 40px);
+  transition:
+    transform 800ms var(--ease-out) 650ms,
+    opacity 300ms ease 650ms;
+}
+
+.dCursorShape {
+  fill: var(--fg);
+  stroke: var(--bg);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+  transform-origin: 0 0;
+}
+
+[data-on='true'] .dImage,
+[data-on='true'] .dButton,
+[data-on='true'] .dCursor,
+[data-on='true'] .dSun {
+  opacity: 1;
+}
+
+[data-on='true'] .dSun {
+  transform: scale(1);
+}
+
+[data-on='true'] .dButton {
+  transform: none;
+}
+
+[data-on='true'] .dCursor {
+  transform: none;
+}
+
+[data-motion] [data-on='true'] .dCursorShape {
+  animation: s12-tap 520ms var(--ease-out) 1500ms both;
+}
+
+[data-motion] [data-on='true'] .dButton {
+  animation: s12-press 520ms ease 1500ms both;
+}
+
+/* The magnifier's grip: a thick stroke drawn out of the lens along the handle. */
+.dGrip path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: calc(var(--line-w) * 3.2);
+  stroke-linecap: var(--line-cap);
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1.05;
+  transition: stroke-dashoffset 520ms var(--ease-out);
+}
+
+[data-on='true'].dGrip path {
+  stroke-dashoffset: 0;
+}
+
+/* A weekly demo: a dot on the wave and its week tag. */
+.dDotMark {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.4);
+  transition:
+    transform 460ms var(--ease-spring),
+    opacity 160ms ease;
+}
+
+.dDotCore {
+  fill: var(--accent-2);
+}
+
+.dDotHalo {
+  fill: color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+:global([data-style='B']) .dDotCore {
+  fill: var(--accent);
+}
+
+:global([data-style='B']) .dDotHalo {
+  fill: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+[data-on='true'] .dDotMark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.dLabel {
+  font:
+    500 11px/1 var(--font-mono),
+    monospace;
+  fill: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.dWeek {
+  fill: var(--fg);
+}
+
+.dDot text,
+.dBracket text,
+.dTick,
+.dVersion {
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.dVersion text {
+  transform: translateY(8px);
+  transition: transform 500ms var(--ease-out);
+}
+
+[data-on='true'].dTick,
+[data-on='true'].dVersion,
+[data-on='true'].dBracket text,
+[data-on='true'].dDot text {
+  opacity: 1;
+}
+
+[data-on='true'].dVersion text {
+  transform: none;
+}
+
+.dTickLine {
+  stroke: var(--fg);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.dRay {
+  stroke: var(--accent-2);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transform-box: view-box;
+  transform-origin: var(--bx) var(--by);
+  transform: scale(0.2);
+  opacity: 0;
+  transition:
+    transform 700ms var(--ease-out) calc(var(--k, 0) * 70ms),
+    opacity 300ms ease calc(var(--k, 0) * 70ms);
+}
+
+:global([data-style='B']) .dRay {
+  stroke: var(--accent);
+}
+
+[data-on='true'] .dRay {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.dArrow {
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+
+.dArrow path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: var(--line-w);
+  stroke-linecap: var(--line-cap);
+  stroke-linejoin: round;
+}
+
+[data-on='true'].dArrow {
+  opacity: 1;
+}
+
+@keyframes s12-tap {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(0.82);
+  }
+}
+
+@keyframes s12-press {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  45% {
+    opacity: 0.6;
+  }
+}

@@ -1,0 +1,114 @@
+/* Step 2 · the prototype's flow over the wireframe (WireScreen.tsx). */
+
+.flow {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+[data-layer-on] .flow {
+  opacity: 1;
+  transition-delay: 500ms;
+}
+
+.flowArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.flowBed,
+.flowLine {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.flowBed {
+  stroke: color-mix(in srgb, var(--accent) 45%, transparent);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 5;
+}
+
+.flowLine {
+  stroke: color-mix(in srgb, var(--accent) 80%, var(--ink));
+  stroke-width: 2;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+}
+
+.pin {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  display: grid;
+  place-items: center;
+  width: 1.9em;
+  height: 1.9em;
+  margin: -0.95em 0 0 -0.95em;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0.3em color-mix(in srgb, var(--accent) 26%, transparent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 1em;
+  font-weight: 700;
+}
+
+.label {
+  position: absolute;
+  bottom: calc(6.3em / 0.66);
+  left: 50%;
+  padding: 0.55em 0.9em;
+  border-radius: max(calc(var(--radius) * 1.6), 0.2em);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  font-size: 0.66em;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+[data-layer-on] .flowLine {
+  animation: draw 1.8s cubic-bezier(0.45, 0, 0.2, 1) 700ms both;
+}
+
+[data-layer-on] .pin {
+  animation: pin 460ms var(--ease-spring) calc(650ms + var(--i) * 620ms) both;
+}
+
+[data-layer-on] .label {
+  animation: label 420ms var(--ease-out) 2.4s both;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+
+@keyframes pin {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes label {
+  from {
+    transform: translate(-50%, 0.6em);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-layer-on] .flowLine,
+  [data-layer-on] .pin,
+  [data-layer-on] .label {
+    animation: none;
+  }
+}

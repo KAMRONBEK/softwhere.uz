@@ -1,0 +1,46 @@
+/*
+ * Source chips in flight from the map to the answer (SourceFlight). The layer
+ * covers the stage above everything in it and never takes a pointer.
+ */
+
+.layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.chip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 8px 22px -6px color-mix(in srgb, var(--accent) 70%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 160ms ease;
+  will-change: transform;
+}
+
+.chip[data-flying] {
+  opacity: 1;
+}
+
+.chip[data-low] {
+  background: color-mix(in srgb, var(--muted) 45%, var(--bg-2));
+  color: var(--fg);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--muted) 18%, transparent);
+}

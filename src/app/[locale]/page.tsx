@@ -1,19 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ENV, BLOG_CONFIG } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
-
-import LatestPostsSection from '@/modules/blog/components/LatestPostsSection';
-import HomeClientLayer from '@/shared/components/HomeClientLayer';
-import Hero from '@/shared/components/sections/Hero';
-import Trust from '@/shared/components/sections/Trust';
-import Service from '@/shared/components/sections/Service';
-import AISpotlight from '@/shared/components/sections/AISpotlight';
-import Process from '@/shared/components/sections/Process';
-import Projects from '@/shared/components/sections/Projects';
-import Contact from '@/shared/components/sections/Contact';
-import EstimatorCTA from '@/shared/components/sections/EstimatorCTA';
+import { DEFAULT_LAB_STATE } from '@/modules/home/config';
+import { LAB_STYLES } from '@/modules/home/theme/styles';
+import HomeExperience from './_home/HomeExperience';
 
 // ISR: publishes bust the 'blog-posts' tag, which re-renders this page and
 // keeps the latest-posts block fresh — the time window is only a safety net,
@@ -59,22 +51,24 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+// viewport-fit=cover makes env(safe-area-inset-*) real on notched phones (the
+// full-bleed sections rely on it). The bar colour is the default style's page;
+// the theme script switches it to the visitor's remembered style before paint.
+export const viewport: Viewport = {
+  viewportFit: 'cover',
+  themeColor: LAB_STYLES[DEFAULT_LAB_STATE.style].colors.bg,
+};
+
+// The homepage is src/modules/home (see its README). The server HTML is the
+// same for every visitor — default style, every section's static stand-in
+// (heading + summary from src/messages/home/*) — so it stays cacheable; the
+// visitor's style and each section's interactive version arrive on the client.
+// The site Header, Footer, widgets and fonts live in (site)/layout.tsx, which
+// this page is outside of: the home module draws its own header and footer.
+// JSON-LD (Organization, WebSite) comes from the locale layout.
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = (await params) as { locale: Locale };
   setRequestLocale(locale);
 
-  return (
-    <main>
-      <HomeClientLayer locale={locale} />
-      <Hero />
-      <Trust />
-      <Service />
-      <AISpotlight />
-      <Process />
-      <Projects />
-      <LatestPostsSection locale={locale} />
-      <Contact />
-      <EstimatorCTA />
-    </main>
-  );
+  return <HomeExperience locale={locale} mode='home' initial={DEFAULT_LAB_STATE} />;
 }

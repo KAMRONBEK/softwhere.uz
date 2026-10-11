@@ -1,0 +1,326 @@
+/*
+ * Phones: the café's order screen as a compact card (em = phone unit, set on
+ * the stage). It rises into the space the phone frees when it steps back,
+ * then tucks away once the order is ready. The 'below' route in Route.tsx
+ * ends on this card's order row, so keep `top`/`left` in sync with it.
+ * (Desktop shows the tablet in board.module.css.)
+ */
+
+.card {
+  position: absolute;
+  top: 35.4em;
+  left: 0.5em;
+  z-index: 1;
+  width: 22em;
+  padding: 0.8em 0.9em 0.75em;
+  border: 1px solid var(--tg-edge);
+  border-radius: 1.25em;
+  background: var(--bg-2);
+  color: var(--fg);
+  box-shadow: 0 1.8em 3.4em -1.5em var(--tg-shadow);
+  font-family: var(--font-body);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, 2.6em, 0) scale(0.96);
+  /* Leaving: hold "Ready" while the signal travels back, then tuck away. */
+  transition:
+    transform 760ms var(--ease-camera) 760ms,
+    opacity 360ms ease 820ms;
+}
+
+.card[data-admin] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+  transition-delay: 260ms, 260ms;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid var(--tg-edge);
+}
+
+.title {
+  font-size: 0.95em;
+  font-weight: 700;
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  color: var(--accent);
+  font-size: 0.74em;
+  font-weight: 650;
+}
+
+.live i {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: live 1.6s ease-in-out infinite;
+}
+
+.order {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 0.8em;
+  align-items: center;
+  margin-top: 0.6em;
+  padding: 0.6em 0.7em;
+  overflow: hidden;
+  border: 1px solid var(--tg-edge);
+  border-radius: 0.9em;
+  background: color-mix(in srgb, var(--fg) 4%, var(--bg-2));
+}
+
+/* While the chip rides the route the slot reads "Incoming order…"; the
+   order lands in it when the chip arrives. */
+.order[data-fresh] > :not(.incoming) {
+  animation: land 560ms var(--ease-out) 1.4s both;
+}
+
+.incoming {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border: 1px dashed color-mix(in srgb, var(--accent) 65%, transparent);
+  border-radius: inherit;
+  color: var(--accent);
+  font-size: 0.8em;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  animation:
+    breathe 900ms ease-in-out infinite alternate,
+    leave 260ms ease 1.38s forwards;
+}
+
+.order::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.order[data-fresh]::before {
+  animation: flash 1.4s ease-out 1.45s both;
+}
+
+.orderTop {
+  position: relative;
+  display: flex;
+  grid-column: 1;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.number {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.source {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.7em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.status {
+  padding: 0.24em 0.62em;
+  border-radius: 1em;
+  font-size: 0.7em;
+  font-weight: 700;
+  transition:
+    background-color 260ms ease,
+    color 260ms ease;
+}
+
+.status[data-status='new'],
+.status[data-status='hidden'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.status[data-status='preparing'] {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--fg);
+}
+
+.status[data-status='ready'] {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.item {
+  position: relative;
+  grid-column: 1;
+  margin: 0.3em 0 0.1em;
+  font-size: 0.92em;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.meta {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1;
+  column-gap: 0.7em;
+  color: var(--muted);
+  font-size: 0.74em;
+  line-height: 1.45;
+}
+
+.ready {
+  position: relative;
+  display: block;
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  min-width: 7.6em;
+  height: 3.2em;
+  margin: 0;
+  padding: 0 1em;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: 0.75em;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.82em;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 220ms ease,
+    color 220ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ready:not(:disabled) {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.ready:not(:disabled):active,
+.ready[data-ghost] {
+  transform: scale(0.97);
+}
+
+.ready:disabled {
+  cursor: default;
+}
+
+.ready[data-done] {
+  border-color: var(--tg-edge);
+  color: var(--muted);
+}
+
+.ready:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.previous {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.6em;
+  align-items: center;
+  margin-top: 0.45em;
+  padding: 0.15em 0.75em;
+  color: var(--muted);
+  font-size: 0.76em;
+}
+
+.previous .number {
+  font-size: 1em;
+}
+
+.prevItem {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Touch screens: "Mark ready" reaches a 44px target at the phone's size. */
+@media (pointer: coarse) {
+  .ready {
+    height: 3.9em;
+  }
+}
+
+@keyframes live {
+  50% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+}
+
+@keyframes flash {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes breathe {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.45;
+  }
+}
+
+@keyframes leave {
+  to {
+    visibility: hidden;
+    opacity: 0;
+  }
+}
+
+@keyframes land {
+  from {
+    opacity: 0;
+    transform: translateY(-0.8em) scale(0.96);
+  }
+}
+
+@media (hover: hover) {
+  .ready:not(:disabled):hover {
+    background: color-mix(in srgb, var(--accent) 86%, var(--fg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .incoming {
+    display: none;
+  }
+
+  .live i,
+  .order[data-fresh] > *,
+  .order[data-fresh]::before {
+    animation: none;
+  }
+}

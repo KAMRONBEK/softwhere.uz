@@ -341,6 +341,218 @@
     "leadErrorPhone": "Please enter a valid phone number",
     "leadErrorSubmit": "Couldn't send — please try again or write to us on Telegram"
   },
+  "aiBrief": {
+    "meta": {
+      "title": "Free AI plan: describe your idea, get a price range | SoftWhere",
+      "description": "Describe your product in plain words and get key screens, what to build first, a timeline and a cost range calculated by our estimator."
+    },
+    "intro": {
+      "heading": "Describe your idea. We'll sketch it, plan it and price it.",
+      "lede": "Write it the way you'd explain it to a friend. In about a minute you get the key screens, what to build first, a timeline and a cost range. Every number comes from our estimator, not from the AI."
+    },
+    "composer": {
+      "label": "Your idea",
+      "placeholder": "For example: an app for our two yoga studios. Members book classes, buy class packs and join a waitlist; instructors see who is coming.",
+      "examplesLabel": "Or start from an example",
+      "examples": {
+        "booking": {
+          "label": "Yoga studio app",
+          "text": "A mobile app for our two yoga studios. Members book classes, buy class packs or a monthly membership, and join a waitlist when a class is full. Instructors see who is coming, and we manage the schedule from an admin panel."
+        },
+        "bot": {
+          "label": "Bakery Telegram bot",
+          "text": "A Telegram bot for our bakery: customers browse cakes and pastries, pre-order for a date, pay by card and choose pickup or delivery. New orders should go to a staff group chat."
+        },
+        "delivery": {
+          "label": "Meal-prep delivery",
+          "text": "An app for our meal-prep kitchen: customers pick a weekly meal plan, pay by card and choose a delivery slot. Drivers get their route for the day, and we manage menus and orders in an admin panel."
+        },
+        "marketplace": {
+          "label": "Home repair marketplace",
+          "text": "A marketplace where homeowners post small repair jobs and verified handymen send quotes. Customers compare quotes, chat with the handyman, pay through the app and leave a review after the job."
+        },
+        "ai": {
+          "label": "AI for contracts",
+          "text": "A web tool for a small law firm: lawyers upload contracts, the AI highlights risky clauses and answers questions about the document. Partners see every matter; associates only see their own."
+        }
+      },
+      "count": "{count} / {max}",
+      "privacy": "No sign-up and no contact details. We remove phone numbers, emails and links before the AI reads your idea.",
+      "freeNote": "One free AI plan per visitor every 24 hours.",
+      "exactNote": "You get a price range. The exact price comes after we agree the details and write the technical specification together.",
+      "submit": "Build my plan",
+      "submitting": "Building your plan",
+      "shortcut": "{key} + Enter",
+      "tooShort": "Add a little more: who will use it and what should they be able to do?",
+      "tooLong": "That's more than {max} characters. Keep the essentials.",
+      "yourIdea": "Your idea",
+      "edit": "Edit idea"
+    },
+    "sample": {
+      "caption": "Sketches like this one, drawn for your idea",
+      "name": "Book a class",
+      "header": "Classes",
+      "search": "Search classes or teachers",
+      "tabs": "Today|Tomorrow|This week",
+      "list": "Morning flow 7:00|Power yoga 12:15|Gentle stretch 18:30",
+      "featured": "Popular this week",
+      "cards": "Beginners|Pilates|Yin yoga|Prenatal",
+      "button": "Book a spot",
+      "nav": "Classes|Bookings|Profile",
+      "adminName": "Schedule",
+      "adminHeader": "Studio admin",
+      "adminNav": "Schedule|Members|Payments",
+      "adminStats": "Booked today|Waitlist|Revenue",
+      "adminTable": "Class|Teacher|Spots"
+    },
+    "progress": {
+      "heading": "Working on your plan",
+      "steps": {
+        "read": "Reading your idea",
+        "scope": "Mapping features",
+        "price": "Calculating with our estimator",
+        "screens": "Sketching screens",
+        "plan": "Writing the plan"
+      },
+      "elapsed": "{seconds} s",
+      "typical": "Usually 30–60 seconds. Keep this tab open.",
+      "done": "Planned in {seconds} seconds"
+    },
+    "result": {
+      "audience": "Who it's for",
+      "complexity": "What makes it harder",
+      "screens": "Key screens",
+      "screensHint": "Low-fidelity sketches of the first version. A starting point for design, not the final look.",
+      "screensMissing": "We couldn't sketch the screens this time. The plan and the numbers are complete.",
+      "screenCount": "{current} of {total}",
+      "prevScreen": "Previous screen",
+      "nextScreen": "Next screen",
+      "phaseMvp": "First version",
+      "phaseLater": "Later",
+      "sketchOf": "Sketch of the “{name}” screen: {blocks}",
+      "buildFirst": "Build this first",
+      "why": "Why",
+      "scopeMvp": "In the first version",
+      "scopeLater": "Planned for later",
+      "integrations": "Connected services",
+      "canWait": "What can wait",
+      "notPriced": "Not in the estimate yet",
+      "timeline": "Timeline",
+      "phase": "Phase {n}",
+      "weekAxis": "Week {n}",
+      "risks": "Risks to plan for",
+      "mitigation": "How we'd handle it",
+      "questions": "What we'd ask you on a call",
+      "assumptions": "What we assumed",
+      "stack": "Likely stack",
+      "policyAsk": "One part of this idea needs a different approach",
+      "showAll": "Show the full plan",
+      "showLess": "Show less",
+      "fullTitle": "Your full plan is ready",
+      "fullBody": "What to build first, the timeline by phase, the risks and the questions we'd ask you on a call.",
+      "openFull": "Open the full plan",
+      "writing": "Writing this part of the plan",
+      "phases": "Phases"
+    },
+    "estimate": {
+      "title": "First version",
+      "cost": "Estimated cost",
+      "weeks": "{min}–{max} weeks",
+      "rangeNote": "This is a range. The exact price comes after we agree the details and write the technical specification together.",
+      "spread": {
+        "low": "Lean build, simple design",
+        "high": "Custom design, fully polished"
+      },
+      "full": "With everything planned for later",
+      "extras": "Separate products, planned for later",
+      "confidence": {
+        "low": "Open questions: parts of this need a call to pin down",
+        "medium": "Clear enough to scope; a call will refine it",
+        "high": "Well-defined idea: the scope is clear"
+      },
+      "team": "Team",
+      "drivers": "What drives the cost",
+      "unpriced": "Not included in these numbers",
+      "howTitle": "How we calculated this",
+      "howBody": "The AI only picked options from our estimator's catalog, the same ones you'd pick in the step-by-step estimator. Every price and week on this page was calculated by the estimator itself.",
+      "config": {
+        "product": "Product",
+        "platforms": "Platforms",
+        "approach": "Approach",
+        "level": "Level",
+        "design": "Design",
+        "languages": "Interface languages",
+        "screens": "Screens",
+        "urgency": "Pace"
+      },
+      "bothPlatforms": "iOS and Android",
+      "openEstimator": "Fine-tune it in the estimator",
+      "discovery": {
+        "title": "This needs a discovery call",
+        "body": "An idea this size can't be priced honestly from a short description. We'll map the modules, your data and the rollout with you first, then quote the first module.",
+        "reasonsTitle": "Why there's no price yet",
+        "reasons": {
+          "core_system": "It replaces a core business system (ERP)",
+          "enterprise_scale": "It rolls out across a large organization",
+          "engine_size": "Even the first version is bigger than we price from a description"
+        },
+        "howTitle": "What this plan is based on",
+        "howBody": "The AI picked options from our estimator's catalog for the first module. For an idea this size we don't show a price or a timeline: they come after the discovery call.",
+        "unpriced": "Also to cover on the call"
+      }
+    },
+    "cta": {
+      "title": "Want to build this?",
+      "body": "We'll go through the plan with you, answer the open questions, agree the details and write the technical specification together. Then you get an exact price.",
+      "button": "Talk to us about this plan",
+      "newIdea": "Plan another idea",
+      "message": "Hi! I made a free AI plan on your site: {title}.\n\nMy idea:\n{idea}\n\nFirst version: {price}, {weeks}.",
+      "discoveryTitle": "Let's map this together",
+      "discoveryBody": "On a discovery call we go through the modules, your data and the rollout order, and agree what the first module covers. Then you get a quote.",
+      "discoveryButton": "Book a discovery call",
+      "messageDiscovery": "Hi! I made a free AI plan on your site: {title}.\n\nMy idea:\n{idea}\n\nThe plan says it needs a discovery call. Let's book one."
+    },
+    "limit": {
+      "title": "You've used your free AI plan",
+      "body": "Each visitor gets one free AI plan every 24 hours. In the meantime, tell us about your project, or price it yourself in the step-by-step estimator.",
+      "next": "{day, select, today {Your next free plan opens today at {time}, 24 hours after your last one.} other {Your next free plan opens tomorrow at {time}, 24 hours after your last one.}}",
+      "usedNote": "{day, select, today {That was your free plan. You can plan another idea today at {time}, 24 hours after this one.} other {That was your free plan. You can plan another idea tomorrow at {time}, 24 hours after this one.}}",
+      "talk": "Talk to us about your project",
+      "estimator": "Try the step-by-step estimator",
+      "message": "Hi! I'd like to talk about my project.\n\nMy idea:\n{idea}"
+    },
+    "flags": {
+      "payments": "Payments",
+      "realtime": "Real-time updates",
+      "geo_tracking": "Live location",
+      "two_sided_marketplace": "Two-sided marketplace",
+      "multi_role": "Several user roles",
+      "regulated": "Regulated data",
+      "personal_data": "Personal data",
+      "ai_quality": "AI answer quality",
+      "offline_first": "Works offline",
+      "high_load": "High load",
+      "legacy_integration": "Existing systems",
+      "hardware": "Hardware",
+      "content_moderation": "Content moderation",
+      "multi_language": "Several languages"
+    },
+    "errors": {
+      "too_short": "Tell us a bit more: what is the product, who uses it and what do they do in it?",
+      "too_vague": "We need a little more to plan this. What is the product, who will use it, and what should they be able to do?",
+      "not_software": "This doesn't read like a software product we could plan. Describe the app, website, bot or system you want built.",
+      "abusive": "We can't plan this request. Describe the product you want to build.",
+      "rate_limited": "You've sent several ideas in a row. Try again in {minutes} min.",
+      "rate_limited_later": "You've sent several ideas today. Try again later, or use the step-by-step estimator.",
+      "declinedTitle": "This is outside the work we take",
+      "declinedBody": "We don't build products in this area, so we won't price it. If you have another idea, we'll gladly plan it.",
+      "busy": "The AI planner has reached today's limit. The step-by-step estimator works without it.",
+      "failed": "The AI didn't finish your plan this time. Your idea is still here, so you can try again.",
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "retry": "Try again",
+      "estimator": "Use the step-by-step estimator"
+    }
+  },
   "hero": {
     "title": "Development of mobile applications and web services of any complexity.",
     "description": "We create mobile applications for iOS and Android that will bring your business to mobile audiences.",
@@ -633,7 +845,7 @@
     }
   },
   "metadata": {
-    "title": "Softwhere — Mobile Apps, Websites & Telegram Bots in Tashkent",
-    "description": "Transform your business with custom mobile apps, modern websites & powerful Telegram bots. Professional development with 1-year free hosting for early clients."
+    "title": "Mobile App, Website & Telegram Bot Development in Tashkent — SoftWhere",
+    "description": "A studio in Tashkent: iOS and Android apps, websites, Telegram bots and AI automation. 50+ products launched for clients in Uzbekistan, the US and Europe. A price range and timeline, free."
   }
 }

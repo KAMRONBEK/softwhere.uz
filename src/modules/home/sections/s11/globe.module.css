@@ -1,0 +1,602 @@
+/* 15 · Globe — a 280svh scroll story around one sticky full-screen stage.
+   Layout mirrors globeLayout() in geo.ts: phones put the globe between the
+   intro (heading + hint, ends at 175px) and the dock (route + caption, the
+   bottom 262px); wide screens put it right at 66.5% / 52% with
+   r = min(40svh, 27vw). */
+
+.root {
+  position: relative;
+  height: 280svh;
+  --gutter: 16px;
+  --globe-x: 50%;
+  --globe-y: calc((100svh + 175px - 262px) / 2);
+  --globe-r: min(47vw, calc((100svh - 175px - 262px) / 2 - 8px));
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* A small overshoot for the chips popping in. */
+  --ease-pop: cubic-bezier(0.34, 1.42, 0.64, 1);
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* A soft light pooled behind the globe, so the planet sits in space (dark)
+   or on a lit table (light). Static: never animated. */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      calc(var(--globe-r) * 2.1) calc(var(--globe-r) * 2.1) at var(--globe-x) var(--globe-y),
+      color-mix(in srgb, var(--accent) 13%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      calc(var(--globe-r) * 3.4) calc(var(--globe-r) * 2.6) at var(--globe-x) calc(var(--globe-y) + var(--globe-r) * 0.4),
+      color-mix(in srgb, var(--accent-2) 9%, transparent),
+      transparent 72%
+    );
+  /* The pool reaches the stage's bottom edge; fade it out there so the end of
+     the story melts into the next section instead of stopping in a seam. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 100%);
+}
+
+/* accent-2 is black ink in Concrete: keep only the accent pool on light styles. */
+.root[data-scheme='light'] .backdrop {
+  background: radial-gradient(
+    calc(var(--globe-r) * 2) calc(var(--globe-r) * 2) at var(--globe-x) var(--globe-y),
+    color-mix(in srgb, var(--accent) 9%, transparent),
+    transparent 70%
+  );
+}
+
+/* Full-stage drag surface (touch swipes anywhere; mouse drags start on the
+   planet, see .globeHit). pan-y keeps vertical page scroll on touch. */
+.globeBox {
+  position: absolute;
+  inset: 0;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* The planet's silhouette at rest (mirrors globeLayout): the grab cursor and
+   the custom cursor's Drag badge live here, not over the copy. */
+.globeHit {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--globe-x) - var(--globe-r));
+  top: calc(var(--globe-y) - var(--globe-r));
+  width: calc(var(--globe-r) * 2);
+  height: calc(var(--globe-r) * 2);
+  border-radius: 50%;
+  cursor: grab;
+}
+
+.globeBox[data-dragging],
+.globeBox[data-dragging] .globeHit {
+  cursor: grabbing;
+}
+
+.canvas {
+  /* LazyCanvas forces position: relative on its box, so size it explicitly. */
+  width: 100%;
+  height: 100%;
+}
+
+.still {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Pin labels (positioned every frame by the active renderer) ─────── */
+
+.labels {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  will-change: transform;
+  /* Stay visible until the fade-out has finished. */
+  transition: visibility 0s linear 300ms;
+}
+
+.label[data-shown] {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Leader from the pin to the chip: a 1px line stretched by the renderer
+   (translate + scaleX), so a side flip is a transform, never a layout write. */
+.leader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  background: color-mix(in srgb, var(--fg) 45%, transparent);
+  transform-origin: 0 50%;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-out);
+}
+
+/* The chip's x offset is written to the `translate` property each frame;
+   the pop in/out uses `scale` and opacity, so the two never fight. */
+.chip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--fg) 16%, transparent);
+  border-radius: min(var(--radius), 8px);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  color: var(--fg);
+  font: 500 12px/1 var(--font-body);
+  white-space: nowrap;
+  translate: 14px -50%;
+  scale: 0.8;
+  opacity: 0;
+  transform-origin: 0 50%;
+  transition:
+    opacity 220ms var(--ease-out),
+    scale 460ms var(--ease-pop);
+}
+
+.label[data-side='left'] .chip {
+  transform-origin: 100% 50%;
+}
+
+.label[data-shown] .chip {
+  scale: 1;
+  opacity: 1;
+}
+
+.label[data-shown] .leader {
+  opacity: 1;
+  transition-delay: 80ms;
+}
+
+/* Tashkent's live local time, after a hairline. Fixed-width digits keep the chip's measured size. */
+.chipTime {
+  margin-left: 7px;
+  padding-left: 7px;
+  border-left: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  font: 500 11px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.chipTime:empty {
+  display: none;
+}
+
+/* Phone-width stages: "UK" fits beside the limb where "United Kingdom" cannot. */
+.chipShort {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .chipLong {
+    display: none;
+  }
+
+  .chipShort {
+    display: inline;
+  }
+
+  /* The clock stacks under "Tashkent" so the pill stays narrow enough to keep its side. */
+  .label[data-home] .chip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    line-height: 1;
+  }
+
+  .chipTime {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 10px;
+    opacity: 0.85;
+  }
+}
+
+/* Home: a solid accent pill, only ever shown at full opacity (facing us). */
+.label[data-home] .chip {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+/* ── Flight readout: km counter riding the arc being drawn ───────────── */
+
+.readout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  will-change: transform;
+  transition: visibility 0s linear 260ms;
+}
+
+.readout[data-shown] {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.readoutValue {
+  display: block;
+  padding: 4px 7px;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  border-radius: min(var(--radius), 6px);
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  color: var(--fg);
+  font: 500 11px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out);
+}
+
+.readout[data-shown] .readoutValue {
+  opacity: 1;
+}
+
+/* ── Copy ─────────────────────────────────────────────────────────────── */
+
+.copy {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.intro {
+  position: absolute;
+  top: calc(54px + env(safe-area-inset-top));
+  left: var(--gutter);
+  right: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.heading {
+  margin: 0;
+  font-size: calc(clamp(1.75rem, 7.6vw, 2.6rem) * var(--display-scale));
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.headingLine {
+  display: block;
+}
+
+.headingLine + .headingLine {
+  color: var(--muted);
+}
+
+/* Route + caption. Phones: route on top and the whole dock lifted clear of
+   the Lab panel button in the bottom corner. */
+.dock {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: calc(72px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.captions {
+  display: grid;
+}
+
+.caption {
+  grid-area: 1 / 1;
+  align-self: end;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 420ms var(--ease-out),
+    transform 620ms var(--ease-out);
+}
+
+.caption[data-active] {
+  opacity: 1;
+  transform: none;
+  transition-delay: 90ms;
+}
+
+.captionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(clamp(1.45rem, 6.2vw, 2rem) * var(--display-scale));
+  line-height: 1.02;
+  color: var(--fg);
+  text-wrap: balance;
+}
+
+/* The beat's count: rolls up as the market arrives. Width reserved for the
+   final value (min-width in ch, set inline), right-aligned, so the words
+   after it never move while it counts. */
+.captionCount {
+  display: inline-block;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
+}
+
+.captionBody {
+  max-width: 40ch;
+  margin: 0.5rem 0 0;
+  font: 400 0.98rem / 1.42 var(--font-body);
+  color: var(--fg);
+  text-wrap: pretty;
+}
+
+.captionDetail {
+  max-width: 44ch;
+  margin: 0.4rem 0 0;
+  font: 400 0.84rem / 1.45 var(--font-body);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+/* ── Route ────────────────────────────────────────────────────────────── */
+
+.route {
+  position: relative;
+  order: -1;
+  height: 26px;
+  /* Keep the end dots' hit areas inside the gutter. */
+  margin: 0 12px;
+  pointer-events: auto;
+}
+
+.track {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--fg) 20%, transparent);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+
+.stops {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stop {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.stopButton {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  /* 44px hit area around a small dot. */
+  min-width: 44px;
+  min-height: 44px;
+  margin: -9px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 500 11px/1 var(--font-body);
+  cursor: pointer;
+}
+
+.stopDot {
+  width: 9px;
+  height: 9px;
+  margin-top: 8px;
+  border: 1px solid color-mix(in srgb, var(--fg) 45%, transparent);
+  border-radius: 50%;
+  background: var(--bg);
+  transition:
+    transform 300ms var(--ease-out),
+    background-color 300ms var(--ease-out);
+}
+
+.stopName {
+  display: none;
+}
+
+.stopCount {
+  margin-left: 6px;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stopButton[aria-current='step'] {
+  color: var(--fg);
+}
+
+.stopButton[aria-current='step'] .stopDot {
+  border-color: var(--accent);
+  background: var(--accent);
+  transform: scale(1.35);
+}
+
+.stopButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (hover: hover) {
+  .stopButton:hover .stopDot {
+    transform: scale(1.35);
+  }
+
+  .stopButton:hover {
+    color: var(--fg);
+  }
+}
+
+/* ── Drag hint ────────────────────────────────────────────────────────── */
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font: 400 12px/1 var(--font-body);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 600ms var(--ease-out);
+}
+
+.hint[data-hidden] {
+  opacity: 0;
+}
+
+.hintIcon {
+  width: 22px;
+  height: 10px;
+  flex: none;
+}
+
+/* ── Wide screens: copy left, globe right ─────────────────────────────── */
+
+@media (min-width: 768px) and (min-aspect-ratio: 105/100) {
+  .root {
+    --gutter: clamp(24px, 5.5vw, 96px);
+    --globe-x: 66.5%;
+    --globe-y: 52svh;
+    --globe-r: min(40svh, 27vw);
+  }
+
+  /* The intro stops being a box: heading and hint place against the stage. */
+  .intro {
+    position: static;
+  }
+
+  .heading {
+    position: absolute;
+    top: clamp(84px, 13svh, 150px);
+    left: var(--gutter);
+    width: min(620px, 40vw);
+    font-size: calc(clamp(2.4rem, 4.3vw, 4.6rem) * var(--display-scale));
+    line-height: 0.98;
+  }
+
+  .hint {
+    position: absolute;
+    left: var(--globe-x);
+    top: calc(var(--globe-y) + var(--globe-r) + 12px);
+    transform: translateX(-50%);
+  }
+
+  .dock {
+    right: auto;
+    bottom: calc(7svh - 20px);
+    width: min(500px, 37vw);
+    gap: 40px;
+  }
+
+  .captions {
+    width: min(440px, 33vw);
+  }
+
+  .captionTitle {
+    font-size: calc(clamp(1.9rem, 2.9vw, 3rem) * var(--display-scale));
+  }
+
+  .captionBody {
+    margin-top: 0.75rem;
+    font-size: clamp(1rem, 1.15vw, 1.15rem);
+  }
+
+  .captionDetail {
+    font-size: clamp(0.86rem, 0.95vw, 0.95rem);
+  }
+
+  .route {
+    order: 0;
+    margin: 0 0 20px;
+  }
+
+  /* Names under the dots; the first and last align to the track ends. */
+  .stopName {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    display: block;
+    font-size: 12px;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    transition: color 300ms var(--ease-out);
+  }
+
+  .stop:first-child .stopName {
+    transform: translateX(-5px);
+  }
+
+  .stop:last-child .stopName {
+    left: auto;
+    right: 50%;
+    transform: translateX(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caption {
+    transform: none;
+    transition: opacity 300ms linear;
+  }
+
+  .chip {
+    scale: 1;
+    transition: opacity 200ms linear;
+  }
+
+  .stopDot,
+  .hint,
+  .leader,
+  .readoutValue {
+    transition: none;
+  }
+}

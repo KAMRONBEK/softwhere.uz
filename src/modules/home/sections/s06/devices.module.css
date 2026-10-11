@@ -1,0 +1,511 @@
+/* 06 · Devices — a 400svh scroll story around one sticky full-screen stage. */
+
+.root {
+  position: relative;
+  height: 400svh;
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ── Backdrop: a pool of light that follows the phone ─────────────────── */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* Where the pool starts (behind the two devices) and how far it travels to the phone. */
+  --glow-x: 64%;
+  --glow-y: 58%;
+  --glow-dx: -33vw;
+  --glow-dy: -8svh;
+}
+
+.glow {
+  position: absolute;
+  top: var(--glow-y);
+  left: var(--glow-x);
+  width: max(110vw, 110svh);
+  aspect-ratio: 1.3;
+  background:
+    radial-gradient(closest-side, var(--glow), transparent 78%),
+    radial-gradient(40% 30% at 30% 72%, color-mix(in srgb, var(--accent-2) 14%, transparent), transparent 70%);
+  transform: translate(calc(-50% + var(--shift, 0) * var(--glow-dx)), calc(-50% + var(--shift, 0) * var(--glow-dy)));
+  will-change: transform;
+}
+
+/* accent-2 is black in Concrete: on light styles keep only the accent glow. */
+.root[data-scheme='light'] .glow {
+  background: radial-gradient(closest-side, var(--glow), transparent 78%);
+}
+
+.canvasBox {
+  position: absolute;
+  inset: 0;
+}
+
+.canvas {
+  /* LazyCanvas forces position: relative on its box, so size it explicitly. */
+  width: 100%;
+  height: 100%;
+  /* Vertical page scroll must keep working over the canvas on touch. */
+  touch-action: pan-y;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  --gutter: clamp(16px, 6vw, 104px);
+}
+
+.markHost {
+  display: none;
+}
+
+/* ── Grab to spin: a hit box riding on the phone, and its hint ───────── */
+
+.grab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Matches GRAB_BOX in grab.ts: the box is scaled to the phone, never resized. */
+  width: 100px;
+  height: 100px;
+  transform-origin: 0 0;
+  /* Vertical swipes still scroll the page; horizontal ones turn the phone. */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+.grab[data-on='false'] {
+  visibility: hidden;
+}
+
+.grab[data-dragging='true'] {
+  cursor: grabbing;
+}
+
+.hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  pointer-events: none;
+  opacity: 0;
+  translate: 0 8px;
+  transition:
+    opacity 260ms ease-in,
+    translate 260ms ease-in;
+}
+
+.hint[data-shown='true'] {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 520ms cubic-bezier(0.23, 1, 0.32, 1) 240ms,
+    translate 520ms cubic-bezier(0.23, 1, 0.32, 1) 240ms;
+}
+
+.hintGlyph {
+  width: 34px;
+  height: 34px;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+/* The little phone turns on its axis (scaleX fakes the 3D turn: transform only). */
+.hintPhone {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hintTurn 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes hintTurn {
+  0%,
+  40% {
+    transform: scaleX(1);
+  }
+  55% {
+    transform: scaleX(0.18);
+  }
+  70%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+.hintText {
+  font: 500 11px / 1.3 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Intro / outro (left column, devices on the right) ────────────────── */
+
+.intro,
+.outro {
+  position: absolute;
+  top: clamp(84px, 17svh, 190px);
+  left: var(--gutter);
+  width: min(600px, 44vw);
+}
+
+.heading,
+.outroTitle {
+  margin: 0;
+  font-size: calc(clamp(2.5rem, 5.8vw, 6rem) * var(--display-scale));
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+.outroTitle {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+}
+
+.lede,
+.outroText {
+  max-width: 36ch;
+  margin: 1.4rem 0 0;
+  font: 400 clamp(1rem, 1.2vw, 1.18rem) / 1.5 var(--font-body);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.outro {
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* ── The apps (right column) ─────────────────────────────────────────── */
+
+.apps {
+  position: absolute;
+  top: 50%;
+  right: var(--gutter);
+  left: 52vw;
+  max-width: 600px;
+  translate: 0 -50%;
+}
+
+.appList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.kicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  align-items: baseline;
+  margin: 0 0 1.1rem;
+  font: 500 13px / 1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Persistent index of the three apps: the column never goes empty mid-turn. */
+.rail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0 0 clamp(1.6rem, 4svh, 2.6rem);
+  padding: 0;
+  list-style: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.railItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.55rem 0.6rem;
+  align-items: baseline;
+  opacity: 0.42;
+  font: 500 13px / 1.2 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.railNum {
+  color: var(--accent);
+}
+
+.railName {
+  overflow: hidden;
+  color: var(--fg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.railBar {
+  grid-column: 1 / -1;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--fg) 16%, transparent);
+}
+
+.railFill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.meta {
+  color: var(--accent);
+}
+
+.appName {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  /* Sized for a kind of product ("Truck-services app"), not a short brand name: two lines at most. */
+  font-size: calc(clamp(2.6rem, 4.4vw, 4.8rem) * var(--display-scale));
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.appLine {
+  max-width: 34ch;
+  margin: 1.1rem 0 0;
+  font: 400 clamp(1.05rem, 1.3vw, 1.3rem) / 1.45 var(--font-body);
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+/* What the phone is showing right now, in sync with its screens. */
+.features {
+  display: grid;
+  margin: 1.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  align-items: baseline;
+  padding: 0.85rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  opacity: 0.42;
+}
+
+.feature:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+}
+
+.featureNum {
+  font: 500 12px / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.featureText {
+  font: 500 clamp(1rem, 1.15vw, 1.15rem) / 1.35 var(--font-body);
+  color: var(--fg);
+}
+
+.featureFill {
+  position: absolute;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 8px 13px;
+  border: 1px solid color-mix(in srgb, var(--fg) 26%, transparent);
+  border-radius: var(--radius);
+  font: 500 13px / 1 var(--font-mono);
+  letter-spacing: 0.03em;
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.chipLive {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.tech {
+  margin: 1.1rem 0 0;
+  font: 400 13px / 1.5 var(--font-mono);
+  color: var(--muted);
+}
+
+/* ── Reduced motion: discrete steps that crossfade ───────────────────── */
+
+.root[data-reduced='true'] .rail,
+.root[data-reduced='true'] .railItem,
+.root[data-reduced='true'] .app,
+.root[data-reduced='true'] .outro,
+.root[data-reduced='true'] .intro,
+.root[data-reduced='true'] .feature {
+  transition:
+    opacity 360ms ease,
+    visibility 360ms;
+}
+
+/* ── Phones (390×844 first) ──────────────────────────────────────────── */
+
+@media (max-width: 760px), (max-aspect-ratio: 9 / 10) {
+  .overlay {
+    --gutter: 16px;
+  }
+
+  .backdrop {
+    --glow-x: 58%;
+    --glow-y: 72%;
+    --glow-dx: -8vw;
+    --glow-dy: -40svh;
+  }
+
+  .intro,
+  .outro {
+    top: calc(64px + env(safe-area-inset-top));
+    right: var(--gutter);
+    width: auto;
+  }
+
+  .heading,
+  .outroTitle {
+    font-size: calc(clamp(2.4rem, 11vw, 3.4rem) * var(--display-scale));
+  }
+
+  .lede,
+  .outroText {
+    margin-top: 0.9rem;
+    font-size: 0.98rem;
+  }
+
+  .apps {
+    top: auto;
+    right: var(--gutter);
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    left: var(--gutter);
+    max-width: 560px;
+    translate: none;
+  }
+
+  .rail {
+    gap: 8px;
+    margin-bottom: 0.9rem;
+  }
+
+  .railItem {
+    gap: 0.4rem 0.45rem;
+    font-size: 11.5px;
+  }
+
+  .kicker {
+    margin-bottom: 0.55rem;
+    font-size: 12px;
+  }
+
+  .appName {
+    font-size: calc(clamp(1.9rem, 8.4vw, 2.6rem) * var(--display-scale));
+  }
+
+  .appLine {
+    display: -webkit-box;
+    max-width: none;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    font-size: 0.95rem;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .features {
+    margin-top: 0.9rem;
+  }
+
+  .feature {
+    grid-template-columns: 2.4em 1fr;
+    padding: 0.5rem 0;
+  }
+
+  .featureNum {
+    font-size: 11.5px;
+  }
+
+  .featureText {
+    font-size: 0.92rem;
+  }
+
+  .chips {
+    gap: 6px;
+    margin-top: 0.85rem;
+  }
+
+  .chip {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .tech {
+    display: none;
+  }
+}
+
+/* Short phones: the one-liner gives its room to the phone. */
+@media (max-height: 700px) and (max-width: 760px), (max-height: 700px) and (max-aspect-ratio: 9 / 10) {
+  .appLine {
+    display: none;
+  }
+}

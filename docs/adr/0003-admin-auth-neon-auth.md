@@ -75,7 +75,7 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
 }
 ```
 
-- The whole admin section is gated server-side. `src/app/[locale]/admin/layout.tsx`
+- The whole admin section is gated server-side. `src/app/[locale]/(site)/admin/layout.tsx`
   is `dynamic = 'force-dynamic'`, renders `<AdminLogin />` when
   `isAdminAuthenticated()` is false, and is marked `robots: { index: false }`. API
   routes (`/api/admin/posts`, `/api/blog/generate`) call `requireAdmin()`.
@@ -101,7 +101,7 @@ export async function requireAdmin(request: NextRequest): Promise<NextResponse |
 - `src/core/auth.ts` — `requireAdmin()`, `isAdminAuthenticated()`, constant-time `safeEqual`, plus the locale validators that also live here.
 - `src/core/neonAuth.ts` — lazy `getAuth()` and the cookie-secret precondition.
 - `src/app/api/auth/[...path]/route.ts` — the Neon Auth mount, wrapped against import-time throws.
-- `src/app/[locale]/admin/layout.tsx` — server-side admin gate + `noindex`.
+- `src/app/[locale]/(site)/admin/layout.tsx` — server-side admin gate + `noindex`.
 - `src/app/api/blog/generate/route.ts:40-41` — a machine-callable route guarded by `requireAdmin()`.
 - commit `fb7484f` — the auth rework (and co-located `fra1` region + `leads` capture).
 - [`../auth-and-admin.md`](../auth-and-admin.md) — admin auth and panel walkthrough.

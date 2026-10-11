@@ -1,0 +1,281 @@
+{
+  "heading": "Your stack, or ours.",
+  "summary": "Already running Laravel, Django or .NET? We pick up where your team is. Starting from zero? We choose what fits the product, the budget and whoever runs it after launch.",
+  "kicker": "What we build with",
+  "titleLines": {
+    "first": "Your stack,",
+    "second": "or ours."
+  },
+  "kitsLabel": "What are you building?",
+  "kitCursor": "Stack it",
+  "pullCursor": "Pull",
+  "plateTag": "{kit} · {layers, plural, one {# layer} other {# layers}} · {tools, plural, one {# tool} other {# tools}}",
+  "plateIdle": "Your data at the bottom, {top} at the top. Pull one out and see why we build every layer.",
+  "plateIdleStatic": "Your data at the bottom, {top} at the top. Hover or tap a block to see its job.",
+  "plateStat": "In {count} of our {total} projects",
+  "story": {
+    "fallTag": "Stress test",
+    "fallName": "One layer out, it all falls.",
+    "fallBlurb": "Real products work the same way. That’s why we build all four layers ourselves.",
+    "rebuildTag": "Rebuild · foundation first",
+    "rebuildName": "Back up, layer by layer.",
+    "rebuildBlurb": "Data, logic, interface, delivery: the order we ship in."
+  },
+  "knock": "Pull the foundation",
+  "rebuild": "Rebuild",
+  "tilt": "Tilt",
+  "tiltOn": "Tilting",
+  "tiltBlocked": "No sensor",
+  "listLabel": "What {subject} is built from, layer by layer",
+  "status": "Showing {subject}: {tools, plural, one {# tool} other {# tools}} in {layers, plural, one {# layer} other {# layers}}.",
+  "toolDescription": "{layer} layer. {blurb}",
+  "extrasLabel": "Also in the box {forSubject}",
+  "extrasMore": "and {count} more",
+  "extrasOpen": "See all {total} tools",
+  "toolbox": {
+    "kicker": "The full toolbox",
+    "summary": "{tools} tools across {areas} areas.",
+    "open": "See the full toolbox ({tools})",
+    "close": "Hide the toolbox",
+    "proof": "Used in our projects",
+    "noteKit": "Lit up: what {subject} usually takes. {rider}",
+    "noteProof": "Marked: tools we’ve shipped real products with.",
+    "areaCount": "{tools, plural, one {# tool} other {# tools}}",
+    "wallLabel": "{area} tools",
+    "toolDescription": "{blurb}{used, select, yes { Used in our projects.} other {}}"
+  },
+  "layers": {
+    "data": {
+      "name": "Data",
+      "role": "Where your data lives"
+    },
+    "logic": {
+      "name": "Logic",
+      "role": "What makes it work"
+    },
+    "interface": {
+      "name": "Interface",
+      "role": "What people see and tap"
+    },
+    "delivery": {
+      "name": "Delivery",
+      "role": "How it reaches people"
+    }
+  },
+  "kits": {
+    "telegram": {
+      "label": "Telegram bot",
+      "subject": "a Telegram bot",
+      "forSubject": "for a Telegram bot",
+      "headline": "Orders and payments, right in the chat.",
+      "top": "the chat your customers already use",
+      "rider": "A bot or a Mini App: nothing for your customers to install."
+    },
+    "mobile": {
+      "label": "Mobile app",
+      "subject": "a mobile app",
+      "forSubject": "for a mobile app",
+      "headline": "From your data to the App Store.",
+      "top": "the app your customers tap",
+      "rider": "Native or cross-platform: we pick per product."
+    },
+    "web": {
+      "label": "Website",
+      "subject": "a website",
+      "forSubject": "for a website",
+      "headline": "Fast to load, easy to find, easy to edit.",
+      "top": "the site your customers open",
+      "rider": "Pages built for speed and search, with a panel your team edits."
+    },
+    "rag": {
+      "label": "AI on your docs",
+      "subject": "AI on your documents",
+      "forSubject": "for AI on your documents",
+      "headline": "Your files in, cited answers out.",
+      "top": "the answers your team asks for",
+      "rider": "Hosted models or your own servers: your call."
+    },
+    "crm": {
+      "label": "CRM & admin",
+      "subject": "a CRM or admin system",
+      "forSubject": "for a CRM or admin system",
+      "headline": "Your records, roles and reports in one place.",
+      "top": "the screens your team works in",
+      "rider": "Built to run your team every day, for years."
+    }
+  },
+  "trades": {
+    "mobile": {
+      "name": "Mobile",
+      "role": "The app your customers carry in their pocket."
+    },
+    "web": {
+      "name": "Web",
+      "role": "Sites and dashboards that open in any browser."
+    },
+    "backend": {
+      "name": "Backend",
+      "role": "The logic behind every tap: accounts, orders, payments."
+    },
+    "data": {
+      "name": "Data",
+      "role": "Where your customers’ orders and accounts are kept safe."
+    },
+    "ai": {
+      "name": "AI",
+      "role": "Models that read your documents, listen and answer."
+    },
+    "cloud": {
+      "name": "Cloud & DevOps",
+      "role": "Where it all runs, and how updates ship safely."
+    },
+    "integrations": {
+      "name": "Integrations",
+      "role": "Payments, maps, sign-in and alerts, plugged in."
+    },
+    "design": {
+      "name": "Design & Motion",
+      "role": "How it looks, and how it moves."
+    }
+  },
+  "labels": {
+    "open-llm": "Open-source LLMs",
+    "agents": "AI agents",
+    "speech": "Speech to text",
+    "vision": "Computer vision",
+    "iap": "In-app purchases",
+    "wallet-pay": "Apple Pay & Google Pay"
+  },
+  "tower": {
+    "postgres": "Where your data lives: users, orders, history.",
+    "redis": "Instant answers for busy screens: caching and queues.",
+    "firebase": "Sign-in, push notifications and live data.",
+    "pgvector": "Finds passages by meaning, not just by keyword.",
+    "qdrant": "A vector database for very large document sets.",
+    "clickhouse": "Reports over millions of rows, in seconds.",
+    "nest": "The server: accounts, orders and the admin behind them.",
+    "node": "The server side: APIs, sign-in and admin tools.",
+    "strapi": "A content panel your team edits without a developer.",
+    "fastapi": "The Python service that reads, searches and answers.",
+    "rabbitmq": "Background jobs that never get lost: imports, emails, reports.",
+    "openai": "GPT models that read, write and answer.",
+    "claude": "Anthropic’s models: careful with long documents.",
+    "onesignal": "Push notifications, segmented and scheduled.",
+    "stripe": "Card payments and subscriptions worldwide.",
+    "payme": "One of Uzbekistan’s everyday ways to pay.",
+    "click": "Uzbekistan’s other everyday way to pay.",
+    "react-native": "One codebase for both the iPhone and the Android app.",
+    "swift": "Native iPhone screens, when the app needs every bit of speed.",
+    "kotlin": "Native Android screens, for the same reasons.",
+    "next": "Pages that load fast and that search engines can read.",
+    "react": "Fast, interactive screens in the browser.",
+    "tailwind": "Consistent styling, straight from the design.",
+    "vite": "A Mini App that opens instantly inside Telegram.",
+    "shadcn": "Clear tables, forms and filters your team learns in a day.",
+    "app-store": "Where iPhone and iPad users find the app.",
+    "google-play": "Where Android users find the app.",
+    "vercel": "Serves the site from close to every visitor.",
+    "cloudflare": "Speed, DNS and protection in front of the site.",
+    "telegram": "The chat people already use: the bot lives right there.",
+    "mini-apps": "A full shop or booking screen inside Telegram, nothing to install.",
+    "docker": "Runs on your own servers or ours, the same way.",
+    "aws": "Amazon’s cloud: servers, storage and backups.",
+    "github-actions": "Every change tested and shipped the same safe way."
+  },
+  "tools": {
+    "react-native": "One codebase for the iPhone and the Android app.",
+    "swift": "Apple’s language for fast, native iPhone apps.",
+    "swiftui": "Apple’s modern toolkit for iPhone and iPad screens.",
+    "kotlin": "The language of modern native Android apps.",
+    "compose": "Android’s modern toolkit for native screens.",
+    "expo": "Builds, over-the-air updates and store releases.",
+    "flutter": "Google’s cross-platform toolkit for polished apps.",
+    "dart": "The language Flutter apps are written in.",
+    "next": "Fast websites that search engines can read.",
+    "react": "Interactive screens for web apps and dashboards.",
+    "typescript": "Typed code that catches mistakes before users do.",
+    "tailwind": "Consistent styling, straight from the design system.",
+    "vue": "A gentle framework for interactive web apps.",
+    "nuxt": "Vue with server rendering, for fast, findable sites.",
+    "angular": "A complete framework for large business web apps.",
+    "svelte": "Fast web apps that ship very little code.",
+    "vite": "Instant development builds and lean production bundles.",
+    "redux": "Predictable state for screens with a lot going on.",
+    "tanstack": "Server data kept fresh and cached on the screen.",
+    "shadcn": "Accessible components we own and restyle freely.",
+    "mui": "Google’s Material Design, ready-made for React.",
+    "node": "JavaScript on the server: APIs, real time, admin tools.",
+    "nest": "Structured Node.js back ends that grow with the team.",
+    "express": "A small, proven server for Node.js APIs.",
+    "strapi": "A content panel your team edits without a developer.",
+    "python": "The language of data work, automation and AI.",
+    "fastapi": "Quick, typed Python APIs: a natural home for AI.",
+    "django": "Python’s batteries-included framework, admin built in.",
+    "go": "Lean, fast services for heavy traffic.",
+    "rust": "Speed and memory safety where every millisecond counts.",
+    "java": "The enterprise workhorse, with a huge ecosystem.",
+    "spring": "Java’s standard for robust business back ends.",
+    "ktor": "Kotlin on the server, sharing code with Android.",
+    "dotnet": "Microsoft’s platform for web APIs and business systems.",
+    "php": "Runs a large share of the web, from shops to sites.",
+    "laravel": "PHP’s best-loved framework for web apps and APIs.",
+    "graphql": "One API where each screen asks for exactly what it needs.",
+    "grpc": "Fast, typed calls between internal services.",
+    "websockets": "Live updates: chat, tracking, dashboards.",
+    "postgres": "The dependable home for users, orders and history.",
+    "redis": "In-memory speed for caching, sessions and queues.",
+    "mysql": "The classic database behind countless web apps.",
+    "sqlserver": "Microsoft’s database for enterprise systems.",
+    "mongodb": "Flexible documents for data that changes shape.",
+    "sqlite": "A database inside the app, for offline use.",
+    "clickhouse": "Reports over millions of rows, in seconds.",
+    "elasticsearch": "Fast full-text search that forgives typos.",
+    "kafka": "High-volume event streams between services.",
+    "rabbitmq": "Reliable queues for background jobs.",
+    "prisma": "Type-safe database access for TypeScript.",
+    "drizzle": "Lightweight, typed SQL for TypeScript.",
+    "openai": "GPT models for chat, writing and extraction.",
+    "claude": "Careful reasoning over long documents.",
+    "gemini": "Models that take text, images and audio.",
+    "open-llm": "Models that can run on your own servers.",
+    "rag": "Answers grounded in your own documents, with sources.",
+    "pgvector": "Meaning-based search inside PostgreSQL.",
+    "qdrant": "A dedicated vector database for large knowledge bases.",
+    "langchain": "Building blocks for multi-step AI workflows.",
+    "llamaindex": "Connects models to your documents and data.",
+    "agents": "Models that act: look things up, fill forms, update records.",
+    "speech": "Calls and voice notes turned into searchable text.",
+    "vision": "Reads scans, photos and receipts.",
+    "aws": "Amazon’s cloud: servers, storage, sign-in.",
+    "gcp": "Google’s cloud, next to Firebase and Gemini.",
+    "azure": "Microsoft’s cloud, at home with .NET.",
+    "docker": "The same app on a laptop and in production.",
+    "kubernetes": "Runs many services and scales them on demand.",
+    "terraform": "Servers described as code: repeatable, reviewable.",
+    "github-actions": "Tests and deploys on every change.",
+    "vercel": "Global hosting made for Next.js sites.",
+    "cloudflare": "Speed, DNS and protection in front of your site.",
+    "nginx": "The proven web server in front of your app.",
+    "stripe": "Card payments and subscriptions worldwide.",
+    "wallet-pay": "One-tap checkout on phones and in the browser.",
+    "iap": "Subscriptions through the App Store and Google Play.",
+    "google-maps": "Maps, routes and places near your users.",
+    "firebase": "Sign-in, push notifications and live data.",
+    "onesignal": "Push notifications, segmented and scheduled.",
+    "sentry": "Crash reports before your users complain.",
+    "webrtc": "Voice and video calls inside the app.",
+    "telegram-bot": "Bots that take orders, send alerts and answer customers.",
+    "telegram-mini": "A full app inside Telegram, nothing to install.",
+    "payme": "One of Uzbekistan’s everyday ways to pay.",
+    "click": "Uzbekistan’s other everyday way to pay.",
+    "yandex-maps": "Detailed maps and routing across Central Asia.",
+    "myid": "Uzbekistan’s remote identity check.",
+    "e-imzo": "Uzbekistan’s digital signature for documents.",
+    "figma": "Where every screen is designed and approved first.",
+    "rive": "Interactive animations that react to taps.",
+    "lottie": "Light animations that stay crisp on any screen.",
+    "blender": "3D models and renders for product visuals.",
+    "threejs": "3D in the browser, like the scenes on this page.",
+    "gsap": "Smooth, precise motion on the web."
+  }
+}

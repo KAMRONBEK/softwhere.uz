@@ -1,0 +1,692 @@
+/*
+ * 14 · Numbers. A 300svh track whose sticky stage holds the dust canvas and a
+ * grid: head, the numeral, the fact copy + unit chart, and the step rail.
+ * Phones: head, rail, numeral, copy stacked. Desktop (≥ 900px): numeral left,
+ * copy right, rail along the bottom.
+ */
+
+.root {
+  --gutter: clamp(16px, 5vw, 80px);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  height: 300svh;
+  color: var(--fg);
+}
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.frame {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: 'head' 'rail' 'figure' 'copy';
+  row-gap: clamp(10px, 2svh, 18px);
+  height: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  /* Bottom: clear of the floating Lab button on phones. */
+  padding: calc(clamp(52px, 8svh, 64px) + env(safe-area-inset-top)) max(var(--gutter), env(safe-area-inset-right))
+    calc(clamp(16px, 5svh, 48px) + env(safe-area-inset-bottom)) max(var(--gutter), env(safe-area-inset-left));
+}
+
+/* ── Entrance (data-shown): head, copy and rail rise in once ─────────────── */
+
+.root [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition:
+    opacity 0.5s ease,
+    transform 0.9s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+
+.root[data-shown] [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Head ───────────────────────────────────────────────────────────────── */
+
+.head {
+  grid-area: head;
+  min-width: 0;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: min(var(--radius), 2px);
+  background: var(--accent);
+}
+
+.title {
+  margin: 12px 0 0;
+  max-width: 14ch;
+  font-size: calc(clamp(30px, 8.4vw, 46px) * var(--display-scale));
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+.deck {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ── Numeral ────────────────────────────────────────────────────────────── */
+
+.figureCell {
+  grid-area: figure;
+  position: relative;
+  min-height: 96px;
+}
+
+.figure {
+  position: absolute;
+  inset: 0 0 26px;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  container-type: size;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+div.figure {
+  cursor: default;
+}
+
+/* Static (reduced motion / low tier): no hint under the numeral. */
+.root[data-static] .figure {
+  inset: 0;
+}
+
+.figure:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+/* DOM numeral: shown until the dust takes over (and if it never does). */
+.figureText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: min(92cqh, 52cqw);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--accent);
+  transition: opacity 0.4s ease;
+}
+
+.root[data-ready] .figureText {
+  opacity: 0;
+}
+
+.hint {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0;
+  font: 400 11px/1.3 var(--font-mono);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.hintDot {
+  position: relative;
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* A ring that opens and fades (transform + opacity only). */
+.hintDot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  animation: pulse 2.4s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(3.6);
+  }
+}
+
+/* ── Fact copy ──────────────────────────────────────────────────────────── */
+
+.copy {
+  grid-area: copy;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8svh, 18px);
+  min-width: 0;
+}
+
+/* Every fact is rendered; they share one grid cell so the tallest sets the height (no shift). */
+.stack {
+  display: grid;
+}
+
+.stack > * {
+  grid-area: 1 / 1;
+}
+
+.fact,
+.legend {
+  visibility: hidden;
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity 0.22s ease,
+    transform 0.3s ease,
+    visibility 0s linear 0.3s;
+}
+
+.fact[data-active],
+.legend[data-active] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.5s ease 0.16s,
+    transform 0.8s var(--ease-out) 0.16s,
+    visibility 0s;
+}
+
+.counter {
+  display: none;
+  margin: 0;
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.counterNow {
+  color: var(--accent);
+}
+
+.label {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(clamp(23px, 6.4vw, 30px) * var(--display-scale));
+  line-height: 1.04;
+}
+
+.caption {
+  margin: 6px 0 0;
+  max-width: 42ch;
+  font-size: clamp(14px, 3.8vw, 16px);
+  line-height: 1.45;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  column-gap: 14px;
+  row-gap: 3px;
+  margin: 0;
+  max-width: 64ch;
+  font: 400 10.5px/1.6 var(--font-mono);
+  color: var(--muted);
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.legendSwatch {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: min(var(--radius), 50%);
+  background: var(--accent);
+}
+
+.legendCount {
+  color: var(--fg);
+}
+
+.legendItem[data-dim] .legendSwatch {
+  opacity: 0.3;
+}
+
+.legendItem[data-dim] .legendCount {
+  color: inherit;
+}
+
+/* ── Unit chart: one dot per product ────────────────────────────────────── */
+
+.chart {
+  position: relative;
+  width: 100%;
+  height: calc(var(--pitch) * var(--rows) + 18px);
+  touch-action: pan-y;
+}
+
+.dots {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: var(--pitch);
+  height: var(--pitch);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.dotInk {
+  width: 66%;
+  height: 66%;
+  border-radius: min(var(--radius), 50%);
+  background: var(--accent);
+  transition: transform 0.25s var(--ease-out);
+}
+
+.dotInk[data-hover] {
+  transform: scale(1.75);
+}
+
+.ticks {
+  position: absolute;
+  top: calc(var(--pitch) * var(--rows) + 5px);
+  left: 0;
+  animation: fadeIn 0.6s ease 0.45s both;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font: 500 10px/1 var(--font-mono);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tick[data-dim] {
+  opacity: 0.6;
+}
+
+.tip {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+  border-radius: min(var(--radius), 10px);
+  background: var(--bg-2);
+  box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--fg) 40%, transparent);
+  color: var(--fg);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fadeIn 0.16s ease both;
+}
+
+.tipIcon {
+  display: block;
+  flex: none;
+  object-fit: contain;
+  /* App icons carry their own rounded tile; logos sit on theirs. */
+  border-radius: 22%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--fg) 10%, transparent);
+  animation: iconIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tipIcon[data-logo] {
+  border-radius: 7px;
+}
+
+@keyframes iconIn {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+
+.tipText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tip strong {
+  font: 600 13px/1.2 var(--font-body);
+}
+
+.tipText > span {
+  font: 400 10px/1.25 var(--font-mono);
+  color: var(--muted);
+}
+
+.tipText > .tipStores {
+  color: var(--fg);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── Rail: the four facts, the active one lit, each with its scroll progress ── */
+
+.rail {
+  grid-area: rail;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.railItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: baseline;
+  row-gap: 5px;
+  column-gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 8px 0 2px;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.35s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.railItem[data-active] {
+  opacity: 1;
+}
+
+.railItem:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.railTrack {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 16%, transparent);
+}
+
+.railFill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.railValue {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  font-size: calc(18px * var(--display-scale));
+  line-height: 1;
+}
+
+.railLabel {
+  overflow: hidden;
+  font: 500 9.5px/1.2 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Phones: the industries legend names them (the ticks under the chart carry the counts), so it
+   stays as short as the others and the shared cell does not squeeze the numeral. */
+@media (max-width: 899px) {
+  .legend {
+    column-gap: 12px;
+  }
+
+  .legend[data-unit='group'] .legendCount {
+    display: none;
+  }
+}
+
+/* Short phones: drop the eyebrow, keep the numeral room to breathe. */
+@media (max-width: 899px) and (max-height: 720px) {
+  .eyebrow,
+  .hint {
+    display: none;
+  }
+
+  .title {
+    margin-top: 0;
+  }
+
+  .figure {
+    inset: 0;
+  }
+}
+
+/* ── Desktop ────────────────────────────────────────────────────────────── */
+
+@media (min-width: 900px) {
+  .frame {
+    grid-template-columns: minmax(0, 1.3fr) minmax(360px, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'head deck' 'figure copy' 'rail rail';
+    column-gap: clamp(40px, 5vw, 104px);
+    row-gap: clamp(20px, 3.4svh, 40px);
+    padding-top: calc(clamp(64px, 10svh, 104px) + env(safe-area-inset-top));
+    padding-bottom: clamp(20px, 3.6svh, 36px);
+  }
+
+  .title {
+    max-width: none;
+    font-size: calc(clamp(40px, 4.6vw, 76px) * var(--display-scale));
+  }
+
+  .deck {
+    grid-area: deck;
+    position: static;
+    align-self: end;
+    width: auto;
+    height: auto;
+    max-width: 46ch;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    font-size: clamp(15px, 1.15vw, 17px);
+    line-height: 1.55;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .figure {
+    inset: 0 0 32px;
+    text-align: left;
+  }
+
+  .figureText {
+    justify-content: flex-start;
+  }
+
+  .hint {
+    justify-content: flex-start;
+  }
+
+  .copy {
+    align-self: center;
+    gap: clamp(16px, 2.6svh, 26px);
+  }
+
+  .counter {
+    display: block;
+  }
+
+  .label {
+    margin-top: 12px;
+    font-size: calc(clamp(30px, 2.8vw, 46px) * var(--display-scale));
+  }
+
+  .caption {
+    margin-top: 10px;
+    font-size: clamp(15px, 1.2vw, 18px);
+  }
+
+  .legend {
+    font-size: 12px;
+  }
+
+  .rail {
+    gap: clamp(16px, 2.4vw, 40px);
+    /* Clear of the floating Lab button. */
+    padding-right: 128px;
+  }
+
+  .railItem {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 12px;
+    padding-top: 12px;
+  }
+
+  .railTrack {
+    margin-bottom: 12px;
+  }
+
+  .railValue {
+    font-size: calc(clamp(22px, 2vw, 30px) * var(--display-scale));
+  }
+
+  .railLabel {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .fact,
+  .legend,
+  .fact[data-active],
+  .legend[data-active] {
+    transform: none;
+    transition:
+      opacity 0.2s ease,
+      visibility 0s;
+  }
+
+  .hintDot::after,
+  .ticks,
+  .tip,
+  .tipIcon {
+    animation: none;
+  }
+
+  .figureText,
+  .railItem,
+  .dotInk {
+    transition: none;
+  }
+}

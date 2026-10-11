@@ -1,0 +1,83 @@
+{
+  "heading": "Baland gaplar emas, raqamlar.",
+  "summary": "Bu yerdagi har bir raqam portfoliomizdan sanalgan: bitta nuqta — bitta mahsulot. Hech narsa qoʻlda kiritilmagan yoki yaxlitlanmagan.",
+  "eyebrow": "Daʼvo emas, hisob",
+  "hintPointer": "Mahsulotni koʻrish uchun nuqta ustiga olib boring",
+  "hintTouch": "Mahsulotni koʻrish uchun nuqtaga teging",
+  "stirPointer": "Raqam ustida yurgizib, uni toʻzgʻiting. Qayta sanash uchun bosing.",
+  "stirTouch": "Changni toʻzgʻitish uchun teging. Qayta sanash uchun bosing.",
+  "recount": "Qayta sanash",
+  "recountLabel": "Qayta sanash: {fact}",
+  "railLabel": "Toʻrt raqam",
+  "liveOn": "{stores}da mavjud",
+  "listAnd": "{head} va {last}",
+  "facts": {
+    "built": {
+      "short": "Yaratilgan",
+      "label": "Yaratilgan mahsulotlar",
+      "spoken": "{value} ta mahsulot yaratilgan",
+      "caption": "Ilovalar, platformalar va servislar — har birining demo-videosi bor."
+    },
+    "platforms": {
+      "short": "iOS+Android",
+      "label": "iPhone va Androidʼda",
+      "spoken": "iPhone va Androidʼda {value} ta mahsulot",
+      "caption": "Har biri ikkala platforma uchun yaratilgan.",
+      "captionShared": "Har biri ikkalasida ham React Nativeʼdagi bitta umumiy koddan ishlaydi."
+    },
+    "abroad": {
+      "short": "Xorijda",
+      "label": "Xorijiy mijozlar uchun",
+      "spoken": "Xorijiy mijozlar uchun {value} ta mahsulot",
+      "caption": "Mijozlar: {countries}. Yana {international} ta xalqaro loyiha.",
+      "captionNoInternational": "Mijozlar: {countries}."
+    },
+    "industries": {
+      "short": "Sohalar",
+      "label": "Sohalar",
+      "spoken": "{value} ta soha",
+      "caption": "Tibbiyot va logistikadan robototexnika va davlat xizmatlarigacha."
+    }
+  },
+  "all": "Mahsulotlar",
+  "platformGroups": {
+    "both": "iOS + Android",
+    "ios": "Faqat iOS",
+    "android": "Faqat Android",
+    "other": "Veb va boshqalar"
+  },
+  "places": {
+    "uz": "Oʻzbekiston",
+    "us": "AQSH",
+    "ca": "Kanada",
+    "gb": "Buyuk Britaniya",
+    "nl": "Niderlandiya",
+    "au": "Avstraliya",
+    "international": "Xalqaro"
+  },
+  "placesInProse": {
+    "uz": "Oʻzbekiston",
+    "us": "AQSH",
+    "ca": "Kanada",
+    "gb": "Buyuk Britaniya",
+    "nl": "Niderlandiya",
+    "au": "Avstraliya",
+    "international": "bir nechta davlat"
+  },
+  "industries": {
+    "education": "Taʼlim",
+    "finance": "Moliya",
+    "mobility": "Transport",
+    "logistics": "Logistika",
+    "healthcare": "Tibbiyot",
+    "social": "Ijtimoiy tarmoqlar",
+    "events": "Tadbirlar",
+    "commerce": "Savdo",
+    "fashion": "Moda",
+    "government": "Davlat sektori",
+    "media": "Media va oʻyinlar",
+    "business": "Biznes vositalari",
+    "developer": "Dasturchilar uchun",
+    "robotics": "Robototexnika"
+  }
+}

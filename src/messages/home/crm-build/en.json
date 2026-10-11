@@ -1,0 +1,360 @@
+{
+  "heading": "Out of the spreadsheet.",
+  "summary": "Most teams run on one shared spreadsheet until it breaks. We turn it into an admin system built around how your team already works.",
+  "lead": "Most teams run on one shared spreadsheet until it breaks: four copies, the same client twice, a total nobody trusts. We turn it into an admin system built around how your team already works.",
+  "leadAction": "Scroll, and watch the file sort itself out.",
+  "leadActionStill": "Pick a step to see each part, starting with the file it replaces.",
+  "chapters": {
+    "sheet": {
+      "term": "The spreadsheet",
+      "text": "Where most businesses start. It works, until two people edit it at once."
+    },
+    "pipeline": {
+      "term": "Pipeline",
+      "text": "Every deal on one board. Move one to the next stage and the totals follow."
+    },
+    "roles": {
+      "term": "Roles",
+      "text": "The owner sees everything, sales sees their own deals, support sees only what it needs."
+    },
+    "automations": {
+      "term": "Automations",
+      "text": "A new lead alerts the right manager in seconds and becomes a task. Nobody copies anything by hand."
+    },
+    "reports": {
+      "term": "Reports",
+      "text": "Live numbers from the same data, instead of a spreadsheet someone rebuilds every Friday."
+    },
+    "integrations": {
+      "term": "Integrations",
+      "text": "Accounting, payments, messengers and email, connected so the data moves by itself."
+    }
+  },
+  "chapterAction": "Show “{term}” in the demo",
+  "railLabel": "CRM demo steps",
+  "demoLabel": "Interactive demo of a CRM for a furniture showroom",
+  "cursor": {
+    "show": "Show",
+    "drag": "Drag"
+  },
+  "timeline": {
+    "label": "Typical first version",
+    "value": "{min}–{max} weeks",
+    "note": "From the first call to your team signing in. Your quote sets the real dates."
+  },
+  "deliverTitle": "What you get",
+  "deliver": {
+    "admin": "A web admin your team signs into, on a laptop or a phone",
+    "roles": "Roles and permissions set per person",
+    "import": "Your current spreadsheet imported, duplicates merged",
+    "process": "The automations, reports and integrations your process needs, and nothing just for show",
+    "ownership": "The code and the data, yours"
+  },
+  "shipped": "Admin panels and dashboards we’ve built include {list}.",
+  "shippedWork": {
+    "hamd": "a food-delivery operator panel",
+    "stadium-people": "an event-staffing admin",
+    "novalinq-eld": "a fleet-compliance dashboard with reports",
+    "brand-guard": "a brand-monitoring dashboard with team roles",
+    "hello-box": "the admin behind a Telegram-bot shop"
+  },
+  "and": "and",
+  "next": "Next could be yours.",
+  "cta": "Get a free price range",
+  "replay": "Back to the spreadsheet",
+  "money": {
+    "som": "{amount} so‘m",
+    "millions": "{amount} mln"
+  },
+  "app": {
+    "business": "Your Showroom",
+    "businessMark": "YS",
+    "product": "CRM",
+    "search": "Search clients, deals…",
+    "nav": {
+      "pipeline": "Pipeline",
+      "roles": "Team & roles",
+      "automations": "Automations",
+      "reports": "Reports",
+      "integrations": "Integrations",
+      "settings": "Settings"
+    },
+    "navShort": {
+      "pipeline": "Deals",
+      "roles": "Team",
+      "automations": "Flows",
+      "reports": "Reports",
+      "integrations": "Apps"
+    },
+    "locked": "No access for this role",
+    "imported": "{deals, plural, one {# deal} other {# deals}} imported · {merged, plural, one {# duplicate} other {# duplicates}} merged",
+    "notifications": "{count, plural, =0 {No new notifications} one {# new notification} other {# new notifications}}"
+  },
+  "sheet": {
+    "file": "leads_FINAL_v3 ({manager}).xlsx",
+    "tabs": {
+      "first": "Leads",
+      "second": "Leads_final",
+      "current": "Leads_final_v3 ({manager})",
+      "copy": "Copy of Leads (2)"
+    },
+    "columns": {
+      "client": "Client",
+      "phone": "Phone",
+      "item": "Item",
+      "amount": "Amount",
+      "status": "Status",
+      "manager": "Manager"
+    },
+    "rows": {
+      "r1": {
+        "item": "Corner sofa “Milano”",
+        "status": "deposit??"
+      },
+      "r2": {
+        "item": "Kitchen 3.2m",
+        "status": "CALL BACK!!!"
+      },
+      "r3": {
+        "item": "Wardrobe built-in",
+        "status": "WON"
+      },
+      "r4": {
+        "item": "corner sofa",
+        "status": ""
+      },
+      "r5": {
+        "item": "Dining table+6 chairs",
+        "status": "measure tue?"
+      },
+      "r6": {
+        "item": "Office desks x12",
+        "status": "quote sent"
+      },
+      "r7": {
+        "item": "Bed + 2 nightstands",
+        "status": "paid half"
+      },
+      "r8": {
+        "item": "kitchen",
+        "status": "???"
+      }
+    },
+    "total": "TOTAL",
+    "flags": {
+      "duplicate": "Same client, typed twice",
+      "formula": "Broken formula",
+      "tabs": "Four copies. Which one is current?"
+    },
+    "label": "A messy shared spreadsheet of furniture orders: duplicate clients, mixed number formats, a broken total and four copies of the file."
+  },
+  "deals": {
+    "jasur": "Kitchen set, 3.2 m",
+    "bekzod": "Dining table + 6 chairs",
+    "dilnoza": "Corner sofa",
+    "nodira": "Office desks ×12",
+    "malika": "Built-in wardrobe",
+    "timur": "Bed + 2 nightstands"
+  },
+  "stages": {
+    "new": "New",
+    "quote": "Quote sent",
+    "won": "Won"
+  },
+  "pipeline": {
+    "title": "Pipeline",
+    "hintTouch": "Hold a card to drag it, or tap to move it on",
+    "hintPointer": "Drag a card to another stage, or click to move it on",
+    "yourTurn": "Your turn",
+    "cardLabel": "{client}, {item}, {stage}.",
+    "cardAction": "Activate to move to “{next}”. Arrow keys move between stages.",
+    "cardActionWon": "Won. Arrow keys move between stages.",
+    "moved": "{client} moved to “{stage}”.",
+    "columnLabel": "{stage}: {count, plural, one {# deal} other {# deals}}, {total}"
+  },
+  "owner": {
+    "name": "You",
+    "initials": "YO"
+  },
+  "roles": {
+    "owner": {
+      "name": "Owner",
+      "view": "All deals"
+    },
+    "sales": {
+      "name": "Sales",
+      "view": "My deals"
+    },
+    "support": {
+      "name": "Support",
+      "view": "Clients"
+    },
+    "viewingAs": "Viewing as",
+    "permissions": "Permissions",
+    "permission": {
+      "amounts": "See amounts",
+      "edit": "Edit deals",
+      "export": "Export data",
+      "settings": "Settings"
+    },
+    "access": {
+      "yes": "Yes",
+      "own": "Own only",
+      "no": "No"
+    },
+    "hidden": "Hidden",
+    "readOnly": "Read-only",
+    "export": "Export",
+    "supportStage": {
+      "new": "Measuring",
+      "quote": "Waiting",
+      "won": "Delivery booked"
+    },
+    "switchLabel": "Switch the role you are viewing as",
+    "scope": {
+      "owner": "All {total} deals, every amount",
+      "sales": "{shown} of {total} deals: only {person}’s own",
+      "support": "All {total} clients, amounts hidden"
+    }
+  },
+  "automation": {
+    "title": "When a new lead arrives",
+    "ruleNote": "One rule, readable by anyone: when this happens, do that.",
+    "kickers": {
+      "when": "When",
+      "then": "Then",
+      "and": "And"
+    },
+    "lead": "New lead",
+    "task": "Task created",
+    "leadSources": "Website, Instagram or Google Ads",
+    "alertTitle": "Slack alert",
+    "alertBot": "#sales",
+    "notifyRule": "Message the manager the lead is assigned to",
+    "taskRule": "Create a call task, due in 15 minutes",
+    "message": "New lead: {client}, {item} ({source}). Assigned to {manager}.",
+    "taskTitle": "Call {client}",
+    "due": "Due in 15 min",
+    "button": "Send a test lead",
+    "running": "Running…",
+    "runs": "{count, plural, one {# run} other {# runs}} today",
+    "rulesTitle": "Rules",
+    "rulesCount": "{count} on",
+    "rules": {
+      "lead": {
+        "when": "New lead",
+        "then": "Alert the manager, create a task"
+      },
+      "deposit": {
+        "when": "Deposit paid",
+        "then": "Move to Won, send a receipt"
+      },
+      "noReply": {
+        "when": "No reply for 2 days",
+        "then": "Remind the manager"
+      },
+      "delivery": {
+        "when": "Delivery tomorrow",
+        "then": "Text the client the time"
+      }
+    },
+    "logTitle": "Run log",
+    "log": {
+      "lead": "{client}: {manager} alerted, call task created",
+      "deposit": "{client} moved to Won, receipt sent",
+      "delivery": "{client} got a text with the time",
+      "noReply": "{manager} reminded about {client}"
+    },
+    "leads": {
+      "kitchen": {
+        "item": "Kitchen set",
+        "source": "Website form"
+      },
+      "wardrobe": {
+        "item": "Sliding wardrobe",
+        "source": "Instagram"
+      },
+      "sofa": {
+        "item": "Sofa bed",
+        "source": "Google Ads"
+      }
+    }
+  },
+  "reports": {
+    "sample": "Sample data",
+    "kpis": {
+      "won": "Won this month",
+      "open": "Open deals",
+      "rate": "Win rate"
+    },
+    "chartTitle": {
+      "revenue": "Revenue by month",
+      "deals": "Deals won by month"
+    },
+    "metric": {
+      "revenue": "Revenue",
+      "deals": "Deals"
+    },
+    "sourcesTitle": "Where leads come from",
+    "liveNote": "This month updates as you move cards on the board.",
+    "months": {
+      "may": "May",
+      "jun": "Jun",
+      "jul": "Jul",
+      "aug": "Aug",
+      "sep": "Sep",
+      "oct": "Oct"
+    },
+    "sources": {
+      "instagram": "Instagram",
+      "website": "Website",
+      "channel": "Google Ads",
+      "walkIn": "Walk-in",
+      "referral": "Referral"
+    }
+  },
+  "integrations": {
+    "hub": "Your CRM",
+    "title": "Connected tools",
+    "count": "{on}/{total} on",
+    "note": "Connected the official way. If a tool doesn’t allow it, we tell you before we start.",
+    "activity": "Activity",
+    "live": "Live",
+    "idle": "Connect a tool to see data move.",
+    "connect": "Connect {name}",
+    "disconnect": "Disconnect {name}",
+    "connectors": {
+      "sheets": {
+        "role": "Import & export",
+        "first": "Old spreadsheet imported: {count, plural, one {# deal} other {# deals}}",
+        "then": "Weekly export saved to Google Sheets"
+      },
+      "messenger": {
+        "role": "Team alerts",
+        "first": "New lead posted in #sales: {client}",
+        "then": "Daily pipeline summary posted in #sales"
+      },
+      "payments": {
+        "role": "Payments",
+        "first": "Deposit received from {client}: {amount}",
+        "then": "Payment link sent to {client}"
+      },
+      "accounting": {
+        "role": "Accounting",
+        "first": "Invoice for {client} sent to {tool}",
+        "then": "Payment from {client} synced from {tool}"
+      },
+      "email": {
+        "name": "Email",
+        "role": "Quotes & receipts",
+        "first": "Quote emailed to {client}",
+        "then": "Receipt emailed to {client}"
+      },
+      "sms": {
+        "role": "Reminders",
+        "first": "Reminder sent: delivery tomorrow, {time}",
+        "then": "Measuring visit confirmed: {client}"
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "heading": "{projects} ta haqiqiy mahsulot.",
+  "headingRest": "ta haqiqiy mahsulot.",
+  "summary": "Har bir plitka — biz ishga tushirgan mahsulotning demo-videosi. Ulardan {us} tasi AQSH bozori uchun yaratilgan, {liveInStore} tasi App Store va Google Playʼda.",
+  "hintPointer": "Devorni torting. Ochish uchun plitkani bosing.",
+  "hintTouch": "Devorni suring. Ochish uchun plitkaga teging.",
+  "cursorDrag": "Torting",
+  "cursorOpen": "Ochish",
+  "wallLabel": "Loyihalar devori",
+  "wallInstructions": "Strelka tugmalari loyihalar orasida yuradi, devor ham ergashadi. Enter loyihani ochadi. Sichqoncha yoki barmoq bilan devorni tortish mumkin.",
+  "listLabel": "Barcha loyihalar",
+  "showList": "Roʻyxat koʻrinishida",
+  "showWall": "Devorga qaytish",
+  "filtersLabel": "Loyihalar filtri",
+  "filterChipLabel": "{filter}, {status}. Filtrlarni ochish",
+  "filters": {
+    "all": "Barchasi",
+    "mobile": "Mobil",
+    "web": "Veb",
+    "ai": "AI va botlar"
+  },
+  "status": {
+    "all": "{count} ta loyiha",
+    "mobile": "{count} ta mobil ilova",
+    "web": "{count} ta veb-mahsulot",
+    "ai": "AI yoki boti bor {count} ta mahsulot"
+  },
+  "cardLabel": "{name}, {category}, {market}. Demo-videoni ochish",
+  "lightbox": {
+    "category": "Yoʻnalish",
+    "market": "Bozor",
+    "platforms": "Platformalar",
+    "website": "Sayt",
+    "stack": "Texnologiyalar",
+    "close": "Yopish",
+    "previous": "Oldingi loyiha",
+    "next": "Keyingi loyiha"
+  }
+}

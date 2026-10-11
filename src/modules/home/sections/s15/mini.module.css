@@ -1,0 +1,173 @@
+/* MiniApp: the demo app as blocks, positioned in % of whatever box holds it. */
+
+.mini {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--a-bg);
+}
+
+.mini > span,
+.mini i {
+  position: absolute;
+  display: block;
+}
+
+.header {
+  top: 9%;
+  left: 8%;
+  width: 38%;
+  height: 4%;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--a-fg) 70%, transparent);
+}
+
+.headerDot {
+  top: 7.5%;
+  right: 8%;
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 30%;
+  background: var(--a-raised);
+}
+
+.search {
+  top: 17%;
+  right: 8%;
+  left: 8%;
+  height: 6%;
+  border-radius: 99px;
+  background: var(--a-surface);
+}
+
+.promo {
+  top: 26%;
+  right: 8%;
+  left: 8%;
+  height: 13%;
+  border-radius: 8%/20%;
+  background: linear-gradient(115deg, var(--accent) 45%, color-mix(in srgb, var(--accent) 70%, var(--accent-2)));
+}
+
+.cats {
+  top: 42%;
+  right: 8%;
+  left: 8%;
+  height: 8%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cats i {
+  position: static;
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 30%;
+  background: var(--a-surface);
+}
+
+.cards {
+  top: 54%;
+  right: 8%;
+  left: 8%;
+  height: 30%;
+  display: flex;
+  gap: 7%;
+}
+
+.cards i {
+  position: relative;
+  flex: 1;
+  border-radius: 10%/8%;
+  background: var(--a-surface);
+}
+
+.cards i::before {
+  content: '';
+  position: absolute;
+  top: 7%;
+  right: 7%;
+  left: 7%;
+  height: 52%;
+  border-radius: 10%;
+  background: color-mix(in srgb, var(--accent-2) 40%, var(--a-raised));
+}
+
+.cards i::after {
+  content: '';
+  position: absolute;
+  right: 8%;
+  bottom: 7%;
+  width: 26%;
+  aspect-ratio: 1;
+  border-radius: 30%;
+  background: var(--accent);
+}
+
+.tabs {
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 10%;
+  border-top: 1px solid var(--a-line);
+  background: var(--a-surface);
+}
+
+/* Orders tab */
+
+.map {
+  top: 8%;
+  right: 6%;
+  left: 6%;
+  height: 50%;
+  overflow: hidden;
+  border-radius: 8%;
+  background:
+    linear-gradient(90deg, transparent 47%, color-mix(in srgb, var(--a-fg) 10%, transparent) 47% 53%, transparent 53%) 0 0 / 34% 100%,
+    linear-gradient(transparent 47%, color-mix(in srgb, var(--a-fg) 10%, transparent) 47% 53%, transparent 53%) 0 0 / 100% 30%,
+    var(--a-surface);
+}
+
+.route {
+  top: 22%;
+  left: 18%;
+  width: 46%;
+  height: 4%;
+  background: var(--accent);
+}
+
+.routeDown {
+  top: 22%;
+  left: 60%;
+  width: 4%;
+  height: 46%;
+  background: var(--accent);
+}
+
+.pin {
+  top: 62%;
+  left: 56%;
+  width: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.sheet {
+  top: 62%;
+  right: 8%;
+  left: 8%;
+  height: 4%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent) 66%, var(--a-raised) 66%);
+}
+
+.sheetRow {
+  top: 71%;
+  right: 6%;
+  left: 6%;
+  height: 12%;
+  border-radius: 10%/30%;
+  background: var(--a-surface);
+}

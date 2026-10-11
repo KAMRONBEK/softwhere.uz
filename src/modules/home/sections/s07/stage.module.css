@@ -1,0 +1,409 @@
+/*
+ * The 3D set. 1em = the phone unit (--pu, set on the camera): the phone is
+ * 23em × 48em, so the phone, its satellites (admin.module.css on phones,
+ * board.module.css on desktop) and the route (Route.tsx) are all placed in
+ * the same units and scale as one object. The camera carries the
+ * perspective, so the tilt planes inside it render with real depth.
+ *
+ * Phones: the phone is the screen (≈82vw, never taller than the small
+ * viewport) and the café's card rises beneath it on cue.
+ * Desktop: a 51em-wide set (phone + café tablet) sized to the stage
+ * column (container units); the camera starts nudged toward the phone and
+ * settles on the pair once the first order is paid.
+ */
+
+.stage {
+  position: relative;
+  grid-area: stage;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  container-type: inline-size;
+}
+
+/* ---------- camera ---------- */
+
+.camera {
+  --pu: clamp(9px, min(calc((100svh - 56px) / 48), calc(82vw / 23)), 15.5px);
+
+  position: relative;
+  flex: none;
+  width: 23em;
+  height: 48em;
+  /* Room for the hint above the phone. */
+  margin-top: 3.9em;
+  font-size: var(--pu);
+  perspective: 105em;
+  perspective-origin: 11.5em 22em;
+  transition: transform 1100ms var(--ease-camera);
+}
+
+/* ---------- hint (rides with the camera, centred over the phone) ---------- */
+
+.hint {
+  position: absolute;
+  bottom: calc(100% + 1.1em);
+  left: 11.5em;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 9px 16px 9px 13px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-2) 78%, transparent);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  transition:
+    opacity 420ms ease,
+    transform 420ms var(--ease-out);
+}
+
+.hintDot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hintDot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: beacon 1.8s var(--ease-out) infinite;
+}
+
+.hint[data-hide] {
+  opacity: 0;
+  transform: translate(-50%, 6px);
+}
+
+/* ---------- tilt planes ---------- */
+
+.tiltScroll,
+.tiltPointer,
+.entrance {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* Pivot on the phone, wherever the set is framed. */
+  transform-origin: 11.5em 24em;
+  /* Wrapper planes would win 3D hit-testing over the leaning phone. */
+  pointer-events: none;
+}
+
+/* Static pose: also the reduced-motion and low-tier look. */
+.tiltScroll {
+  transform: rotateX(6deg) rotateY(-9deg) rotateZ(0.6deg);
+}
+
+.phoneWrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 23em;
+  height: 48em;
+  transform-style: preserve-3d;
+  transform-origin: 50% 0;
+  /* Returning to full size waits for the "ready" signal to travel back. */
+  transition: transform 900ms var(--ease-camera) 720ms;
+}
+
+.floor {
+  position: absolute;
+  top: 46.2em;
+  left: 2em;
+  width: 19em;
+  height: 4.5em;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--floor), transparent);
+  pointer-events: none;
+  transition: opacity 600ms ease 700ms;
+}
+
+/* ---------- order confirmed: rings off the phone, a shock ring, a floor ripple ---------- */
+
+.pulse {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(-1.2em);
+  pointer-events: none;
+}
+
+.pulse i {
+  position: absolute;
+  inset: 0;
+  border: 0.16em solid var(--accent);
+  border-radius: 3.75em;
+  box-shadow: 0 0 1.6em -0.2em var(--glow);
+  opacity: 0;
+  animation: ring 1.9s var(--ease-out) calc(var(--i) * 230ms) both;
+}
+
+/* A soft ring that sweeps out through the whole set from behind the phone. */
+.shock {
+  position: absolute;
+  top: 24em;
+  left: 11.5em;
+  width: 30em;
+  height: 30em;
+  margin: -15em 0 0 -15em;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    transparent 58%,
+    color-mix(in srgb, var(--accent) 34%, transparent) 84%,
+    color-mix(in srgb, var(--accent) 10%, transparent) 94%,
+    transparent 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+  animation: shock 1.7s cubic-bezier(0.16, 0.8, 0.3, 1) 120ms both;
+}
+
+.ripple {
+  position: absolute;
+  inset: 0;
+}
+
+.ripple i {
+  position: absolute;
+  inset: 0;
+  border: 0.14em solid var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ripple 1.8s var(--ease-out) calc(120ms + var(--i) * 200ms) both;
+}
+
+/* ---------- the route between chat and café ---------- */
+
+.route {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+.stage:not([data-split]) .route {
+  opacity: 0;
+}
+
+.routeLine,
+.routeHalo,
+.routeComet {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0;
+}
+
+.routeLine {
+  stroke: color-mix(in srgb, var(--accent) 70%, var(--fg));
+  stroke-width: 0.11;
+  stroke-dasharray: 0.3 0.42;
+}
+
+.routeHalo {
+  stroke: var(--accent);
+  stroke-opacity: 0.22;
+  stroke-width: 0.62;
+}
+
+.routeComet {
+  stroke: var(--accent);
+  stroke-width: 0.17;
+}
+
+/* The order itself in flight: a ticket that lifts off the glass toward the
+   camera and banks along the route (Route.tsx drives x/y/z/rotation). */
+.packet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  column-gap: 0.5em;
+  padding: 0.5em 0.85em 0.5em 0.55em;
+  border-radius: 0.8em;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow:
+    0 0.9em 1.8em -0.6em var(--glow),
+    0 0.3em 0.8em -0.3em var(--tg-shadow);
+  font-family: var(--font-mono);
+  line-height: 1;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.packetBadge {
+  display: grid;
+  place-items: center;
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  background: var(--on-accent);
+  color: var(--accent);
+}
+
+.packetIcon,
+.packetBadge svg {
+  width: 1em;
+  height: 1em;
+}
+
+.packetText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22em;
+}
+
+.packetTitle {
+  font-size: 0.86em;
+  font-weight: 700;
+}
+
+.packetSub {
+  font-family: var(--font-body);
+  font-size: 0.64em;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* ---------- phones: the phone steps back while the café has the order ---------- */
+
+@media (max-width: 899px) {
+  .stage[data-admin] .phoneWrap {
+    transform: translateY(0.3em) scale(0.7);
+    transition-delay: 0ms;
+  }
+
+  .stage[data-admin] .floor {
+    opacity: 0;
+    transition-delay: 0ms;
+  }
+}
+
+/* ---------- desktop: phone + café tablet beside the copy ---------- */
+
+@media (min-width: 900px) {
+  /* The set (hint + phone, about 52 phone units tall) is pinned at the
+     viewport's centre while the copy column scrolls past it: sticky inside
+     its own grid area, so it never leaves the section. The offset assumes
+     the height-bound unit (the usual case on desktop). */
+  .stage {
+    position: sticky;
+    top: max(12px, calc(50svh - 26 * min(calc((100svh - 170px) / 48), 17.5px)));
+    align-self: start;
+  }
+
+  .camera {
+    --pu: clamp(9.5px, min(calc((100svh - 170px) / 48), calc(100cqi / 51)), 17.5px);
+
+    width: 51em;
+    perspective: 120em;
+    perspective-origin: 24em 22em;
+    /* Nudged toward the phone until the café's screen wakes. */
+    transform: translateX(2.6em);
+  }
+
+  .stage[data-split] .camera {
+    transform: none;
+  }
+
+  .tiltScroll {
+    transform: rotateX(6deg) rotateY(-14deg) rotateZ(0.8deg);
+  }
+}
+
+@keyframes ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.24, 1.12);
+    opacity: 0;
+  }
+}
+
+@keyframes shock {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.45);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
+}
+
+@keyframes beacon {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: no trips, so the link is simply drawn while it matters. */
+@media (prefers-reduced-motion: reduce) and (min-width: 900px) {
+  .stage[data-split] .routeLine {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 899px) {
+  .stage[data-admin] .routeLine {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hintDot::after {
+    animation: none;
+    opacity: 0;
+  }
+
+  .camera,
+  .phoneWrap,
+  .floor,
+  .hint,
+  .route {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+}

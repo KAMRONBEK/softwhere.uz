@@ -1,0 +1,67 @@
+{
+  "heading": "The site builds itself.",
+  "summary": "A real product we shipped rebuilds itself, from wireframe to launch, with your name on it.",
+  "intro": "Scroll to rebuild {kind} we shipped, from wireframe to launch, with your name on it.",
+  "introBranded": "Scroll to rebuild {kind} we shipped, from wireframe to launch.",
+  "stagesLabel": "Stages",
+  "stages": {
+    "design": {
+      "label": "Design",
+      "text": "Wireframes first. Every block snaps to the grid."
+    },
+    "frontend": {
+      "label": "Frontend",
+      "text": "Type, color and the real product fill the layout."
+    },
+    "backend": {
+      "label": "Backend & AI",
+      "text": "The server loads the lesson. The AI tutor answers from your own PDF."
+    },
+    "launch": {
+      "label": "Launch",
+      "text": "Flattened, framed and deployed. Live on your own domain."
+    }
+  },
+  "launchBranded": "Flattened, framed and deployed. Live on its own domain.",
+  "illustration": "A website assembling itself: wireframes snap to a grid, fill with the design of {kind}, load live data while an AI tutor answers, then flatten into a browser at the live address and play the product walkthrough.",
+  "site": {
+    "brand": "Your School",
+    "url": "yourdomain.com",
+    "links": {
+      "how": "How it works",
+      "schools": "For schools",
+      "pricing": "Pricing"
+    },
+    "navCta": "Start free",
+    "badge": "Grounded AI tutor",
+    "badgeLanguages": "Grounded AI tutor · {languages}",
+    "headline": "Turn anything into a lesson you actually finish.",
+    "sub": "Drop in a PDF, slide deck or YouTube link. Get a clean summary, a podcast, quizzes and an AI tutor that answers from your material.",
+    "ctaPrimary": "Start learning free",
+    "ctaSecondary": "For tutors & schools",
+    "lesson": {
+      "title": "Organic Chemistry – Ch.4",
+      "meta": "{kind} · <pageCount>{pages}</pageCount> {pages, plural, one {page} other {pages}} · <minuteCount>{minutes}</minuteCount> min read",
+      "pending": "Processing",
+      "ready": "Ready",
+      "rows": {
+        "summary": "Summary & key points",
+        "podcast": "Podcast episode · <count>{time}</count>",
+        "quiz": "Quiz · <count>{questions}</count> {questions, plural, one {question} other {questions}}"
+      },
+      "mastery": "Mastery"
+    },
+    "tutor": {
+      "name": "AI Tutor",
+      "question": "How do I solve problem 1 with a Venn diagram?",
+      "answer": "18 play basketball and 20 volleyball, that is 38, but only 30 kids took part. So 38 − 30 = 8 kids play both.",
+      "source": "Venn Diagrams – Part 2 · p.1"
+    },
+    "video": "Product tour",
+    "code": {
+      "idle": "idle",
+      "live": "streaming"
+    },
+    "blueprint": "{columns, plural, one {# column} other {# columns}} · {gutter}px gutter"
+  }
+}

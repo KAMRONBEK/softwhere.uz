@@ -1,0 +1,264 @@
+/*
+ * Reserved section heights (the registry's `minHeight` values that cannot be a
+ * single CSS length). The shell applies them before a section mounts and keeps
+ * them as its floor afterwards, so they must never exceed the real height (or
+ * the section gets a blank tail) and should come close to it (or a section
+ * mounting above the viewport after a jump nudges the page).
+ *
+ * Content-height sections were measured in all four styles at 360×740,
+ * 390×844, 844×390, 820×1180, 1024×768, 1280×720, 1440×900 and 1920×1080 and
+ * fitted from below (style A, the shortest). Scroll stories with a fixed
+ * height use plain svh lengths in registry.ts.
+ */
+
+[data-lab-root] {
+  /* 02 · see the per-style block below. */
+  --lab-h-manifesto: 100svh;
+  /* 07 · phone stacked above the copy below 900px. */
+  --lab-h-telegram: max(100svh, calc(1565px + 38.3svh - 62vw));
+  /* 08–11 · the "how we build" chapter, fitted from below on 2026-10-10 (see the 08–11 block).
+     08 · intro + a 392.5svh track (STEP_UNIT_SVH 45, s15/copy.ts) + outro, refitted 2026-10-11. */
+  --lab-h-mobile-build: calc(392.5svh + max(600px, 838px - 12.4vw));
+  /* 09 · the root is 420svh; intro, track and outro fit inside it at every size measured. */
+  --lab-h-web-build: 420svh;
+  /* 10 · content height: files, index map and chat stacked below 760px. */
+  --lab-h-rag-build: max(100svh, 2260px);
+  /* 11 · intro + a 400svh track (s18/story.ts SCROLL_SCREENS) + outro. */
+  --lab-crm-rest: max(755px, 1524px - 113.6vw);
+  --lab-h-crm-build: calc(400svh + var(--lab-crm-rest));
+  /* 17 · the physics tower (copy, picker and arena) + the closed toolbox drawer; refitted 2026-10-11
+     in all four styles from 320 to 2560px wide (the drawer opens below the reservation, never into it). */
+  --lab-h-stack-physics: calc(100svh + max(530px, 900px - 100vw));
+  /* 12 · idea, network and plan stacked on phones (steps below, see the 12 block). */
+  --lab-h-ai-demo: max(100svh, 1870px);
+  /* 12 with the real AI brief in its slot (the idle composer; see the 12-slot block). */
+  --lab-h-ai-demo-slot: max(100svh, 1000px);
+  /* 18 · 120svh warp track + the contact panel (taller than a phone screen). */
+  --lab-h-finale: calc(120svh + max(100svh, calc(995px - 15vw)));
+  /* 13 · the wall is pinned for a viewport of scroll (S09WorkWall: 200svh incl. a 64px tail). */
+  --lab-h-work-wall: 200svh;
+  /* 05 · a 250svh scroll story (150svh still frame under reduced motion, below). */
+  --lab-h-code-to-ui: 250svh;
+}
+
+/*
+ * 02 · Manifesto: one poster, never taller than the screen. Each style's
+ * natural height (type fitted to the width, measured from below at
+ * 320–2560px) is capped at 100svh; past the cap useFitLines scales the type
+ * down to fit, so the section is exactly this tall in every style. The pad
+ * term must match the root padding in s02/manifesto.module.css.
+ */
+[data-lab-root] {
+  --lab-h-manifesto-pad: calc(env(safe-area-inset-top, 0px) + clamp(64px, 9svh, 116px) + clamp(28px, 5svh, 72px));
+}
+
+[data-lab-root][data-style='A'] {
+  --lab-h-manifesto: max(560px, min(100svh, calc(36vw + 40px + var(--lab-h-manifesto-pad))));
+}
+
+[data-lab-root][data-style='B'] {
+  --lab-h-manifesto: max(560px, min(100svh, calc(63vw + 44px + var(--lab-h-manifesto-pad))));
+}
+
+[data-lab-root][data-style='C'] {
+  --lab-h-manifesto: max(560px, min(100svh, calc(53vw + 40px + var(--lab-h-manifesto-pad))));
+}
+
+[data-lab-root][data-style='D'] {
+  --lab-h-manifesto: max(560px, min(100svh, calc(60vw + 40px + var(--lab-h-manifesto-pad))));
+}
+
+/* Narrow: every line breaks onto two rows. */
+@media (max-width: 719px) {
+  [data-lab-root][data-style='A'] {
+    --lab-h-manifesto: max(560px, min(100svh, calc(119vw + 42px + var(--lab-h-manifesto-pad))));
+  }
+
+  [data-lab-root][data-style='B'] {
+    --lab-h-manifesto: max(560px, min(100svh, calc(231vw + 38px + var(--lab-h-manifesto-pad))));
+  }
+
+  [data-lab-root][data-style='C'] {
+    --lab-h-manifesto: max(560px, min(100svh, calc(197vw + 34px + var(--lab-h-manifesto-pad))));
+  }
+
+  [data-lab-root][data-style='D'] {
+    --lab-h-manifesto: max(560px, min(100svh, calc(231vw + 33px + var(--lab-h-manifesto-pad))));
+  }
+}
+
+@media (min-width: 861px) {
+  [data-lab-root] {
+    --lab-h-finale: 220svh;
+  }
+}
+
+@media (min-width: 900px) {
+  [data-lab-root] {
+    --lab-h-telegram: max(100svh, calc(1227px - 23.85vw));
+  }
+}
+
+/* 08–11 and 17, measured in all four styles at 320–2560px wide (phones, tablets, short laptops
+   such as 1366×657, landscape phones) and fitted from below: the intro/outro (or toolbox) part
+   in px/vw, the scroll track in svh. Breakpoints follow each section's own CSS. */
+@media (min-width: 600px) {
+  [data-lab-root] {
+    --lab-h-stack-physics: max(calc(100svh + 210px), 1200px);
+  }
+}
+
+@media (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: calc(392.5svh + 600px);
+  }
+}
+
+@media (min-width: 760px) {
+  [data-lab-root] {
+    --lab-h-rag-build: max(100svh, 1745px);
+  }
+}
+
+@media (min-width: 900px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: calc(392.5svh + 585px);
+    --lab-crm-rest: max(620px, 1020px - 32vw);
+    --lab-h-stack-physics: calc(100svh + 200px);
+  }
+}
+
+@media (min-width: 1100px) {
+  [data-lab-root] {
+    --lab-h-rag-build: max(100svh, 1220px);
+  }
+}
+
+/* Reduced motion: 08, 09 and 11 drop their scroll tracks (the phone beside every step; the
+   static site; the finished admin in a max(640px, min(100svh, 900px)) window); 10 and 17 keep
+   their heights. */
+@media (prefers-reduced-motion: reduce) {
+  [data-lab-root] {
+    --lab-h-mobile-build: 2390px;
+    --lab-h-crm-build: calc(max(640px, min(100svh, 900px)) + var(--lab-crm-rest));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 600px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: 2330px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: 1660px;
+  }
+}
+
+/* 09 · reduced motion, measured 2026-10-11 in all four styles at 360×740–1920×1080, fitted from below. */
+@media (prefers-reduced-motion: reduce) {
+  [data-lab-root] {
+    --lab-h-web-build: calc(min(74svh, 640px) + 2490px - 98vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-web-build: 1450px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 900px) {
+  [data-lab-root] {
+    --lab-h-web-build: max(1700px, 2660px - 66vw);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 900px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: 1645px;
+  }
+}
+
+/* 12 · ai-demo, fitted from below across the four styles: the plan's screens move beside its
+   text from 600px, the idea and the network share a row from 768px, sit beside the plan from
+   1024px, and the header goes side by side from 1200px.
+   12-slot · the real AI brief (LabShell picks --lab-h-ai-demo-slot when the page fills the
+   'ai-demo' slot): header, flow band and the idle compact composer (with the daily-allowance
+   line), measured in all four styles and the three locales at 320–2560px (2026-10-10, again
+   after the one-plan-a-day change) and fitted from below — its results grow the section past
+   the floor. */
+@media (min-width: 600px) {
+  [data-lab-root] {
+    --lab-h-ai-demo: max(100svh, 1680px);
+    --lab-h-ai-demo-slot: max(100svh, 1005px);
+  }
+}
+
+@media (min-width: 768px) {
+  [data-lab-root] {
+    --lab-h-ai-demo: max(100svh, 1480px);
+    --lab-h-ai-demo-slot: max(100svh, 1000px);
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-lab-root] {
+    --lab-h-ai-demo: max(100svh, 1200px);
+    --lab-h-ai-demo-slot: max(100svh, 975px);
+  }
+}
+
+@media (min-width: 1200px) {
+  [data-lab-root] {
+    --lab-h-ai-demo: max(100svh, min(1150px, calc(940px + 11vw)));
+    --lab-h-ai-demo-slot: max(100svh, min(965px, calc(750px + 12.5vw)));
+  }
+}
+
+/* Reduced motion: the work wall is a justified gallery of all 54 projects (fitted from below:
+   its rows re-pack with the width, so the height steps; re-measured 2026-10-10 at 320–2560px,
+   where 429px and 1099px had come out shorter than their floors); code-to-ui is one still frame. */
+@media (prefers-reduced-motion: reduce) {
+  [data-lab-root] {
+    --lab-h-work-wall: max(100svh, 3000px);
+    --lab-h-code-to-ui: 150svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 1099px) {
+  [data-lab-root] {
+    --lab-h-work-wall: max(100svh, 3030px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 1920px) {
+  [data-lab-root] {
+    --lab-h-work-wall: max(100svh, 2150px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 760px) {
+  [data-lab-root] {
+    --lab-h-work-wall: 2100px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 599px) {
+  [data-lab-root] {
+    --lab-h-work-wall: 2700px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 429px) {
+  [data-lab-root] {
+    --lab-h-work-wall: 3360px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 374px) {
+  [data-lab-root] {
+    --lab-h-work-wall: 4600px;
+  }
+}

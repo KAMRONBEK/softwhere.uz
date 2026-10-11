@@ -1,0 +1,35 @@
+{
+  "heading": "Shipped, not mocked up.",
+  "summary": "Real screens from real products we built, on a laptop and a phone.",
+  "intro": "Real screens from real products: {laptopKind} on the laptop, {phoneApps, plural, one {# app} other {# apps}} on the phone. Scroll to run them.",
+  "stageLabel": "A phone running screens from {phoneApps, plural, one {# app} other {# apps}} we built, next to a laptop showing {laptopKind} we built",
+  "appPosition": "{index} of {total}:",
+  "apps": {
+    "tes-chat": {
+      "tag": "Messenger",
+      "oneLiner": "A real-time messenger with groups, channels and voice and video calls, on Android and the web."
+    },
+    "nexus": {
+      "tag": "Investing",
+      "oneLiner": "Crypto, themed bundles and fractional real estate in one portfolio, with KYC onboarding, for iOS and Android."
+    },
+    "rasta-market": {
+      "tag": "Auctions",
+      "oneLiner": "Shoppers vote on the lots all week, then bid live every Saturday night, with apps for sellers and an admin console that runs the show."
+    }
+  },
+  "outroTitle": "From first pixel to the store.",
+  "outroText": "{liveApps, plural, one {# app} other {# apps}} we built are live on the App Store or Google Play, across {markets}. One team designs, builds and ships them.",
+  "grab": {
+    "cursor": "Drag",
+    "mouse": {
+      "first": "Drag",
+      "second": "to spin"
+    },
+    "touch": {
+      "first": "Swipe",
+      "second": "to spin"
+    }
+  },
+  "listJoin": "{rest} and {last}"
+}

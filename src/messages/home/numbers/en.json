@@ -1,0 +1,83 @@
+{
+  "heading": "Numbers, not adjectives.",
+  "summary": "Every figure here is counted from our portfolio, one dot per product. Nothing is typed in or rounded up.",
+  "eyebrow": "Counted, not claimed",
+  "hintPointer": "Hover a dot to see the product",
+  "hintTouch": "Tap a dot to see the product",
+  "stirPointer": "Move over the number to stir it. Click to recount.",
+  "stirTouch": "Touch to stir the dust. Tap to recount.",
+  "recount": "Recount",
+  "recountLabel": "Recount: {fact}",
+  "railLabel": "The four numbers",
+  "liveOn": "Live on {stores}",
+  "listAnd": "{head} and {last}",
+  "facts": {
+    "built": {
+      "short": "Built",
+      "label": "Products built",
+      "spoken": "{value, plural, one {# product built} other {# products built}}",
+      "caption": "Apps, platforms and tools, each with a walkthrough video."
+    },
+    "platforms": {
+      "short": "iOS+Android",
+      "label": "On iPhone and Android",
+      "spoken": "{value, plural, one {# product} other {# products}} on iPhone and Android",
+      "caption": "Each one built for both platforms.",
+      "captionShared": "Each runs on both from one shared codebase, written in React Native."
+    },
+    "abroad": {
+      "short": "Abroad",
+      "label": "Built for clients abroad",
+      "spoken": "{value, plural, one {# product} other {# products}} built for clients abroad",
+      "caption": "Clients in {countries}, plus {international, plural, one {# international project} other {# international projects}}.",
+      "captionNoInternational": "Clients in {countries}."
+    },
+    "industries": {
+      "short": "Industries",
+      "label": "Industries",
+      "spoken": "{value, plural, one {# industry} other {# industries}}",
+      "caption": "From healthcare and logistics to robotics and civic tech."
+    }
+  },
+  "all": "Products",
+  "platformGroups": {
+    "both": "iOS + Android",
+    "ios": "iOS only",
+    "android": "Android only",
+    "other": "Web & other"
+  },
+  "places": {
+    "uz": "Uzbekistan",
+    "us": "US",
+    "ca": "Canada",
+    "gb": "UK",
+    "nl": "Netherlands",
+    "au": "Australia",
+    "international": "International"
+  },
+  "placesInProse": {
+    "uz": "Uzbekistan",
+    "us": "the US",
+    "ca": "Canada",
+    "gb": "the UK",
+    "nl": "the Netherlands",
+    "au": "Australia",
+    "international": "several countries"
+  },
+  "industries": {
+    "education": "Education",
+    "finance": "Finance",
+    "mobility": "Mobility",
+    "logistics": "Logistics",
+    "healthcare": "Healthcare",
+    "social": "Social",
+    "events": "Events",
+    "commerce": "Commerce",
+    "fashion": "Fashion",
+    "government": "Government",
+    "media": "Media & games",
+    "business": "Business tools",
+    "developer": "Developer tools",
+    "robotics": "Robotics"
+  }
+}

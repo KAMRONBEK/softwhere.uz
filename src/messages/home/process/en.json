@@ -1,0 +1,56 @@
+{
+  "heading": "No surprises, week by week",
+  "summary": "What you sign, when you pay, what you see each week and what happens after launch.",
+  "hint": "Scroll to follow the route",
+  "counterLabel": "Week",
+  "counterCaption": "of a typical first version",
+  "outro": "Then the next version starts.",
+  "footnote": "Weeks are for a typical first version of a mobile app; bigger products take longer.",
+  "stepsLabel": "Working with us",
+  "progressLabel": "Process stages",
+  "jumpTo": "Go to stage {number}: {title}",
+  "factsLabel": "{title}: what you get",
+  "sprintLabel": "2-week sprint",
+  "weekTag": "W{week}",
+  "when": {
+    "single": "Week {from}",
+    "range": "Weeks {from}–{to}",
+    "open": "Week {from}+"
+  },
+  "steps": {
+    "discover": {
+      "title": "Discover",
+      "summary": "We learn your business before we write any code."
+    },
+    "design": {
+      "title": "Design",
+      "summary": "You click through the app before it is built."
+    },
+    "build": {
+      "title": "Build",
+      "summary": "Two-week rounds of work, called sprints, and a new build to try every week."
+    },
+    "launch": {
+      "title": "Launch",
+      "summary": "Released to real users and watched closely."
+    },
+    "grow": {
+      "title": "Grow",
+      "summary": "Launch day is the start line, not the finish."
+    }
+  },
+  "facts": {
+    "nda": "An NDA first, if you want one",
+    "range": "A price range up front",
+    "spec": "Specification, written together",
+    "fixedPrice": "Then one fixed price",
+    "contract": "Scope and price in the contract",
+    "deposit": "A deposit, then pay per milestone",
+    "dailyUpdate": "A written update every day",
+    "changes": "Changes priced before they start",
+    "accounts": "Code, cloud and domains in your name",
+    "ownership": "The code is yours as you pay",
+    "bugFixes": "12 months of bug fixes included",
+    "support": "Then monthly support, if you want it"
+  }
+}

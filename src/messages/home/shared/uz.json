@@ -1,0 +1,85 @@
+{
+  "sectionError": "Bu boʻlim yuklanmadi. Sahifaning qolgan qismi ishlayapti.",
+  "quoteOpen": "«",
+  "quoteClose": "»",
+  "callCta": "Qoʻngʻiroqqa yozilish",
+  "replyPromise": "Bir ish kuni ichida javob beramiz.",
+  "exactPriceLine": "Aniq narxni tafsilotlarni kelishib, texnik topshiriqni birga yozganimizdan keyin aytamiz.",
+  "showcase": {
+    "tes-chat": {
+      "descriptor": "messenjer",
+      "screens": {
+        "chats": {
+          "caption": "Chatlar, guruhlar va kanallar bitta roʻyxatda",
+          "alt": "Tungi rejimdagi messenjer: oʻqilmagan xabarlar soni koʻrsatilgan chatlar roʻyxati"
+        },
+        "conversation": {
+          "caption": "Ovozli xabarlar, fayllar va javoblar",
+          "alt": "Tungi rejimdagi messenjer: ovozli xabar, fayl va javob bor yozishma"
+        },
+        "themes": {
+          "caption": "Rang mavzulari va urgʻu ranglari",
+          "alt": "Tungi rejimdagi messenjer: rang mavzulari va urgʻu ranglari bilan koʻrinish sozlamalari"
+        }
+      }
+    },
+    "talim-ai": {
+      "descriptor": "AI taʼlim platformasi",
+      "screens": {
+        "site": {
+          "caption": "Har qanday materialdan tayyor dars",
+          "alt": "Tungi rejimdagi AI taʼlim platformasi: bosh sahifa, uch qadam va imkoniyatlar"
+        }
+      }
+    },
+    "nexus": {
+      "descriptor": "investitsiya ilovasi",
+      "screens": {
+        "explore": {
+          "caption": "Toʻplamlar, koʻchmas mulk va oʻsish yetakchilari",
+          "alt": "Tungi rejimdagi investitsiya ilovasi: mashhur toʻplamlar va koʻchmas mulk bozorlari koʻrsatilgan «Explore» boʻlimi"
+        },
+        "markets": {
+          "caption": "Har bir kriptovalyutaning oʻz mini-grafigi",
+          "alt": "Tungi rejimdagi investitsiya ilovasi: narxlari va mini-grafiklari bilan kriptovalyutalar roʻyxati"
+        },
+        "portfolio": {
+          "caption": "Butun portfel bitta ekranda",
+          "alt": "Tungi rejimdagi investitsiya ilovasi: portfel balansi grafigi va aktivlar"
+        }
+      }
+    },
+    "rasta-market": {
+      "descriptor": "auksion marketpleysi",
+      "screens": {
+        "market": {
+          "caption": "Xaridorlar butun hafta lot tanlaydi",
+          "alt": "Tungi rejimdagi auksion marketpleysi: efirdagi lot va yangi mahsulotlar koʻrsatilgan vitrina"
+        },
+        "live": {
+          "caption": "Jonli savdo: har bir stavka taymerni yangidan boshlaydi",
+          "alt": "Tungi rejimdagi auksion marketpleysi: eng yuqori stavka va teskari sanoq koʻrsatilgan jonli auksion xonasi"
+        },
+        "product": {
+          "caption": "Hajmga qarab chegirmali zavod narxlari",
+          "alt": "Tungi rejimdagi auksion marketpleysi: xususiyatlari va hajmga qarab narxlari koʻrsatilgan mahsulot kartochkasi"
+        }
+      }
+    }
+  },
+  "footer": {
+    "label": "Sayt pastki qismi",
+    "servicesLabel": "Xizmatlar",
+    "web": "Veb-sayt yaratish",
+    "mobile": "Mobil ilova yaratish",
+    "bots": "Telegram bot yaratish",
+    "moreLabel": "Yana",
+    "blog": "Blog",
+    "estimator": "Narx kalkulyatori",
+    "privacy": "Maxfiylik siyosati",
+    "contactLabel": "Aloqa",
+    "address": "Toshkent, Oʻzbekiston",
+    "rights": "© {year} SoftWhere. Barcha huquqlar himoyalangan.",
+    "developedBy": "<link>kamuran.dev</link> tomonidan ishlab chiqilgan"
+  }
+}

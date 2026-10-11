@@ -1,0 +1,91 @@
+.section {
+  position: relative;
+  width: 100%;
+  /* Clip horizontal overflow from wide effects without creating a scroll
+     container, so position: sticky inside sections keeps working. */
+  overflow-x: clip;
+  isolation: isolate;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* Full-height rail so the badge can stick to the viewport top for the whole
+   length of tall (scroll-story) sections. The badge is the founder's label:
+   visitors (no ?panel=1) never see it, the header owns the top of the page. */
+.badgeRail {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  pointer-events: none;
+}
+
+:global([data-lab-root][data-panel]) .badgeRail {
+  display: block;
+}
+
+/* Under the visitor header while it shows (--lab-header-offset, LabShell). */
+.badge {
+  position: sticky;
+  top: calc(max(var(--lab-header-offset, 0px), env(safe-area-inset-top, 0px)) + 12px);
+  display: inline-block;
+  margin: calc(var(--lab-header-h, 0px) + 12px) 0 0 16px;
+  padding: 6px 10px;
+  border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  color: var(--fg);
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* Edge fades: a few eased stops so the gradient doesn't band on dark styles.
+   Above the section's content, below the badge; never catches input. */
+.fade {
+  --fade-ink: var(--bg);
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 39;
+  height: clamp(72px, 14svh, 160px);
+  pointer-events: none;
+}
+
+.fadeTop {
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--fade-ink) 0%,
+    color-mix(in srgb, var(--fade-ink) 80%, transparent) 22%,
+    color-mix(in srgb, var(--fade-ink) 48%, transparent) 50%,
+    color-mix(in srgb, var(--fade-ink) 16%, transparent) 78%,
+    transparent 100%
+  );
+}
+
+.fadeBottom {
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    var(--fade-ink) 0%,
+    color-mix(in srgb, var(--fade-ink) 80%, transparent) 22%,
+    color-mix(in srgb, var(--fade-ink) 48%, transparent) 50%,
+    color-mix(in srgb, var(--fade-ink) 16%, transparent) 78%,
+    transparent 100%
+  );
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

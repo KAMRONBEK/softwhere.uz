@@ -1,0 +1,363 @@
+/*
+ * The company's files: a strip across the top of the stage. Phones: five
+ * file tiles in a row. From 760px: five horizontal cards. The snippets pour
+ * down from the file icons into the map, so the icons are the flight origins
+ * ([data-doc-icon]).
+ */
+
+.library {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  color: var(--fg);
+}
+
+.count {
+  color: var(--muted);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- a file: tile on phones ---------- */
+
+.doc {
+  --kind: var(--accent);
+  --delay: calc(var(--i) * 120ms);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 9px 3px 8px;
+  border: 1px solid var(--rag-edge);
+  border-radius: var(--rag-radius-sm);
+  background: var(--rag-card);
+  text-align: center;
+  transition:
+    border-color 260ms ease,
+    background-color 260ms ease,
+    box-shadow 260ms ease;
+}
+
+.doc[data-retrieved] {
+  border-color: color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+.doc[data-cited] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 11%, var(--rag-card));
+}
+
+.doc[data-focus] {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* The page icon: a sheet with a folded corner and its type on a coloured band. */
+.icon {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  width: 34px;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 3px 9px 3px 3px;
+  background:
+    linear-gradient(225deg, color-mix(in srgb, var(--fg) 28%, var(--bg-2)) 0 9px, transparent 9px),
+    color-mix(in srgb, var(--fg) 9%, var(--bg-2));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 14%, transparent);
+}
+
+/* Text lines on the sheet. */
+.icon::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  width: 15px;
+  height: 10px;
+  background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--fg) 30%, transparent) 0 1.5px, transparent 1.5px 4px);
+}
+
+.icon[data-kind='XLSX'] {
+  --kind: var(--accent-2);
+}
+
+.icon[data-kind='WIKI'] {
+  --kind: var(--fg);
+}
+
+.icon[data-kind='DOCX'] {
+  --kind: var(--muted);
+}
+
+.kind {
+  position: relative;
+  width: 100%;
+  padding: 2px 0 1px;
+  background: color-mix(in srgb, var(--kind) 34%, var(--bg-2));
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.iconLock {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  color: var(--muted);
+  transition:
+    color 260ms ease,
+    background-color 260ms ease;
+}
+
+.iconLock svg {
+  width: 10px;
+  height: 10px;
+}
+
+.doc[data-locked] .iconLock {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+}
+
+.name {
+  display: -webkit-box;
+  max-width: 100%;
+  min-height: calc(2 * 1.15em);
+  overflow: hidden;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.15;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-wrap: balance;
+}
+
+.meta {
+  min-height: calc(2 * 1.2em);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.size {
+  display: none;
+}
+
+/* Snippets: a segmented bar that fills while the file is cut up, one file after another. */
+.bar {
+  position: relative;
+  width: 34px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+}
+
+.barFill {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, var(--accent-2) 0 4px, transparent 4px 5.5px);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform 700ms var(--ease-out) var(--delay);
+}
+
+.library:not([data-phase='waiting']) .barFill {
+  transform: scaleX(1);
+}
+
+.access {
+  display: none;
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 19px;
+  text-align: center;
+  animation: badge-in 360ms var(--ease-out);
+}
+
+@keyframes badge-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+/* ---------- from 760px: horizontal cards in a strip ---------- */
+
+@media (min-width: 760px) {
+  .list {
+    gap: 8px;
+  }
+
+  .doc {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    align-items: center;
+    column-gap: 10px;
+    padding: 9px 10px 9px 9px;
+    text-align: left;
+  }
+
+  .icon {
+    width: 30px;
+    height: 38px;
+  }
+
+  .body {
+    align-items: stretch;
+    gap: 3px;
+  }
+
+  .name {
+    min-height: 0;
+    font-size: 0.8rem;
+    line-height: 1.2;
+  }
+
+  .meta {
+    min-height: 0;
+    overflow: hidden;
+    font-size: 0.6875rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bar {
+    width: 100%;
+    margin-top: 2px;
+  }
+
+  .badge {
+    top: 6px;
+    right: 6px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .doc {
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 12px;
+    padding: 10px 12px 10px 10px;
+  }
+
+  .icon {
+    width: 32px;
+    height: 40px;
+  }
+
+  .name {
+    font-size: 0.86rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .doc[data-hr] .name {
+    padding-right: 4.4rem;
+  }
+
+  .size {
+    display: inline;
+  }
+
+  .access {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .access svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .doc[data-locked] .access {
+    color: var(--accent);
+  }
+
+  .doc[data-hr] .badge {
+    top: auto;
+    bottom: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doc,
+  .barFill {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+
+  .badge {
+    animation: none;
+  }
+}

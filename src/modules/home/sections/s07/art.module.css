@@ -1,0 +1,68 @@
+/* Food illustrations, painted with the active style's tokens only. */
+
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.saucer {
+  fill: color-mix(in srgb, var(--fg) 7%, var(--bg-2));
+  stroke: color-mix(in srgb, var(--fg) 14%, transparent);
+  stroke-width: 0.8;
+}
+
+.cup {
+  fill: var(--bg-2);
+  stroke: color-mix(in srgb, var(--fg) 16%, transparent);
+  stroke-width: 0.8;
+}
+
+.coffee {
+  fill: color-mix(in srgb, var(--accent-2) 52%, color-mix(in srgb, var(--fg) 45%, var(--bg)));
+}
+
+.espresso {
+  fill: color-mix(in srgb, var(--accent-2) 38%, color-mix(in srgb, var(--fg) 62%, var(--bg)));
+}
+
+.matcha {
+  fill: color-mix(in srgb, var(--accent) 72%, var(--bg-2));
+}
+
+.foam {
+  fill: color-mix(in srgb, var(--accent-2) 12%, var(--bg-2));
+}
+
+.pour {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent-2) 52%, color-mix(in srgb, var(--fg) 45%, var(--bg)));
+  stroke-width: 1.2;
+}
+
+.matchaFoam {
+  stroke: color-mix(in srgb, var(--accent) 25%, var(--bg-2));
+}
+
+.plate {
+  fill: color-mix(in srgb, var(--fg) 6%, var(--bg-2));
+  stroke: color-mix(in srgb, var(--fg) 12%, transparent);
+  stroke-width: 0.8;
+}
+
+.pastry {
+  fill: color-mix(in srgb, var(--accent-2) 58%, var(--bg-2));
+  stroke: color-mix(in srgb, var(--accent-2) 40%, var(--fg));
+  stroke-width: 0.9;
+  stroke-linejoin: round;
+}
+
+.crumb {
+  stroke: color-mix(in srgb, var(--accent-2) 35%, var(--fg));
+  opacity: 0.55;
+}
+
+.sesame {
+  fill: color-mix(in srgb, var(--bg-2) 85%, var(--accent-2));
+}

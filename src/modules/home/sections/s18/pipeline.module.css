@@ -1,0 +1,475 @@
+/*
+ * The pipeline board. Columns are normal grid boxes; cards are one absolute
+ * layer whose transforms the engine owns (CrmEngine), so a move is the
+ * card's own CSS transition and a drag never fights the morph.
+ */
+
+.pipeline {
+  --card-h: 74px;
+  --card-gap: 8px;
+  --card-inset: 6px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+}
+
+.head {
+  /* Faded in by the morph (data-chrome), like the rest of the admin. */
+  opacity: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+}
+
+.yourTurn {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  animation: rise 360ms var(--ease-out) both;
+}
+
+/* ---------- board ---------- */
+
+.board {
+  position: relative;
+  flex: 1;
+  align-content: stretch;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  container-type: inline-size;
+}
+
+.column {
+  position: relative;
+  min-height: 220px;
+  opacity: 0;
+  padding-bottom: var(--card-inset);
+  border-radius: var(--r-md);
+  background: var(--app-sunk);
+  outline: 1.5px dashed transparent;
+  outline-offset: -1.5px;
+  transition:
+    background-color 180ms ease,
+    outline-color 180ms ease;
+}
+
+.column[data-over] {
+  background: color-mix(in srgb, var(--accent) 9%, var(--app-sunk));
+  outline-color: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.columnHead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 10px 8px;
+}
+
+.stageRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.dot[data-stage='quote'] {
+  background: var(--accent-2);
+}
+
+.dot[data-stage='won'] {
+  background: var(--accent);
+}
+
+.stageName {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.count {
+  flex: none;
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fg) 9%, transparent);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.total {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  animation: tick 320ms var(--ease-out) both;
+}
+
+/* ---------- cards ---------- */
+
+.cards {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cards:not([data-ready]) {
+  visibility: hidden;
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: var(--card-h);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: grab;
+  pointer-events: auto;
+  transform-origin: 0 0;
+  transition: transform 560ms var(--ease-out);
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cards[data-morphing] .card {
+  transition: none;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.card[data-dragging] {
+  z-index: 3;
+  cursor: grabbing;
+  transition: none;
+}
+
+.card[data-lifted] {
+  z-index: 2;
+}
+
+.card:focus-visible {
+  outline: none;
+}
+
+.card:focus-visible .face {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  height: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--app-line);
+  border-radius: var(--r-sm);
+  background: var(--app-surface);
+  box-shadow: 0 1px 2px var(--app-shadow-soft);
+  transition:
+    transform 200ms var(--ease-out),
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+/* Won cards carry the accent on their edge. */
+.card[data-stage='won'] .face {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--app-line));
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    0 1px 2px var(--app-shadow-soft);
+}
+
+.card[data-dragging] .face,
+.card[data-lifted] .face {
+  transform: scale(1.04) rotate(-1.5deg);
+  box-shadow: 0 18px 34px -12px var(--app-shadow);
+}
+
+.card:active:not([data-dragging]) .face {
+  transform: scale(0.97);
+}
+
+.clientRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.client {
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-2) 22%, var(--app-surface));
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+}
+
+.item {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.amount {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* "Your turn": the card a visitor could try first breathes once a second. */
+.card[data-hint] .face::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--accent);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: breathe 1.6s var(--ease-out) infinite;
+}
+
+/* ---------- the autopilot's finger / cursor ---------- */
+
+.ghost {
+  position: absolute;
+  top: 50%;
+  left: 62%;
+  pointer-events: none;
+  animation: ghost-in 260ms var(--ease-out) both;
+}
+
+.ghost[data-pointer='touch'] {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 2px solid color-mix(in srgb, var(--fg) 70%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fg) 26%, transparent);
+}
+
+.ghost[data-pointer='touch']::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fg) 30%, transparent);
+  animation: press 520ms var(--ease-out) 120ms both;
+}
+
+.ghost[data-pointer='mouse'] {
+  width: 15px;
+  height: 21px;
+  background: var(--fg);
+  clip-path: polygon(0 0, 0 80%, 24% 62%, 40% 98%, 56% 91%, 40% 57%, 72% 57%);
+  filter: drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg));
+}
+
+/* ---------- narrow boards (phones) ---------- */
+
+@container (max-width: 440px) {
+  .avatar,
+  .count {
+    display: none;
+  }
+
+  .face {
+    padding: 8px 8px;
+  }
+
+  .columnHead {
+    padding: 8px 8px 6px;
+  }
+
+  .client {
+    font-size: 0.76rem;
+  }
+
+  .item,
+  .amount {
+    font-size: 0.7rem;
+  }
+}
+
+/* Wide windows (desktop): roomier cards. */
+@container crm-frame (min-width: 860px) {
+  .pipeline {
+    --card-h: 88px;
+    --card-gap: 10px;
+    --card-inset: 8px;
+  }
+
+  .face {
+    gap: 5px;
+    padding: 12px 14px;
+  }
+
+  .client {
+    font-size: 0.9rem;
+  }
+
+  .item,
+  .amount {
+    font-size: 0.8rem;
+  }
+
+  .columnHead {
+    padding: 12px 14px 10px;
+  }
+}
+
+/* Short boards: two lines per card (the order drops). */
+@container crm-main (max-height: 400px) {
+  .pipeline {
+    --card-h: 54px;
+    --card-gap: 6px;
+    gap: 8px;
+  }
+
+  .face {
+    gap: 2px;
+    padding: 7px 8px;
+  }
+
+  .item {
+    display: none;
+  }
+
+  .columnHead {
+    gap: 2px;
+    padding: 7px 8px 5px;
+  }
+
+  .hint {
+    font-size: 0.7rem;
+  }
+}
+
+@keyframes tick {
+  from {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(4px) scale(0.96);
+    opacity: 0;
+  }
+}
+
+@keyframes breathe {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.06, 1.16);
+    opacity: 0;
+  }
+}
+
+@keyframes ghost-in {
+  from {
+    transform: translate(10px, 14px) scale(0.85);
+    opacity: 0;
+  }
+}
+
+@keyframes press {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition-duration: 1ms;
+  }
+
+  .total,
+  .yourTurn,
+  .card[data-hint] .face::before {
+    animation: none;
+  }
+}

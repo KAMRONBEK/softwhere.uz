@@ -1,0 +1,85 @@
+{
+  "sectionError": "This section crashed. The rest of the page still works.",
+  "quoteOpen": "“",
+  "quoteClose": "”",
+  "callCta": "Book a call",
+  "replyPromise": "We reply within one business day.",
+  "exactPriceLine": "The exact price comes after we agree the details and write the technical specification together.",
+  "showcase": {
+    "tes-chat": {
+      "descriptor": "a messenger app",
+      "screens": {
+        "chats": {
+          "caption": "One inbox for chats, groups and channels",
+          "alt": "A messenger app in dark mode: the chat list with unread badges"
+        },
+        "conversation": {
+          "caption": "Voice notes, files and replies",
+          "alt": "A messenger app in dark mode: a conversation with a voice note, a shared file and a reply"
+        },
+        "themes": {
+          "caption": "Color themes and accents",
+          "alt": "A messenger app in dark mode: the appearance settings with color themes and accent colors"
+        }
+      }
+    },
+    "talim-ai": {
+      "descriptor": "an AI learning platform",
+      "screens": {
+        "site": {
+          "caption": "Turn any material into a lesson",
+          "alt": "An AI learning platform in dark mode: the landing page, its three steps and its features"
+        }
+      }
+    },
+    "nexus": {
+      "descriptor": "an investing app",
+      "screens": {
+        "explore": {
+          "caption": "Bundles, real estate and top gainers",
+          "alt": "An investing app in dark mode: the Explore tab with trending bundles and real-estate markets"
+        },
+        "markets": {
+          "caption": "Every coin with its own sparkline",
+          "alt": "An investing app in dark mode: a market list of coins with prices and sparklines"
+        },
+        "portfolio": {
+          "caption": "The whole portfolio on one screen",
+          "alt": "An investing app in dark mode: the portfolio balance chart and assets"
+        }
+      }
+    },
+    "rasta-market": {
+      "descriptor": "an auction marketplace",
+      "screens": {
+        "market": {
+          "caption": "Shoppers pick the lots all week",
+          "alt": "An auction marketplace in dark mode: the market with the lot on air and new products"
+        },
+        "live": {
+          "caption": "Live bidding: every bid resets the clock",
+          "alt": "An auction marketplace in dark mode: a live auction room with the highest bid and a countdown"
+        },
+        "product": {
+          "caption": "Factory prices with quantity breaks",
+          "alt": "An auction marketplace in dark mode: a product sheet with specifications and quantity pricing"
+        }
+      }
+    }
+  },
+  "footer": {
+    "label": "Site footer",
+    "servicesLabel": "Services",
+    "web": "Website development",
+    "mobile": "Mobile app development",
+    "bots": "Telegram bot development",
+    "moreLabel": "More",
+    "blog": "Blog",
+    "estimator": "Project estimator",
+    "privacy": "Privacy policy",
+    "contactLabel": "Contact",
+    "address": "Tashkent, Uzbekistan",
+    "rights": "© {year} SoftWhere. All rights reserved.",
+    "developedBy": "Developed by <link>kamuran.dev</link>"
+  }
+}

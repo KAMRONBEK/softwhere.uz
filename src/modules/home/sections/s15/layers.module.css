@@ -1,0 +1,44 @@
+/*
+ * The phone's screens are stacked layers; one (or, for design and build, the
+ * same one) is on per step. Their blocks hand over in a top-to-bottom
+ * cascade: the outgoing screen's blocks sink away while the incoming ones
+ * rise in, so the wireframe looks painted over by the design, and so on.
+ * Transforms and opacity only; a layer leaves the accessibility tree and
+ * stops painting once its blocks are gone.
+ */
+
+.layer {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  transition: visibility 0s linear 900ms;
+}
+
+.layer[data-layer-on] {
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.block {
+  opacity: 0;
+  transform: translateY(0.9em) scale(0.98);
+  transition:
+    opacity 380ms ease calc(var(--i, 0) * 42ms),
+    transform 620ms var(--ease-out) calc(var(--i, 0) * 42ms),
+    background-color 420ms ease,
+    border-color 420ms ease,
+    color 420ms ease;
+}
+
+.layer[data-layer-on] .block {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(160ms + var(--i, 0) * 46ms), calc(160ms + var(--i, 0) * 46ms), 0ms, 0ms, 0ms;
+}
+
+/* Reduced motion: screens swap at once. */
+.layer[data-static],
+.layer[data-static] .block {
+  transition-duration: 0s;
+  transition-delay: 0s;
+}

@@ -1,0 +1,264 @@
+/*
+ * "How we build": the desktop nav's dropdown and the phone sheet's grid of
+ * the five build stories, each with a reading-progress bar (--progress,
+ * written per frame by useSectionProgress). Lab tokens only.
+ */
+
+.menu {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+}
+
+/* Matches the nav links (LabHeader.module.css .link): same size, colour and current-place rule. */
+.trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 clamp(8px, 0.9vw, 14px);
+  border: 0;
+  border-radius: min(var(--radius), 10px);
+  background: transparent;
+  color: var(--muted);
+  font: 500 14.5px / 1 var(--font-body);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    color 160ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.trigger::after {
+  content: '';
+  position: absolute;
+  left: clamp(8px, 0.9vw, 14px);
+  right: clamp(8px, 0.9vw, 14px);
+  bottom: 6px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 280ms var(--ease-out);
+}
+
+.trigger[data-current='true'],
+.trigger[aria-expanded='true'] {
+  color: var(--fg);
+}
+
+.trigger[data-current='true']::after {
+  transform: scaleX(1);
+}
+
+.trigger:active {
+  transform: scale(0.97);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trigger:hover {
+    color: var(--fg);
+  }
+}
+
+.chevron {
+  flex: none;
+  width: 9px;
+  height: 6px;
+  margin-top: 1px;
+  transition: transform 180ms var(--ease-out);
+}
+
+.trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  z-index: 3;
+  width: 336px;
+  padding: 10px;
+  border-radius: min(calc(var(--radius) * 1.25), 20px);
+  background: var(--bg-2);
+  color: var(--fg);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent),
+    0 24px 60px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent),
+    0 24px 60px light-dark(rgba(20, 20, 20, 0.16), rgba(0, 0, 0, 0.55));
+  transform-origin: top left;
+  animation: pop-in 170ms var(--ease-out);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+.title {
+  margin: 4px 8px 8px;
+  color: var(--muted);
+  font: 500 11px / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Stories ─────────────────────────────────────────────────────────────── */
+
+.list,
+.grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list {
+  display: grid;
+  gap: 2px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.story {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: start;
+  gap: 8px;
+  padding: 10px 10px 12px 8px;
+  border-radius: min(var(--radius), 12px);
+  color: var(--fg);
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  transition:
+    background-color 160ms ease,
+    transform 140ms var(--ease-out);
+}
+
+.story:active {
+  transform: scale(0.98);
+}
+
+.story:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .story:hover {
+    background: color-mix(in srgb, var(--fg) 6%, transparent);
+  }
+}
+
+.index {
+  padding-top: 2px;
+  color: var(--muted);
+  font: 500 11px / 1.4 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.story[aria-current='true'] .index {
+  color: var(--accent);
+}
+
+.text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.label {
+  font: 600 14.5px / 1.25 var(--font-body);
+}
+
+.note {
+  color: var(--muted);
+  font: 400 12.5px / 1.35 var(--font-body);
+}
+
+/* Reading progress: fills as the story's scroll plays. */
+.track {
+  position: relative;
+  height: 2px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--fg) 12%, transparent);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+}
+
+/* Phone sheet: chips in two columns, the label in the body face, no note. */
+.grid .story {
+  grid-template-columns: 1fr;
+  gap: 0;
+  min-height: 64px;
+  padding: 11px 12px 12px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fg) 12%, transparent);
+}
+
+.grid .index {
+  display: none;
+}
+
+.grid .label {
+  font-size: 15px;
+}
+
+.grid .story[aria-current='true'] {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.grid .story:active {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+/* The odd one out spans the row, so the grid ends square. */
+.grid > li:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    animation-name: fade-in;
+  }
+
+  .trigger::after {
+    transition: none;
+  }
+
+  .trigger:active,
+  .story:active {
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
