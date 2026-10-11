@@ -1,33 +1,33 @@
 {
   "heading": "Jadvaldan tizimga.",
-  "summary": "Koʻp jamoalar bitta umumiy jadvalda ishlaydi, toki u buzilmaguncha. Biz uni jamoangizning hozirgi ish uslubiga moslangan admin tizimga aylantiramiz.",
-  "lead": "Koʻp jamoalar bitta umumiy jadvalda ishlaydi, toki u buzilmaguncha: toʻrtta nusxa, bitta mijoz ikki marta, hech kim ishonmaydigan jami summa. Biz uni jamoangizning hozirgi ish uslubiga moslangan admin tizimga aylantiramiz.",
-  "leadAction": "Pastga suring va fayl oʻzini qanday tartibga solishini koʻring.",
+  "summary": "Koʻp jamoa hamma ishni bitta umumiy jadvalda yuritadi — u chalkashib ketguncha. Biz uni jamoangiz hozir qanday ishlasa, xuddi shunga moslangan admin tizimga aylantiramiz.",
+  "lead": "Koʻp jamoa hamma ishni bitta umumiy jadvalda yuritadi — u chalkashib ketguncha: toʻrtta nusxa, bitta mijoz ikki marta, hech kim ishonmaydigan jami summa. Biz uni jamoangiz hozir qanday ishlasa, xuddi shunga moslangan admin tizimga aylantiramiz.",
+  "leadAction": "Pastga suring — fayl koʻz oldingizda tartibga tushadi.",
   "leadActionStill": "Har bir qismni koʻrish uchun qadamni tanlang. Birinchisi — tizim almashtiradigan eski jadval.",
   "chapters": {
     "sheet": {
       "term": "Jadval",
-      "text": "Koʻp bizneslar shundan boshlaydi. Ikki kishi uni bir vaqtda tahrirlamaguncha ishlaydi."
+      "text": "Koʻp biznes shundan boshlaydi. Ikki kishi bir vaqtda tahrirlamaguncha hammasi joyida."
     },
     "pipeline": {
       "term": "Voronka",
-      "text": "Barcha bitimlar bitta doskada. Bitimni keyingi bosqichga oʻtkazing, jami summalar oʻzi yangilanadi."
+      "text": "Barcha bitimlar bitta doskada. Bitimni keyingi bosqichga suring — jami summalar avtomatik yangilanadi."
     },
     "roles": {
       "term": "Rollar",
-      "text": "Egasi hammasini koʻradi, sotuvchi oʻz bitimlarini, qoʻllab-quvvatlash esa faqat keraklisini."
+      "text": "Rahbar hammasini koʻradi, sotuvchi — faqat oʻz bitimlarini, servis xodimi — faqat ishiga keraklisini."
     },
     "automations": {
       "term": "Avtomatlashtirish",
-      "text": "Yangi ariza soniyalarda kerakli menejerga yetadi va vazifaga aylanadi. Hech kim hech narsani qoʻlda koʻchirmaydi."
+      "text": "Yangi ariza bir necha soniyada kerakli menejerga boradi va vazifaga aylanadi. Hech kim hech narsani qoʻlda koʻchirmaydi."
     },
     "reports": {
       "term": "Hisobotlar",
-      "text": "Har juma kimdir qayta yigʻadigan jadval oʻrniga oʻsha maʼlumotlardan jonli raqamlar."
+      "text": "Har juma kimdir qaytadan tuzadigan jadval oʻrniga — oʻsha maʼlumotlardan real vaqtdagi raqamlar."
     },
     "integrations": {
       "term": "Integratsiyalar",
-      "text": "Buxgalteriya, toʻlovlar, messenjerlar va pochta ulangan, maʼlumotlar oʻzi harakatlanadi."
+      "text": "Buxgalteriya, toʻlovlar, messenjer va pochta ulanadi — maʼlumotlar qoʻlda koʻchirilmaydi."
     }
   },
   "chapterAction": "«{term}» qadamini demoda koʻrsatish",
@@ -44,31 +44,31 @@
   },
   "deliverTitle": "Nimalarga ega boʻlasiz",
   "deliver": {
-    "admin": "Jamoangiz noutbuk yoki telefondan kiradigan veb-admin",
+    "admin": "Jamoangiz noutbuk yoki telefondan kiradigan veb-admin panel",
     "roles": "Har bir xodim uchun rollar va ruxsatlar",
     "import": "Hozirgi jadvalingiz koʻchiriladi, takrorlar birlashtiriladi",
-    "process": "Jarayoningizga kerakli avtomatlashtirish, hisobot va integratsiyalar, koʻz-koʻz uchun ortiqcha narsa yoʻq",
+    "process": "Jarayoningizga kerak boʻlgan avtomatlashtirish, hisobot va integratsiyalar — koʻz-koʻz uchun hech narsa qoʻshmaymiz",
     "ownership": "Kod ham, maʼlumotlar ham sizniki"
   },
-  "shipped": "Biz yaratgan admin panel va dashboardlar orasida: {list}.",
+  "shipped": "Biz yaratgan admin panel va statistika panellari orasida: {list}.",
   "shippedWork": {
     "hamd": "ovqat yetkazib berish operatori paneli",
     "stadium-people": "tadbirlar uchun xodim yollash admin paneli",
-    "novalinq-eld": "hisobotli avtopark nazorati dashboardi",
-    "brand-guard": "jamoa rollari bilan brend monitoringi dashboardi",
-    "hello-box": "Telegram-bot doʻkoni ortidagi admin panel"
+    "novalinq-eld": "hisobotlari bor avtopark nazorati paneli",
+    "brand-guard": "jamoa rollari bor brend monitoringi paneli",
+    "hello-box": "Telegram bot orqali savdo qiladigan doʻkonning admin paneli"
   },
   "and": "va",
-  "next": "Navbatdagisi sizniki boʻlishi mumkin.",
-  "cta": "Narx oraligʻini bepul bilish",
+  "next": "Keyingisi sizniki boʻlishi mumkin.",
+  "cta": "Narx oraligʻini bepul bilib oling",
   "replay": "Jadvalga qaytish",
   "money": {
     "som": "{amount} soʻm",
     "millions": "{amount} mln"
   },
   "app": {
-    "business": "Sizning salon",
-    "businessMark": "SS",
+    "business": "Mebel saloni",
+    "businessMark": "MS",
     "product": "CRM",
     "search": "Mijoz, bitim qidirish…",
     "nav": {
@@ -82,7 +82,7 @@
     "navShort": {
       "pipeline": "Bitimlar",
       "roles": "Jamoa",
-      "automations": "Avto",
+      "automations": "Qoidalar",
       "reports": "Hisobot",
       "integrations": "Ilovalar"
     },
@@ -109,7 +109,7 @@
     "rows": {
       "r1": {
         "item": "Burchak divan «Milano»",
-        "status": "oldindan toʻlov??"
+        "status": "avans??"
       },
       "r2": {
         "item": "Oshxona 3,2m",
@@ -144,7 +144,7 @@
     "flags": {
       "duplicate": "Bitta mijoz, ikki marta kiritilgan",
       "formula": "Buzilgan formula",
-      "tabs": "Toʻrtta nusxa. Qaysi biri dolzarb?"
+      "tabs": "Toʻrtta nusxa. Qaysi biri oxirgisi?"
     },
     "label": "Mebel buyurtmalarining tartibsiz umumiy jadvali: takroriy mijozlar, aralash raqam formatlari, buzilgan jami summa va faylning toʻrtta nusxasi."
   },
@@ -163,9 +163,9 @@
   },
   "pipeline": {
     "title": "Voronka",
-    "hintTouch": "Kartani bosib turib suring yoki oldinga surish uchun teging",
-    "hintPointer": "Kartani boshqa bosqichga suring yoki oldinga surish uchun bosing",
-    "yourTurn": "Navbat sizda",
+    "hintTouch": "Kartani bosib turib suring yoki keyingi bosqichga oʻtkazish uchun teging",
+    "hintPointer": "Kartani boshqa bosqichga suring yoki keyingisiga oʻtkazish uchun bosing",
+    "yourTurn": "Endi siz sinang",
     "cardLabel": "{client}, {item}, {stage}.",
     "cardAction": "«{next}» bosqichiga oʻtkazish uchun bosing. Strelkalar bosqichlarni almashtiradi.",
     "cardActionWon": "Sotildi. Strelkalar bosqichlarni almashtiradi.",
@@ -178,7 +178,7 @@
   },
   "roles": {
     "owner": {
-      "name": "Egasi",
+      "name": "Rahbar",
       "view": "Barcha bitimlar"
     },
     "sales": {
@@ -186,7 +186,7 @@
       "view": "Mening bitimlarim"
     },
     "support": {
-      "name": "Yordam",
+      "name": "Servis",
       "view": "Mijozlar"
     },
     "viewingAs": "Kim sifatida",
@@ -219,23 +219,23 @@
   },
   "automation": {
     "title": "Yangi ariza kelganda",
-    "ruleNote": "Hamma tushunadigan bitta qoida: shu boʻlsa, buni qil.",
+    "ruleNote": "Hamma tushunadigan bitta qoida: shunday boʻlsa — tizim buni bajaradi.",
     "kickers": {
-      "when": "Qachon",
-      "then": "Keyin",
+      "when": "Agar",
+      "then": "Unda",
       "and": "Va"
     },
     "lead": "Yangi ariza",
     "task": "Vazifa yaratildi",
-    "leadSources": "Sayt, Instagram yoki Telegram-bot",
-    "alertTitle": "Telegram xabarnomasi",
+    "leadSources": "Sayt, Instagram yoki Telegram bot",
+    "alertTitle": "Telegram bildirishnomasi",
     "alertBot": "Salon xabarlari",
     "notifyRule": "Ariza biriktirilgan menejerga xabar yuborish",
-    "taskRule": "15 daqiqa muddatli qoʻngʻiroq vazifasini yaratish",
+    "taskRule": "Qoʻngʻiroq vazifasini yaratish, muddati 15 daqiqa",
     "message": "Yangi ariza: {client}, {item} ({source}). Masʼul: {manager}.",
     "taskTitle": "Qoʻngʻiroq qilish: {client}",
     "due": "Muddat: 15 daqiqa",
-    "button": "Test ariza yuborish",
+    "button": "Sinov arizasi yuborish",
     "running": "Bajarilmoqda…",
     "runs": "Bugun {count} marta ishladi",
     "rulesTitle": "Qoidalar",
@@ -246,7 +246,7 @@
         "then": "Menejerni ogohlantirish, vazifa yaratish"
       },
       "deposit": {
-        "when": "Oldindan toʻlov qilindi",
+        "when": "Avans toʻlandi",
         "then": "«Sotildi»ga oʻtkazish, chek yuborish"
       },
       "noReply": {
@@ -255,10 +255,10 @@
       },
       "delivery": {
         "when": "Ertaga yetkazish",
-        "then": "Mijozga vaqtni SMS qilish"
+        "then": "Mijozga vaqtni SMS qilib yuborish"
       }
     },
-    "logTitle": "Ishga tushirish jurnali",
+    "logTitle": "Bajarilganlar jurnali",
     "log": {
       "lead": "{client}: {manager} ogohlantirildi, qoʻngʻiroq vazifasi yaratildi",
       "deposit": "{client}: «Sotildi»ga oʻtkazildi, chek yuborildi",
@@ -276,7 +276,7 @@
       },
       "sofa": {
         "item": "Divan-karavot",
-        "source": "Telegram-bot"
+        "source": "Telegram bot"
       }
     }
   },
@@ -314,12 +314,12 @@
     }
   },
   "integrations": {
-    "hub": "Sizning CRM",
+    "hub": "CRM tizimingiz",
     "title": "Ulangan xizmatlar",
     "count": "{on}/{total} ulangan",
     "note": "Rasmiy yoʻl bilan ulaymiz. Agar xizmat bunga ruxsat bermasa, ishni boshlashdan oldin aytamiz.",
     "activity": "Faollik",
-    "live": "Jonli",
+    "live": "Onlayn",
     "idle": "Maʼlumotlar oqimini koʻrish uchun xizmatni ulang.",
     "connect": "Ulash: {name}",
     "disconnect": "Uzish: {name}",
@@ -330,13 +330,13 @@
         "then": "Haftalik eksport Google Sheetsga saqlandi"
       },
       "messenger": {
-        "role": "Bot va xabarnomalar",
-        "first": "Telegram-botdan ariza: {client}",
-        "then": "Kunlik voronka hisoboti egasiga yuborildi"
+        "role": "Bot va bildirishnomalar",
+        "first": "Telegram botdan ariza: {client}",
+        "then": "Kunlik voronka hisoboti rahbarga yuborildi"
       },
       "payments": {
         "role": "Toʻlovlar",
-        "first": "Oldindan toʻlov olindi: {client}, {amount}",
+        "first": "Avans olindi: {client}, {amount}",
         "then": "Toʻlov havolasi yuborildi: {client}"
       },
       "accounting": {

@@ -1,110 +1,150 @@
 {
-  "heading": "Ilovangiz: stikerdagi gʻoyadan ilovalar doʻkonigacha.",
-  "summary": "Mobil ilovani shunday yaratamiz: loyiha doirasi, prototip, dizayn, kod, testlash va doʻkonlarga chiqarish. Birinchi versiya odatda taxminan ikki oy oladi.",
-  "lead": "Mobil ilovani shunday yaratamiz. Sahifani pastga aylantiring: telefonda yetkazib berish ilovasi bosqichma-bosqich paydo boʻladi. Loyiha doirasi, prototip, dizayn, kod, testlash va doʻkonlarga chiqarish. Birinchi versiya odatda taxminan ikki oy oladi.",
-  "stepsLabel": "Mobil ilovani qanday yaratamiz",
+  "heading": "Ilovangiz: qogʻozdagi gʻoyadan App Storegacha.",
+  "summary": "Mobil ilovani shunday ishlab chiqamiz: ish hajmi, prototip, dizayn, kod, test va App Store hamda Google Playga joylash. Birinchi versiya odatda ikki oycha vaqt oladi.",
+  "lead": "Mobil ilovani shunday ishlab chiqamiz. Sahifani pastga suring — telefonda yetkazib berish ilovasi bosqichma-bosqich paydo boʻladi: ish hajmi, prototip, dizayn, kod, test va App Store hamda Google Playga joylash. Birinchi versiya odatda ikki oycha vaqt oladi.",
+  "stepsLabel": "Mobil ilovani qanday ishlab chiqamiz",
   "stepAction": "{number}-bosqichni koʻrsatish: {title}",
-  "getLabel": "Natijada:",
+  "getLabel": "Natija",
   "planLabel": "Odatiy birinchi versiya, haftama-hafta",
   "weekTag": "H{week}",
-  "hintTouch": "Jonli demo · ilovani bosing",
-  "hintPointer": "Jonli demo · ilovani bosing",
+  "hintTouch": "Jonli demo · ilovaga teging",
+  "hintPointer": "Jonli demo · ilovani bosib koʻring",
   "demoLabel": "Telefonda bosqichma-bosqich yaratilayotgan yetkazib berish ilovasi",
-  "cursor": { "show": "Koʻrish", "light": "Yorugʻ", "dark": "Toʻq", "order": "Buyurtma", "add": "Qoʻshish", "open": "Ochish", "get": "Yuklash" },
-  "proof": "Portfoliomizdagi {count} ta ilova App Store va Google Playʼda ishlayapti, jumladan {examples}.",
+  "cursor": {
+    "show": "Koʻrish",
+    "light": "Yorugʻ",
+    "dark": "Toʻq",
+    "order": "Buyurtma",
+    "add": "Qoʻshish",
+    "open": "Ochish",
+    "get": "Yuklash"
+  },
+  "proof": "Portfoliomizdagi {count} ta ilova App Store va Google Playda bor, jumladan {examples}.",
   "listAnd": "{rest} va {last}",
-  "next": "Navbatdagisi sizniki boʻlishi mumkin.",
-  "payments": { "intl": "karta orqali toʻlov", "uz": "Click va Payme orqali toʻlov" },
-  "price": "Shunga oʻxshash ilova (buyurtma, {payments} va kuryerni jonli kuzatish bilan) kalkulyatorimiz boʻyicha <b>{range}</b> turadi va <b>{weeks}</b> oladi.",
+  "next": "Keyingisi sizniki boʻlishi mumkin.",
+  "payments": {
+    "intl": "karta orqali toʻlov",
+    "uz": "Click va Payme orqali toʻlov"
+  },
+  "price": "Shunday ilova (buyurtma, {payments} va kuryerni xaritada kuzatish bilan) kalkulyatorimiz boʻyicha <b>{range}</b> turadi, muddati — <b>{weeks}</b>.",
   "weeks": "{min}–{max} hafta",
   "cta": "Ilova narxini hisoblash",
-  "footnote": "Bu narx oraligʻi, tijoriy taklif emas: aniq narx tafsilotlarni kelishib, texnik topshiriqni yozganimizdan keyin maʼlum boʻladi. Muddatlar odatiy birinchi versiya uchun.",
+  "footnote": "Bu taxminiy narx oraligʻi, yakuniy taklif emas: aniq narx tafsilotlarni kelishib, texnik topshiriqni yozgandan keyin maʼlum boʻladi. Muddatlar odatiy birinchi versiya uchun.",
   "steps": {
     "scope": {
-      "title": "Gʻoya va loyiha doirasi",
+      "title": "Gʻoya va ish hajmi",
       "short": "Gʻoya",
       "when": "1-hafta",
-      "text": "Koddan emas, gʻoyangizdan boshlaymiz: ilova kim uchun, unda nima qilinadi va nimani ikkinchi versiyaga qoldirish mumkin.",
-      "get": "Yozma loyiha doirasi va narx oraligʻi."
+      "text": "Koddan emas, gʻoyangizdan boshlaymiz: ilova kim uchun, unda nima qilinadi va nimani ikkinchi versiyaga qoldirsa boʻladi.",
+      "get": "Yozma ish hajmi va uning narx oraligʻi."
     },
     "wire": {
       "title": "Prototip",
       "short": "Prototip",
       "when": "2-hafta",
-      "text": "Avval har bir ekran kulrang bloklar koʻrinishida: hali hech narsa chizilmasdan, butun jarayonni oʻz telefoningizda bosib koʻrasiz.",
+      "text": "Avval har bir ekran kulrang bloklardan iborat boʻladi: hali hech narsa chizilmay turib, butun jarayonni oʻz telefoningizda bosib koʻrasiz.",
       "get": "Bosiladigan prototip, texnik topshiriq va qatʼiy narx."
     },
     "design": {
       "title": "Dizayn",
       "short": "Dizayn",
       "when": "2-haftadan",
-      "text": "Ranglar, shriftlar va ikonkalar, yorugʻ va toʻq rejimda. Dizayn koddan bir-ikki hafta oldinda yuradi, shuning uchun hech kim kutib qolmaydi.",
+      "text": "Ranglar, shriftlar va ikonkalar — kunduzgi va tungi rejimda. Dizayn koddan bir-ikki hafta oldinda yuradi, hech kim kutib qolmaydi.",
       "get": "Har bir ekran yakuniy koʻrinishda, ishlab chiqishga tayyor."
     },
     "build": {
       "title": "Ishlab chiqish",
       "short": "Kod",
       "when": "3–8-haftalar",
-      "text": "Bitta kod bazasi (React Native) iPhone va Androidda ishlaydi, shuning uchun ikkita emas, bitta ilova uchun toʻlaysiz. Server, toʻlovlar va xaritalar ham parallel yaratiladi.",
+      "text": "Bitta kod (React Native) iPhoneda ham, Androidda ham ishlaydi — ikkita emas, bitta ilova uchun toʻlaysiz. Server, toʻlov va xaritalar ham shu bilan birga tayyorlanadi.",
       "get": "Har hafta telefoningizda yangi versiya va har kuni qisqa yozma hisobot."
     },
     "test": {
       "title": "Haqiqiy qurilmalarda testlash",
       "short": "Testlash",
       "when": "Har bir versiyada",
-      "text": "Kichik va katta, eski va yangi telefonlar, sekin internetda ham. Xatolik hisobotlari birinchi test versiyasidan yoqiladi, shuning uchun muammolarni mijozlaringizdan oldin topamiz.",
-      "get": "Haqiqiy odamlar sinab koʻrgan, doʻkonlarga tayyor versiya."
+      "text": "Kichik va katta, eski va yangi telefonlarda, sekin internetda ham. Nosozlik hisobotlari birinchi test versiyasidanoq ishlaydi, shuning uchun muammoni mijozlaringizdan oldin topamiz.",
+      "get": "Haqiqiy odamlar sinab koʻrgan, joylashga tayyor versiya."
     },
     "release": {
-      "title": "Doʻkonlarga chiqarish",
-      "short": "Reliz",
+      "title": "Ilovani joylash",
+      "short": "Joylash",
       "when": "9-hafta",
       "text": "Tavsiflar, skrinshotlar va maxfiylik shakllarini tayyorlaymiz hamda ilovani App Store va Google Play tekshiruvidan oʻtkazamiz.",
-      "get": "Ilovangiz ikkala doʻkonda, kod va akkauntlar sizning nomingizda, ustiga 12 oy davomida xatoliklarni tuzatish."
+      "get": "Ilovangiz App Store va Google Playda, kod va akkauntlar sizning nomingizda, 12 oy xatolarni tuzatish bilan."
     }
   },
   "notes": {
     "taps": "Uch bosishda buyurtma",
-    "card": "Click va Payme toʻlovi",
-    "track": "Kuryerni jonli kuzatish",
+    "card": "Click va Payme orqali toʻlov",
+    "track": "Kuryerni xaritada kuzatish",
     "push": "Push: «yoʻlda»",
     "points": "Bonus ballar",
     "chat": "Kuryer bilan chat"
   },
   "dishes": {
-    "croissant": { "name": "Sariyogʻli kruassan", "shop": "Novvoyxona · 15 daq." },
-    "pizza": { "name": "Margarita", "shop": "Pitsa · 25 daq." },
-    "coffee": { "name": "Sovuq qahva", "shop": "Qahva · 10 daq." },
-    "salad": { "name": "Koʻkat salat", "shop": "Salatlar · 20 daq." }
+    "croissant": {
+      "name": "Sariyogʻli kruassan",
+      "shop": "Novvoyxona · 15 daq."
+    },
+    "pizza": {
+      "name": "Margarita",
+      "shop": "Pitsa · 25 daq."
+    },
+    "coffee": {
+      "name": "Sovuq qahva",
+      "shop": "Qahva · 10 daq."
+    },
+    "salad": {
+      "name": "Koʻkatli salat",
+      "shop": "Salatlar · 20 daq."
+    }
   },
-  "categories": { "croissant": "Pishiriqlar", "coffee": "Qahva", "pizza": "Pitsa", "salad": "Salatlar" },
-  "units": { "soum": "soʻm" },
+  "categories": {
+    "croissant": "Pishiriqlar",
+    "coffee": "Qahva",
+    "pizza": "Pitsa",
+    "salad": "Salatlar"
+  },
+  "units": {
+    "soum": "soʻm"
+  },
   "app": {
     "name": "Ilovangiz",
     "category": "Ovqat yetkazib berish",
     "deliverTo": "Yetkazish manzili",
     "address": "Uy",
-    "search": "Taom va joylarni qidirish",
+    "search": "Taom yoki restoran qidirish",
     "promoTitle": "Bepul yetkazish",
-    "promoText": "birinchi buyurtmaga",
-    "popular": "Yaqin atrofda mashhur",
+    "promoText": "birinchi buyurtmangizga",
+    "popular": "Yaqiningizda mashhur",
     "seeAll": "Barchasi",
     "add": "Savatga qoʻshish: {name}",
-    "cart": "{count, plural, =0 {Savat boʻsh} other {Savatda # ta mahsulot: buyurtma berish}}",
-    "toLight": "Ilovani yorugʻ rejimga oʻtkazish",
-    "toDark": "Ilovani toʻq rejimga oʻtkazish",
+    "cart": "{count, plural, =0 {Savat boʻsh} other {Savatda # ta: buyurtma berish}}",
+    "toLight": "Ilovani kunduzgi rejimga oʻtkazish",
+    "toDark": "Ilovani tungi rejimga oʻtkazish",
     "tabsLabel": "Ilova boʻlimlari",
-    "tabs": { "home": "Asosiy", "search": "Qidiruv", "orders": "Buyurtmalar", "profile": "Profil" },
+    "tabs": {
+      "home": "Asosiy",
+      "search": "Qidiruv",
+      "orders": "Buyurtmalar",
+      "profile": "Profil"
+    },
     "toast": "Buyurtma qabul qilindi",
     "pushWhen": "hozir",
     "pushText": "Buyurtmangiz yoʻlda. Taxminan 12 daqiqada yetib keladi.",
     "pushOpen": "Buyurtmani ochish",
     "trackTitle": "Yoʻlda",
     "trackEta": "taxminan 12 daq.",
-    "trackSteps": { "accepted": "Qabul qilindi", "cooking": "Tayyorlanmoqda", "onTheWay": "Yoʻlda", "delivered": "Yetkazildi" },
+    "trackSteps": {
+      "accepted": "Qabul qilindi",
+      "cooking": "Tayyorlanmoqda",
+      "onTheWay": "Yoʻlda",
+      "delivered": "Yetkazildi"
+    },
     "orderLabel": "Buyurtmangiz",
     "courier": "Kuryeringiz",
-    "courierRole": "Velosiped · 1,8 km uzoqda"
+    "courierRole": "Velosipedda · 1,8 km"
   },
   "scope": {
     "board": "Gʻoyalar doskasi",
@@ -113,16 +153,18 @@
     "v1": "1-versiya",
     "later": "Keyinroq",
     "laterTag": "v2",
-    "signed": "Loyiha doirasi kelishildi"
+    "signed": "Ish hajmi kelishildi"
   },
-  "wire": { "flow": "Jarayon: qidiruv → savat → buyurtma" },
+  "wire": {
+    "flow": "Jarayon: qidiruv → savat → buyurtma"
+  },
   "test": {
     "build": "Beta {version}",
     "title": "Haqiqiy qurilmalarda testlash",
-    "crashFree": "Xatoliksiz sessiyalar",
+    "crashFree": "Nosozliksiz sessiyalar",
     "crashValue": "99,8%",
     "passed": "{total} tadan {passed} tasi oʻtdi",
-    "ready": "Doʻkonlarga tayyor",
+    "ready": "Joylashga tayyor",
     "devices": {
       "ios-s": "iOS · 4,7″",
       "ios-l": "iOS · 6,7″",
@@ -138,20 +180,34 @@
     "open": "Ochish",
     "installing": "Oʻrnatilmoqda",
     "installLabel": "Oʻrnatish: {app}",
-    "meta": { "status": "Holat", "age": "Yosh", "category": "Turkum" },
+    "meta": {
+      "status": "Holat",
+      "age": "Yosh",
+      "category": "Turkum"
+    },
     "statusValue": "Yangi",
     "categoryValue": "Ovqat",
     "whatsNew": "Yangiliklar",
-    "version": "1.0-versiya · Birinchi reliz",
+    "version": "1.0-versiya · Ilk chiqish",
     "reviews": "Baholar va sharhlar",
     "reviewSlot": "Birinchi sharhingiz",
-    "reviewSlotText": "Bu qismni ishga tushirilgandan keyin mijozlaringiz yozadi."
+    "reviewSlotText": "Bu yerni ilova chiqqach mijozlaringiz toʻldiradi."
   },
   "satellites": {
     "flowTitle": "Foydalanuvchi yoʻli",
-    "screens": { "home": "Asosiy", "dish": "Taom", "cart": "Savat", "track": "Kuzatuv" },
+    "screens": {
+      "home": "Asosiy",
+      "dish": "Taom",
+      "cart": "Savat",
+      "track": "Kuzatuv"
+    },
     "paletteTitle": "Dizayn tizimi",
-    "swatches": { "accent": "Aksent", "second": "Ikkinchi", "ink": "Matn", "paper": "Fon" },
+    "swatches": {
+      "accent": "Aksent",
+      "second": "Qoʻshimcha",
+      "ink": "Matn",
+      "paper": "Fon"
+    },
     "headings": "Sarlavhalar",
     "body": "Matn",
     "themeLabel": "Ilova mavzusi",
@@ -160,6 +216,6 @@
     "buildTitle": "Versiya {version}",
     "sent": "Telefoningizga yuborildi",
     "approved": "Tasdiqlandi · 1.0-versiya",
-    "live": "Ikkala doʻkonda mavjud"
+    "live": "App Store va Google Playda"
   }
 }

@@ -1,9 +1,9 @@
 {
-  "heading": "Jonli ilovalar va saytlar.",
-  "summary": "Mobil ilovalar, saytlar, Telegram botlar va sunʼiy intellekt bilan avtomatlashtirishni loyihalaymiz va ishlab chiqamiz. Shu paytgacha {projects} ta mahsulot yaratdik, {northAmerica} tasi AQSH va Kanadadagi mijozlar uchun.",
+  "heading": "Ilova va saytlarga jon kiritamiz.",
+  "summary": "Mobil ilovalar, saytlar, Telegram botlar va AI avtomatlashtirishni loyihalaymiz va ishlab chiqamiz. Hozirgacha {projects} ta mahsulot yaratdik, {northAmerica} tasi AQSH va Kanadadagi mijozlar uchun.",
   "secondaryCta": "Ishlarimizni koʻring",
-  "hintPointer": "Kursorni yurgizing. Bosing — impuls, bosib turing — zaryad.",
-  "hintTouch": "Bosing — impuls. Bosib turing — zaryad.",
-  "cursorLabel": "Impuls",
-  "tilt": "Egib boshqarish"
+  "hintPointer": "Kursorni yurgizing. Bosing — toʻlqin, bosib turing — quvvat yigʻiladi.",
+  "hintTouch": "Bosing — toʻlqin. Bosib turing — quvvat yigʻiladi.",
+  "cursorLabel": "Toʻlqin",
+  "tilt": "Telefonni egib boshqaring"
 }

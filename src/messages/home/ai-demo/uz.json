@@ -4,20 +4,20 @@
     "first": "Gʻoyangizni yozing.",
     "second": "Bir daqiqada reja oling."
   },
-  "summary": "Doʻstingizga aytgandek yozing. AI birinchi versiya hajmini belgilaydi, asosiy ekranlarni chizadi, oʻz kalkulyatorimiz esa narx oraligʻi va muddatni haftalarda beradi.",
+  "summary": "Doʻstingizga gapirib bergandek oddiy yozing. AI birinchi versiyada nima boʻlishini belgilaydi va asosiy ekranlarni chizadi, narx va muddatni esa oʻz kalkulyatorimiz hisoblaydi.",
   "eyebrow": "Bepul AI reja",
   "tryIt": "Oʻz gʻoyangiz bilan sinang",
   "estimator": {
     "lead": "Funksiyalarni oʻzingiz tanlamoqchimisiz?",
-    "link": "Bosqichma-bosqich kalkulyator"
+    "link": "Bosqichma-bosqich hisoblab koʻring"
   },
-  "exampleTag": "Namunaviy gʻoya",
-  "placeholder": "Nima yaratmoqchi ekaningizni yozing…",
+  "exampleTag": "Gʻoya namunasi",
+  "placeholder": "Nima yaratmoqchisiz? Yozib bering…",
   "chipsLabel": "Boshqa misollar",
   "ownIdea": "Oʻzingiz yozing",
   "generate": "Reja tuzish",
-  "thinking": "Oʻylayapman",
-  "replay": "Misolni takrorlash",
+  "thinking": "Oʻylanmoqda",
+  "replay": "Qayta koʻrsatish",
   "next": "Keyingi misol",
   "stepsLabel": "Reja qanday tuziladi",
   "steps": {
@@ -35,17 +35,17 @@
     },
     "price": {
       "short": "Narx",
-      "long": "Kalkulyatorimizda hisoblanmoqda"
+      "long": "Narx hisoblanmoqda"
     }
   },
   "waiting": "Gʻoya kutilmoqda",
   "ready": "Reja tayyor",
-  "resultTag": "Namunaviy brif",
+  "resultTag": "Reja namunasi",
   "scopeLabel": "Birinchi versiya",
   "screensLabel": "Asosiy ekranlar",
   "wireframeLabel": "Ekran maketi: {screen}",
   "priceLabel": "Narx oraligʻi",
-  "priceNote": "Kalkulyatorimizdan, shu hajm uchun",
+  "priceNote": "Shu hajm uchun, kalkulyatorimiz boʻyicha",
   "timelineLabel": "Shu hajm uchun muddat",
   "weeksUnit": "hafta",
   "weekAxis": "{week}-hafta",
@@ -54,9 +54,9 @@
     "build": "Ishlab chiqish",
     "launch": "Ishga tushirish"
   },
-  "footnote": "Ssenariy boʻyicha misol: kalkulyatorimizning shu hajm uchun narx oraligʻi.",
-  "footCta": "Oʻz gʻoyangiz uchun oling",
-  "liveDone": "Namunaviy brif tayyor: {title}. {min} dan {max} gacha, {minWeeks}–{maxWeeks} hafta.",
+  "footnote": "Tayyor misol: narx oraligʻi shu hajm uchun kalkulyatorimizdan olingan.",
+  "footCta": "Gʻoyangiz uchun reja oling",
+  "liveDone": "Reja namunasi tayyor: {title}. {min} – {max}, {minWeeks}–{maxWeeks} hafta.",
   "rail": {
     "label": "Rejangiz qanday tuziladi",
     "steps": {
@@ -78,18 +78,18 @@
       "screens": {
         "name": "Asosiy ekranlar",
         "short": "Ekranlar",
-        "caption": "Oddiy maketlar sifatida chizilgan"
+        "caption": "Oddiy eskiz koʻrinishida chizilgan"
       }
     },
-    "idea": "Aʼzolar <m>darslarga yoziladi</m>, <m>karta bilan toʻlaydi</m> va <m>kutish roʻyxatiga</m> qoʻshiladi.",
+    "idea": "Klub aʼzolari <m>darslarga yoziladi</m>, <m>karta bilan toʻlaydi</m> va <m>navbatga</m> turadi.",
     "features": {
       "booking": "Bron qilish",
       "payments": "Toʻlovlar",
-      "waitlist": "Kutish roʻyxati",
+      "waitlist": "Navbat roʻyxati",
       "admin": "Admin panel"
     },
     "range": "Narx",
-    "weeks": "Haftalar"
+    "weeks": "Muddat"
   },
   "wire": {
     "bot": "bot",
@@ -114,7 +114,7 @@
       "scope": {
         "login": "SMS orqali kirish",
         "profiles": "Usta profillari va sharhlar",
-        "booking": "Vaqt boʻyicha yozilish",
+        "booking": "Boʻsh vaqtga yozilish",
         "payments": "Click va Payme",
         "reminders": "Push eslatmalar",
         "admin": "Admin panel"
@@ -143,7 +143,7 @@
       "time": {
         "name": "Vaqt tanlash",
         "service": "Soch olish · 45 daq",
-        "note": "2 soat oldingacha bepul bekor qilish",
+        "note": "2 soat oldingacha bekor qilish bepul",
         "button": "11:30 ga yozilish"
       },
       "confirm": {
@@ -152,20 +152,20 @@
         "service": "Soch va soqol",
         "when": "Juma, 11:30",
         "yourName": "Ismingiz",
-        "phone": "Telefon raqami",
+        "phone": "Telefon raqamingiz",
         "note": "1 soat oldin eslatamiz",
         "button": "Toʻlash"
       }
     },
     "bakery": {
       "chip": "Novvoyxona boti",
-      "idea": "Novvoyxonam uchun Mini App bilan Telegram-bot: mijozlar menyuni koʻradi, Telegramning oʻzida buyurtma berib toʻlaydi, har bir buyurtma esa guruh chatimizga tushadi.",
-      "kind": "Telegram-bot",
+      "idea": "Novvoyxonam uchun Mini App bilan Telegram bot: mijozlar menyuni koʻradi, Telegramning oʻzida buyurtma berib toʻlaydi, har bir buyurtma esa guruh chatimizga tushadi.",
+      "kind": "Telegram bot",
       "title": "Telegramdagi novvoyxona",
       "platforms": "Bot va Mini App",
       "scope": {
         "catalog": "Menyu katalogi",
-        "checkout": "Savat va rasmiylashtirish",
+        "checkout": "Savat va buyurtma berish",
         "status": "Buyurtma holati",
         "payments": "Click va Payme",
         "group": "Buyurtmalar guruh chatingizga",
@@ -177,8 +177,8 @@
         "fresh": "Yangi non tandirdan uzildi.",
         "menuAsk": "Menyuni koʻrsating",
         "tap": "Buyurtma berish uchun pastdagi tugmani bosing.",
-        "pickup": "Soat 6 da olib ketsam boʻladimi?",
-        "pickupYes": "Ha, rasmiylashtirishda olib ketishni tanlang.",
+        "pickup": "Kechki 6 da olib ketsam boʻladimi?",
+        "pickupYes": "Ha, buyurtma berishda «Olib ketish»ni tanlang.",
         "open": "Menyuni ochish",
         "keys": {
           "menu": "Menyu",
@@ -202,7 +202,7 @@
         "cart": "Savat · 3"
       },
       "checkout": {
-        "name": "Rasmiylashtirish",
+        "name": "Buyurtma berish",
         "header": "Buyurtmangiz",
         "lines": {
           "non": "Non ×2",
@@ -217,13 +217,13 @@
       "chip": "AI yordamchi",
       "idea": "Telegram kanalimiz uchun AI yordamchi: mijozlar savollariga narxlar roʻyxati va FAQ asosida javob beradi, murakkablarini esa menejerga oʻtkazadi.",
       "kind": "AI yordamchi",
-      "title": "AI qoʻllab-quvvatlash yordamchisi",
+      "title": "Mijozlar uchun AI yordamchi",
       "platforms": "Telegram va admin panel",
       "scope": {
         "answers": "Hujjatlaringiz asosida javoblar",
         "upload": "Narxlar roʻyxati va FAQ yuklash",
         "handoff": "Menejerga oʻtkazish",
-        "alerts": "Telegram xabarnomalari",
+        "alerts": "Telegram bildirishnomalari",
         "admin": "Admin panel"
       },
       "chat": {
@@ -238,10 +238,10 @@
       },
       "handoff": {
         "name": "Menejerga oʻtkazish",
-        "invoice": "Hisob-faktura orqali toʻlasam boʻladimi?",
-        "connect": "Sizni menejerga ulayman.",
+        "invoice": "Hisob-faktura bilan toʻlasam boʻladimi?",
+        "connect": "Hozir sizni menejerga ulayman.",
         "joined": "Menejer chatga qoʻshildi",
-        "manager": "Salom, men Dilnoza. Ha, hozir yuboraman."
+        "manager": "Assalomu alaykum, men Dilnoza. Ha, hozir yuboraman."
       },
       "kb": {
         "name": "Bilimlar bazasi",

@@ -1,39 +1,39 @@
 {
-  "heading": "Siznikini yaratamiz.",
-  "summary": "Saytlar, mobil ilovalar, Telegram botlar va sunʼiy intellekt bilan avtomatlashtirish — Toshkentda yaratamiz. Gʻoyangizni va qayerga javob berishimizni yozing. Bir ish kuni ichida javob beramiz.",
-  "introLine": "Navbat sizniki.",
+  "heading": "Loyihangizni boshlaymizmi?",
+  "summary": "Sayt, mobil ilova, Telegram bot va AI avtomatlashtirish — Toshkentda ishlab chiqamiz. Gʻoyangizni va bogʻlanish uchun kontaktni qoldiring: bir ish kuni ichida javob beramiz.",
+  "introLine": "Navbat sizda.",
   "form": {
-    "label": "Loyiha boʻyicha soʻrov",
+    "label": "Loyiha boʻyicha ariza",
     "name": "Ismingiz",
     "contact": "Qayerga javob beraylik",
     "contactPlaceholder": "Telegram, telefon yoki email",
-    "idea": "Gʻoya",
+    "idea": "Gʻoyangiz",
     "ideaOptional": "ixtiyoriy",
     "ideaPlaceholder": "Novvoyxonamiz uchun buyurtma qabul qiladigan Telegram bot",
     "sending": "Yuborilmoqda",
-    "submit": "Soʻrov yuborish",
+    "submit": "Arizani yuborish",
     "errorName": "Ismingizni yozing.",
-    "errorContact": "Telegram, telefon raqami yoki email kiriting.",
+    "errorContact": "Telegram, telefon yoki email qoldiring.",
     "errorSend": "Yuborib boʻlmadi. Internetni tekshirib, qayta urinib koʻring yoki bizga toʻgʻridan-toʻgʻri yozing.",
-    "privacy": "Yuborish orqali <link>maxfiylik siyosatiga</link> rozilik bildirasiz."
+    "privacy": "Yuborish tugmasini bosib, <link>maxfiylik siyosatiga</link> rozilik bildirasiz."
   },
   "success": {
-    "title": "Xabar yuborildi.",
-    "body": "Rahmat, {name}! Qoldirgan kontaktingiz orqali bir ish kuni ichida javob beramiz.",
+    "title": "Arizangiz yuborildi.",
+    "body": "Rahmat, {name}! Bir ish kuni ichida siz qoldirgan kontakt orqali javob beramiz.",
     "again": "Yana yozish"
   },
   "direct": {
-    "label": "Yoki biz bilan toʻgʻridan-toʻgʻri bogʻlaning",
+    "label": "Yoki toʻgʻridan-toʻgʻri bogʻlaning",
     "telegram": "Telegram",
     "telegramTitle": "Telegram {handle}",
     "call": "Qoʻngʻiroq",
     "callTitle": "{phone} raqamiga qoʻngʻiroq qilish",
-    "email": "Pochta",
+    "email": "Email",
     "emailTitle": "{email} manziliga yozish"
   },
   "estimate": {
     "lead": "Hali gaplashishga tayyor emasmisiz?",
-    "link": "Narxni kalkulyatorda bilib oling"
+    "link": "Kalkulyatorda narx oraligʻini bilib oling"
   },
   "place": "Toshkent, Oʻzbekiston"
 }

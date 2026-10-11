@@ -1,27 +1,27 @@
 {
-  "heading": "Demo yasash oson. Ishga tushirish qiyin. Biz ishga tushiramiz.",
-  "summary": "Nimalar yaratamiz: saytlar, mobil ilovalar, Telegram botlar, Mini Apps, AI agentlar va avtomatlashtirish.",
-  "summaryLinked": "Nimalar yaratamiz: <web>saytlar</web>, <mobile>mobil ilovalar</mobile>, <bots>Telegram botlar</bots>, Mini Apps, AI agentlar va avtomatlashtirish.",
+  "heading": "Demo yasash oson. Oxiriga yetkazish qiyin. Biz oxiriga yetkazamiz.",
+  "summary": "Xizmatlarimiz: saytlar, mobil ilovalar, Telegram botlar, Mini App, AI agentlar va avtomatlashtirish.",
+  "summaryLinked": "Xizmatlarimiz: <web>saytlar</web>, <mobile>mobil ilovalar</mobile>, <bots>Telegram botlar</bots>, Mini App, AI agentlar va avtomatlashtirish.",
   "statement": {
     "easy": "Demo yasash oson.",
-    "hard": "Ishga tushirish qiyin.",
-    "payoff": "Biz ishga tushiramiz."
+    "hard": "Oxiriga yetkazish qiyin.",
+    "payoff": "Biz oxiriga yetkazamiz."
   },
-  "servicesLabel": "Nimalar yaratamiz",
+  "servicesLabel": "Xizmatlarimiz",
   "services": {
     "websites": "Saytlar",
     "mobileApps": "Mobil ilovalar",
     "telegramBots": "Telegram botlar",
-    "miniApps": "Mini Apps",
+    "miniApps": "Mini App",
     "aiAgents": "AI agentlar",
     "automation": "Avtomatlashtirish"
   },
-  "outcomesLabel": "Ishga tushirgan mahsulotlarimiz",
+  "outcomesLabel": "Biz ishga tushirgan mahsulotlar",
   "outcomes": {
-    "booking": "Bron qilish ilovalari",
+    "booking": "Onlayn bron ilovalari",
     "stores": "Onlayn doʻkonlar",
     "taxi": "Taksi ilovalari",
-    "delivery": "Yetkazib berish",
+    "delivery": "Yetkazib berish ilovalari",
     "tracking": "Xaritada kuzatish",
     "admin": "Admin panellar",
     "messengers": "Messenjerlar",

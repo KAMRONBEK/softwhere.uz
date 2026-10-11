@@ -1,5 +1,5 @@
 {
-  "homeLabel": "SoftWhere, yuqoriga qaytish",
+  "homeLabel": "SoftWhere, sahifa boshiga qaytish",
   "navLabel": "Asosiy menyu",
   "menu": {
     "open": "Menyu",
@@ -8,34 +8,34 @@
   },
   "build": {
     "label": "Qanday yaratamiz",
-    "title": "Hikoyani tanlang"
+    "title": "Mahsulot turini tanlang"
   },
   "stories": {
     "telegram": {
       "label": "Telegram bot",
-      "note": "Bot va Mini App, xabarma-xabar"
+      "note": "Bot va Mini App, qadamma-qadam"
     },
     "mobile-build": {
       "label": "Mobil ilova",
-      "note": "Ekranlar, backend, doʻkonlarga joylash"
+      "note": "Ekranlar, backend, App Store va Google Play"
     },
     "web-build": {
       "label": "Veb-sayt",
-      "note": "Maketdan tez va qidiruvda chiqadigan sahifagacha"
+      "note": "Maketdan tez, qidiruvda topiladigan saytgacha"
     },
     "rag-build": {
-      "label": "Hujjatlaringizda AI",
-      "note": "Manbasi koʻrsatilgan javoblar"
+      "label": "Hujjatlaringizni biladigan AI",
+      "note": "Har bir javobda manba koʻrsatiladi"
     },
     "crm-build": {
       "label": "CRM yoki admin panel",
-      "note": "Rollar, yozuvlar, jarayonlar, hisobotlar"
+      "note": "Rollar, maʼlumotlar bazasi, jarayonlar, hisobotlar"
     }
   },
   "links": {
-    "ai-demo": "Bepul baholash",
+    "ai-demo": "Bepul hisob-kitob",
     "work-wall": "Loyihalar",
-    "process": "Ish jarayoni",
+    "process": "Qanday ishlaymiz",
     "stack-physics": "Texnologiyalar"
   },
   "theme": {
@@ -43,8 +43,8 @@
     "trigger": "Mavzu: {name}. Boshqa koʻrinishni tanlash",
     "title": "Koʻrinishni tanlang",
     "hint": "Bitta sahifa, toʻrt xil koʻrinish. Tanlovingiz shu qurilmada saqlanadi.",
-    "nudge": "4 koʻrinishni sinang",
-    "dark": "Qorongʻi",
+    "nudge": "4 xil koʻrinishni sinang",
+    "dark": "Toʻq",
     "light": "Yorugʻ"
   },
   "styles": {
@@ -54,14 +54,14 @@
     "D": "Anor"
   },
   "moods": {
-    "A": "Tun",
+    "A": "Tungi osmon",
     "B": "Plakat",
     "C": "Kunduz",
     "D": "Kino"
   },
   "swatch": {
-    "lead": "Jonli",
-    "headline": "ilovalar."
+    "lead": "Ilovalarga",
+    "headline": "jon kiritamiz."
   },
   "language": {
     "label": "Til",

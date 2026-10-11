@@ -1,34 +1,40 @@
 {
   "heading": "Novvoyxona toʻrt haftada onlayn ochiladi.",
-  "summary": "Saytni qanday yaratishimizni namunaviy novvoyxona misolida koʻrsatamiz: kulrang bloklardan ishga tushirish kunigacha olti qadam.",
-  "lead": "Saytni qanday yaratishimizni namunaviy novvoyxona misolida koʻrsatamiz: kulrang bloklardan ishga tushirish kunigacha olti qadam. Saytni yigʻish uchun sahifani aylantiring, keyin oʻlchamini oʻzgartiring, toʻq rejimga oʻtkazing yoki kun taklifini oʻzingiz tahrirlang.",
-  "leadStill": "Saytni qanday yaratishimizni namunaviy novvoyxona misolida koʻrsatamiz: kulrang bloklardan ishga tushirish kunigacha olti qadam. Koʻrish uchun qadamni tanlang, keyin sayt oʻlchamini oʻzgartiring, toʻq rejimga oʻtkazing yoki kun taklifini oʻzingiz tahrirlang.",
+  "summary": "Saytni qanday yaratishimizni namunaviy novvoyxonada koʻrsatamiz: kulrang bloklardan ishga tushirish kunigacha olti qadam.",
+  "lead": "Saytni qanday yaratishimizni namunaviy novvoyxonada koʻrsatamiz: kulrang bloklardan ishga tushirish kunigacha olti qadam. Sahifani pastga suring — sayt koʻz oldingizda yigʻiladi. Keyin oʻlchamini oʻzgartiring, tungi rejimni yoqing yoki kun taklifini oʻzingiz tahrirlang.",
+  "leadStill": "Saytni qanday yaratishimizni namunaviy novvoyxonada koʻrsatamiz: kulrang bloklardan ishga tushirish kunigacha olti qadam. Qadamni tanlang, keyin sayt oʻlchamini oʻzgartiring, tungi rejimni yoqing yoki kun taklifini oʻzingiz tahrirlang.",
   "stepsLabel": "Saytni qanday yaratamiz",
   "stepAction": "{term}, {when}. Bu qadamni koʻrsatish",
-  "getLabel": "Natijada:",
-  "timeline": "Admin panelli korporativ sayt odatda birinchi suhbatdan ishga tushirishgacha 3–4 hafta oladi.",
+  "getLabel": "Natija",
+  "timeline": "Admin panelli korporativ sayt odatda 3–4 haftada tayyor boʻladi — birinchi suhbatdan ishga tushirishgacha.",
   "deliverTitle": "Nimalarga ega boʻlasiz",
   "deliver": {
-    "site": "Oʻz domeningizdagi sayt: telefonda tez ochiladi va Google uchun tushunarli",
-    "admin": "Matn, rasm va narxlarni oʻzingiz oʻzgartirish uchun admin panel",
-    "analytics": "Ishga tushirilgan kundan boshlab analitika",
+    "site": "Oʻz domeningizdagi sayt: telefonda tez ochiladi, Googleda yaxshi topiladi",
+    "admin": "Matn, rasm va narxlarni oʻzingiz oʻzgartiradigan admin panel",
+    "analytics": "Ishga tushgan kundan analitika",
     "ownership": "Kod, hosting akkaunti va domen birinchi kundan sizning nomingizda",
-    "fixes": "Biz topshirgan hamma narsa uchun 12 oy xatoliklarni tuzatish"
+    "fixes": "Topshirgan barcha ishimizdagi xatolarni 12 oy davomida tuzatamiz"
   },
   "proof": "Portfoliomizda hozirgacha {count} ta veb-loyiha bor, jumladan {examples}.",
   "proofShort": "Portfoliomizda hozirgacha {count} ta veb-loyiha bor.",
   "listAnd": "{rest} va {last}",
-  "next": "Navbatdagisi sizniki boʻlishi mumkin.",
+  "next": "Keyingisi sizniki boʻlishi mumkin.",
   "cta": "Sayt narxini hisoblash",
-  "footnote": "Muddatlar odatiy korporativ sayt uchun. Aniq sanalarni sizga beriladigan taklifda belgilaymiz.",
-  "demoLabel": "Interaktiv demo: namunaviy novvoyxona sayti bosqichma-bosqich yaratiladi",
+  "footnote": "Muddatlar odatiy korporativ sayt uchun. Aniq sanalar tijorat taklifida yoziladi.",
+  "demoLabel": "Interaktiv demo: namunaviy novvoyxona sayti qadam-baqadam yaratiladi",
   "exampleTag": "Namuna",
-  "cursor": { "show": "Koʻrish" },
+  "cursor": {
+    "show": "Koʻrish"
+  },
   "toolbar": {
     "label": "Koʻrinish sozlamalari",
     "widthLabel": "Ekran kengligi",
-    "modes": { "desktop": "Kompyuter", "tablet": "Planshet", "phone": "Telefon" },
-    "dark": "Toʻq rejim"
+    "modes": {
+      "desktop": "Kompyuter",
+      "tablet": "Planshet",
+      "phone": "Telefon"
+    },
+    "dark": "Tungi rejim"
   },
   "domain": "novvoyxonangiz.uz",
   "address": {
@@ -42,13 +48,13 @@
     "wire": {
       "term": "Prototip",
       "when": "1–3-kunlar",
-      "text": "Rangdan oldin kulrang bloklar: nima qayerda turishi va tashrif buyuruvchi avval nima qilishini kelishib olamiz.",
-      "get": "Dizayndan oldin kelishilgan har bir sahifa sxemasi."
+      "text": "Rangdan oldin kulrang bloklar: nima qayerda turishini va saytga kirgan mijoz avval nima qilishi kerakligini kelishib olamiz.",
+      "get": "Har bir sahifa sxemasi, dizayndan oldin kelishilgan."
     },
     "design": {
       "term": "Dizayn",
       "when": "1-hafta",
-      "text": "Yagona ranglar va shriftlar toʻplami: har bir sahifa bir uslubda, yorugʻ va toʻq rejimda.",
+      "text": "Yagona ranglar va shriftlar toʻplami: har bir sahifa bir uslubda, kunduzgi va tungi rejimda ham.",
       "get": "Telefon va kompyuter uchun siz tasdiqlagan maketlar."
     },
     "code": {
@@ -60,34 +66,38 @@
     "checks": {
       "term": "Tezlik va SEO",
       "when": "3-hafta",
-      "text": "Telefonda tez, Google uchun tushunarli: tezlik, foydalanish qulayligi va SEO asoslarini tekshiramiz.",
+      "text": "Telefonda tez ochiladi, Googleda yaxshi topiladi: tezlik, qulaylik va SEO asoslarini tekshiramiz.",
       "get": "Ishga tushirishdan oldin tezlik va SEO hisoboti."
     },
     "content": {
       "term": "Admin panel",
       "when": "3–4-haftalar",
-      "text": "Matn, rasm va narxlarni jamoangiz dasturchisiz oʻzi oʻzgartiradi.",
-      "get": "Jamoangiz uchun loginlar va saytni boshqarish uchun admin panel."
+      "text": "Matn, rasm va narxlarni jamoangiz oʻzi oʻzgartiradi — dasturchi kerak emas.",
+      "get": "Jamoangiz uchun loginlar va saytni boshqaradigan admin panel."
     },
     "launch": {
       "term": "Ishga tushirish",
       "when": "4-hafta",
-      "text": "Domen, xavfsiz ulanish va analitika birga ishga tushadi, shuning uchun tashriflar va buyurtmalarni birinchi kundan koʻrasiz.",
-      "get": "Oʻz domeningizda, oʻz nomingizdagi ishlayotgan sayt."
+      "text": "Domen, xavfsiz ulanish va analitika birga ishga tushadi — tashrif va buyurtmalarni birinchi kundanoq koʻrasiz.",
+      "get": "Oʻz domeningizda, oʻz nomingizda ishlayotgan sayt."
     }
   },
   "site": {
     "brand": "Novvoyxonangiz",
     "specialBefore": "Bugun: pistali kruassanlar, soat {time} da pechdan chiqadi",
     "specialAfter": "Bugun: soat {time} dan issiq doljinli bulochkalar",
-    "nav": { "menu": "Menyu", "about": "Biz haqimizda", "visit": "Manzil" },
+    "nav": {
+      "menu": "Menyu",
+      "about": "Biz haqimizda",
+      "visit": "Manzil"
+    },
     "navCta": "Oldindan buyurtma",
     "navCtaShort": "Buyurtma",
-    "heroTitle": "Tong otguncha pishirilgan.",
-    "heroText": "Har tongda oʻz pechimizdan xamirturushli non, kruassan va bulochkalar. Oldindan buyurtma bering va navbatda turmang.",
+    "heroTitle": "Tong otmasdan pishiramiz.",
+    "heroText": "Har tong oʻz pechimizdan xamirturushli non, kruassan va bulochkalar. Oldindan buyurtma bering — navbatda turmaysiz.",
     "ctaPrimary": "Olib ketishga buyurtma",
     "ctaSecondary": "Menyuni koʻrish",
-    "freshTitle": "Bugun yangi",
+    "freshTitle": "Bugun pishganlar",
     "products": {
       "loaf": "Xamirturushli non",
       "croissant": "Sariyogʻli kruassan",
@@ -102,38 +112,64 @@
     "nav": "Menyu",
     "order": "Buyurtma",
     "title": "Sarlavha",
-    "text": "Kirish",
+    "text": "Qisqa matn",
     "actions": "Tugmalar",
     "photo": "Rasm",
     "fresh": "Mahsulotlar",
     "footer": "Pastki qism"
   },
   "panels": {
-    "wire": { "title": "Dizayner izohi", "text": "Buyurtma tugmasi har qanday ekranda tepada turadi." },
+    "wire": {
+      "title": "Dizayner izohi",
+      "text": "Buyurtma tugmasi har qanday ekranda tepada turadi."
+    },
     "design": {
       "title": "Dizayn tizimi",
       "colours": "Rang",
-      "swatches": { "brand": "Brend", "accent": "Aksent", "ink": "Matn", "paper": "Fon" },
+      "swatches": {
+        "brand": "Brend",
+        "accent": "Aksent",
+        "ink": "Matn",
+        "paper": "Fon"
+      },
       "type": "Shrift",
       "headings": "Sarlavhalar",
       "body": "Matn",
       "shape": "Burchaklar va oraliqlar",
-      "note": "Yorugʻ va toʻq rejim uchun bitta toʻplam."
+      "note": "Kunduzgi va tungi rejim uchun bitta toʻplam."
     },
     "code": {
-      "layout": { "desktop": "3 ustun", "tablet": "2 ustun", "phone": "1 ustun" },
+      "layout": {
+        "desktop": "3 ustun",
+        "tablet": "2 ustun",
+        "phone": "1 ustun"
+      },
       "chip": "Bitta sahifa, uchta ekran"
     },
     "checks": {
       "title": "Tezlik va SEO hisoboti",
       "device": "telefonda",
-      "scores": { "perf": "Tezlik", "a11y": "Qulaylik", "best": "Amaliyot", "seo": "SEO" },
+      "scores": {
+        "perf": "Tezlik",
+        "a11y": "Qulaylik",
+        "best": "Standartlar",
+        "seo": "SEO"
+      },
       "scoreOf": "{label}: 100 dan {value}",
       "vitalsTitle": "Core Web Vitals",
       "vitals": {
-        "lcp": { "label": "Yuklanish", "value": "1,2 s" },
-        "inp": { "label": "Javob", "value": "90 ms" },
-        "cls": { "label": "Barqarorlik", "value": "0,02" }
+        "lcp": {
+          "label": "Yuklanish",
+          "value": "1,2 s"
+        },
+        "inp": {
+          "label": "Javob",
+          "value": "90 ms"
+        },
+        "cls": {
+          "label": "Barqarorlik",
+          "value": "0,02"
+        }
       },
       "good": "Yaxshi",
       "rows": {
@@ -159,7 +195,7 @@
       "today": "Bugungi tashriflar",
       "orders": "Buyurtmalar",
       "conversion": "Konversiya",
-      "toast": "Yangi oldindan buyurtma · {item}",
+      "toast": "Yangi buyurtma · {item}",
       "items": {
         "croissants": "2 ta sariyogʻli kruassan",
         "loaf": "Xamirturushli non",

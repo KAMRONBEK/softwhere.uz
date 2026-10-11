@@ -1,30 +1,30 @@
 {
-  "heading": "Doʻkoningiz Telegram ichida.",
-  "summary": "Bot buyurtma, toʻlov va olib ketish vaqtini mijozlaringiz har kuni ishlatadigan chatning oʻzida qabul qiladi. Hech narsa oʻrnatish yoki roʻyxatdan oʻtish shart emas.",
-  "lead": "Bot buyurtma, toʻlov va olib ketish vaqtini mijozlaringiz har kuni ishlatadigan chatning oʻzida qabul qiladi. Hech narsa oʻrnatish yoki roʻyxatdan oʻtish shart emas. Sinab koʻring: qahvaga buyurtma bering.",
+  "heading": "Doʻkoningiz — Telegramda.",
+  "summary": "Bot buyurtmani oladi, toʻlovni qabul qiladi va olib ketish vaqtini kelishadi — mijozlaringiz har kuni ochadigan chatning oʻzida. Hech narsa oʻrnatish yoki roʻyxatdan oʻtish shart emas.",
+  "lead": "Bot buyurtmani oladi, toʻlovni qabul qiladi va olib ketish vaqtini kelishadi — mijozlaringiz har kuni ochadigan chatning oʻzida. Hech narsa oʻrnatish yoki roʻyxatdan oʻtish shart emas. Sinab koʻring: qahva buyurtma qiling.",
   "legend": {
     "bot": {
       "term": "Bot",
-      "text": "Menyu, tanlov va toʻlov: hammasi bir bosishda.",
+      "text": "Menyu, tanlov va toʻlov — har biri bitta bosishda.",
       "action": "Demoda botni koʻrsatish"
     },
     "admin": {
       "term": "Admin panel",
-      "text": "Har bir toʻlangan buyurtma darhol jamoangiz ekraniga tushadi.",
+      "text": "Har bir toʻlangan buyurtma darhol xodimlaringiz ekraniga tushadi.",
       "action": "Demoda admin panelni koʻrsatish"
     },
     "mini": {
       "term": "Mini App",
-      "text": "Chatning ichida ochiladigan toʻliq onlayn doʻkon.",
+      "text": "Chatning oʻzida ochiladigan toʻliq onlayn doʻkon.",
       "action": "Demoda Mini Appni koʻrsatish"
     }
   },
-  "reach": "Mijozlaringiz Telegramda emasmi? Xuddi shu jarayonni sayt yoki mobil ilova sifatida ham ishga tushiramiz. Uchalasini ham biz qilamiz.",
-  "proof": "Topshirilgan loyiha: Telegram-bot orqali savdo qiladigan doʻkon uchun admin panel. Botingiz birinchi buyurtmasini kelasi oydayoq qabul qilishi mumkin.",
-  "replay": "Demoni qayta koʻrish",
+  "reach": "Mijozlaringiz Telegramda emasmi? Xuddi shu buyurtma tizimini sayt yoki mobil ilova qilib ham beramiz. Uchalasini ham oʻzimiz ishlab chiqamiz.",
+  "proof": "Bajarilgan loyiha: Telegram bot orqali savdo qiladigan doʻkon uchun admin panel. Sizning botingiz birinchi buyurtmani keyingi oydayoq qabul qilishi mumkin.",
+  "replay": "Qayta koʻrish",
   "hintTouch": "Jonli demo · tugmalarni bosing",
   "hintPointer": "Jonli demo · tugmalarni bosing",
-  "demoLabel": "Kafe uchun Telegram-botning interaktiv demosi",
+  "demoLabel": "Kafe uchun Telegram botning interaktiv demosi",
   "cursor": {
     "tap": "Bosing",
     "show": "Koʻrish"
@@ -36,7 +36,7 @@
   "menu": {
     "cappuccino": "Kapuchino",
     "latte": "Latte",
-    "flat": "Flet uayt",
+    "flat": "Flat white",
     "matcha": "Matcha latte",
     "croissant": "Kruassan",
     "samsa": "Somsa"
@@ -69,38 +69,38 @@
     "menuButton": "Menyu",
     "hello": "Salom! Qahva buyurtma qilsam boʻladimi?",
     "greet": "Xayrli tong! Bugun nima ichasiz?",
-    "askSize": "Ajoyib tanlov. Qaysi hajmda?",
+    "askSize": "Ajoyib tanlov! Qaysi hajmda boʻlsin?",
     "askTime": "Qachonga tayyor boʻlsin?",
     "cartTitle": "Buyurtmangiz",
     "pickupLabel": "Olib ketish",
     "totalLabel": "Jami",
     "pay": "{total} toʻlash",
     "startOver": "Qaytadan boshlash",
-    "receiptTitle": "#{number} buyurtma tasdiqlandi",
-    "receiptPaid": "{total} •• {last4} karta orqali toʻlandi",
-    "receiptPickup": "Olib ketish: {pickup}. Kassada shu raqamni ayting.",
-    "ready": "{item} tayyor, peshtaxtadan olib keting. Yoqimli ishtaha!",
+    "receiptTitle": "Buyurtma #{number} tasdiqlandi",
+    "receiptPaid": "•• {last4} kartadan {total} toʻlandi",
+    "receiptPickup": "Olib ketish: {pickup}. Kassada shu raqamni koʻrsating.",
+    "ready": "Buyurtmangiz tayyor: {itemLower}. Peshtaxtadan olib keting. Yoqimli ishtaha!",
     "menuPrompt": "Keyingi safar toʻliq menyudan buyurtma bering.",
     "openMenu": "Menyuni ochish"
   },
   "pay": {
     "title": "Toʻlov",
-    "order": "#{number} buyurtma",
-    "cardLabel": "Uzcard kartasi",
+    "order": "Buyurtma #{number}",
+    "cardLabel": "Uzcard",
     "cardHolder": "A. KARIMOVA",
     "codeLabel": "SMS-kod",
-    "codeSentTo": "Yuborildi: +998 •• ••• •• 17",
+    "codeSentTo": "+998 •• ••• •• 17 raqamiga yuborildi",
     "button": "{total} toʻlash",
-    "processing": "Bajarilmoqda…",
+    "processing": "Kuting…",
     "done": "Toʻlandi",
-    "secure": "Toʻlov Payme orqali: karta maʼlumotlari toʻlov tizimida qoladi."
+    "secure": "Karta maʼlumotlari faqat toʻlov tizimida saqlanadi."
   },
   "admin": {
     "title": "Buyurtmalar",
-    "live": "Jonli",
+    "live": "Onlayn",
     "status": {
       "new": "Yangi",
-      "preparing": "Tayyorlanyapti",
+      "preparing": "Tayyorlanmoqda",
       "ready": "Tayyor"
     },
     "columns": {
@@ -119,13 +119,13 @@
     "boardLabel": "Kafengizning buyurtmalar ekrani",
     "today": "Bugun",
     "kitchen": "{cafe} · oshxona",
-    "waiting": "Buyurtmalar kutilmoqda"
+    "waiting": "Buyurtma kutilmoqda"
   },
   "mini": {
     "close": "Yopish",
     "subtitle": "mini app",
     "greeting": "Xayrli tong",
-    "note": "Taxminan 10 daqiqada olib ketasiz",
+    "note": "Taxminan 10 daqiqada tayyor boʻladi",
     "categories": {
       "coffee": "Qahva",
       "bakery": "Pishiriqlar",
@@ -133,8 +133,8 @@
     },
     "add": "{name} qoʻshish",
     "remove": "Bitta {name} olib tashlash",
-    "view": "Buyurtma · {count} ta · {total}",
-    "sending": "Buyurtma berilmoqda…",
-    "sent": "#{number} buyurtma qabul qilindi"
+    "view": "Savat · {count} ta · {total}",
+    "sending": "Buyurtma yuborilmoqda…",
+    "sent": "Buyurtma #{number} qabul qilindi"
   }
 }

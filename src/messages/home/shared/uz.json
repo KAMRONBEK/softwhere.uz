@@ -1,5 +1,5 @@
 {
-  "sectionError": "Bu boʻlim yuklanmadi. Sahifaning qolgan qismi ishlayapti.",
+  "sectionError": "Bu boʻlimda xatolik yuz berdi. Sahifaning qolgan qismi ishlayapti.",
   "quoteOpen": "«",
   "quoteClose": "»",
   "callCta": "Qoʻngʻiroqqa yozilish",
@@ -15,11 +15,11 @@
         },
         "conversation": {
           "caption": "Ovozli xabarlar, fayllar va javoblar",
-          "alt": "Tungi rejimdagi messenjer: ovozli xabar, fayl va javob bor yozishma"
+          "alt": "Tungi rejimdagi messenjer: ovozli xabar, fayl va javob bilan yozishma"
         },
         "themes": {
-          "caption": "Rang mavzulari va urgʻu ranglari",
-          "alt": "Tungi rejimdagi messenjer: rang mavzulari va urgʻu ranglari bilan koʻrinish sozlamalari"
+          "caption": "Rang mavzulari va aksent ranglar",
+          "alt": "Tungi rejimdagi messenjer: rang mavzulari va aksent ranglar bilan koʻrinish sozlamalari"
         }
       }
     },
@@ -27,7 +27,7 @@
       "descriptor": "AI taʼlim platformasi",
       "screens": {
         "site": {
-          "caption": "Har qanday materialdan tayyor dars",
+          "caption": "Har qanday materialni darsga aylantiradi",
           "alt": "Tungi rejimdagi AI taʼlim platformasi: bosh sahifa, uch qadam va imkoniyatlar"
         }
       }
@@ -36,11 +36,11 @@
       "descriptor": "investitsiya ilovasi",
       "screens": {
         "explore": {
-          "caption": "Toʻplamlar, koʻchmas mulk va oʻsish yetakchilari",
+          "caption": "Toʻplamlar, koʻchmas mulk va eng koʻp oʻsganlar",
           "alt": "Tungi rejimdagi investitsiya ilovasi: mashhur toʻplamlar va koʻchmas mulk bozorlari koʻrsatilgan «Explore» boʻlimi"
         },
         "markets": {
-          "caption": "Har bir kriptovalyutaning oʻz mini-grafigi",
+          "caption": "Har bir tanganing oʻz mini-grafigi",
           "alt": "Tungi rejimdagi investitsiya ilovasi: narxlari va mini-grafiklari bilan kriptovalyutalar roʻyxati"
         },
         "portfolio": {
@@ -53,15 +53,15 @@
       "descriptor": "auksion marketpleysi",
       "screens": {
         "market": {
-          "caption": "Xaridorlar butun hafta lot tanlaydi",
+          "caption": "Xaridorlar hafta davomida lot tanlaydi",
           "alt": "Tungi rejimdagi auksion marketpleysi: efirdagi lot va yangi mahsulotlar koʻrsatilgan vitrina"
         },
         "live": {
-          "caption": "Jonli savdo: har bir stavka taymerni yangidan boshlaydi",
-          "alt": "Tungi rejimdagi auksion marketpleysi: eng yuqori stavka va teskari sanoq koʻrsatilgan jonli auksion xonasi"
+          "caption": "Jonli savdo: har bir yangi taklif taymerni qaytadan boshlaydi",
+          "alt": "Tungi rejimdagi auksion marketpleysi: eng yuqori taklif va teskari sanoq koʻrsatilgan jonli auksion xonasi"
         },
         "product": {
-          "caption": "Hajmga qarab chegirmali zavod narxlari",
+          "caption": "Zavod narxlari: koʻp olsangiz, arzonroq",
           "alt": "Tungi rejimdagi auksion marketpleysi: xususiyatlari va hajmga qarab narxlari koʻrsatilgan mahsulot kartochkasi"
         }
       }
@@ -70,10 +70,10 @@
   "footer": {
     "label": "Sayt pastki qismi",
     "servicesLabel": "Xizmatlar",
-    "web": "Veb-sayt yaratish",
+    "web": "Sayt yaratish",
     "mobile": "Mobil ilova yaratish",
     "bots": "Telegram bot yaratish",
-    "moreLabel": "Yana",
+    "moreLabel": "Boshqalar",
     "blog": "Blog",
     "estimator": "Narx kalkulyatori",
     "privacy": "Maxfiylik siyosati",

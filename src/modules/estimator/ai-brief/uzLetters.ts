@@ -11,8 +11,8 @@ import { mapScreensTexts } from '@/modules/estimator/ai-brief/polish';
  * plain "'" the prompts ask for (`normalizeUzApostrophes`; every Uzbek word
  * list and guard matches it), so this is the LAST step: the assembled brief,
  * the preview and the streamed wireframes are converted once, nothing after
- * reads them. Only the brief changes — the site's own copy in
- * `messages/uz.json` keeps the plain "'".
+ * reads them. The site's own copy (`messages/uz.json`, `messages/home/<section>/uz.json`)
+ * is written with ʻ/ʼ directly (`tests/i18n/parity.ts` checks it).
  *
  * Deterministic and narrow: a mark between two Latin letters becomes ʻ after
  * o/O/g/G and ʼ after any other letter. Left alone: a mark at the start or end

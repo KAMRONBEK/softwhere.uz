@@ -4,11 +4,11 @@
     "first": "Toshkentda yaratilgan.",
     "second": "{continents, plural, =1 {Bir qitʼada} =2 {Ikki qitʼada} =3 {Uch qitʼada} =4 {Toʻrt qitʼada} =5 {Besh qitʼada} =6 {Olti qitʼada} =7 {Yetti qitʼada} other {# ta qitʼada}} ishlaydi."
   },
-  "summary": "Toshkentdagi studiyamizdan AQSH, Yevropa va Markaziy Osiyodagi mijozlarga.",
+  "summary": "Studiyamiz Toshkentda, mijozlarimiz esa AQSH, Yevropa va Markaziy Osiyoda.",
   "hintMouse": "Globusni aylantirish uchun torting",
-  "hintTouch": "Aylantirish uchun yon tomonga suring",
-  "cursor": "Torting",
-  "routeLabel": "Marshrut nuqtasiga oʻtish",
+  "hintTouch": "Aylantirish uchun chapga yoki oʻngga suring",
+  "cursor": "Suring",
+  "routeLabel": "Xaritadagi nuqtaga oʻtish",
   "stopLabel": "{stop}: {count} ta mahsulot",
   "km": "km",
   "pins": {
@@ -30,33 +30,33 @@
     "home": {
       "stop": "Toshkent",
       "title": "tasi Oʻzbekistonda",
-      "body": "Bizning bazamiz: butun mamlakat boʻylab mijozlar uchun mahsulotlar.",
+      "body": "Asosiy bazamiz. Mijozlarimiz butun Oʻzbekiston boʻylab.",
       "detail": "{examples}"
     },
     "europe": {
       "stop": "Yevropa",
       "title": "tasi Yevropada",
-      "body": "Buyuk Britaniya, Niderlandiya va butun Yevropadagi jamoalar uchun.",
+      "body": "Buyuk Britaniya, Niderlandiya va Yevropaning boshqa davlatlaridagi mijozlar uchun.",
       "detail": "{examples} Toshkentdan {km} km gacha."
     },
     "north-america": {
       "stop": "Sh. Amerika",
       "title": "tasi Shimoliy Amerikada",
-      "body": "{us} tasi AQSHda, {ca} tasi Kanadada: Nyu-Yorkdan Kaliforniyagacha.",
+      "body": "{us} tasi AQSHda, {ca} tasi Kanadada — Nyu-Yorkdan Kaliforniyagacha.",
       "detail": "{examples} Toshkentdan {km} km gacha."
     },
     "oceania": {
       "stop": "Avstraliya",
       "title": "tasi Avstraliyada",
-      "body": "Avstraliyadagi jamoalar uchun.",
-      "bodyShort": "Avstraliyadagi jamoalar uchun.",
+      "body": "Avstraliyadagi mijozlar uchun: {first}dan {last}gacha.",
+      "bodyShort": "Avstraliyadagi mijozlar uchun.",
       "detail": "{examples} Toshkentdan {km} km uzoqlikda."
     },
     "finale": {
       "stop": "Hammasi",
       "title": "ta mahsulot, bitta jamoa",
       "body": "Xaritada {countries, plural, =1 {bitta davlat} =2 {ikki davlat} =3 {uch davlat} =4 {toʻrt davlat} =5 {besh davlat} =6 {olti davlat} =7 {yetti davlat} =8 {sakkiz davlat} =9 {toʻqqiz davlat} =10 {oʻn davlat} other {# ta davlat}}, Toshkentda bitta studiya.",
-      "detail": "{abroad} tasi xorijiy mijozlar uchun, shundan {worldwide} tasi bir nechta davlatdagi jamoalar uchun. Qaysi vaqt mintaqasida boʻlmang, har kuni yozma hisobot keladi."
+      "detail": "{abroad} tasi xorijiy mijozlar uchun, shundan {worldwide} tasi bir necha davlatda ishlaydigan jamoalarga. Qaysi vaqt mintaqasida boʻlmang, har kuni yozma hisobot olasiz."
     }
   }
 }

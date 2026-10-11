@@ -1,42 +1,42 @@
 {
-  "heading": "Baland gaplar emas, raqamlar.",
-  "summary": "Bu yerdagi har bir raqam portfoliomizdan sanalgan: bitta nuqta — bitta mahsulot. Hech narsa qoʻlda kiritilmagan yoki yaxlitlanmagan.",
+  "heading": "Quruq gap emas, raqamlar.",
+  "summary": "Har bir raqamni portfoliomizdan sanab chiqdik: bitta nuqta — bitta mahsulot. Hech narsa qoʻlda yozilmagan, yaxlitlanmagan ham.",
   "eyebrow": "Daʼvo emas, hisob",
-  "hintPointer": "Mahsulotni koʻrish uchun nuqta ustiga olib boring",
+  "hintPointer": "Mahsulotni koʻrish uchun kursorni nuqtaga olib boring",
   "hintTouch": "Mahsulotni koʻrish uchun nuqtaga teging",
-  "stirPointer": "Raqam ustida yurgizib, uni toʻzgʻiting. Qayta sanash uchun bosing.",
-  "stirTouch": "Changni toʻzgʻitish uchun teging. Qayta sanash uchun bosing.",
+  "stirPointer": "Kursorni raqam ustidan yurgizing — u sochilib ketadi. Qayta sanash uchun bosing.",
+  "stirTouch": "Raqamga teging — u sochilib ketadi. Qayta sanash uchun yana bosing.",
   "recount": "Qayta sanash",
   "recountLabel": "Qayta sanash: {fact}",
   "railLabel": "Toʻrt raqam",
-  "liveOn": "{stores}da mavjud",
+  "liveOn": "{stores}da bor",
   "listAnd": "{head} va {last}",
   "facts": {
     "built": {
       "short": "Yaratilgan",
       "label": "Yaratilgan mahsulotlar",
       "spoken": "{value} ta mahsulot yaratilgan",
-      "caption": "Ilovalar, platformalar va servislar — har birining demo-videosi bor."
+      "caption": "Ilova, platforma va servislar — har birining video-obzori bor."
     },
     "platforms": {
       "short": "iOS+Android",
-      "label": "iPhone va Androidʼda",
-      "spoken": "iPhone va Androidʼda {value} ta mahsulot",
-      "caption": "Har biri ikkala platforma uchun yaratilgan.",
-      "captionShared": "Har biri ikkalasida ham React Nativeʼdagi bitta umumiy koddan ishlaydi."
+      "label": "iPhone va Android uchun",
+      "spoken": "iPhone va Android uchun {value} ta mahsulot",
+      "caption": "Har biri ikkala platformaga moslab yaratilgan.",
+      "captionShared": "Hammasi React Native asosida: bitta kod ikkala platformada ishlaydi."
     },
     "abroad": {
-      "short": "Xorijda",
+      "short": "Xorij",
       "label": "Xorijiy mijozlar uchun",
       "spoken": "Xorijiy mijozlar uchun {value} ta mahsulot",
-      "caption": "Mijozlar: {countries}. Yana {international} ta xalqaro loyiha.",
-      "captionNoInternational": "Mijozlar: {countries}."
+      "caption": "Mijozlarimiz {countries}da. Yana {international} ta xalqaro loyiha bor.",
+      "captionNoInternational": "Mijozlarimiz {countries}da."
     },
     "industries": {
       "short": "Sohalar",
       "label": "Sohalar",
       "spoken": "{value} ta soha",
-      "caption": "Tibbiyot va logistikadan robototexnika va davlat xizmatlarigacha."
+      "caption": "Tibbiyot va logistikadan tortib robototexnika va davlat xizmatlarigacha."
     }
   },
   "all": "Mahsulotlar",
@@ -76,7 +76,7 @@
     "fashion": "Moda",
     "government": "Davlat sektori",
     "media": "Media va oʻyinlar",
-    "business": "Biznes vositalari",
+    "business": "Biznes dasturlari",
     "developer": "Dasturchilar uchun",
     "robotics": "Robototexnika"
   }

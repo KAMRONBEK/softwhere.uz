@@ -1,12 +1,12 @@
 {
-  "heading": "Kutilmagan holatlarsiz, haftama-hafta",
-  "summary": "Nimani imzolaysiz, qachon toʻlaysiz, har hafta nimani koʻrasiz va ishga tushirilgandan keyin nima boʻladi.",
-  "hint": "Marshrut boʻylab yurish uchun aylantiring",
+  "heading": "Hafta sayin, kutilmagan narsalarsiz",
+  "summary": "Nimani imzolaysiz, qachon toʻlaysiz, har hafta nimani koʻrasiz va ishga tushgandan keyin nima boʻladi.",
+  "hint": "Bosqichlarni koʻrish uchun pastga suring",
   "counterLabel": "Hafta",
-  "counterCaption": "odatiy birinchi versiya boʻyicha",
+  "counterCaption": "odatiy birinchi versiyada",
   "outro": "Keyin navbatdagi versiya boshlanadi.",
-  "footnote": "Muddatlar mobil ilovaning odatiy birinchi versiyasi uchun; yirikroq mahsulotlar koʻproq vaqt oladi.",
-  "stepsLabel": "Biz qanday ishlaymiz",
+  "footnote": "Haftalar mobil ilovaning odatiy birinchi versiyasi uchun; kattaroq loyihalar koʻproq vaqt oladi.",
+  "stepsLabel": "Biz bilan qanday ishlaysiz",
   "progressLabel": "Ish bosqichlari",
   "jumpTo": "{number}-bosqichga oʻtish: {title}",
   "factsLabel": "{title}: siz nima olasiz",
@@ -15,7 +15,7 @@
   "when": {
     "single": "{from}-hafta",
     "range": "{from}–{to}-haftalar",
-    "open": "{from}-haftadan keyin"
+    "open": "{from}-haftadan boshlab"
   },
   "steps": {
     "discover": {
@@ -24,33 +24,33 @@
     },
     "design": {
       "title": "Dizayn",
-      "summary": "Ilova yaratilmasdan oldin uni bosib koʻrasiz."
+      "summary": "Ilova hali yozilmasdan turib, uni bosib koʻrasiz."
     },
     "build": {
       "title": "Ishlab chiqish",
-      "summary": "Ikki haftalik ish davrlari — sprintlar, har hafta sinab koʻrish uchun yangi versiya."
+      "summary": "Ikki haftalik bosqichlar (sprintlar) va har hafta sinab koʻrish uchun yangi versiya."
     },
     "launch": {
       "title": "Ishga tushirish",
-      "summary": "Haqiqiy foydalanuvchilarga chiqaramiz va diqqat bilan kuzatamiz."
+      "summary": "Haqiqiy foydalanuvchilarga chiqaramiz va har qadamini kuzatamiz."
     },
     "grow": {
       "title": "Rivojlantirish",
-      "summary": "Ishga tushirish kuni — marra emas, start chizigʻi."
+      "summary": "Ishga tushgan kun — marra emas, bu hali boshlanishi."
     }
   },
   "facts": {
-    "nda": "Avval NDA, agar xohlasangiz",
-    "range": "Narx oraligʻi darhol",
-    "spec": "Texnik topshiriq birga yoziladi",
-    "fixedPrice": "Keyin bitta qatʼiy narx",
-    "contract": "Hajm va narx shartnomada",
-    "deposit": "Oldindan toʻlov, keyin bosqichma-bosqich",
+    "nda": "Istasangiz, avval NDA",
+    "range": "Narx oraligʻi — boshidanoq",
+    "spec": "Texnik topshiriqni birga yozamiz",
+    "fixedPrice": "Soʻng qatʼiy narx",
+    "contract": "Ish hajmi va narx shartnomada",
+    "deposit": "Avans, keyin har bosqich uchun toʻlov",
     "dailyUpdate": "Har kuni yozma hisobot",
-    "changes": "Oʻzgarishlar boshlanishdan oldin baholanadi",
+    "changes": "Oʻzgarish narxi ishdan oldin kelishiladi",
     "accounts": "Kod, bulut va domenlar sizning nomingizda",
-    "ownership": "Toʻlaganingiz sari kod sizniki boʻladi",
-    "bugFixes": "12 oy xatolarni tuzatish — narx ichida",
-    "support": "Keyin oylik qoʻllab-quvvatlash, agar xohlasangiz"
+    "ownership": "Toʻlagan sari kod sizga oʻtib boradi",
+    "bugFixes": "12 oy davomida xatolarni bepul tuzatamiz",
+    "support": "Keyin, istasangiz, oylik qoʻllab-quvvatlash"
   }
 }

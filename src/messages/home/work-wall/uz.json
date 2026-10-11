@@ -1,13 +1,13 @@
 {
-  "heading": "{projects} ta haqiqiy mahsulot.",
-  "headingRest": "ta haqiqiy mahsulot.",
-  "summary": "Har bir plitka — biz ishga tushirgan mahsulotning demo-videosi. Ulardan {us} tasi AQSH bozori uchun yaratilgan, {liveInStore} tasi App Store va Google Playʼda.",
-  "hintPointer": "Devorni torting. Ochish uchun plitkani bosing.",
-  "hintTouch": "Devorni suring. Ochish uchun plitkaga teging.",
-  "cursorDrag": "Torting",
+  "heading": "{projects} ta tayyor loyiha.",
+  "headingRest": "ta tayyor loyiha.",
+  "summary": "Har bir kartochkada biz ishga tushirgan loyihaning video-obzori. {us} tasi AQSH bozori uchun yaratilgan, {liveInStore} tasi App Store va Google Playda bor.",
+  "hintPointer": "Devorni suring. Loyihani ochish uchun kartochkani bosing.",
+  "hintTouch": "Devorni suring. Loyihani ochish uchun kartochkaga teging.",
+  "cursorDrag": "Suring",
   "cursorOpen": "Ochish",
   "wallLabel": "Loyihalar devori",
-  "wallInstructions": "Strelka tugmalari loyihalar orasida yuradi, devor ham ergashadi. Enter loyihani ochadi. Sichqoncha yoki barmoq bilan devorni tortish mumkin.",
+  "wallInstructions": "Strelkalar bilan loyihadan loyihaga oʻting, devor ham siz bilan siljiydi. Enter loyihani ochadi. Sichqoncha yoki barmoq bilan devorni surish mumkin.",
   "listLabel": "Barcha loyihalar",
   "showList": "Roʻyxat koʻrinishida",
   "showWall": "Devorga qaytish",
@@ -23,9 +23,9 @@
     "all": "{count} ta loyiha",
     "mobile": "{count} ta mobil ilova",
     "web": "{count} ta veb-mahsulot",
-    "ai": "AI yoki boti bor {count} ta mahsulot"
+    "ai": "AI yoki bot ishlatilgan {count} ta mahsulot"
   },
-  "cardLabel": "{name}, {category}, {market}. Demo-videoni ochish",
+  "cardLabel": "{name}, {category}, {market}. Video-obzorni ochish",
   "lightbox": {
     "category": "Yoʻnalish",
     "market": "Bozor",

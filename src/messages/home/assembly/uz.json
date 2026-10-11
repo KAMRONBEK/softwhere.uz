@@ -1,17 +1,17 @@
 {
-  "heading": "Sayt oʻzini oʻzi yigʻadi.",
-  "summary": "Biz ishga tushirgan haqiqiy mahsulot maketdan to ishga tushirishgacha qayta yigʻiladi, endi sizning nomingiz bilan.",
-  "intro": "Sahifani aylantiring: biz ishga tushirgan {kind} maketdan to ishga tushirishgacha qayta yigʻiladi, sizning nomingiz bilan.",
-  "introBranded": "Sahifani aylantiring: biz ishga tushirgan {kind} maketdan to ishga tushirishgacha qayta yigʻiladi.",
+  "heading": "Sayt oʻz-oʻzidan yigʻiladi.",
+  "summary": "Biz ishga tushirgan haqiqiy mahsulot koʻz oldingizda maketdan tayyor saytgacha qayta yigʻiladi — sizning nomingiz bilan.",
+  "intro": "Sahifani pastga suring: biz ishga tushirgan {kind} maketdan tayyor saytgacha qayta yigʻiladi — sizning nomingiz bilan.",
+  "introBranded": "Sahifani pastga suring: biz ishga tushirgan {kind} maketdan tayyor saytgacha qayta yigʻiladi.",
   "stagesLabel": "Bosqichlar",
   "stages": {
     "design": { "label": "Dizayn", "text": "Avval maket. Har bir blok oʻz katagiga tushadi." },
-    "frontend": { "label": "Frontend", "text": "Shrift, rang va haqiqiy mahsulot maketni toʻldiradi." },
+    "frontend": { "label": "Frontend", "text": "Shrift, ranglar va haqiqiy mahsulot maketni toʻldiradi." },
     "backend": { "label": "Backend va AI", "text": "Server darsni yuklaydi. AI repetitor sizning PDF faylingiz asosida javob beradi." },
-    "launch": { "label": "Ishga tushirish", "text": "Yigʻildi, bezaldi, serverga joylandi. Sayt oʻz domeningizda ishlayapti." }
+    "launch": { "label": "Ishga tushirish", "text": "Yigʻildi, brauzer oynasiga joylandi, serverga yuklandi. Sayt oʻz domeningizda ishlayapti." }
   },
-  "launchBranded": "Yigʻildi, bezaldi, serverga joylandi. Sayt oʻz domenida ishlayapti.",
-  "illustration": "Oʻzini oʻzi yigʻayotgan sayt: maket bloklari toʻrga tushadi, {kind} dizayni bilan toʻladi, AI repetitor javob berayotganda jonli maʼlumotlarni yuklaydi, soʻng brauzer oynasida haqiqiy manzil bilan tekislanadi va mahsulot videosi boshlanadi.",
+  "launchBranded": "Yigʻildi, brauzer oynasiga joylandi, serverga yuklandi. Sayt oʻz domenida ishlayapti.",
+  "illustration": "Oʻz-oʻzidan yigʻilayotgan sayt: maket bloklari katakka tushadi, {kind} dizayni bilan toʻladi, AI repetitor javob berayotganda jonli maʼlumotlar yuklanadi, soʻng hammasi haqiqiy manzildagi brauzer oynasiga aylanadi va mahsulot videosi boshlanadi.",
   "site": {
     "brand": "Maktabingiz",
     "url": "maktabingiz.uz",
@@ -19,18 +19,18 @@
     "navCta": "Bepul boshlash",
     "badge": "Manbaga tayangan AI repetitor",
     "badgeLanguages": "Manbaga tayangan AI repetitor · {languages}",
-    "headline": "Istalgan materialdan oxirigacha oʻqiladigan dars yarating.",
-    "sub": "PDF, taqdimot yoki YouTube havolasini yuklang. Aniq konspekt, podkast, testlar va materialingiz asosida javob beradigan AI repetitorga ega boʻling.",
-    "ctaPrimary": "Bepul oʻqishni boshlash",
-    "ctaSecondary": "Ustozlar uchun",
+    "headline": "Har qanday materialni oxirigacha oʻqiladigan darsga aylantiring.",
+    "sub": "PDF, taqdimot yoki YouTube havolasini yuklang. Qisqa konspekt, podkast, testlar va materialingiz asosida javob beradigan AI repetitor tayyor boʻladi.",
+    "ctaPrimary": "Bepul oʻqishni boshlang",
+    "ctaSecondary": "Ustoz va maktablarga",
     "lesson": {
       "title": "Organik kimyo – 4-bob",
-      "meta": "{kind} · <pageCount>{pages}</pageCount> sahifa · <minuteCount>{minutes}</minuteCount> daqiqa oʻqish",
+      "meta": "{kind} · <pageCount>{pages}</pageCount> sahifa · <minuteCount>{minutes}</minuteCount> daqiqada oʻqiladi",
       "pending": "Tayyorlanmoqda",
       "ready": "Tayyor",
       "rows": {
         "summary": "Konspekt va asosiy fikrlar",
-        "podcast": "Podkast epizodi · <count>{time}</count>",
+        "podcast": "Podkast · <count>{time}</count>",
         "quiz": "Test · <count>{questions}</count> ta savol"
       },
       "mastery": "Oʻzlashtirish"
@@ -38,11 +38,11 @@
     "tutor": {
       "name": "AI repetitor",
       "question": "1-masalani Venn diagrammasi bilan qanday yechaman?",
-      "answer": "Basketbolni 18 nafar, voleybolni 20 nafar bola oʻynaydi, jami 38, lekin qatnashganlar atigi 30 nafar. Demak, 38 − 30 = 8 nafar bola ikkalasini ham oʻynaydi.",
+      "answer": "Basketbolni 18 nafar, voleybolni 20 nafar bola oʻynaydi, jami 38. Lekin qatnashganlar atigi 30 nafar. Demak, 38 − 30 = 8 nafar bola ikkalasini ham oʻynaydi.",
       "source": "Venn diagrammalari – 2-qism · 1-bet"
     },
-    "video": "Mahsulot demo-videosi",
-    "code": { "idle": "kutish", "live": "uzatilmoqda" },
+    "video": "Mahsulot bilan tanishuv",
+    "code": { "idle": "kutmoqda", "live": "uzatilmoqda" },
     "blueprint": "{columns} ustun · {gutter}px oraliq"
   }
 }

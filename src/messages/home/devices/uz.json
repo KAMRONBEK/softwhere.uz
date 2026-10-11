@@ -1,34 +1,34 @@
 {
-  "heading": "Maket emas, ishlayotgan mahsulot.",
-  "summary": "Biz yaratgan mahsulotlarning haqiqiy ekranlari, noutbuk va telefonda.",
-  "intro": "Haqiqiy mahsulotlarning haqiqiy ekranlari: noutbukda {laptopKind}, telefonda {phoneApps} ta ilova. Ishga tushirish uchun sahifani aylantiring.",
+  "heading": "Maket emas, ishlab turgan mahsulot.",
+  "summary": "Biz yaratgan mahsulotlarning haqiqiy ekranlari — noutbukda va telefonda.",
+  "intro": "Haqiqiy mahsulotlarning haqiqiy ekranlari: noutbukda {laptopKind}, telefonda {phoneApps} ta ilova. Pastga suring — ishga tushadi.",
   "stageLabel": "Biz yaratgan {phoneApps} ta ilova ekranlari ochilgan telefon va yonida biz yaratgan {laptopKind} ochilgan noutbuk",
   "appPosition": "{total} tadan {index}-si:",
   "apps": {
     "tes-chat": {
-      "tag": "Chat",
+      "tag": "Messenjer",
       "oneLiner": "Real vaqtda ishlaydigan messenjer: guruhlar, kanallar, ovozli va video qoʻngʻiroqlar. Android va veb uchun."
     },
     "nexus": {
-      "tag": "Sarmoya",
+      "tag": "Investitsiya",
       "oneLiner": "Kriptovalyuta, mavzuli toʻplamlar va koʻchmas mulk ulushlari bitta portfelda, KYC tekshiruvi bilan. iOS va Android uchun."
     },
     "rasta-market": {
       "tag": "Auksion",
-      "oneLiner": "Hafta davomida lotlarga ovoz berish, shanba kechasi jonli auksion. Sotuvchilar ilovasi va admin panel bilan."
+      "oneLiner": "Xaridorlar hafta davomida lotlarga ovoz beradi, har shanba kechasi jonli auksionda narx taklif qiladi. Sotuvchilar uchun ilovalar va hammasini boshqaradigan admin panel bor."
     }
   },
-  "outroTitle": "Birinchi pikseldan doʻkonga.",
-  "outroText": "App Store va Google Play doʻkonlarida {liveApps} ta ilovamiz ishlayapti: {markets} bozorlari uchun. Ularni bitta jamoa loyihalaydi, ishlab chiqadi va chiqaradi.",
+  "outroTitle": "Eskizdan App Store va Google Playgacha.",
+  "outroText": "{liveApps} ta ilovamiz App Store yoki Google Playda ishlab turibdi: {markets}. Dizayn, ishlab chiqish va joylash — hammasini bitta jamoa qiladi.",
   "grab": {
     "cursor": "Torting",
     "mouse": {
       "first": "Tortib",
-      "second": "buring"
+      "second": "aylantiring"
     },
     "touch": {
       "first": "Surib",
-      "second": "buring"
+      "second": "aylantiring"
     }
   },
   "listJoin": "{rest} va {last}"

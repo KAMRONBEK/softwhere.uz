@@ -1,54 +1,73 @@
 {
-  "heading": "Hujjatlaringizdan soʻrang.",
-  "summary": "Sunʼiy intellektni kompaniyangiz fayllariga ulaymiz: PDF, jadvallar, wiki sahifalar. Jamoangiz oddiy tilda soʻraydi va manbasi koʻrsatilgan javob yoki ochiq «bilmayman» javobini oladi.",
-  "lead": "Sunʼiy intellektni kompaniyangiz fayllariga ulaymiz: PDF, jadvallar, wiki sahifalar. Jamoangiz oddiy tilda soʻraydi va manbasi koʻrsatilgan javob yoki ochiq «bilmayman» javobini oladi. Namunaviy logistika kompaniyasida sinab koʻring.",
+  "heading": "Hujjatlaringizga savol bering.",
+  "summary": "Sunʼiy intellektni kompaniyangiz fayllariga ulaymiz: PDF, jadvallar, wiki sahifalar. Xodimlaringiz oddiy soʻzlar bilan soʻraydi va manbasi koʻrsatilgan javob oladi — yoki halol «bilmayman».",
+  "lead": "Sunʼiy intellektni kompaniyangiz fayllariga ulaymiz: PDF, jadvallar, wiki sahifalar. Xodimlaringiz oddiy soʻzlar bilan soʻraydi va manbasi koʻrsatilgan javob oladi — yoki halol «bilmayman». Namunaviy logistika kompaniyasida sinab koʻring.",
   "privacyTitle": "Maxfiylik birinchi oʻrinda.",
-  "privacy": "Fayllaringiz oʻz maʼlumotlar bazangizda qoladi, har bir javob kim soʻrayotganini tekshiradi va hammasi oʻz serverlaringizda ishlashi mumkin.",
+  "privacy": "Fayllaringiz oʻz maʼlumotlar bazangizda qoladi, har bir javobdan oldin kim soʻrayotgani tekshiriladi, hammasini oʻz serverlaringizda ishlatish ham mumkin.",
   "hintTouch": "Jonli demo · savolga teging",
-  "hintPointer": "Jonli demo · savolni bosing",
+  "hintPointer": "Jonli demo · savolni tanlang",
   "demoLabel": "Interaktiv demo: logistika kompaniyasining oʻz fayllari asosida javob beradigan AI yordamchi",
   "stepsLabel": "Qanday ishlaydi: besh qadam",
   "steps": {
-    "read": { "term": "Oʻqish", "text": "PDF, jadval va wiki sahifalaringiz qisqa parchalarga boʻlinadi." },
-    "index": { "term": "Indeks", "text": "Bir mavzudagi parchalar yonma-yon turadi, shuning uchun keraklisi bir zumda topiladi." },
-    "answer": { "term": "Javob", "text": "Oddiy tilda soʻrang. Har bir javobda u olingan fayl koʻrsatiladi." },
-    "guard": { "term": "Himoya", "text": "Har kim faqat oʻz roliga ruxsat etilgan fayllarni koʻradi. Manba yoʻq — javob yoʻq." },
-    "insights": { "term": "Tahlil", "text": "Jamoa nimani soʻrayotganini va fayllarda hali nima yoʻqligini koʻring." }
+    "read": {
+      "term": "Oʻqish",
+      "text": "PDF, jadval va wiki sahifalaringiz qisqa parchalarga boʻlinadi."
+    },
+    "index": {
+      "term": "Indeks",
+      "text": "Bir mavzudagi parchalar yonma-yon turadi, keraklisi bir zumda topiladi."
+    },
+    "answer": {
+      "term": "Javob",
+      "text": "Oddiy soʻzlar bilan soʻrang. Har bir javobda u qaysi fayldan olingani koʻrsatiladi."
+    },
+    "guard": {
+      "term": "Himoya",
+      "text": "Har kim faqat oʻz roliga ruxsat etilgan fayllarni koʻradi. Manba yoʻq — javob yoʻq."
+    },
+    "insights": {
+      "term": "Tahlil",
+      "text": "Jamoa nimalarni soʻrayotganini va fayllaringizda hali nima yetishmasligini koʻrasiz."
+    }
   },
   "scenes": {
-    "read": "Beshta fayl oʻqilib, qisqa parchalarga boʻlinadi. Har bir nuqta — bitta parcha, hali aralash holda.",
+    "read": "Beshta fayl oʻqilib, qisqa parchalarga boʻlinadi. Har bir nuqta — bitta parcha, hozircha aralash.",
     "index": "Bir mavzudagi parchalar bir joyga yigʻiladi. Bu indeks: keraklilari bir zumda topiladi.",
-    "answer": "Savol xaritaga kiradi, eng yaqin parchalarni koʻrib chiqadi va javob ularni manba sifatida koʻrsatadi.",
+    "answer": "Savol xaritaga tushadi, eng yaqin parchalarni topadi, javob esa ularni manba sifatida keltiradi.",
     "guard": "Dispetcher maoshlar haqida soʻraydi. Qidiruv HR parchalarigacha yetadi, lekin qulf uni toʻxtatadi: ruxsat yoʻq — javob yoʻq.",
-    "gap": "Fayllarda yetarlicha yaqin narsa yoʻq, shuning uchun taxmin qilish oʻrniga «bilmayman» deydi.",
-    "insights": "Har bir savol tahlilga tushadi, boʻshliq esa fayllarga nimani qoʻshish kerakligini koʻrsatadi."
+    "gap": "Fayllarda yetarlicha mos narsa yoʻq, shuning uchun taxmin qilmaydi — «bilmayman» deydi.",
+    "insights": "Har bir savol tahlilga tushadi, boʻshliq esa fayllarga keyin nima qoʻshish kerakligini koʻrsatadi."
   },
   "stepAction": "{term}: {text} Demoda «{term}» qadamini koʻrsatish",
-  "cursor": { "show": "Koʻrish", "open": "Ochish", "ask": "Soʻrash" },
+  "cursor": {
+    "show": "Koʻrish",
+    "open": "Ochish",
+    "ask": "Soʻrash"
+  },
   "getTitle": "Nimalarga ega boʻlasiz",
   "get": {
     "assistant": "Jamoangiz brauzerda yoki Telegramda ishlatadigan yordamchi",
     "admin": "Fayllarni qoʻshish va oʻchirish uchun admin panel",
     "roles": "Kim qaysi fayllarni koʻrishini belgilaydigan rollar",
-    "report": "Xodimlar nimani soʻrayotgani va fayllarda nima yetishmasligi haqida hisobot"
+    "report": "Xodimlar nima soʻrayotgani va fayllarda nima yetishmasligi haqida hisobot"
   },
   "weeksLabel": "Odatiy birinchi versiya",
   "weeks": "{min}–{max} hafta",
   "timeline": {
     "assistant": "Fayllaringiz boʻyicha yordamchi va admin panel",
-    "roles": "Qoʻshimcha rollar va hisobotlar, xuddi shu demodagidek"
+    "roles": "Rollar va hisobotlar bilan, xuddi shu demodagidek"
   },
-  "weeksNote": "Muddatlar kalkulyatorimizdan. Aniq sanalar tijorat taklifingizda belgilanadi.",
-  "proof": "Ishga tushirilgan: AI taʼlim platformasi, undagi repetitor faqat siz yuklagan materiallar asosida oʻzbek, ingliz va rus tillarida javob beradi.",
-  "next": "Shartnomalar, qoʻllanmalar, tenderlar, qoʻllab-quvvatlash pochtasi: navbatdagisi sizniki boʻlishi mumkin.",
-  "cta": "Fayllaringiz uchun yordamchi narxini bilish",
+  "weeksNote": "Muddatlar kalkulyatorimiz boʻyicha. Aniq sanalar tijorat taklifida yoziladi.",
+  "proof": "Ishga tushgan loyihamiz: AI taʼlim platformasi. Undagi AI repetitor faqat siz yuklagan materiallardan oʻzbek, ingliz va rus tillarida javob beradi.",
+  "next": "Shartnomalar, qoʻllanmalar, tenderlar, mijozlar murojaatlari — keyingisi sizniki boʻlishi mumkin.",
+  "cta": "AI yordamchi narxini hisoblash",
   "replay": "Demoni qayta koʻrish",
   "docs": {
     "rates": "Tariflar 2026",
     "handbook": "Haydovchi qoʻllanmasi",
     "customs": "Bojxona va chegaralar",
     "warehouse": "Ombor reglamenti",
-    "hr": "HR siyosati 2026"
+    "hr": "Kadrlar siyosati 2026"
   },
   "units": {
     "sheets": "{count} varaq",
@@ -83,12 +102,15 @@
   },
   "chat": {
     "title": "Xodimlar yordamchisi",
-    "subtitle": "Sizning logistika",
-    "tabs": { "chat": "Chat", "insights": "Tahlil" },
+    "subtitle": "Logistika kompaniyangiz",
+    "tabs": {
+      "chat": "Chat",
+      "insights": "Tahlil"
+    },
     "signedInAs": "Rolingiz",
     "reading": "{count} ta fayl oʻqilmoqda…",
-    "indexing": "{count} ta parcha mavzular boʻyicha saralanmoqda…",
-    "greeting": "Salom! Men {count} ta faylni oʻqib chiqdim. Tariflar, yoʻnalishlar yoki qoidalar haqida soʻrang, har bir javob qayerdan olinganini koʻrsataman.",
+    "indexing": "{count} ta parcha mavzular boʻyicha guruhlanmoqda…",
+    "greeting": "Salom! {count} ta faylni oʻqib chiqdim. Tariflar, yoʻnalishlar yoki qoidalar haqida soʻrang — har bir javob qayerdan olinganini koʻrsataman.",
     "searching": "{count} ta parcha orasidan qidirilmoqda…",
     "roleNote": {
       "hr": "Siz HR menejer sifatida kirdingiz. Kadrlar fayllari sizga ochiq.",
@@ -97,14 +119,23 @@
     "asWho": "rol: {role}",
     "sources": "Manbalar",
     "closest": "Eng yaqin parcha",
-    "match": "{score} mos",
+    "match": "{score} moslik",
     "citeLabel": "{n}-manba: {doc}",
     "tryAsking": "Soʻrab koʻring"
   },
   "questions": {
-    "surcharge": { "chip": "Yoqilgʻi ustamasi?", "text": "Uzoq masofali yoʻnalishlarda yoqilgʻi ustamasi qancha?" },
-    "salary": { "chip": "Dispetcher maoshi?", "text": "Dispetcherlarning maosh oraligʻi qancha?" },
-    "charity": { "chip": "Xayriya chegirmasi?", "text": "Xayriya yuklari uchun chegirma beramizmi?" }
+    "surcharge": {
+      "chip": "Yoqilgʻi ustamasi?",
+      "text": "Uzoq masofali yoʻnalishlarda yoqilgʻi ustamasi qancha?"
+    },
+    "salary": {
+      "chip": "Dispetcher maoshi?",
+      "text": "Dispetcherlarning maosh oraligʻi qancha?"
+    },
+    "charity": {
+      "chip": "Xayriya chegirmasi?",
+      "text": "Xayriya yuklari uchun chegirma beramizmi?"
+    }
   },
   "found": {
     "answered": "{count} ta parcha topildi · eng yaxshi moslik {best}",
@@ -115,7 +146,7 @@
     "surcharge": "500 km dan uzun yoʻnalishlarda bazaviy tarifga 12% yoqilgʻi ustamasi qoʻshiladi [1]. U har oyning 1-sanasida qayta koʻriladi, xalqaro reyslar esa bojxona rasmiylashtiruvi yigʻimini ham toʻlaydi [2].",
     "salaryBlocked": "Bu kadrlar siyosatida, uni faqat HR boʻlimi ocha oladi, shuning uchun sizga koʻrsata olmayman. HR boʻlimiga murojaat qiling yoki HR menejer sifatida kiring.",
     "salaryOpen": "Dispetcherlar 4-darajada. Maosh oraligʻi va yillik qayta koʻrib chiqish sanasi kadrlar siyosatining 3.2-boʻlimida [1].",
-    "charity": "Bu fayllaringizda yoʻq, shuning uchun taxmin qilmayman. Eng yaqin parcha hajm boʻyicha chegirmalar haqida [1], bu boshqa narsa. Savolni qayd etdim, kimdir javobini qoʻshishi mumkin."
+    "charity": "Fayllaringizda bu haqda maʼlumot topmadim, shuning uchun taxmin qilmayman. Eng yaqin parcha hajm boʻyicha chegirmalar haqida [1], bu boshqa narsa. Savolni qayd etdim, keyin kimdir javobini qoʻshishi mumkin."
   },
   "badges": {
     "hrOnly": "Kirish qoidasi · faqat HR",
@@ -142,7 +173,12 @@
   "insights": {
     "title": "Jamoangiz nimani soʻraydi",
     "tag": "Shu demo",
-    "stats": { "asked": "Soʻraldi", "answered": "Javob bor", "blocked": "Yopiq", "missing": "Boʻshliq" },
+    "stats": {
+      "asked": "Soʻraldi",
+      "answered": "Javob berildi",
+      "blocked": "Yopiq",
+      "missing": "Topilmadi"
+    },
     "empty": "Hali savollar yoʻq. Chatda savol bering, u shu yerda paydo boʻladi.",
     "outcome": {
       "answered": "Javob berildi · {count} ta manba",
@@ -150,7 +186,7 @@
       "missing": "Fayllarda yoʻq · qayd etildi"
     },
     "gapTitle": "Fayllaringizda yoʻq",
-    "gap": "Xayriya chegirmalari: hech bir faylda ular haqida yozilmagan. Tariflarga bir qator qoʻshing, keyingi safar yordamchi javob beradi.",
-    "footnote": "Ishchi versiyada bu yerda jamoaning barcha savollari mavzu, boʻlim va hafta boʻyicha koʻrinadi."
+    "gap": "Xayriya chegirmalari: hech bir faylda bu haqda yozilmagan. Tariflarga bir qator qoʻshing — keyingi safar yordamchi javob beradi.",
+    "footnote": "Haqiqiy tizimda bu yerda jamoaning barcha savollari mavzu, boʻlim va hafta boʻyicha koʻrinadi."
   }
 }

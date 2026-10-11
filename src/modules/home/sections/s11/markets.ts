@@ -114,9 +114,9 @@ function examplesOf(region: RegionId, show: number): Examples {
   return { projects: picked, rest: countWhere(byRegion(region)) - picked.length };
 }
 
-/** The region's first and last portfolio categories (English data), or null with fewer than two. */
+/** The region's first and last portfolio categories (`project.type`, English data — localize with the describer), or null with fewer than two. */
 function typeRange(region: RegionId): { first: string; last: string } | null {
-  const types = [...new Set(projects.filter(byRegion(region)).map(p => p.type.toLowerCase()))];
+  const types = [...new Set(projects.filter(byRegion(region)).map(p => p.type))];
   return types.length > 1 ? { first: types[0], last: types[types.length - 1] } : null;
 }
 

@@ -22,6 +22,9 @@ export function numberLocale(locale: string): string {
   return locale === 'uz' ? 'ru' : locale;
 }
 
+/** Lowercases the first letter unless the word is an acronym ("FinTech" stays, "Мода" → "мода"). */
+const lowerFirst = (text: string) => (/^\p{Lu}\p{Ll}/u.test(text) ? `${text[0].toLowerCase()}${text.slice(1)}` : text);
+
 const capitalized = (text: string) => (text ? `${text[0].toUpperCase()}${text.slice(1)}` : text);
 
 /** Every beat's copy in the visitor's language, in BEATS order. */
@@ -38,6 +41,8 @@ export function useGlobeCopy(): readonly BeatCopy[] {
 
     // "An AI learning platform, a messenger app and 26 more." Kinds, never names (ru/uz have no articles).
     const kindOf = (project: Examples['projects'][number]) => describer.describe(project);
+    // "Event planning" → "event planning" / "планирование мероприятий" / "tadbirlarni rejalashtirish".
+    const industryInSentence = (type: string) => lowerFirst(describer.industry({ type }));
     const examplesLine = (examples: Examples | null): string => {
       if (!examples || examples.projects.length === 0) return '';
       const kinds = examples.projects.map(kindOf);
@@ -69,7 +74,9 @@ export function useGlobeCopy(): readonly BeatCopy[] {
             stop,
             stopLabel,
             title,
-            body: range ? t('beats.oceania.body', range) : t('beats.oceania.bodyShort'),
+            body: range
+              ? t('beats.oceania.body', { first: industryInSentence(range.first), last: industryInSentence(range.last) })
+              : t('beats.oceania.bodyShort'),
             detail: t('beats.oceania.detail', { examples, km }),
           };
         }

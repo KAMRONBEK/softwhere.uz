@@ -1,9 +1,9 @@
 {
   "heading": "Koddan mahsulotgacha.",
-  "summary": "Har bir kod bloki mahsulotning oʻzi taʼriflagan qismiga aylanadi: birinchi kartochkadan tayyor ekrangacha.",
-  "lede": "Sahifani aylantiring: har bir kod bloki mahsulotning oʻzi taʼriflagan qismiga aylanadi. Orqaga aylantirsangiz, hammasi qaytadan qismlarga ajraladi.",
-  "stat": "{projects} ta loyihamizdan {react} tasida React (veb) yoki React Native (telefonlar) ishlatilgan.",
-  "editorLabel": "Sahifa aylantirilgani sari React komponentini blokma-blok yozib boruvchi kod muharriri",
+  "summary": "Har bir kod bloki mahsulotning oʻziga tegishli qismiga aylanadi: birinchi kartochkadan tayyor ekrangacha.",
+  "lede": "Sahifani pastga suring: har bir kod bloki mahsulotning oʻziga tegishli qismiga aylanadi. Tepaga qaytsangiz, hammasi yana qismlarga ajraladi.",
+  "stat": "{projects} ta loyihamizdan {react} tasida React (veb) yoki React Native (mobil) ishlatilgan.",
+  "editorLabel": "Sahifa pastga surilgan sari React komponentini blokma-blok yozib boradigan kod muharriri",
   "status": {
     "idle": "Onlayn",
     "typing": "Yozilmoqda",
@@ -14,21 +14,21 @@
   "ui": {
     "button": "Ishlashini koʻring",
     "toggle": "Tungi rejim",
-    "chartTitle": "Platforma boʻyicha loyihalar"
+    "chartTitle": "Platformalar boʻyicha loyihalar"
   },
-  "chartNote": "koʻpi bir nechtasida",
+  "chartNote": "koʻpi bir nechta platformada",
   "captions": {
-    "ready": "Maket chizildi. Endi uni kod toʻldiradi.",
-    "main": "Bu qator ekranni joylaydi.",
+    "ready": "Maket tayyor. Endi uni kod toʻldiradi.",
+    "main": "Bu qator ekran asosini qoʻyadi.",
     "card": "Bu blok biz yaratgan mahsulot kartochkasini chizadi: {kind}.",
-    "btn": "Bu blok koʻrish tugmasini qoʻshadi.",
-    "pressMouse": "Bosing, haqiqiy demo-video ishga tushadi.",
-    "pressTouch": "Bosing, haqiqiy demo-video ishga tushadi.",
+    "btn": "Bu blok «Koʻrish» tugmasini qoʻshadi.",
+    "pressMouse": "Bosing — haqiqiy demo-video boshlanadi.",
+    "pressTouch": "Bosing — haqiqiy demo-video boshlanadi.",
     "toggle": "Bu blok tungi rejim tugmasini qoʻshadi.",
-    "flip": "Bir bosish, barcha ranglar birdan oʻzgaradi.",
+    "flip": "Bir bosish — barcha ranglar birdaniga oʻzgaradi.",
     "chart": "Bu grafik {projects} ta loyihamizni platformalar boʻyicha koʻrsatadi.",
-    "ship": "Yigʻildi. Koddan mahsulotgacha.",
-    "still": "Chapdagi har bir blok oʻngdagi bitta qismni quradi. Tugmani bosib koʻring.",
-    "stillStacked": "Pastdagi har bir kod bloki tepadagi bitta qismni quradi. Tugmani bosib koʻring."
+    "ship": "Yigʻildi. Kod yozildi — mahsulot tayyor.",
+    "still": "Chapdagi har bir blok oʻngdagi bitta qismni yaratadi. Tugmani bosib koʻring.",
+    "stillStacked": "Pastdagi har bir kod bloki tepadagi bitta qismni yaratadi. Tugmani bosib koʻring."
   }
 }
