@@ -2,27 +2,40 @@
 
 import { useEffect, type Dispatch, type RefObject } from 'react';
 import { gsap, useGSAP } from '../../global/gsap';
-import { planNext, type ChatAction, type ChatState, type DirectorContext } from './machine';
+import { planNext, type ChatAction, type ChatState } from './machine';
+import { ceilingBlocks } from './story';
 
 /**
  * Runs the conversation's timed steps (typing, bot replies, autopilot taps)
  * one at a time, only while the phone is on screen. Any state change
- * reschedules, so a visitor's tap cancels the pending autopilot step.
+ * reschedules, so a visitor's tap cancels the pending autopilot step. In the
+ * scroll story (`ctx.untilBeat`), it plays the beat the scroll has reached on
+ * time and waits at its end; the autopilot presses almost at once.
  */
-export function useDirector(state: ChatState, dispatch: Dispatch<ChatAction>, isActive: boolean, ctx: DirectorContext): void {
-  const { isReduced, needsCode } = ctx;
+export function useDirector(state: ChatState, dispatch: Dispatch<ChatAction>, isActive: boolean, ctx: DirectorOptions): void {
+  const { isReduced, needsCode, untilBeat } = ctx;
   useEffect(() => {
     if (!isActive || state.phase === 'idle') return;
-    const step = planNext(state, { isReduced, needsCode });
-    if (!step) return;
+    const isScroll = untilBeat !== undefined;
+    const step = planNext(state, { isReduced, needsCode, isQuick: isScroll });
+    if (!step || (isScroll && ceilingBlocks(state, step.action, untilBeat, needsCode))) return;
     const id = window.setTimeout(() => dispatch(step.action), step.delay);
     return () => window.clearTimeout(id);
-  }, [state, dispatch, isActive, isReduced, needsCode]);
+  }, [state, dispatch, isActive, isReduced, needsCode, untilBeat]);
+}
+
+export interface DirectorOptions {
+  isReduced: boolean;
+  needsCode: boolean;
+  /** Scroll story: the beat the scroll has reached; timed steps never go past it. */
+  untilBeat?: number;
 }
 
 export interface TiltRefs {
   root: RefObject<HTMLDivElement | null>;
   stage: RefObject<HTMLDivElement | null>;
+  /** Scroll story: the tall track behind the pinned stage (the rock spans it, not the stuck stage). */
+  track?: RefObject<HTMLDivElement | null>;
   scrollTilt: RefObject<HTMLDivElement | null>;
   pointerTilt: RefObject<HTMLDivElement | null>;
   entrance: RefObject<HTMLDivElement | null>;
@@ -65,7 +78,7 @@ export function usePhoneTilt(refs: TiltRefs, isEnabled: boolean, isTouch: boolea
         scrollTrigger: { trigger: stage, start: 'top 82%', once: true },
       });
 
-      const scrub = { trigger: stage, start: 'top bottom', end: 'bottom top', scrub: 0.7 };
+      const scrub = { trigger: refs.track?.current ?? stage, start: 'top bottom', end: 'bottom top', scrub: 0.7 };
       const swing = isTouch ? { from: -8, to: 8 } : { from: -21, to: -7 };
       gsap.fromTo(
         scrollTilt,

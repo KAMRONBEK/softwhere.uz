@@ -3,14 +3,44 @@
  * small director (useDirector) dispatches the timed beats, and a visitor's
  * tap dispatches the same actions as the autopilot, so any tap takes over.
  *
- * Beats: the files are read and split (reading), the passages fly into the
- * index (indexing), then each question is typed, searched, found and
- * streamed. The answer's words and the map's lines animate in CSS/GSAP
- * inside one beat each, never tick by tick through React.
+ * The scroll owns the story: it picks a scene (SCENES), and SCENE sets the
+ * state that scene opens on (everything before it already done). Inside a
+ * scene the beats play by themselves, but the autopilot never runs past the
+ * scene the scroll picked (DirectorContext.limit), so scrolling back goes
+ * back and a fast scroll just lands on a later scene.
+ *
+ * Beats: the files are read and cut into snippets (reading → read), the
+ * snippets sort themselves by topic (indexing), then each question is typed,
+ * searched, found and streamed. The answer's words and the map's motion
+ * animate in CSS/GSAP inside one beat each, never tick by tick through React.
  */
 import { question, type Outcome, type PartId, type QuestionId, type RoleId, type TabId } from './data';
 
-export type Pipeline = 'idle' | 'reading' | 'indexing' | 'ready';
+/** Reading cuts the files into snippets; `read` holds them unsorted until indexing. */
+
+export type Pipeline = 'idle' | 'reading' | 'read' | 'indexing' | 'ready';
+
+/** The scroll story's scenes: the five parts, the guard part in two (the HR lock, then "I don't know"). */
+export type SceneId = 'read' | 'index' | 'answer' | 'guard' | 'gap' | 'insights';
+
+export const SCENES: readonly SceneId[] = ['read', 'index', 'answer', 'guard', 'gap', 'insights'];
+
+export const SCENE_PART: Record<SceneId, PartId> = {
+  read: 'read',
+  index: 'index',
+  answer: 'answer',
+  guard: 'guard',
+  gap: 'guard',
+  insights: 'insights',
+};
+
+/** The first scene of a part (where a tap on its step lands). */
+export function firstSceneOf(part: PartId): number {
+  return Math.max(
+    0,
+    SCENES.findIndex(scene => SCENE_PART[scene] === part)
+  );
+}
 export type TurnStatus = 'typing' | 'searching' | 'found' | 'streaming' | 'done';
 type Actor = 'user' | 'auto' | 'jump';
 
@@ -56,7 +86,7 @@ export interface RagState {
 }
 
 export type RagAction =
-  | { type: 'START' }
+  | { type: 'SCENE'; scene: SceneId }
   | { type: 'PIPELINE'; to: Pipeline }
   | { type: 'ASK'; question: QuestionId; by: Actor; isInstant: boolean }
   | { type: 'ADVANCE'; key: number; to: TurnStatus }
@@ -66,14 +96,17 @@ export type RagAction =
   | { type: 'RESTART'; isAutopilot: boolean; isInstant: boolean }
   | { type: 'JUMP'; to: PartId; isInstant: boolean };
 
-type AutoStep = { kind: 'ask'; question: QuestionId } | { kind: 'tab'; tab: TabId };
+type AutoStep = ({ kind: 'ask'; question: QuestionId } | { kind: 'tab'; tab: TabId }) & {
+  /** The scene this step belongs to: the autopilot only presses it once the scroll gets there. */
+  scene: SceneId;
+};
 
 /** What the demo does by itself: an answer, a refusal by role, an honest "not found", the insights. */
 const AUTOPILOT: readonly AutoStep[] = [
-  { kind: 'ask', question: 'surcharge' },
-  { kind: 'ask', question: 'salary' },
-  { kind: 'ask', question: 'charity' },
-  { kind: 'tab', tab: 'insights' },
+  { kind: 'ask', question: 'surcharge', scene: 'answer' },
+  { kind: 'ask', question: 'salary', scene: 'guard' },
+  { kind: 'ask', question: 'charity', scene: 'gap' },
+  { kind: 'tab', tab: 'insights', scene: 'insights' },
 ];
 
 const STATUS_ORDER: readonly TurnStatus[] = ['typing', 'searching', 'found', 'streaming', 'done'];
@@ -81,9 +114,10 @@ const STATUS_ORDER: readonly TurnStatus[] = ['typing', 'searching', 'found', 'st
 export const TIMING = {
   read: 1600,
   index: 2300,
-  type: 950,
-  search: 1150,
-  found: 550,
+  type: 700,
+  /** The probe's walk through the map (s17/Probe.tsx paces itself on it). */
+  search: 1700,
+  found: 450,
   /** Per answer token (word or citation chip); the CSS stagger uses the same value. */
   word: 34,
   streamTail: 320,
@@ -92,11 +126,7 @@ export const TIMING = {
   readAnswer: 3800,
 } as const;
 
-/**
- * Phones: a visitor scrolling at reading speed reaches the chat about 2.5s
- * after the files, so reading and indexing are compressed to land the first
- * answer as the chat scrolls in.
- */
+/** Phones: each scene gets less scroll per second of reading, so reading and indexing are quicker. */
 export const TOUCH_TIMING = { read: 1000, index: 1500, firstAsk: 700 } as const;
 
 export interface PipelineTiming {
@@ -187,6 +217,51 @@ function ask(state: RagState, id: QuestionId, isInstant: boolean, ghost: Questio
   };
 }
 
+/** A finished question, asked by a dispatcher (the role the story is told as). */
+function doneTurn(key: number, id: QuestionId): Turn {
+  return { kind: 'turn', key, question: id, role: 'dispatcher', status: 'done' };
+}
+
+/**
+ * The state a scene opens on: everything before it already done, its own
+ * beat about to play. A new run each time, so its one-shot animations replay.
+ * A visitor's taps take over inside a scene; the next scene starts clean.
+ */
+export function sceneState(state: RagState, scene: SceneId): RagState {
+  const base: RagState = { ...INITIAL_STATE, run: state.run + 1, hasInteracted: state.hasInteracted };
+  const asking = (done: readonly QuestionId[], next: QuestionId): RagState => ({
+    ...base,
+    pipeline: 'ready',
+    log: [...done.map((id, index) => doneTurn(index + 1, id)), { ...doneTurn(done.length + 1, next), status: 'typing' }],
+    nextKey: done.length + 2,
+    autoStep: autoStepAfter(next),
+    ghost: next,
+  });
+  switch (scene) {
+    case 'read':
+      return { ...base, pipeline: 'reading' };
+    case 'index':
+      return { ...base, pipeline: 'indexing' };
+    case 'answer':
+      return asking([], 'surcharge');
+    case 'guard':
+      return asking(['surcharge'], 'salary');
+    case 'gap':
+      return asking(['surcharge', 'salary'], 'charity');
+    case 'insights':
+      return {
+        ...base,
+        pipeline: 'ready',
+        log: (['surcharge', 'salary', 'charity'] as const).map((id, index) => doneTurn(index + 1, id)),
+        nextKey: 4,
+        tab: 'insights',
+        hasSeenInsights: true,
+        autoStep: AUTOPILOT.length,
+        isAutopilot: false,
+      };
+  }
+}
+
 function autoStepAfter(id: QuestionId): number {
   return AUTOPILOT.findIndex(step => step.kind === 'ask' && step.question === id) + 1;
 }
@@ -222,8 +297,8 @@ function jump(state: RagState, to: PartId, isInstant: boolean): RagState {
 
 export function ragReducer(state: RagState, action: RagAction): RagState {
   switch (action.type) {
-    case 'START':
-      return state.pipeline === 'idle' ? { ...state, pipeline: 'reading' } : state;
+    case 'SCENE':
+      return sceneState(state, action.scene);
     case 'PIPELINE':
       return { ...state, pipeline: action.to };
     case 'ASK': {
@@ -260,8 +335,8 @@ export function ragReducer(state: RagState, action: RagAction): RagState {
 export interface DirectorContext {
   isReduced: boolean;
   isTouch: boolean;
-  /** The chat is on screen: the autopilot only asks while the visitor can watch. */
-  isChatInView: boolean;
+  /** The scene the scroll picked: the autopilot never runs past it (null: no limit). */
+  limit: SceneId | null;
   /** Tokens a turn's answer streams (words + citation chips) in the visitor's language: the stream's length. */
   tokenCount: (turn: Turn) => number;
 }
@@ -288,10 +363,21 @@ function beatDelay(turn: Turn, tokenCount: (turn: Turn) => number): number {
   }
 }
 
-/** The next timed step, or null when the demo waits for the visitor (or the viewport). */
+/** May the demo play a beat of `scene` while the scroll is at `limit`? */
+function isWithin(scene: SceneId, limit: SceneId | null): boolean {
+  return limit === null || SCENES.indexOf(scene) <= SCENES.indexOf(limit);
+}
+
+/** A pause between the files being read and indexing, when no scroll holds the story. */
+const READ_TO_INDEX = 400;
+
+/** The next timed step, or null when the demo waits for the visitor (or the scroll). */
 export function planNext(state: RagState, ctx: DirectorContext): PlannedStep | null {
   const pace = pipelineTiming(ctx.isTouch);
-  if (state.pipeline === 'reading') return { action: { type: 'PIPELINE', to: 'indexing' }, delay: pace.read };
+  if (state.pipeline === 'reading') return { action: { type: 'PIPELINE', to: 'read' }, delay: pace.read };
+  if (state.pipeline === 'read') {
+    return isWithin('index', ctx.limit) ? { action: { type: 'PIPELINE', to: 'indexing' }, delay: READ_TO_INDEX } : null;
+  }
   if (state.pipeline === 'indexing') return { action: { type: 'PIPELINE', to: 'ready' }, delay: pace.index };
   if (state.pipeline !== 'ready') return null;
 
@@ -301,24 +387,24 @@ export function planNext(state: RagState, ctx: DirectorContext): PlannedStep | n
   }
 
   const step = AUTOPILOT[state.autoStep];
-  if (!state.isAutopilot || ctx.isReduced || !ctx.isChatInView || !step) return null;
+  if (!state.isAutopilot || ctx.isReduced || !step || !isWithin(step.scene, ctx.limit)) return null;
   const delay = state.autoStep === 0 ? pace.firstAsk : TIMING.readAnswer;
   if (step.kind === 'tab') return { action: { type: 'TAB', tab: step.tab, by: 'auto' }, delay };
   return { action: { type: 'ASK', question: step.question, by: 'auto', isInstant: false }, delay };
 }
 
 /** What the autopilot presses next (it breathes until then): a chip id, or 'tab-insights'. */
-export function autopilotTarget(state: RagState): string | null {
+export function autopilotTarget(state: RagState, limit: SceneId | null): string | null {
   if (!state.isAutopilot || state.pipeline !== 'ready' || isBusy(state)) return null;
   const step = AUTOPILOT[state.autoStep];
-  if (!step) return null;
+  if (!step || !isWithin(step.scene, limit)) return null;
   return step.kind === 'ask' ? step.question : `tab-${step.tab}`;
 }
 
 export function activePart(state: RagState): PartId | null {
   if (state.pipeline === 'idle') return null;
   if (state.tab === 'insights') return 'insights';
-  if (state.pipeline === 'reading') return 'read';
+  if (state.pipeline === 'reading' || state.pipeline === 'read') return 'read';
   if (state.pipeline === 'indexing') return 'index';
   const turn = lastTurn(state);
   if (!turn) return 'index';
@@ -327,13 +413,13 @@ export function activePart(state: RagState): PartId | null {
 
 /** 0–1 for the legend's rails. */
 export function partProgress(state: RagState, part: PartId): number {
-  const stage = ['idle', 'reading', 'indexing', 'ready'].indexOf(state.pipeline);
+  const stage = ['idle', 'reading', 'read', 'indexing', 'ready'].indexOf(state.pipeline);
   const all = turns(state);
   switch (part) {
     case 'read':
       return stage > 1 ? 1 : stage === 1 ? 0.5 : 0;
     case 'index':
-      return stage > 2 ? 1 : stage === 2 ? 0.5 : 0;
+      return stage > 3 ? 1 : stage === 3 ? 0.5 : 0;
     case 'answer': {
       const answered = all.filter(turn => outcomeOf(turn) === 'answered');
       if (answered.some(turn => turn.status === 'done')) return 1;

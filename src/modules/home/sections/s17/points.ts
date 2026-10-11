@@ -177,3 +177,54 @@ export function anchorPoint(id: AnchorId): AnchorDef {
 export function toPercent(x: number, y: number): { left: string; top: string } {
   return { left: `${(x / MAP_W) * 100}%`, top: `${(y / MAP_H) * 100}%` };
 }
+
+/* ── Motion data: the unsorted cloud while reading, and the retrieval probe's walk ── */
+
+/**
+ * Where each snippet sits right after reading, before indexing sorts it by
+ * topic: an unsorted cloud over the whole map (aligned with POINTS). Seeded,
+ * so the server and every browser agree.
+ */
+function buildScatter(points: readonly MapPoint[]): ReadonlyArray<{ x: number; y: number }> {
+  const rand = prng(0x51a7);
+  const pad = EDGE * 2;
+  return points.map(() => ({ x: round(pad + rand() * (MAP_W - pad * 2)), y: round(pad + rand() * (MAP_H - pad * 2)) }));
+}
+
+export const SCATTER = buildScatter(POINTS);
+
+/** One stop of the probe's walk through the index: a snippet it checks, and whether it is a match. */
+export interface ProbeStop {
+  x: number;
+  y: number;
+  kind: 'miss' | 'hit' | 'lock';
+}
+
+/** The snippet nearest to a spot, so every stop of the walk lands on a real dot. */
+function nearestPoint(x: number, y: number, exclude: ClusterId | null = null): { x: number; y: number } {
+  let best = POINTS[0];
+  let bestD = Infinity;
+  for (const point of POINTS) {
+    if (point.cluster === exclude) continue;
+    const d = (point.x - x) * (point.x - x) + (point.y - y) * (point.y - y);
+    if (d < bestD) {
+      best = point;
+      bestD = d;
+    }
+  }
+  return { x: best.x, y: best.y };
+}
+
+const miss = (x: number, y: number): ProbeStop => ({ ...nearestPoint(x, y, 'hr'), kind: 'miss' });
+
+/**
+ * The walk a question's probe takes, like a vector search hopping through
+ * the index graph: a couple of far snippets that don't match (they flash and
+ * dim), then the question's own spot. What follows depends on the answer
+ * (the hits lock on, the HR lock stops it, or nothing is close).
+ */
+export const PROBE_WALK: Record<QuestionId, readonly ProbeStop[]> = {
+  surcharge: [miss(478, 250), miss(395, 98)],
+  salary: [miss(300, 322), miss(205, 150)],
+  charity: [miss(205, 140), miss(160, 60)],
+};

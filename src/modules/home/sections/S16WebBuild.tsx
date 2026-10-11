@@ -20,7 +20,7 @@ import SiteStack, { type SitePhase } from './s16/Site';
 import { useModeDirector } from './s16/useModeDirector';
 import { useSpecialEditor } from './s16/useSpecialEditor';
 import { CopyContext, useCopy, useS16Copy } from './s16/useCopy';
-import { useStepStory } from './s16/useStepStory';
+import { useStepStory } from '../components/useStepStory';
 import { useViewportMorph } from './s16/useViewportMorph';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(SplitText);

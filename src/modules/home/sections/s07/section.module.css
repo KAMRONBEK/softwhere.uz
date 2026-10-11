@@ -1,7 +1,13 @@
 /*
- * Section 07 layout: copy beside a phone on a 3D stage (stage.module.css).
- * Scheme variables (frame metal, chat surfaces, scrims) are derived from the
- * style tokens here, once, for the dark and the light styles.
+ * Section 07 layout: the intro, then a tall track with a sticky frame (the
+ * phone on its 3D stage, stage.module.css, beside the legend), then the
+ * outro. The track's scroll picks the demo's part (S07Telegram). Scheme
+ * variables (frame metal, chat surfaces, scrims) are derived from the style
+ * tokens here, once, for the dark and the light styles.
+ *
+ * Track height = 100svh + --track-len (set inline; heights.css reserves the
+ * same). The sticky frame starts under the visitor header (--lab-header-h).
+ * Reduced motion (data-static): no track, the frame is a plain block.
  */
 
 .root {
@@ -37,7 +43,6 @@
   --aura-2: 14%;
 
   position: relative;
-  min-height: 100svh;
   overflow: clip;
 }
 
@@ -75,7 +80,7 @@
   animation-play-state: paused !important;
 }
 
-/* Ambient light behind the stage; it blooms when an order is confirmed. */
+/* Ambient light behind the stage (rides in the sticky frame); it blooms when an order is confirmed. */
 .aura {
   position: absolute;
   top: 50%;
@@ -93,36 +98,71 @@
     transform 1600ms var(--ease-out);
 }
 
+/* One pulse per confirmation: the scroll can hold the story on a confirm beat, so the light must not stay up. */
 .root[data-bloom] .aura {
-  opacity: 1;
-  transform: scale(1.12);
-  transition-duration: 500ms, 900ms;
+  animation: aura-bloom 1900ms var(--ease-out) both;
 }
 
-.inner {
-  position: relative;
-  display: grid;
-  grid-template-areas:
-    'intro'
-    'stage'
-    'outro';
-  row-gap: 32px;
-  max-width: 1560px;
-  margin: 0 auto;
-  padding: calc(72px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 72px max(16px, env(safe-area-inset-left));
+@keyframes aura-bloom {
+  25% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
 }
 
 .intro {
-  grid-area: intro;
+  position: relative;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: calc(72px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left));
+}
+
+/* ---------- track and sticky frame ---------- */
+
+.story {
+  position: relative;
+  height: calc(100svh + var(--track-len));
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+
+/* Phones: the phone fills the frame, the parts sit beneath it. */
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: calc(var(--lab-header-h, 56px) + 4px) max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+}
+
+.stageCell {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.panel {
+  flex: none;
+  /* The legend lays out by the column it sits in, not the viewport. */
+  container-type: inline-size;
 }
 
 .outro {
-  grid-area: outro;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  /* The legend lays out by the column it sits in, not the viewport. */
-  container-type: inline-size;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 28px max(16px, env(safe-area-inset-right)) 72px max(16px, env(safe-area-inset-left));
 }
 
 .title {
@@ -199,6 +239,20 @@
   transition: transform 700ms var(--ease-out);
 }
 
+/* Scroll story: the rails follow the scroll frame by frame (useStepStory writes them). */
+.fill[data-fill] {
+  transition: none;
+}
+
+.fill[data-fill='x'] {
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.fill[data-fill='y'] {
+  transform: scaleY(0);
+}
+
 .num {
   color: var(--muted);
   font-family: var(--font-mono);
@@ -244,6 +298,63 @@
 @media (hover: hover) {
   .legendButton:hover .term {
     color: var(--accent);
+  }
+}
+
+/* Phones (scroll story): the parts as three tabs under the phone, the current part's line beneath. */
+.caption {
+  display: none;
+}
+
+@media (max-width: 899px) {
+  .root:not([data-static]) .legend {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 10px;
+    border-bottom: 0;
+  }
+
+  .root:not([data-static]) .legendButton {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-height: 44px;
+    padding: 11px 0 2px;
+    border-top: 0;
+  }
+
+  .root:not([data-static]) .track {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    width: auto;
+    height: 3px;
+  }
+
+  .root:not([data-static]) .num {
+    font-size: 0.72rem;
+  }
+
+  .root:not([data-static]) .term {
+    font-size: calc(clamp(0.92rem, 0.8rem + 0.6vw, 1.05rem) * var(--display-scale));
+    line-height: 1.12;
+    overflow-wrap: anywhere;
+  }
+
+  .root:not([data-static]) .legendText {
+    display: none;
+  }
+
+  .root:not([data-static]) .caption {
+    display: block;
+    min-height: 2.9em;
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    text-wrap: pretty;
   }
 }
 
@@ -380,26 +491,86 @@
   }
 }
 
-/* ---------- desktop: copy left, the set right ---------- */
+/* ---------- phones held sideways: the phone beside the parts ---------- */
+
+@media (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  .frame {
+    flex-direction: row;
+    align-items: center;
+    gap: 28px;
+    max-width: none;
+    padding: calc(var(--lab-header-h, 56px) + 4px) max(24px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom))
+      max(24px, env(safe-area-inset-left));
+  }
+
+  .stageCell {
+    flex: 0 0 44%;
+    height: 100%;
+  }
+
+  .panel {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+/* ---------- desktop: the legend left, the set right ---------- */
 
 @media (min-width: 900px) {
-  .inner {
-    grid-template-areas:
-      '. stage'
-      'intro stage'
-      'outro stage'
-      '. stage';
-    grid-template-columns: minmax(0, 0.76fr) minmax(0, 1.24fr);
-    grid-template-rows: 1fr auto auto 1fr;
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: end;
     column-gap: clamp(28px, 4vw, 72px);
-    row-gap: 30px;
-    min-height: 100svh;
-    padding: 64px clamp(24px, 4vw, 56px) 48px;
+    padding: 96px clamp(24px, 4vw, 56px) 8px;
+  }
+
+  .title {
+    max-width: 13ch;
+  }
+
+  .lead {
+    justify-self: end;
+    margin: 0 0 0.4em;
+  }
+
+  .frame {
+    display: grid;
+    grid-template-areas: 'panel stage';
+    grid-template-columns: minmax(0, 0.76fr) minmax(0, 1.24fr);
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: clamp(28px, 4vw, 72px);
+    max-width: 1560px;
+    padding: calc(var(--lab-header-h, 64px) + 6px) clamp(24px, 4vw, 56px) 22px;
+  }
+
+  .stageCell {
+    grid-area: stage;
+    height: 100%;
+  }
+
+  .panel {
+    grid-area: panel;
+    align-self: center;
+    max-width: 34rem;
   }
 
   .outro {
-    max-width: 34rem;
-    gap: 22px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px 48px;
+    padding: 36px clamp(24px, 4vw, 56px) 88px;
+  }
+
+  .reach {
+    flex: 1 1 22rem;
+  }
+
+  .foot {
+    flex: 1 1 30rem;
+    max-width: 46rem;
   }
 
   .aura {
@@ -410,8 +581,36 @@
 /* Phones: the aura sits behind the phone. */
 @media (max-width: 899px) {
   .aura {
-    top: 52%;
+    top: 46%;
     right: -40%;
+  }
+}
+
+/* ---------- still version (reduced motion): no track ---------- */
+
+.root[data-static] .story {
+  height: auto;
+}
+
+.root[data-static] .sticky {
+  position: relative;
+  height: auto;
+}
+
+.root[data-static] .frame {
+  height: auto;
+  row-gap: 32px;
+  padding-top: 16px;
+}
+
+.root[data-static] .stageCell {
+  flex: none;
+}
+
+@media (min-width: 900px) {
+  .root[data-static] .frame {
+    grid-template-rows: auto;
+    align-items: center;
   }
 }
 

@@ -21,6 +21,15 @@
   container-type: inline-size;
 }
 
+/* Scroll story: the set fills its pinned cell and is sized by it (the hint
+   and the phone are about 52 phone units tall), see the pinned units below. */
+.stage[data-pinned] {
+  position: absolute;
+  inset: 0;
+  justify-content: center;
+  container-type: size;
+}
+
 /* ---------- camera ---------- */
 
 .camera {
@@ -36,6 +45,10 @@
   perspective: 105em;
   perspective-origin: 11.5em 22em;
   transition: transform 1100ms var(--ease-camera);
+}
+
+.stage[data-pinned] .camera {
+  --pu: clamp(6px, min(calc(100cqh / 52), calc(82vw / 23)), 15.5px);
 }
 
 /* ---------- hint (rides with the camera, centred over the phone) ---------- */
@@ -303,16 +316,6 @@
 /* ---------- desktop: phone + café tablet beside the copy ---------- */
 
 @media (min-width: 900px) {
-  /* The set (hint + phone, about 52 phone units tall) is pinned at the
-     viewport's centre while the copy column scrolls past it: sticky inside
-     its own grid area, so it never leaves the section. The offset assumes
-     the height-bound unit (the usual case on desktop). */
-  .stage {
-    position: sticky;
-    top: max(12px, calc(50svh - 26 * min(calc((100svh - 170px) / 48), 17.5px)));
-    align-self: start;
-  }
-
   .camera {
     --pu: clamp(9.5px, min(calc((100svh - 170px) / 48), calc(100cqi / 51)), 17.5px);
 
@@ -321,6 +324,10 @@
     perspective-origin: 24em 22em;
     /* Nudged toward the phone until the café's screen wakes. */
     transform: translateX(2.6em);
+  }
+
+  .stage[data-pinned] .camera {
+    --pu: clamp(6px, min(calc(100cqh / 52), calc(100cqi / 51)), 17.5px);
   }
 
   .stage[data-split] .camera {

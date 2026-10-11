@@ -252,6 +252,7 @@ export default function S01Hero({ meta }: LabSectionProps) {
             camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV, near: 0.1, far: 80 }}
             label='hero signal'
             fallback={null}
+            loading={null}
             activeFrameloop='demand'
           >
             <SignalScene

@@ -269,12 +269,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
       return chatReducer(fresh, { type: 'START', isInstant: action.isInstant });
     }
     case 'JUMP':
-      return {
-        ...fastForward(action.to, action.needsCode),
-        isAutopilot: action.isAutopilot,
-        hasInteracted: state.hasInteracted,
-        run: state.run + 1,
-      };
+      return jumpTo(state, action.to, action.needsCode, action.isAutopilot);
     default:
       return state;
   }
@@ -322,11 +317,17 @@ export function fastForward(to: PartId | 'final', needsCode: boolean): ChatState
   return chatReducer(state, { type: 'OPEN_MINI', source: auto });
 }
 
+function jumpTo(state: ChatState, to: PartId | 'final', needsCode: boolean, isAutopilot: boolean): ChatState {
+  return { ...fastForward(to, needsCode), isAutopilot, hasInteracted: state.hasInteracted, run: state.run + 1 };
+}
+
 /* ---------- director plan ---------- */
 
 export interface DirectorContext {
   isReduced: boolean;
   needsCode: boolean;
+  /** Scroll story: the scroll asked for the next beat, so the autopilot presses almost at once. */
+  isQuick?: boolean;
 }
 
 export interface PlannedStep {
@@ -366,6 +367,8 @@ const AUTOPILOT_WAIT: Partial<Record<Phase, number>> = {
 };
 
 const GHOST_PRESS_MS = 460;
+/** Scroll story: the pause before the autopilot's press once the scroll reached its beat. */
+const QUICK_WAIT_MS = 160;
 
 /** The button the autopilot will tap next (also gets the pulsing hint). */
 export function autopilotTarget(state: ChatState): string | null {
@@ -420,6 +423,12 @@ export function actionFor(target: string, source: Source, needsCode: boolean): C
   }
 }
 
+function autopilotWait(state: ChatState, isQuick: boolean): number {
+  if (isQuick) return QUICK_WAIT_MS;
+  if (state.phase === 'mini') return state.counts.croissant === 0 ? 1500 : 1100;
+  return AUTOPILOT_WAIT[state.phase] ?? 2000;
+}
+
 /** The next timed step for the current state, or null to wait for the visitor. */
 export function planNext(state: ChatState, ctx: DirectorContext): PlannedStep | null {
   const scale = ctx.isReduced ? 0 : 1;
@@ -433,8 +442,7 @@ export function planNext(state: ChatState, ctx: DirectorContext): PlannedStep | 
   const target = autopilotTarget(state);
   if (!target || ctx.isReduced) return null;
   if (state.ghost !== target) {
-    const wait = state.phase === 'mini' ? (state.counts.croissant === 0 ? 1500 : 1100) : (AUTOPILOT_WAIT[state.phase] ?? 2000);
-    return { delay: wait, action: { type: 'GHOST', target } };
+    return { delay: autopilotWait(state, ctx.isQuick === true), action: { type: 'GHOST', target } };
   }
   const action = actionFor(target, 'auto', ctx.needsCode);
   return action ? { delay: GHOST_PRESS_MS, action } : null;

@@ -14,15 +14,17 @@
 [data-lab-root] {
   /* 02 · see the per-style block below. */
   --lab-h-manifesto: 100svh;
-  /* 07 · phone stacked above the copy below 900px. */
-  --lab-h-telegram: max(100svh, calc(1565px + 38.3svh - 62vw));
+  /* 07 · intro + a 580svh track (100svh + 16 slices × 30svh, S07Telegram SLICE_SCROLL_SVH) + outro;
+     fitted from below in all four styles at 320–2560px on 2026-10-11 (see the 07 blocks). */
+  --lab-h-telegram: calc(580svh + max(535px, 1092px - 116.67vw));
   /* 08–11 · the "how we build" chapter, fitted from below on 2026-10-10 (see the 08–11 block).
      08 · intro + a 392.5svh track (STEP_UNIT_SVH 45, s15/copy.ts) + outro, refitted 2026-10-11. */
   --lab-h-mobile-build: calc(392.5svh + max(600px, 838px - 12.4vw));
   /* 09 · the root is 420svh; intro, track and outro fit inside it at every size measured. */
   --lab-h-web-build: 420svh;
-  /* 10 · content height: files, index map and chat stacked below 760px. */
-  --lab-h-rag-build: max(100svh, 2260px);
+  /* 10 · intro + a 550svh track (100svh + 6 scenes × SCENE_SVH 75, S17RagBuild.tsx) + outro, fitted
+     2026-10-11 in all four styles at 320–2560px (see the 10 blocks below). */
+  --lab-h-rag-build: calc(550svh + max(1095px, 1495px - 55vw));
   /* 11 · intro + a 400svh track (s18/story.ts SCROLL_SCREENS) + outro. */
   --lab-crm-rest: max(755px, 1524px - 113.6vw);
   --lab-h-crm-build: calc(400svh + var(--lab-crm-rest));
@@ -95,7 +97,7 @@
 
 @media (min-width: 900px) {
   [data-lab-root] {
-    --lab-h-telegram: max(100svh, calc(1227px - 23.85vw));
+    --lab-h-telegram: calc(580svh + max(415px, 768px - 28.3vw));
   }
 }
 
@@ -116,7 +118,7 @@
 
 @media (min-width: 760px) {
   [data-lab-root] {
-    --lab-h-rag-build: max(100svh, 1745px);
+    --lab-h-rag-build: calc(550svh + 1010px);
   }
 }
 
@@ -130,13 +132,32 @@
 
 @media (min-width: 1100px) {
   [data-lab-root] {
+    --lab-h-rag-build: calc(550svh + max(712px, 1250px - 40.5vw));
+  }
+}
+
+/* 10 · reduced motion: no scroll track; the files, index map and chat as content (stacked below 760px). */
+@media (prefers-reduced-motion: reduce) {
+  [data-lab-root] {
+    --lab-h-rag-build: max(100svh, 2260px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 760px) {
+  [data-lab-root] {
+    --lab-h-rag-build: max(100svh, 1745px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 1100px) {
+  [data-lab-root] {
     --lab-h-rag-build: max(100svh, 1220px);
   }
 }
 
 /* Reduced motion: 08, 09 and 11 drop their scroll tracks (the phone beside every step; the
-   static site; the finished admin in a max(640px, min(100svh, 900px)) window); 10 and 17 keep
-   their heights. */
+   static site; the finished admin in a max(640px, min(100svh, 900px)) window); 10 has its own
+   blocks above; 17 keeps its height. */
 @media (prefers-reduced-motion: reduce) {
   [data-lab-root] {
     --lab-h-mobile-build: 2390px;
@@ -260,5 +281,25 @@
 @media (prefers-reduced-motion: reduce) and (max-width: 374px) {
   [data-lab-root] {
     --lab-h-work-wall: 4600px;
+  }
+}
+
+/* 07 · reduced motion: no track; intro, phone, legend and outro in one column (the legend beside the
+   phone from 900px), measured 2026-10-11 in styles A and C at 320–2560px and fitted from below. */
+@media (prefers-reduced-motion: reduce) {
+  [data-lab-root] {
+    --lab-h-telegram: 1580px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-telegram: 1030px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 900px) {
+  [data-lab-root] {
+    --lab-h-telegram: 940px;
   }
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useRef, useState, type RefObject } from 'react';
-import { ScrollTrigger, useGSAP } from '../../global/gsap';
-import { getLabLenis, scrollToY } from '../../global/scroll';
+import { ScrollTrigger, useGSAP } from '../global/gsap';
+import { getLabLenis, scrollToY } from '../global/scroll';
 
 /** Where inside a step's slice of the scroll a jump lands (0 = its very start). */
 const STEP_LANDING = 0.12;
@@ -12,9 +12,9 @@ const JUMP_PER_STEP_S = 0.12;
 /**
  * Turns the scroll through `trackRef` (a tall track with a sticky stage)
  * into a step index: the stuck range is cut into `count` equal slices.
- * Progress rails ([data-fill='x'|'y'][data-index]) inside `scopeRef` are
- * written directly every frame (no re-render); React only hears about step
- * changes. `goTo` scrolls to a step (a Lenis glide).
+ * Progress rails ([data-fill='x'|'y'][data-index], optionally spanning
+ * [data-span] steps from that index) inside `scopeRef` are written directly
+ * every frame (no re-render); React only hears about step changes. `goTo` scrolls to a step (a Lenis glide).
  *
  * Still version (`isScroll` false, reduced motion): no scroll story at all;
  * the step is the one the visitor picked (the last, the finished site, until
@@ -41,7 +41,8 @@ export function useStepStory(
         const at = progress * count;
         const index = Math.min(count - 1, Math.floor(at));
         fills.forEach(fill => {
-          const amount = Math.min(1, Math.max(0, at - Number(fill.dataset.index)));
+          const span = Number(fill.dataset.span ?? 1);
+          const amount = Math.min(1, Math.max(0, (at - Number(fill.dataset.index)) / span));
           fill.style.transform = fill.dataset.fill === 'x' ? `scaleX(${amount})` : `scaleY(${amount})`;
         });
         if (index !== stepRef.current) {

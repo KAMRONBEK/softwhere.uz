@@ -76,15 +76,19 @@ function useToolingHandle(): void {
   }, []);
 }
 
-/** A crashed section falls back to its static stand-in; the founder's panel also says so. */
+/**
+ * A crashed section falls back to its static stand-in for good (no loading
+ * skeleton: data-lab-crashed, components/Skeleton.module.css); the founder's
+ * panel also says so.
+ */
 function SectionCrash({ section, isPanel }: { section: LabSectionDef; isPanel: boolean }) {
   const t = useTranslations('home.shared');
   const { meta, Fallback } = section;
   return (
-    <>
+    <div data-lab-crashed=''>
       <Fallback meta={meta} />
       {isPanel ? <p className={css.crash}>{t('sectionError')}</p> : null}
-    </>
+    </div>
   );
 }
 

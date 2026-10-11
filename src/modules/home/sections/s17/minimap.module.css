@@ -67,3 +67,8 @@
     display: none;
   }
 }
+
+/* The scroll story keeps the real map on the phone screen above the chat: no thumbnail needed. */
+:global([data-rag-sticky]) .mini {
+  display: none;
+}

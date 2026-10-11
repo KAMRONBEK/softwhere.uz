@@ -394,6 +394,7 @@ export default function S14Finale({ meta }: LabSectionProps) {
               style={FILL}
               label='finale warp'
               fallback={<div className={css.still} />}
+              loading={<div className={css.still} />}
               maxDpr={MAX_DPR[tier]}
               activeFrameloop={isCalm || isTyping ? 'demand' : 'always'}
             >

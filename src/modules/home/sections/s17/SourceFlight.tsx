@@ -64,7 +64,8 @@ export default function SourceFlight({ stageRef }: { stageRef: RefObject<HTMLEle
     if (!flightKey || !turn || isReduced || !layer || !stage) return;
     const reply = question(turn.question).reply(turn.role);
     const box = stage.querySelector<HTMLElement>('[data-map-box]');
-    if (!box || reply.sources.length === 0) return;
+    // No map on screen (a phone scene that hides it): nothing to fly from.
+    if (!box || !box.getBoundingClientRect().width || reply.sources.length === 0) return;
     const segments = answerSegments(answerText(t, reply));
     const tweens: gsap.core.Tween[] = [];
     const chips: HTMLElement[] = [];

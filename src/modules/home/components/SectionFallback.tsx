@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { useHomeFacts } from '../context/HomeFactsContext';
 import type { LabSectionProps } from '../types';
 import { SectionHeading } from './LabSection';
+import SectionSkeleton, { skeletonShapeFor } from './SectionSkeleton';
 import css from './SectionFallback.module.css';
 
 interface SectionFallbackProps extends LabSectionProps {
@@ -22,10 +23,15 @@ interface SectionFallbackProps extends LabSectionProps {
  * stay light: no GSAP, WebGL or heavy imports. A section can register a richer
  * static fallback of its own in sections/registry.ts (FALLBACKS); it must
  * render the same SectionHeading id, usually by wrapping this one.
+ *
+ * Under the copy, a glowing skeleton of the section's stage
+ * (SectionSkeleton) fills the rest of the first screen, so the slot never
+ * reads as empty while the section's code is on the way.
  */
 export default function SectionFallback({ meta, summary, children }: SectionFallbackProps) {
   const t = useTranslations(`home.${meta.id}` as const);
   const facts = useHomeFacts();
+  const shape = skeletonShapeFor(meta.id);
   return (
     <div className={css.root} style={{ minHeight: meta.minHeight }}>
       <div className={css.inner}>
@@ -34,6 +40,7 @@ export default function SectionFallback({ meta, summary, children }: SectionFall
         </SectionHeading>
         <p className={css.summary}>{summary ?? t('summary', facts)}</p>
         {children}
+        {shape ? <SectionSkeleton shape={shape} /> : null}
       </div>
     </div>
   );

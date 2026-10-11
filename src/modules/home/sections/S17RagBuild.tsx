@@ -2,9 +2,20 @@
 
 import { SplitText } from 'gsap/SplitText';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useReducer, useRef, type Dispatch, type MouseEvent, type RefObject } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  type CSSProperties,
+  type Dispatch,
+  type MouseEvent,
+  type RefObject,
+} from 'react';
 import { SectionHeading } from '../components/LabSection';
 import { useInView } from '../components/useInView';
+import { useStepStory } from '../components/useStepStory';
 import { useLabDevice } from '../device/useDeviceTier';
 import { gsap, useGSAP, SPLIT_KEEP_NBSP } from '../global/gsap';
 import { scrollToSection } from '../global/scroll';
@@ -19,13 +30,17 @@ import IndexMap from './s17/IndexMap';
 import Library from './s17/Library';
 import {
   INITIAL_STATE,
+  SCENES,
+  SCENE_PART,
   autopilotTarget,
+  firstSceneOf,
   lastTurn,
   planNext,
   ragReducer,
   type CiteFocus,
   type RagAction,
   type RagState,
+  type SceneId,
   type Turn,
 } from './s17/machine';
 import css from './s17/section.module.css';
@@ -36,11 +51,30 @@ if (typeof window !== 'undefined') gsap.registerPlugin(SplitText);
 
 /** Where the "price it" button goes: the AI brief. */
 const PRICE_SECTION = 'ai-demo';
+/** Scroll per scene (svh): long enough to watch a scene's beat at a reading pace. */
+const SCENE_SVH = 75;
+const TRACK_LEN = `${SCENES.length * SCENE_SVH}svh`;
+
+/** What the beats depend on: everything but a pointed-at citation, so hovering never restarts a beat's timer. */
+function beatKey(state: RagState): string {
+  const turn = lastTurn(state);
+  return [
+    state.run,
+    state.pipeline,
+    state.log.length,
+    turn?.key,
+    turn?.status,
+    state.autoStep,
+    state.isAutopilot,
+    state.tab,
+    state.role,
+  ].join('|');
+}
 
 /**
  * Runs the demo's timed beats one at a time, only while the stage is on
- * screen. Any state change reschedules, so a visitor's tap cancels the
- * pending autopilot step.
+ * screen, never past the scene the scroll picked (`limit`). Any beat change
+ * reschedules, so a visitor's tap cancels the pending autopilot step.
  */
 function useDirector(
   state: RagState,
@@ -48,16 +82,39 @@ function useDirector(
   isActive: boolean,
   isReduced: boolean,
   isTouch: boolean,
-  isChatInView: boolean,
+  limit: SceneId | null,
   tokenCount: (turn: Turn) => number
 ): void {
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+  const beat = beatKey(state);
   useEffect(() => {
     if (!isActive) return;
-    const step = planNext(state, { isReduced, isTouch, isChatInView, tokenCount });
+    const step = planNext(stateRef.current, { isReduced, isTouch, limit, tokenCount });
     if (!step) return;
     const id = window.setTimeout(() => dispatch(step.action), step.delay);
     return () => window.clearTimeout(id);
-  }, [state, dispatch, isActive, isReduced, isTouch, isChatInView, tokenCount]);
+  }, [beat, dispatch, isActive, isReduced, isTouch, limit, tokenCount]);
+}
+
+/**
+ * Scroll → scene: when the scroll picks a new scene (and the stage is on
+ * screen), the demo opens on it. Kept in a ref, so a scene is set once per
+ * arrival; a remount (the section is torn down far away) starts fresh and
+ * picks up wherever the scroll is.
+ */
+function useSceneFromScroll(scene: SceneId | null, isOnScreen: boolean, dispatch: Dispatch<RagAction>): (scene: SceneId | null) => void {
+  const appliedRef = useRef<SceneId | null>(null);
+  useEffect(() => {
+    if (!scene || !isOnScreen || appliedRef.current === scene) return;
+    appliedRef.current = scene;
+    dispatch({ type: 'SCENE', scene });
+  }, [scene, isOnScreen, dispatch]);
+  return useCallback((next: SceneId | null) => {
+    appliedRef.current = next;
+  }, []);
 }
 
 /** The heading's lines tip up in 3D one after another, then the rest follows. Once; still under reduced motion. */
@@ -112,14 +169,21 @@ function onPriceIt(event: MouseEvent<HTMLAnchorElement>) {
  * 10 · AI on your docs — how we build RAG, told on a sample logistics
  * company, on one stage: the pipeline across the top, the company's five
  * files, the index as a constellation of snippets (the hero) and a staff
- * chat. The files are read and cut into snippets that pour into the map
- * (drawn dim from the first paint); a question lands on the map, draws lines
- * to the snippets it finds and the chat answers with numbered sources that
- * fly over from their dots. The guardrails show themselves: HR files stay
- * locked for a dispatcher, and a question the files can't answer gets "I
- * don't know", which lands in the insights as a gap to fill. Scripted, no AI
- * call, no data leaves the page. It plays itself while in view; any tap
- * takes over. Reduced motion: the indexed map and one answered question,
+ * chat. The files are read and cut into snippets that pour into the map as
+ * an unsorted cloud; indexing sorts them into topics; a question enters the
+ * map as a probe, hops through the snippets, locks on to the closest ones and
+ * the chat answers with numbered sources that fly over from their dots. The
+ * guardrails show themselves: the HR lock stops the probe for a dispatcher,
+ * and a question the files can't answer gets "I don't know", which lands in
+ * the insights as a gap to fill. Scripted, no AI call, no data leaves the page.
+ *
+ * Scroll-driven like 08, 09 and 11: a tall track with a sticky stage, its
+ * progress picks the scene (read, index, answer, guard, "I don't know",
+ * insights), each scene plays its beat by itself, scrolling back goes back,
+ * and the steps glide the scroll to a part. Taps in the chat or on the map
+ * take over inside a scene. Phones: the sticky screen shows the pane the
+ * scene is about (the files and the map, then the map and the chat).
+ * Reduced motion: no track; the indexed map and one answered question,
  * still clickable, no autoplay.
  */
 export default function S17RagBuild({ meta }: LabSectionProps) {
@@ -129,22 +193,22 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
   const [state, dispatch] = useReducer(ragReducer, INITIAL_STATE);
 
   const rootRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
   const isOnScreen = useInView(stageRef);
-  // Reading starts as soon as the stage's top is well in view, so the index is built by the time
-  // the visitor reaches the chat.
-  const isStageEngaged = useInView(stageRef, '0px 0px -12% 0px');
-  const isChatInView = useInView(chatRef, '0px 0px -18% 0px');
+  const isScroll = !isReduced;
 
+  const { step, goTo } = useStepStory(trackRef, rootRef, SCENES.length, isScroll);
+  const scene = isScroll ? SCENES[step] : null;
+  const markApplied = useSceneFromScroll(scene, isOnScreen, dispatch);
+
+  // Reduced motion: the finished state at once, no scroll story.
   useEffect(() => {
-    if (state.pipeline !== 'idle') return;
-    if (isReduced) dispatch({ type: 'RESTART', isAutopilot: false, isInstant: true });
-    else if (isStageEngaged) dispatch({ type: 'START' });
-  }, [state.pipeline, isReduced, isStageEngaged]);
+    if (isReduced && state.pipeline === 'idle') dispatch({ type: 'RESTART', isAutopilot: false, isInstant: true });
+  }, [state.pipeline, isReduced]);
 
   const tokenCount = useCallback((turn: Turn) => answerTokenCount(t, turn), [t]);
-  useDirector(state, dispatch, isOnScreen, isReduced, isTouch, isChatInView, tokenCount);
+  useDirector(state, dispatch, isOnScreen, isReduced, isTouch, scene, tokenCount);
   useCopyEntrance(rootRef, isReduced);
 
   const focusCite = useCallback((focus: CiteFocus | null) => dispatch({ type: 'FOCUS', focus }), []);
@@ -152,18 +216,41 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
     const focused = state.focus ? state.log.find(entry => entry.kind === 'turn' && entry.key === state.focus?.turn) : null;
     return focused?.kind === 'turn' ? focused : lastTurn(state);
   }, [state]);
-  const hintTarget = isReduced ? null : autopilotTarget(state);
+  const hintTarget = isReduced ? null : autopilotTarget(state, scene);
   const demo = useMemo<RagDemoValue>(
     () => ({ state, dispatch, isReduced, isTouch, hintTarget, shownTurn, focusCite }),
     [state, isReduced, isTouch, hintTarget, shownTurn, focusCite]
   );
 
-  const jump = useCallback((to: PartId) => dispatch({ type: 'JUMP', to, isInstant: isReduced }), [isReduced]);
-  const replay = () => dispatch({ type: 'RESTART', isAutopilot: !isReduced, isInstant: isReduced });
+  // Scroll owns the part: a step glides the scroll to it (the current one stays put).
+  const jump = useCallback(
+    (to: PartId) => {
+      if (!isScroll) dispatch({ type: 'JUMP', to, isInstant: true });
+      else if (!scene || SCENE_PART[scene] !== to) goTo(firstSceneOf(to));
+    },
+    [isScroll, scene, goTo]
+  );
+  const replay = () => {
+    if (!isScroll) {
+      dispatch({ type: 'RESTART', isAutopilot: false, isInstant: true });
+      return;
+    }
+    // Back to the first scene and play it again (the glide passes the others on its way up).
+    markApplied(SCENES[0]);
+    dispatch({ type: 'SCENE', scene: SCENES[0] });
+    goTo(0);
+  };
 
   return (
     <RagDemoContext.Provider value={demo}>
-      <div ref={rootRef} className={css.root} data-scheme={scheme} data-paused={isOnScreen ? undefined : 'true'}>
+      <div
+        ref={rootRef}
+        className={css.root}
+        data-scheme={scheme}
+        data-paused={isOnScreen ? undefined : 'true'}
+        data-scroll={isScroll ? '' : undefined}
+        style={isScroll ? ({ '--track-len': TRACK_LEN } as CSSProperties) : undefined}
+      >
         <div className={css.aura} aria-hidden='true' />
         <div className={css.inner}>
           <header className={css.intro}>
@@ -185,20 +272,24 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
             </div>
           </header>
 
-          <div className={css.stage} ref={stageRef} role='group' aria-label={t('demoLabel')}>
-            <div className={css.paneSteps}>
-              <Steps onJump={jump} />
+          <div ref={trackRef} className={css.track}>
+            <div className={css.sticky} data-rag-sticky={isScroll ? '' : undefined}>
+              <div className={css.stage} ref={stageRef} role='group' aria-label={t('demoLabel')} data-scene={scene ?? undefined}>
+                <div className={css.paneSteps}>
+                  <Steps onJump={jump} scene={scene} />
+                </div>
+                <div className={css.paneLib}>
+                  <Library />
+                </div>
+                <div className={css.paneMap}>
+                  <IndexMap stageRef={stageRef} />
+                </div>
+                <div className={css.paneChat} data-rag-chat=''>
+                  <Assistant />
+                </div>
+                <SourceFlight stageRef={stageRef} />
+              </div>
             </div>
-            <div className={css.paneLib}>
-              <Library />
-            </div>
-            <div className={css.paneMap}>
-              <IndexMap stageRef={stageRef} />
-            </div>
-            <div className={css.paneChat} ref={chatRef}>
-              <Assistant />
-            </div>
-            <SourceFlight stageRef={stageRef} />
           </div>
 
           <footer className={css.outro}>

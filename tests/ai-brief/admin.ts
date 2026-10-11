@@ -86,12 +86,28 @@ s.group("'deepseek' = flash first, Kimi as the backup");
   }
   s.eq('the scope thinks hard on flash', set.partChains?.scope?.[0]?.reasoningEffort, 'high');
   s.eq('the Kimi scope backup has room for a full scope', set.partChains?.scope?.at(-1)?.maxTokens, 16_000);
-  s.eq('sample content on flash', set.samplesChain?.map(c => c.model), ['deepseek-flash']);
-  s.eq('Uzbek copy-edit on flash (as audited)', set.polishChain?.map(c => c.model), ['deepseek-flash']);
+  s.eq(
+    'sample content on flash',
+    set.samplesChain?.map(c => c.model),
+    ['deepseek-flash']
+  );
+  s.eq(
+    'Uzbek copy-edit on flash (as audited)',
+    set.polishChain?.map(c => c.model),
+    ['deepseek-flash']
+  );
 
   const scope = set.partChains?.scope ?? [];
-  s.eq('without a DeepSeek key: Kimi alone writes the scope', usableChain(scope, ['kimi']).map(c => c.model), ['kimi-k3']);
-  s.eq('without a Kimi key: flash alone', usableChain(scope, ['deepseek']).map(c => c.model), ['deepseek-flash']);
+  s.eq(
+    'without a DeepSeek key: Kimi alone writes the scope',
+    usableChain(scope, ['kimi']).map(c => c.model),
+    ['kimi-k3']
+  );
+  s.eq(
+    'without a Kimi key: flash alone',
+    usableChain(scope, ['deepseek']).map(c => c.model),
+    ['deepseek-flash']
+  );
   const plan = set.partChains?.plan ?? [];
   s.eq(
     'with both keys the plan runs flash, flash (thinking retry), Kimi',
@@ -111,7 +127,10 @@ s.group('lanes carry the choice');
   pickBriefLane(main, overflow, true, ds); // the third $0.30 reserve no longer fits under $1
   const spill = pickBriefLane(main, overflow, true, ds);
   s.eq('a spent main cap spills to the overflow', spill?.name, 'overflow');
-  s.ok('the overflow keeps its own flash-only chains', spill?.options.polish === false && spill?.options.partChains?.scope?.[0]?.model === 'deepseek-flash');
+  s.ok(
+    'the overflow keeps its own flash-only chains',
+    spill?.options.polish === false && spill?.options.partChains?.scope?.[0]?.model === 'deepseek-flash'
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -120,7 +139,11 @@ s.group('lanes carry the choice');
 
 s.group('the stats row of a run');
 {
-  const mixed = run([attempt('kimi-k3', true, 0.05, 2000, 800), attempt('deepseek-flash', true, 0.004, 1500, 300), attempt('kimi-k3', false, 0.01, 100, 0)]);
+  const mixed = run([
+    attempt('kimi-k3', true, 0.05, 2000, 800),
+    attempt('deepseek-flash', true, 0.004, 1500, 300),
+    attempt('kimi-k3', false, 0.01, 100, 0),
+  ]);
   const row = briefRunRecord(mixed, { locale: 'uz', provider: 'kimi', lane: 'main', visitor: 'abc' });
   s.eq('locale, provider choice, lane', [row.locale, row.mode, row.lane], ['uz', 'kimi', 'main']);
   s.eq('status', row.status, 'ok');
@@ -138,7 +161,12 @@ s.group('the stats row of a run');
   const kimiOnly = briefRunRecord(run([attempt('kimi-k3', true, 0.05)]), { locale: 'en', provider: 'kimi', lane: 'main', visitor: 'v' });
   s.eq('all-Kimi in Kimi mode: no backup', kimiOnly.fallbackUsed, false);
 
-  const overflow = briefRunRecord(run([attempt('deepseek-flash', true, 0.01)]), { locale: 'ru', provider: 'kimi', lane: 'overflow', visitor: 'v' });
+  const overflow = briefRunRecord(run([attempt('deepseek-flash', true, 0.01)]), {
+    locale: 'ru',
+    provider: 'kimi',
+    lane: 'overflow',
+    visitor: 'v',
+  });
   s.eq('flash in the overflow lane is by design, not a backup', overflow.fallbackUsed, false);
 
   const dsFailedKimi = briefRunRecord(run([attempt('deepseek-flash', true, 0.01), attempt('kimi-k3', false, 0.02)]), {
@@ -149,10 +177,20 @@ s.group('the stats row of a run');
   });
   s.eq('a Kimi call that failed did not answer: no backup', dsFailedKimi.fallbackUsed, false);
 
-  const failed = briefRunRecord(run([attempt('kimi-k3', false, 0.02)], 'error'), { locale: 'uz', provider: 'kimi', lane: 'main', visitor: 'v' });
+  const failed = briefRunRecord(run([attempt('kimi-k3', false, 0.02)], 'error'), {
+    locale: 'uz',
+    provider: 'kimi',
+    lane: 'main',
+    visitor: 'v',
+  });
   s.eq('an error keeps its code', [failed.status, failed.errorCode], ['error', 'timeout']);
 
-  const noUsage = briefRunRecord(run([{ ...attempt('kimi-k3', false, 0), usage: null }]), { locale: 'uz', provider: 'kimi', lane: 'main', visitor: 'v' });
+  const noUsage = briefRunRecord(run([{ ...attempt('kimi-k3', false, 0), usage: null }]), {
+    locale: 'uz',
+    provider: 'kimi',
+    lane: 'main',
+    visitor: 'v',
+  });
   s.eq('a call without usage adds no tokens', [noUsage.inputTokens, noUsage.outputTokens], [0, 0]);
 
   const busy = busyRecord({ locale: 'en', provider: 'deepseek', visitor: 'v' });
@@ -172,7 +210,12 @@ s.group('anonymous visitor hash');
 
 s.group('caps');
 {
-  s.eq('defaults', briefCaps({}), { mainUsd: DEFAULT_DAILY_USD, mainCalls: 150, overflowUsd: DEFAULT_OVERFLOW_DAILY_USD, overflowCalls: 150 });
+  s.eq('defaults', briefCaps({}), {
+    mainUsd: DEFAULT_DAILY_USD,
+    mainCalls: 150,
+    overflowUsd: DEFAULT_OVERFLOW_DAILY_USD,
+    overflowCalls: 150,
+  });
   s.eq('$3 main, $1 overflow by default', [DEFAULT_DAILY_USD, DEFAULT_OVERFLOW_DAILY_USD], [3, 1]);
   s.eq('env overrides', briefCaps({ AI_BRIEF_DAILY_USD: '5', AI_BRIEF_OVERFLOW_DAILY_USD: '0.5' }).mainUsd, 5);
   s.eq('junk never lifts a cap', briefCaps({ AI_BRIEF_DAILY_USD: 'abc', AI_BRIEF_OVERFLOW_DAILY_USD: '-1' }), briefCaps({}));
@@ -186,11 +229,17 @@ s.group('brief route wiring');
 {
   const route = read('src/app/api/estimate/brief/route.ts');
   const at = (needle: string) => route.indexOf(needle);
-  s.ok('the provider is read after the free brief is held', at('allowance.take(ip)') > -1 && at('allowance.take(ip)') < at('getBriefProvider()'));
+  s.ok(
+    'the provider is read after the free brief is held',
+    at('allowance.take(ip)') > -1 && at('allowance.take(ip)') < at('getBriefProvider()')
+  );
   s.ok('and feeds the main lane', route.includes('providerChainSet(provider)'));
   s.ok('a "cap reached" request is recorded', /if \(!lane\) \{[\s\S]{0,120}recordBriefRun\(busyRecord\(/.test(route));
   s.ok('every finished run is recorded', route.includes('recordBriefRun(briefRunRecord(run,'));
-  s.ok('the IP is only ever stored hashed', (route.match(/visitor: visitorHash\((ctx\.)?ip\)/g) ?? []).length === 2 && !/visitor: ip\b/.test(route));
+  s.ok(
+    'the IP is only ever stored hashed',
+    (route.match(/visitor: visitorHash\((ctx\.)?ip\)/g) ?? []).length === 2 && !/visitor: ip\b/.test(route)
+  );
   s.ok('the stream sends the result before awaiting the row', at("send(run.outcome.status === 'error'") < at('await recorded;'));
   s.ok('a daily-limit 429 is not recorded (no write per refused request)', at('dailyLimit(usedFor)') < at('recordBriefRun(busyRecord'));
 }
@@ -206,7 +255,9 @@ s.group('admin wiring');
   );
   s.ok(
     'both require an admin first',
-    methods.every(m => /^\w+\(request: NextRequest\) \{\s*const authError = await requireAdmin\(request\);\s*if \(authError\) return authError;/.test(m))
+    methods.every(m =>
+      /^\w+\(request: NextRequest\) \{\s*const authError = await requireAdmin\(request\);\s*if \(authError\) return authError;/.test(m)
+    )
   );
   s.ok('PUT validates the provider', api.includes('if (!isBriefProvider(provider))'));
   s.ok('never cached', (api.match(/headers: NO_STORE/g) ?? []).length >= 4);
@@ -214,7 +265,10 @@ s.group('admin wiring');
   s.ok('the admin nav links the page', layout.includes('/admin/ai-demo') && layout.includes('AI demo'));
   s.ok('the page exists', fs.existsSync(path.join(ROOT, 'src/app/[locale]/(site)/admin/ai-demo/page.tsx')));
   const sqlFile = read('drizzle/0001_ai_brief_admin.sql');
-  s.ok('the migration is additive and re-runnable', !/drop|alter|delete|truncate/i.test(sqlFile) && (sqlFile.match(/IF NOT EXISTS/g) ?? []).length === 3);
+  s.ok(
+    'the migration is additive and re-runnable',
+    !/drop|alter|delete|truncate/i.test(sqlFile) && (sqlFile.match(/IF NOT EXISTS/g) ?? []).length === 3
+  );
 }
 
 process.exit(s.report());

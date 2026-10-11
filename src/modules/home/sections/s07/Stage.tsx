@@ -17,6 +17,9 @@ const RINGS = [0, 1, 2];
 interface StageProps {
   rootRef: RefObject<HTMLDivElement | null>;
   stageRef: RefObject<HTMLDivElement | null>;
+  trackRef: RefObject<HTMLDivElement | null>;
+  /** Scroll story: the set fills its pinned cell (sized by the cell, not the viewport). */
+  isPinned: boolean;
   isTiltEnabled: boolean;
   isTouch: boolean;
 }
@@ -29,7 +32,7 @@ interface StageProps {
  * nothing ever covers the chat. "Order confirmed" sends a shock ring through
  * the set and a ripple across the floor.
  */
-export default function Stage({ rootRef, stageRef, isTiltEnabled, isTouch }: StageProps) {
+export default function Stage({ rootRef, stageRef, trackRef, isPinned, isTiltEnabled, isTouch }: StageProps) {
   const { state, isReduced, copy } = useDemo();
   const isSide = useMediaQuery(SIDE_QUERY);
   const { isSplit, isAdmin } = stageFocus(state.phase);
@@ -47,6 +50,7 @@ export default function Stage({ rootRef, stageRef, isTiltEnabled, isTouch }: Sta
     {
       root: rootRef,
       stage: stageRef,
+      track: isPinned ? trackRef : undefined,
       scrollTilt: scrollTiltRef,
       pointerTilt: pointerTiltRef,
       entrance: entranceRef,
@@ -58,7 +62,13 @@ export default function Stage({ rootRef, stageRef, isTiltEnabled, isTouch }: Sta
   );
 
   return (
-    <div className={css.stage} ref={stageRef} data-split={isSplit ? 'true' : undefined} data-admin={isAdmin ? 'true' : undefined}>
+    <div
+      className={css.stage}
+      ref={stageRef}
+      data-pinned={isPinned ? 'true' : undefined}
+      data-split={isSplit ? 'true' : undefined}
+      data-admin={isAdmin ? 'true' : undefined}
+    >
       <div className={css.camera}>
         <p className={css.hint} data-hide={isHintHidden ? 'true' : undefined} aria-hidden='true'>
           <span className={css.hintDot} />

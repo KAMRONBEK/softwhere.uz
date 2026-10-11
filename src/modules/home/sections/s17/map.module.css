@@ -142,10 +142,44 @@
   opacity: 0;
 }
 
-/* In flight: the snippets carry the second accent, then cool to ink. */
-.map[data-pipeline='indexing'] .dot {
+/* Fresh snippets (the unsorted cloud, then in flight) carry the second accent, then cool to ink. */
+.map:is([data-pipeline='reading'], [data-pipeline='read'], [data-pipeline='indexing']) .dot {
   fill: var(--accent-2);
   transition-duration: 0ms, 400ms, 500ms;
+}
+
+/* Alive once indexed: the dots drift in three slow groups, the topic clouds breathe. */
+.drift {
+  animation: drift-a 9s ease-in-out infinite alternate;
+}
+
+.drift[data-drift='1'] {
+  animation-name: drift-b;
+  animation-duration: 11s;
+}
+
+.drift[data-drift='2'] {
+  animation-name: drift-c;
+  animation-duration: 13s;
+}
+
+.map[data-pipeline='ready']:not([data-still]) .hull {
+  animation: breathe 5.5s ease-in-out infinite alternate;
+}
+
+.map[data-still] .drift {
+  animation: none;
+}
+
+/* Near the pointer (desktop): the snippet glows. */
+.dot[data-near] {
+  fill: var(--accent);
+  transition-duration: 160ms, 400ms, 500ms;
+}
+
+/* The probe is searching: everything it doesn't touch steps back. */
+.dots[data-searching] {
+  opacity: 0.55;
 }
 
 /* Locked for this user: HR snippets are hollow. */
@@ -383,6 +417,72 @@
   animation: fade 400ms ease 500ms forwards;
 }
 
+/* ---------- the probe: a question walking the index (Probe.tsx) ---------- */
+
+.probeLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.probe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent),
+    0 0 18px 4px color-mix(in srgb, var(--accent) 45%, transparent);
+  opacity: 0;
+}
+
+/* A snippet the probe checks: a ring that flashes (no match) or stays lit (a match). */
+.stop {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border: 1.5px solid color-mix(in srgb, var(--fg) 55%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.stop[data-stop='hit'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.stop[data-stop='lock'] {
+  display: none;
+}
+
+/* The HR lock the probe bumps into. */
+.lockMark {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: var(--bg-2);
+  box-shadow:
+    0 0 0 1.5px var(--accent),
+    0 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  opacity: 0;
+}
+
+.lockMark svg {
+  width: 13px;
+  height: 13px;
+}
+
 /* ---------- looping effects: HTML, transform/opacity, painted last ---------- */
 
 .fx {
@@ -424,10 +524,51 @@
   text-wrap: pretty;
 }
 
+/* The scroll story: the steps' caption says what the map shows, so the stage fits one screen. */
+:global([data-rag-sticky]) .caption {
+  display: none;
+}
+
 /* Phones: the pipeline's caption explains the map, so the map and the chat fit one screen. */
 @media (max-width: 759px) {
   .caption {
     display: none;
+  }
+}
+
+@keyframes drift-a {
+  from {
+    transform: translate(-2.4px, 1.6px);
+  }
+  to {
+    transform: translate(2.2px, -2px);
+  }
+}
+
+@keyframes drift-b {
+  from {
+    transform: translate(2px, 2.2px);
+  }
+  to {
+    transform: translate(-2.2px, -1.6px);
+  }
+}
+
+@keyframes drift-c {
+  from {
+    transform: translate(-1.6px, -2.4px);
+  }
+  to {
+    transform: translate(1.8px, 2px);
+  }
+}
+
+@keyframes breathe {
+  from {
+    scale: 0.97;
+  }
+  to {
+    scale: 1.05;
   }
 }
 
@@ -516,5 +657,10 @@
   .dot {
     transition-duration: 1ms;
     transition-delay: 0ms;
+  }
+
+  .drift,
+  .map .hull {
+    animation: none;
   }
 }

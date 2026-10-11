@@ -7,8 +7,10 @@
 .inner {
   position: sticky;
   top: 0;
-  display: grid;
-  align-content: center;
+  /* A column, so the stage skeleton (SectionSkeleton) can take the leftover height. */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   gap: 16px;
   min-height: 100svh;
   max-width: 880px;

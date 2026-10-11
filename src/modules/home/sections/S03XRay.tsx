@@ -246,6 +246,7 @@ export default function S03XRay({ meta }: LabSectionProps) {
               className={css.canvas}
               style={CANVAS_BOX}
               fallback={cssLens}
+              loading={null}
               label='xray lens'
               camera={{ position: [0, 0, 1] }}
               activeFrameloop={isParked ? 'demand' : 'always'}

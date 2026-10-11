@@ -15,6 +15,14 @@
     "guard": { "term": "Himoya", "text": "Har kim faqat oʻz roliga ruxsat etilgan fayllarni koʻradi. Manba yoʻq — javob yoʻq." },
     "insights": { "term": "Tahlil", "text": "Jamoa nimani soʻrayotganini va fayllarda hali nima yoʻqligini koʻring." }
   },
+  "scenes": {
+    "read": "Beshta fayl oʻqilib, qisqa parchalarga boʻlinadi. Har bir nuqta — bitta parcha, hali aralash holda.",
+    "index": "Bir mavzudagi parchalar bir joyga yigʻiladi. Bu indeks: keraklilari bir zumda topiladi.",
+    "answer": "Savol xaritaga kiradi, eng yaqin parchalarni koʻrib chiqadi va javob ularni manba sifatida koʻrsatadi.",
+    "guard": "Dispetcher maoshlar haqida soʻraydi. Qidiruv HR parchalarigacha yetadi, lekin qulf uni toʻxtatadi: ruxsat yoʻq — javob yoʻq.",
+    "gap": "Fayllarda yetarlicha yaqin narsa yoʻq, shuning uchun taxmin qilish oʻrniga «bilmayman» deydi.",
+    "insights": "Har bir savol tahlilga tushadi, boʻshliq esa fayllarga nimani qoʻshish kerakligini koʻrsatadi."
+  },
   "stepAction": "{term}: {text} Demoda «{term}» qadamini koʻrsatish",
   "cursor": { "show": "Koʻrish", "open": "Ochish", "ask": "Soʻrash" },
   "getTitle": "Nimalarga ega boʻlasiz",

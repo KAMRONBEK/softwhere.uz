@@ -15,6 +15,14 @@
     "guard": { "term": "Guard", "text": "People only see the files their role allows. No source, no answer." },
     "insights": { "term": "Insights", "text": "See what your team asks, and what your files don’t cover yet." }
   },
+  "scenes": {
+    "read": "Your five files are read and cut into short snippets. Each dot is one snippet, not sorted yet.",
+    "index": "Snippets about the same topic pull together. That’s the index: the right ones are found in a blink.",
+    "answer": "The question enters the map, hops to the closest snippets, and the answer quotes them as its sources.",
+    "guard": "A dispatcher asks about salaries. The search reaches the HR snippets, but the lock stops it: no access, no answer.",
+    "gap": "Nothing in the files is close enough, so it says “I don’t know” instead of guessing.",
+    "insights": "Every question lands in the insights, and the gap shows what to add to your files next."
+  },
   "stepAction": "{term}: {text} Show “{term}” in the demo",
   "cursor": { "show": "Show", "open": "Open", "ask": "Ask" },
   "getTitle": "What you get",
