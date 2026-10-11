@@ -17,26 +17,35 @@
   /* 07 · intro + a 580svh track (100svh + 16 slices × 30svh, S07Telegram SLICE_SCROLL_SVH) + outro;
      fitted from below in all four styles at 320–2560px on 2026-10-11 (see the 07 blocks). */
   --lab-h-telegram: calc(580svh + max(535px, 1092px - 116.67vw));
-  /* 08–11 · the "how we build" chapter, fitted from below on 2026-10-10 (see the 08–11 block).
-     08 · intro + a 392.5svh track (STEP_UNIT_SVH 45, s15/copy.ts) + outro, refitted 2026-10-11. */
-  --lab-h-mobile-build: calc(392.5svh + max(600px, 838px - 12.4vw));
-  /* 09 · the root is 420svh; intro, track and outro fit inside it at every size measured. */
-  --lab-h-web-build: 420svh;
-  /* 10 · intro + a 550svh track (100svh + 6 scenes × SCENE_SVH 75, S17RagBuild.tsx) + outro, fitted
-     2026-10-11 in all four styles at 320–2560px (see the 10 blocks below). */
-  --lab-h-rag-build: calc(550svh + max(1095px, 1495px - 55vw));
-  /* 11 · intro + a 400svh track (s18/story.ts SCROLL_SCREENS) + outro. */
+  /* 08–11 · the "how we build" chapter: each scroll track in svh + the rest (intro, outro) fitted
+     from below; phones here, the other sizes and uz/ru in the 08–11 motion blocks below.
+     08 · intro + a 392.5svh track (STEP_UNIT_SVH 45 × the step weights + 100svh, s15/data.ts) + outro. */
+  --lab-h-mobile-build: calc(392.5svh + max(1308px - 132.86vw, 813px - 12.4vw));
+  /* 09 · intro + a track of at least 300svh (320svh from 900px and on landscape phones; it grows
+     to fill the root, which is never under 420svh) + outro. */
+  --lab-h-web-build: max(
+    420svh,
+    calc(300svh + max(1758px - 181.75vw, 1594px - 135.96vw, 1208px - 42.31vw, 1013px - 7.95vw, min(697px + 38.48vw, 989px)))
+  );
+  /* 10 · intro + a 550svh track (100svh + 6 scenes × SCENE_SVH 75, S17RagBuild.tsx) + outro. */
+  --lab-h-rag-build: calc(550svh + max(2368px - 291.45vw, 1555px - 74.55vw, 1468px - 54.62vw, 1391px - 43.33vw, 1071px));
+  /* 11 · intro + a 400svh track (s18/story.ts SCROLL_SCREENS) + outro; --lab-crm-rest is the
+     reduced-motion rest (see below). */
   --lab-crm-rest: max(755px, 1524px - 113.6vw);
-  --lab-h-crm-build: calc(400svh + var(--lab-crm-rest));
-  /* 17 · the physics tower (copy, picker and arena) + the closed toolbox drawer; refitted 2026-10-11
-     in all four styles from 320 to 2560px wide (the drawer opens below the reservation, never into it). */
-  --lab-h-stack-physics: calc(100svh + max(530px, 900px - 100vw));
+  --lab-h-crm-build: calc(400svh + max(2074px - 231.71vw, 1734px - 144.55vw, 1594px - 110.58vw, 1002px - 6.22vw));
+  /* 17 · the physics tower (copy, picker and arena) + the closed toolbox drawer; refitted 2026-10-12
+     in all four styles and the three locales from 320 to 2560px wide and 320 to 1440px tall (the
+     drawer opens below the reservation, never into it). Below 900px the arena is
+     clamp(360px, 100svh - 300px, 600px) (s13/stack.module.css), the rest is fitted in px/vw. */
+  --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + max(866px, 1184px - 77.1vw));
   /* 12 · idea, network and plan stacked on phones (steps below, see the 12 block). */
   --lab-h-ai-demo: max(100svh, 1870px);
   /* 12 with the real AI brief in its slot (the idle composer; see the 12-slot block). */
-  --lab-h-ai-demo-slot: max(100svh, 1000px);
-  /* 18 · 120svh warp track + the contact panel (taller than a phone screen). */
-  --lab-h-finale: calc(120svh + max(100svh, calc(995px - 15vw)));
+  --lab-h-ai-demo-slot: max(100svh, max(874px, 1000px - 30vw));
+  /* 18 · 120svh warp track + the contact panel (at least 100svh; taller than a phone screen).
+     The panel's own height refitted 2026-10-12 in all four styles and the three locales at
+     320–2560px wide, 320–1180px tall (its svh gaps are left out: fitted from below). */
+  --lab-h-finale: calc(120svh + max(100svh, max(1068px, min(1115px, 1307px - 64vw))));
   /* 13 · the wall is pinned for a viewport of scroll (S09WorkWall: 200svh incl. a 64px tail). */
   --lab-h-work-wall: 200svh;
   /* 05 · a 250svh scroll story (150svh still frame under reduced motion, below). */
@@ -89,9 +98,15 @@
   }
 }
 
+@media (min-width: 405px) {
+  [data-lab-root] {
+    --lab-h-finale: calc(120svh + max(100svh, max(986px, 1176px - 38.6vw)));
+  }
+}
+
 @media (min-width: 861px) {
   [data-lab-root] {
-    --lab-h-finale: 220svh;
+    --lab-h-finale: calc(120svh + max(100svh, clamp(636px, 490px + 13vw, 740px)));
   }
 }
 
@@ -106,33 +121,124 @@
    in px/vw, the scroll track in svh. Breakpoints follow each section's own CSS. */
 @media (min-width: 600px) {
   [data-lab-root] {
-    --lab-h-stack-physics: max(calc(100svh + 210px), 1200px);
+    --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + max(795px, 1200px - 60vw));
   }
 }
 
-@media (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+/* 17 on landscape phones: the arena is max(320px, 100svh - 40px) there (s13/stack.module.css). */
+@media (max-width: 899px) and (max-height: 520px) and (orientation: landscape) {
   [data-lab-root] {
-    --lab-h-mobile-build: calc(392.5svh + 600px);
-  }
-}
-
-@media (min-width: 760px) {
-  [data-lab-root] {
-    --lab-h-rag-build: calc(550svh + 1010px);
+    --lab-h-stack-physics: calc(max(320px, 100svh - 40px) + max(663px, min(718px, 1105px - 72vw)));
   }
 }
 
 @media (min-width: 900px) {
   [data-lab-root] {
-    --lab-h-mobile-build: calc(392.5svh + 585px);
     --lab-crm-rest: max(620px, 1020px - 32vw);
-    --lab-h-stack-physics: calc(100svh + 200px);
+    --lab-h-stack-physics: calc(100svh + clamp(200px, 11.4vw + 82px, 255px));
   }
 }
 
-@media (min-width: 1100px) {
+/*
+ * 08–11 with the scroll stories (motion), refitted 2026-10-12 from the natural heights measured in
+ * all four styles and the three locales at 320–2560px wide (phones and tablets with touch, landscape
+ * phones 568×320–932×430, laptops down to 1366×657): each track in svh plus the rest fitted from
+ * below (the lower convex hull of the measurements, 24px under it, flat past the widest size).
+ * English sets run shorter, so uz and ru have their own fit (:lang, from the page's lang). Every
+ * block is motion-only: the reduced-motion blocks below are not overridden. Breakpoints follow each
+ * section's own CSS: 760 (09–11), 900 (08, 09, 11), 1100 (10) and the landscape-phone queries.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-mobile-build: calc(392.5svh + max(1833px - 248.75vw, 1423px - 134.81vw, 1212px - 83.67vw, 951px - 35.17vw, 815px - 12.54vw));
+    --lab-h-web-build: max(
+      420svh,
+      calc(300svh + max(2350px - 317.75vw, 1794px - 163.33vw, 1554px - 99.21vw, 1180px - 30vw, min(910px + 15.06vw, 1024px)))
+    );
+    --lab-h-rag-build: calc(550svh + max(1832px - 123.91vw, 1790px - 114.09vw, 1468px - 54.62vw, 1104px - 1.17vw));
+    --lab-h-crm-build: calc(
+      400svh +
+        max(
+          2432px - 300.5vw,
+          2096px - 207.14vw,
+          1814px - 141.6vw,
+          1692px - 116.14vw,
+          1549px - 90.94vw,
+          1156px - 25.52vw,
+          min(937px + 7.37vw, 992px)
+        )
+    );
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 760px) {
   [data-lab-root] {
-    --lab-h-rag-build: calc(550svh + max(712px, 1250px - 40.5vw));
+    --lab-h-web-build: max(420svh, calc(300svh + max(1172px - 43.33vw, 1070px - 30.89vw)));
+    --lab-h-rag-build: calc(550svh + 986px);
+    --lab-h-crm-build: calc(400svh + max(1256px - 50.83vw, 966px - 16.54vw));
+  }
+
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-web-build: max(420svh, calc(300svh + min(790px + 12.03vw, 898px)));
+    --lab-h-rag-build: calc(550svh + max(1106px - 9.78vw, min(980px + 4.33vw, 1027px)));
+    --lab-h-crm-build: calc(400svh + 1311px - 50.81vw);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: calc(392.5svh + max(611px - 3.2vw, min(481px + 6.31vw, 642px)));
+    --lab-h-web-build: max(420svh, calc(320svh + max(1119px - 43.75vw, 793px - 8.85vw, min(568px + 7.68vw, 764px))));
+    --lab-h-crm-build: calc(400svh + max(1264px - 49.52vw, 971px - 21.27vw, min(685px + 0.99vw, 710px)));
+  }
+
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-mobile-build: calc(392.5svh + max(799px - 19.1vw, 658px - 5.03vw, min(503px + 6.31vw, 664px)));
+    --lab-h-web-build: max(
+      420svh,
+      calc(320svh + max(1947px - 124.06vw, 1244px - 48.68vw, 948px - 19.17vw, 708px - 0.35vw, min(605px + 7.14vw, 787px)))
+    );
+    --lab-h-crm-build: calc(400svh + max(1452px - 66.25vw, 1205px - 39.71vw, 986px - 17.79vw, 890px - 10.62vw, 727px));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 1100px) {
+  [data-lab-root] {
+    --lab-h-rag-build: calc(550svh + max(1226px - 40.5vw, 999px - 22.79vw, 688px));
+  }
+
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-rag-build: calc(550svh + max(1195px - 37.72vw, 1051px - 26.51vw, 688px));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 600px) and (max-width: 759px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-web-build: max(420svh, calc(320svh + 1118px - 30vw));
+  }
+
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-web-build: max(420svh, calc(320svh + 1077px - 13.56vw));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-mobile-build: calc(392.5svh + 881px - 34.15vw);
+  }
+
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-mobile-build: calc(392.5svh + 999px - 41.83vw);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 760px) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
+  [data-lab-root] {
+    --lab-h-web-build: max(420svh, calc(320svh + 915px - 22.88vw));
+  }
+
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-web-build: max(420svh, calc(320svh + min(774px + 4.62vw, 815px)));
   }
 }
 
@@ -208,33 +314,39 @@
    12-slot · the real AI brief (LabShell picks --lab-h-ai-demo-slot when the page fills the
    'ai-demo' slot): header, flow band and the idle compact composer (with the daily-allowance
    line), measured in all four styles and the three locales at 320–2560px (2026-10-10, again
-   after the one-plan-a-day change) and fitted from below — its results grow the section past
-   the floor. */
+   after the one-plan-a-day change; refitted 2026-10-12 with the brief's own 960px step) and
+   fitted from below — its results grow the section past the floor. */
 @media (min-width: 600px) {
   [data-lab-root] {
     --lab-h-ai-demo: max(100svh, 1680px);
-    --lab-h-ai-demo-slot: max(100svh, 1005px);
+    --lab-h-ai-demo-slot: max(100svh, 880px);
   }
 }
 
 @media (min-width: 768px) {
   [data-lab-root] {
     --lab-h-ai-demo: max(100svh, 1480px);
-    --lab-h-ai-demo-slot: max(100svh, 1000px);
+    --lab-h-ai-demo-slot: max(100svh, 935px);
+  }
+}
+
+@media (min-width: 960px) {
+  [data-lab-root] {
+    --lab-h-ai-demo-slot: max(100svh, 1125px);
   }
 }
 
 @media (min-width: 1024px) {
   [data-lab-root] {
     --lab-h-ai-demo: max(100svh, 1200px);
-    --lab-h-ai-demo-slot: max(100svh, 975px);
+    --lab-h-ai-demo-slot: max(100svh, 1095px);
   }
 }
 
 @media (min-width: 1200px) {
   [data-lab-root] {
     --lab-h-ai-demo: max(100svh, min(1150px, calc(940px + 11vw)));
-    --lab-h-ai-demo-slot: max(100svh, min(965px, calc(750px + 12.5vw)));
+    --lab-h-ai-demo-slot: max(100svh, min(1070px, calc(852px + 13.4vw)));
   }
 }
 

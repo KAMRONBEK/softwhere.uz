@@ -138,7 +138,14 @@
 }
 
 .steps[data-scroll] .captionInner {
+  grid-area: 1 / 1;
   animation-duration: 520ms;
+}
+
+/* Stacked in one cell (Steps.tsx): the others keep their room, unseen; the current one rises in. */
+.steps[data-scroll] .captionInner:not([data-current]) {
+  visibility: hidden;
+  animation: none;
 }
 
 @media (hover: hover) {

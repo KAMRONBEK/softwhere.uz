@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, type CSSProperties, type FocusEvent, type PointerEvent, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, type CSSProperties, type FocusEvent, type PointerEvent, type RefObject } from 'react';
 import { QUESTIONS, ROLE_IDS, TOTAL_PASSAGES, DOCS, answerSegments, percent, type RoleId, type TabId } from './data';
 import css from './chat.module.css';
 import { useRagDemo } from './context';
@@ -208,6 +208,55 @@ function useFollowLatest(
   }, [logRef, followKey, isReduced, isTouch, isDone]);
 }
 
+/**
+ * With a mouse, the log and the insights are scroll boxes of their own, but
+ * only while they can still move the way the wheel turns: then the wheel
+ * stays with them (stopped before it reaches Lenis on the window). At either
+ * end, or with nothing to scroll, it carries on to the page. (Opting out of
+ * Lenis with data-lenis-prevent kept every wheel there, ends included, so a
+ * pointer resting on the chat froze the page.)
+ */
+function useNestedWheel(boxRefs: readonly RefObject<HTMLDivElement | null>[], isEnabled: boolean) {
+  useEffect(() => {
+    const boxes = boxRefs.map(ref => ref.current).filter((box): box is HTMLDivElement => box !== null);
+    if (!isEnabled) return;
+    const onWheel = (event: WheelEvent) => {
+      const box = event.currentTarget as HTMLDivElement;
+      const room = event.deltaY > 0 ? box.scrollHeight - box.clientHeight - box.scrollTop : box.scrollTop;
+      if (event.deltaY !== 0 && room > 1) event.stopPropagation();
+    };
+    boxes.forEach(box => box.addEventListener('wheel', onWheel, { passive: true }));
+    return () => boxes.forEach(box => box.removeEventListener('wheel', onWheel));
+  }, [boxRefs, isEnabled]);
+}
+
+/** How long the insights rest on their numbers before gliding down to the gap (touch). */
+const INSIGHTS_PAN_MS = 1800;
+
+/**
+ * Touch: the insights don't scroll by hand either (a swipe on them scrolls
+ * the page). They open on the numbers, then glide down to the gap card; a
+ * tap on them glides back up (and down again).
+ */
+function useInsightsPan(paneRef: RefObject<HTMLDivElement | null>, isOpen: boolean, isTouch: boolean, isReduced: boolean) {
+  useEffect(() => {
+    const pane = paneRef.current;
+    if (!pane || !isOpen || !isTouch) return;
+    const behavior = isReduced ? 'auto' : 'smooth';
+    const toggle = () => {
+      const end = pane.scrollHeight - pane.clientHeight;
+      pane.scrollTo({ top: pane.scrollTop < end / 2 ? end : 0, behavior });
+    };
+    pane.scrollTo({ top: 0 });
+    const id = window.setTimeout(() => pane.scrollTo({ top: pane.scrollHeight, behavior }), INSIGHTS_PAN_MS);
+    pane.addEventListener('click', toggle);
+    return () => {
+      window.clearTimeout(id);
+      pane.removeEventListener('click', toggle);
+    };
+  }, [paneRef, isOpen, isTouch, isReduced]);
+}
+
 /** Phones: the chips scroll sideways; bring the one the autopilot is about to press into view. */
 function useChipInView(chipsRef: RefObject<HTMLDivElement | null>, target: string | null, isReduced: boolean) {
   useEffect(() => {
@@ -229,6 +278,7 @@ export default function Assistant() {
   const t = useTranslations('home.rag-build');
   const { state, dispatch, hintTarget, isReduced, isTouch } = useRagDemo();
   const logRef = useRef<HTMLDivElement>(null);
+  const insightsRef = useRef<HTMLDivElement>(null);
   const chipsRef = useRef<HTMLDivElement>(null);
   const isReady = state.pipeline === 'ready';
   const isLocked = !isReady || isBusy(state);
@@ -238,8 +288,9 @@ export default function Assistant() {
   const askedCount = turns(state).filter(turn => turn.status === 'done').length;
   const isLive = !state.hasInteracted;
   useChipInView(chipsRef, state.ghost ?? hintTarget, isReduced);
-  // Touch: the log is not a nested scroller, so no Lenis opt-out (a swipe on it scrolls the page).
-  const scrollBox = isTouch ? {} : { 'data-lenis-prevent': '' };
+  const boxRefs = useMemo(() => [logRef, insightsRef], []);
+  useNestedWheel(boxRefs, !isTouch);
+  useInsightsPan(insightsRef, state.tab === 'insights', isTouch, isReduced);
 
   const setRole = (role: RoleId) => dispatch({ type: 'ROLE', role, by: 'user' });
   const setTab = (tab: TabId) => dispatch({ type: 'TAB', tab, by: 'user' });
@@ -301,7 +352,6 @@ export default function Assistant() {
         aria-labelledby={`${ID}-tab-chat`}
         hidden={state.tab !== 'chat'}
         aria-live='polite'
-        {...scrollBox}
       >
         <ol className={css.entries}>
           <li className={css.greeting} data-entry=''>
@@ -330,11 +380,11 @@ export default function Assistant() {
       </div>
       <div
         className={css.insightsPane}
+        ref={insightsRef}
         id={`${ID}-panel-insights`}
         role='tabpanel'
         aria-labelledby={`${ID}-tab-insights`}
         hidden={state.tab !== 'insights'}
-        {...scrollBox}
       >
         <Insights />
       </div>

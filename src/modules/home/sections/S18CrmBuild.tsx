@@ -30,6 +30,7 @@ import {
   morphProgress,
 } from './s18/story';
 import Window from './s18/Window';
+import { useStoryKeys } from './useStoryKeys';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(SplitText);
 
@@ -254,7 +255,8 @@ export default function S18CrmBuild({ meta }: LabSectionProps) {
         return;
       }
       const story = storyRef.current;
-      if (!story) return;
+      // Scroll owns the chapter: the current one stays put (a glide would rewind it).
+      if (!story || index === chapterRef.current) return;
       const y = story.start + chapterLanding(index) * (story.end - story.start);
       const lenis = getLabLenis();
       if (lenis) lenis.scrollTo(y, { duration: JUMP_SECONDS });
@@ -262,6 +264,8 @@ export default function S18CrmBuild({ meta }: LabSectionProps) {
     },
     [isReduced]
   );
+
+  useStoryKeys({ trackRef, step: chapter, count: CHAPTER_COUNT, goTo, isEnabled: !isReduced });
 
   const onNavigate = useCallback((id: ModuleId) => goTo(chapterIndexOfModule(id)), [goTo]);
   const onRun = useCallback(() => setRuns(n => n + 1), []);

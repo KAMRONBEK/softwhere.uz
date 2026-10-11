@@ -506,21 +506,11 @@
 
 /* ---------- phones, scroll story: the panes the scene is about fill the sticky screen ---------- */
 
+/* The stage fills the sticky screen in every scene, and the map keeps one place and one size
+   (under the steps), so a scene change only swaps the pane below it (the files, then the chat):
+   nothing on screen moves or resizes (no layout shift as the story scrolls). */
 @media (max-width: 759px) {
-  /* Reading and indexing: the files and the map. */
-  .root[data-scroll] .stage:is([data-scene='read'], [data-scene='index']) {
-    grid-template-areas:
-      'steps'
-      'lib'
-      'map';
-  }
-
-  .root[data-scroll] .stage:is([data-scene='read'], [data-scene='index']) .paneChat {
-    display: none;
-  }
-
-  /* A question: the map (the probe, the lines) above the chat, which takes the rest of the screen. */
-  .root[data-scroll] .stage:not([data-scene='read'], [data-scene='index']) {
+  .root[data-scroll] .stage {
     --chat-h: 100%;
 
     grid-template-areas:
@@ -531,12 +521,23 @@
     height: 100%;
   }
 
-  .root[data-scroll] .stage:not([data-scene='read'], [data-scene='index']) .paneLib {
+  .root[data-scroll] .paneMap {
+    --map-w: min(100%, calc(25svh * 1.4286));
+  }
+
+  /* Reading and indexing: the files under the map, in the chat's slot. */
+  .root[data-scroll] .stage:is([data-scene='read'], [data-scene='index']) .paneLib {
+    grid-area: chat;
+    align-self: start;
+  }
+
+  .root[data-scroll] .stage:is([data-scene='read'], [data-scene='index']) .paneChat {
     display: none;
   }
 
-  .root[data-scroll] .stage:not([data-scene='read'], [data-scene='index']) .paneMap {
-    --map-w: min(100%, calc(25svh * 1.4286));
+  /* A question: the chat takes the rest of the screen. */
+  .root[data-scroll] .stage:not([data-scene='read'], [data-scene='index']) .paneLib {
+    display: none;
   }
 
   .root[data-scroll] .paneChat {
@@ -544,7 +545,7 @@
   }
 
   /* A pane that comes back into the scene rises in. */
-  .root[data-scroll] :is(.paneLib, .paneMap, .paneChat) {
+  .root[data-scroll] :is(.paneLib, .paneChat) {
     animation: pane-in 420ms var(--ease-out);
   }
 }

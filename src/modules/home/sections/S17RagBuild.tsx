@@ -8,6 +8,7 @@ import {
   useMemo,
   useReducer,
   useRef,
+  useState,
   type CSSProperties,
   type Dispatch,
   type MouseEvent,
@@ -46,6 +47,7 @@ import {
 import css from './s17/section.module.css';
 import SourceFlight from './s17/SourceFlight';
 import Steps from './s17/Steps';
+import { useStoryKeys } from './useStoryKeys';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(SplitText);
 
@@ -191,6 +193,16 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
   const { scheme } = useLabTheme();
   const { reducedMotion: isReduced, isTouch } = useLabDevice();
   const [state, dispatch] = useReducer(ragReducer, INITIAL_STATE);
+  /**
+   * Still version: the step the visitor picked. Reading and indexing have no
+   * still frame of their own (the map shows them done), so without this a tap
+   * on 01 or 02 would light up 03. Anything else the visitor does lets go.
+   */
+  const [pickedPart, setPickedPart] = useState<PartId | null>(null);
+  const visitorDispatch = useCallback<Dispatch<RagAction>>(action => {
+    if (action.type !== 'FOCUS') setPickedPart(null);
+    dispatch(action);
+  }, []);
 
   const rootRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -199,6 +211,7 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
   const isScroll = !isReduced;
 
   const { step, goTo } = useStepStory(trackRef, rootRef, SCENES.length, isScroll);
+  useStoryKeys({ trackRef, step, count: SCENES.length, goTo, isEnabled: isScroll });
   const scene = isScroll ? SCENES[step] : null;
   const markApplied = useSceneFromScroll(scene, isOnScreen, dispatch);
 
@@ -218,21 +231,23 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
   }, [state]);
   const hintTarget = isReduced ? null : autopilotTarget(state, scene);
   const demo = useMemo<RagDemoValue>(
-    () => ({ state, dispatch, isReduced, isTouch, hintTarget, shownTurn, focusCite }),
-    [state, isReduced, isTouch, hintTarget, shownTurn, focusCite]
+    () => ({ state, dispatch: visitorDispatch, isReduced, isTouch, hintTarget, shownTurn, focusCite }),
+    [state, visitorDispatch, isReduced, isTouch, hintTarget, shownTurn, focusCite]
   );
 
   // Scroll owns the part: a step glides the scroll to it (the current one stays put).
   const jump = useCallback(
     (to: PartId) => {
-      if (!isScroll) dispatch({ type: 'JUMP', to, isInstant: true });
-      else if (!scene || SCENE_PART[scene] !== to) goTo(firstSceneOf(to));
+      if (!isScroll) {
+        dispatch({ type: 'JUMP', to, isInstant: true });
+        setPickedPart(to);
+      } else if (!scene || SCENE_PART[scene] !== to) goTo(firstSceneOf(to));
     },
     [isScroll, scene, goTo]
   );
   const replay = () => {
     if (!isScroll) {
-      dispatch({ type: 'RESTART', isAutopilot: false, isInstant: true });
+      visitorDispatch({ type: 'RESTART', isAutopilot: false, isInstant: true });
       return;
     }
     // Back to the first scene and play it again (the glide passes the others on its way up).
@@ -276,7 +291,7 @@ export default function S17RagBuild({ meta }: LabSectionProps) {
             <div className={css.sticky} data-rag-sticky={isScroll ? '' : undefined}>
               <div className={css.stage} ref={stageRef} role='group' aria-label={t('demoLabel')} data-scene={scene ?? undefined}>
                 <div className={css.paneSteps}>
-                  <Steps onJump={jump} scene={scene} />
+                  <Steps onJump={jump} scene={scene} picked={isScroll ? null : pickedPart} />
                 </div>
                 <div className={css.paneLib}>
                   <Library />

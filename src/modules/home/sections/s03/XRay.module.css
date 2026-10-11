@@ -355,8 +355,10 @@
   border-radius: var(--xray-pill);
   background: color-mix(in srgb, var(--bg) 86%, transparent);
   color: var(--fg);
-  font: 600 14px/1 var(--font-body);
-  white-space: nowrap;
+  /* Two lines when a half-width pill is too narrow for the label (Russian on phones). */
+  font: 600 14px/1.15 var(--font-body);
+  text-align: center;
+  text-wrap: balance;
   cursor: pointer;
   transition:
     transform 160ms var(--xray-ease),

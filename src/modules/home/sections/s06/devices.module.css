@@ -403,7 +403,9 @@
 
 /* ── Phones (390×844 first) ──────────────────────────────────────────── */
 
-@media (max-width: 760px), (max-aspect-ratio: 9 / 10) {
+/* Narrow and at least as tall as wide, or clearly portrait. Landscape phones (740×360, 667×375) keep the
+   side-by-side layout, as the 3D framing does (DevicesScene frames by aspect), with the compact rule below. */
+@media (max-width: 760px) and (max-aspect-ratio: 1 / 1), (max-aspect-ratio: 9 / 10) {
   .overlay {
     --gutter: 16px;
   }
@@ -504,8 +506,70 @@
 }
 
 /* Short phones: the one-liner gives its room to the phone. */
-@media (max-height: 700px) and (max-width: 760px), (max-height: 700px) and (max-aspect-ratio: 9 / 10) {
+@media (max-height: 700px) and (max-width: 760px) and (max-aspect-ratio: 1 / 1), (max-height: 700px) and (max-aspect-ratio: 9 / 10) {
   .appLine {
+    display: none;
+  }
+}
+
+/* Landscape phones (667×375 to 932×430): the side-by-side layout on a short screen. The app column is
+   compacted so the rail, the name, the feature rows and the stores all fit below the header, and the
+   "drag to spin" hint keeps only its glyph (its words would run into the column). */
+@media (max-height: 520px) and (min-aspect-ratio: 1001 / 1000), (max-height: 520px) and (min-width: 761px) and (min-aspect-ratio: 9 / 10) {
+  .apps {
+    top: calc(50% + 24px);
+  }
+
+  .rail {
+    margin-bottom: 0.7rem;
+  }
+
+  .railItem {
+    gap: 0.35rem 0.45rem;
+    font-size: 11px;
+  }
+
+  .kicker {
+    margin-bottom: 0.4rem;
+    font-size: 11px;
+  }
+
+  .appName {
+    font-size: calc(clamp(1.5rem, 3.4vw, 2.2rem) * var(--display-scale));
+  }
+
+  .appLine,
+  .tech {
+    display: none;
+  }
+
+  .features {
+    margin-top: 0.7rem;
+  }
+
+  .feature {
+    padding: 0.4rem 0;
+  }
+
+  .featureNum {
+    font-size: 11px;
+  }
+
+  .featureText {
+    font-size: 0.88rem;
+  }
+
+  .chips {
+    gap: 6px;
+    margin-top: 0.6rem;
+  }
+
+  .chip {
+    padding: 5px 9px;
+    font-size: 11.5px;
+  }
+
+  .hintText {
     display: none;
   }
 }

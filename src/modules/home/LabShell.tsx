@@ -18,7 +18,7 @@ import LabHeader from './global/LabHeader';
 import { scrollToSection, scrollToY } from './global/scroll';
 import { useHashLanding, useHashLinks } from './global/useHashLinks';
 import SmoothScroll from './global/SmoothScroll';
-import { SECTION_METAS, SECTIONS } from './sections/registry';
+import { SECTION_METAS, SECTIONS, withSlotFloor } from './sections/registry';
 import { LAB_FONT_CLASSNAMES } from './theme/fonts';
 import { pickStyle } from './theme/switchStyle';
 import { LAB_TOKENS_CSS } from './theme/tokens';
@@ -155,13 +155,6 @@ const FIRST_SECTION: SectionId = 'hero';
 
 /** The section the `appendix` renders in front of. */
 const APPENDIX_BEFORE: SectionId = 'finale';
-
-/** A section whose slot the app layer filled reserves the slot's floor (`slotMinHeight`) instead of the fallback's. */
-function withSlotFloor(section: LabSectionDef, slots: LabSlots): LabSectionDef {
-  const { meta } = section;
-  const hasSlot = slots[meta.id] !== undefined && slots[meta.id] !== null && slots[meta.id] !== false;
-  return hasSlot && meta.slotMinHeight ? { ...section, meta: { ...meta, minHeight: meta.slotMinHeight } } : section;
-}
 
 /**
  * The homepage prototype: theme root, visitor header, smooth scroll, lazily

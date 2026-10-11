@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useHomeFacts } from '../context/HomeFactsContext';
 import type { LabSectionProps } from '../types';
 import { SectionHeading } from './LabSection';
@@ -33,7 +33,7 @@ export default function SectionFallback({ meta, summary, children }: SectionFall
   const facts = useHomeFacts();
   const shape = skeletonShapeFor(meta.id);
   return (
-    <div className={css.root} style={{ minHeight: meta.minHeight }}>
+    <div className={css.root} style={{ minHeight: meta.minHeight, '--lab-fallback-h': meta.minHeight } as CSSProperties}>
       <div className={css.inner}>
         <SectionHeading meta={meta} as={meta.id === 'hero' ? 'h1' : 'h2'} className={css.heading}>
           {t('heading', facts)}

@@ -4,13 +4,15 @@ import { useTranslations } from 'next-intl';
 import type { CSSProperties } from 'react';
 import { PART_IDS, type PartId } from './data';
 import { useRagDemo } from './context';
-import { SCENE_PART, activePart, partProgress, type SceneId } from './machine';
+import { SCENES, SCENE_PART, activePart, partProgress, type SceneId } from './machine';
 import css from './steps.module.css';
 
 interface StepsProps {
   onJump: (part: PartId) => void;
   /** The scene the scroll picked (null without the scroll story: the demo's own part shows). */
   scene: SceneId | null;
+  /** Still version: the step the visitor picked, while the demo shows it (null: the demo's own part). */
+  picked?: PartId | null;
 }
 
 /**
@@ -22,13 +24,12 @@ interface StepsProps {
  * glides the scroll there. Phones show the numbers in the rail and the
  * current step's name in the caption.
  */
-export default function Steps({ onJump, scene }: StepsProps) {
+export default function Steps({ onJump, scene, picked = null }: StepsProps) {
   const t = useTranslations('home.rag-build');
   const { state } = useRagDemo();
-  const part = scene ? SCENE_PART[scene] : activePart(state);
+  const part = scene ? SCENE_PART[scene] : (picked ?? activePart(state));
   const shown = part ?? PART_IDS[0];
   const shownIndex = PART_IDS.indexOf(shown);
-  const captionKey = scene ?? shown;
 
   return (
     <div className={css.steps} data-idle={part ? undefined : 'true'} data-scroll={scene ? 'true' : undefined}>
@@ -53,13 +54,36 @@ export default function Steps({ onJump, scene }: StepsProps) {
         ))}
       </ol>
       <p className={css.caption} aria-live='polite'>
-        <span key={captionKey} className={css.captionInner}>
-          <b className={css.captionTerm}>
-            <span className={css.captionNum}>{String(shownIndex + 1).padStart(2, '0')}</span>
-            {t(`steps.${shown}.term`)}
-          </b>
-          {scene ? t(`scenes.${scene}`) : t(`steps.${shown}.text`)}
-        </span>
+        {scene ? (
+          // The scroll story: every scene's line in one cell, so the tallest sets the height and
+          // the map below never moves when the scene changes (only the current one shows).
+          SCENES.map(id => {
+            const isCurrent = id === scene;
+            const part = SCENE_PART[id];
+            return (
+              <span
+                key={id}
+                className={css.captionInner}
+                data-current={isCurrent ? '' : undefined}
+                aria-hidden={isCurrent ? undefined : true}
+              >
+                <b className={css.captionTerm}>
+                  <span className={css.captionNum}>{String(PART_IDS.indexOf(part) + 1).padStart(2, '0')}</span>
+                  {t(`steps.${part}.term`)}
+                </b>
+                {t(`scenes.${id}`)}
+              </span>
+            );
+          })
+        ) : (
+          <span key={shown} className={css.captionInner}>
+            <b className={css.captionTerm}>
+              <span className={css.captionNum}>{String(shownIndex + 1).padStart(2, '0')}</span>
+              {t(`steps.${shown}.term`)}
+            </b>
+            {t(`steps.${shown}.text`)}
+          </span>
+        )}
       </p>
     </div>
   );

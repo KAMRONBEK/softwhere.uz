@@ -4,7 +4,7 @@ import { useEffect, type RefObject } from 'react';
 import { addDrop, markInput as mark, type LensController } from './controller';
 
 const TRAIL_STEP = 34;
-/** A deliberate hold grabs the lens; shorter than this, a vertical swipe still scrolls the page. */
+/** A finger resting this long swells the lens under it (a press); its first move still decides drag or scroll. */
 const HOLD_MS = 360;
 const SLOP = 8;
 const KEY_STEP = 0.06;
@@ -19,9 +19,12 @@ const isOnControl = (target: EventTarget | null) => target instanceof Element &&
  * controller; the renderer does the motion.
  * - Mouse/pen: the lens follows the cursor, the trail drops ripples, a press
  *   splashes and swells the lens.
- * - Touch: a tap moves the lens there; a horizontal drag or a deliberate
- *   hold grabs it (then vertical moves are captured too). A vertical swipe
- *   always scrolls the page — the stage keeps `touch-action: pan-y`.
+ * - Touch: a tap moves the lens there; a horizontal drag grabs it (then
+ *   vertical moves are captured too). A vertical swipe always scrolls the
+ *   page, even after the finger rested on the stage (that only swells the
+ *   lens): a hold that grabbed would trap a visitor who pauses before
+ *   scrolling, with half the phone's screen under the stage. The stage keeps
+ *   `touch-action: pan-y`.
  * - Keyboard: arrow keys move the lens when the stage has focus.
  */
 export function useLensInput(stageRef: RefObject<HTMLElement | null>, controllerRef: RefObject<LensController | null>): void {
@@ -92,13 +95,16 @@ export function useLensInput(stageRef: RefObject<HTMLElement | null>, controller
       if (holdTimer !== undefined) window.clearTimeout(holdTimer);
       holdTimer = undefined;
     };
-    const grab = (p: [number, number]) => {
-      mode = 'drag';
+    const press = (p: [number, number]) => {
       c.isPressed = true;
       c.target = p;
       markInput(true);
       addDrop(c, p[0], p[1], 10);
       c.requestFrame();
+    };
+    const grab = (p: [number, number]) => {
+      mode = 'drag';
+      if (!c.isPressed) press(p);
     };
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1 || isOnControl(e.target)) {
@@ -112,7 +118,7 @@ export function useLensInput(stageRef: RefObject<HTMLElement | null>, controller
       mode = 'pending';
       clearHold();
       holdTimer = window.setTimeout(() => {
-        if (mode === 'pending') grab(start);
+        if (mode === 'pending') press(start);
       }, HOLD_MS);
     };
     const onTouchMove = (e: TouchEvent) => {
@@ -129,6 +135,10 @@ export function useLensInput(stageRef: RefObject<HTMLElement | null>, controller
         } else if (Math.abs(dy) > SLOP) {
           clearHold();
           mode = 'scroll';
+          if (c.isPressed) {
+            c.isPressed = false;
+            c.requestFrame();
+          }
           return;
         } else {
           return;

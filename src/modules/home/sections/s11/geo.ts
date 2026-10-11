@@ -108,14 +108,16 @@ export interface GlobeLayout {
 }
 
 /** Wide screens put the globe right of the copy; phones centre it between heading and caption. */
-export const WIDE_QUERY = '(min-width: 768px) and (min-aspect-ratio: 105/100)';
+export const WIDE_QUERY =
+  '(min-width: 768px) and (min-aspect-ratio: 105/100), (min-width: 560px) and (max-height: 520px) and (min-aspect-ratio: 105/100)';
 
 /** Phone layout bands (CSS px), mirrored in globe.module.css (--intro-h, --dock-h). */
 const PHONE_INTRO_BOTTOM = 175;
 const PHONE_DOCK_HEIGHT = 262;
 
 export function globeLayout(width: number, height: number): GlobeLayout {
-  const isWide = width >= 768 && width / height >= 1.05;
+  // Short landscape screens too (a phone turned sideways): the phone bands do not fit their height.
+  const isWide = width / height >= 1.05 && (width >= 768 || (width >= 560 && height <= 520));
   if (isWide) {
     const r = Math.min(height * 0.4, width * 0.27);
     return { cx: width * 0.665, cy: height * 0.52, r, isWide };

@@ -716,6 +716,8 @@
 }
 
 .inspTag b {
+  /* As wide as the longest tag (<Button>, <Toggle>), so the size beside it never moves when the name changes. */
+  min-width: 8ch;
   font-weight: 600;
 }
 

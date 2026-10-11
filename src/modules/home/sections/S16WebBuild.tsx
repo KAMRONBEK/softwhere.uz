@@ -22,6 +22,7 @@ import { useSpecialEditor } from './s16/useSpecialEditor';
 import { CopyContext, useCopy, useS16Copy } from './s16/useCopy';
 import { useStepStory } from '../components/useStepStory';
 import { useViewportMorph } from './s16/useViewportMorph';
+import { useStoryKeys } from './useStoryKeys';
 
 if (typeof window !== 'undefined') gsap.registerPlugin(SplitText);
 
@@ -172,6 +173,7 @@ export default function S16WebBuild({ meta }: LabSectionProps) {
   const [pingCount, setPingCount] = useState(0);
 
   const { step, goTo } = useStepStory(trackRef, rootRef, STEP_COUNT, !isStill);
+  useStoryKeys({ trackRef, step, count: STEP_COUNT, goTo, isEnabled: !isStill });
   const stepId = STEPS[step].id;
   const isLive = isStarted && isOnScreen;
 

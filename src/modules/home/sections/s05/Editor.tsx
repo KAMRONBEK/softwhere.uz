@@ -87,9 +87,11 @@ function Editor({ tokens, source, firstTypedLine }: EditorProps) {
       <div className={css.status} aria-hidden='true'>
         <span className={css.state}>
           <i className={css.stateDot} />
-          <span className={css.idle}>{t('status.idle')}</span>
-          <span className={css.typing}>{t('status.typing')}</span>
-          <span className={css.compiled}>{t('status.done')}</span>
+          <span className={css.stateText}>
+            <span className={css.idle}>{t('status.idle')}</span>
+            <span className={css.typing}>{t('status.typing')}</span>
+            <span className={css.compiled}>{t('status.done')}</span>
+          </span>
         </span>
         <span className={css.lnCol} data-lncol=''>
           Ln 1, Col 1

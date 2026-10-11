@@ -10,7 +10,8 @@ import ManifestoFallback from './s02/ManifestoFallback';
 import AIDemoFallback from './s08/AIDemoFallback';
 import FinaleFallback from './s14/FinaleFallback';
 import { SECTION_IDS, type LabSectionDef, type LabSectionProps, type SectionEdge, type SectionId, type SectionMeta } from '../types';
-import { createElement, type ComponentType, type ReactElement } from 'react';
+import { createElement, useContext, type ComponentType, type ReactElement } from 'react';
+import { LabSlotsContext, type LabSlots } from '../context/LabContext';
 import './heights.css';
 
 /**
@@ -35,9 +36,18 @@ import './heights.css';
  */
 function standIn(id: SectionId): () => ReactElement {
   return function SectionStandIn() {
-    const { meta, Fallback } = SECTION_BY_ID[id];
+    // The slot's floor too (as the shell's LazyMount box has it), or the AI demo's stand-in would
+    // reserve the scripted demo's height while its chunk loads and the page would grow, then shrink.
+    const { meta, Fallback } = withSlotFloor(SECTION_BY_ID[id], useContext(LabSlotsContext));
     return createElement(Fallback, { meta });
   };
+}
+
+/** A section whose slot the app layer filled reserves the slot's floor (`slotMinHeight`) instead of the fallback's. */
+export function withSlotFloor(section: LabSectionDef, slots: LabSlots): LabSectionDef {
+  const { meta } = section;
+  const hasSlot = slots[meta.id] !== undefined && slots[meta.id] !== null && slots[meta.id] !== false;
+  return hasSlot && meta.slotMinHeight ? { ...section, meta: { ...meta, minHeight: meta.slotMinHeight } } : section;
 }
 
 /**

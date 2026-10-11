@@ -21,19 +21,31 @@ const DECODE_GLYPHS = 'abcdefghijklmnopqrstuvwxyz';
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 const BRIEF_STAGES: readonly BriefStage[] = ['idle', 'reading', 'scoped', 'sketched', 'done'];
 
-/** Writes into the heading's existing text node so React keeps owning it. */
-function writeLine(el: HTMLElement, text: string): void {
-  const node = el.firstChild;
-  if (node && node.nodeType === Node.TEXT_NODE) node.nodeValue = text;
-}
-
-/** "Get a plan in a minute." resolves left to right out of noise, once, as the heading arrives. */
-function useHeadlineDecode(lineRef: RefObject<HTMLSpanElement | null>, final: string, isEnabled: boolean): void {
+/**
+ * "Get a plan in a minute." resolves left to right out of noise, once, as the
+ * heading arrives. The noise is written into an overlay (`noiseRef`) laid over
+ * the real line, which stays in the flow with its final text (only hidden
+ * meanwhile): noise glyphs are wider or narrower than the real ones, and
+ * written into the line itself they moved the caret and the line box every
+ * frame.
+ */
+function useHeadlineDecode(
+  lineRef: RefObject<HTMLSpanElement | null>,
+  noiseRef: RefObject<HTMLSpanElement | null>,
+  final: string,
+  isEnabled: boolean
+): void {
   useGSAP(
     () => {
-      const el = lineRef.current;
+      const line = lineRef.current;
+      const el = noiseRef.current;
       // Read the query directly too: while hydrating, the hook reports "no preference" for a frame.
-      if (!el || !isEnabled || window.matchMedia(REDUCED_MOTION).matches) return;
+      if (!line || !el || !isEnabled || window.matchMedia(REDUCED_MOTION).matches) return;
+      const writeLine = (text: string) => {
+        const isDone = text === final;
+        el.textContent = isDone ? '' : text;
+        line.toggleAttribute('data-decoding', !isDone);
+      };
       const progress = { p: 0 };
       const render = () => {
         const resolved = Math.floor(progress.p * final.length);
@@ -42,22 +54,22 @@ function useHeadlineDecode(lineRef: RefObject<HTMLSpanElement | null>, final: st
           const ch = final[i];
           out += i < resolved || !/\p{L}/u.test(ch) ? ch : DECODE_GLYPHS[Math.floor(Math.random() * DECODE_GLYPHS.length)];
         }
-        writeLine(el, out);
+        writeLine(out);
       };
-      // The line is nowrap and reserves its final width, so noise glyphs never rewrap it.
+      // The real line keeps its final width and height, so the noise never moves anything.
       const tween = gsap.to(progress, {
         p: 1,
         duration: 1.1,
         ease: 'power2.inOut',
         paused: true,
         onUpdate: render,
-        onComplete: () => writeLine(el, final),
+        onComplete: () => writeLine(final),
       });
-      const trigger = ScrollTrigger.create({ trigger: el, start: 'top 88%', once: true, onEnter: () => tween.play(0) });
+      const trigger = ScrollTrigger.create({ trigger: line, start: 'top 88%', once: true, onEnter: () => tween.play(0) });
       return () => {
         trigger.kill();
         tween.kill();
-        writeLine(el, final);
+        writeLine(final);
       };
     },
     { dependencies: [isEnabled, final], revertOnUpdate: true }
@@ -201,11 +213,12 @@ export default function S08AIDemo({ meta }: LabSectionProps) {
   const { reducedMotion } = useLabDevice();
   const locale = useLocale();
   const lineRef = useRef<HTMLSpanElement>(null);
+  const noiseRef = useRef<HTMLSpanElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const hasSlot = slot !== null && slot !== undefined && slot !== false;
   const aiHref = `/${locale}/ai-estimate`;
 
-  useHeadlineDecode(lineRef, t('headingLines.second'), !reducedMotion);
+  useHeadlineDecode(lineRef, noiseRef, t('headingLines.second'), !reducedMotion);
   useTitleFit(headerRef);
 
   const header = (
@@ -217,7 +230,10 @@ export default function S08AIDemo({ meta }: LabSectionProps) {
       <SectionHeading meta={meta} className={css.title}>
         <span className={css.titleLine}>{t('headingLines.first')}</span>{' '}
         <span className={`${css.titleLine} ${css.titleLast}`}>
-          <span ref={lineRef}>{t('headingLines.second')}</span>
+          <span ref={lineRef} className={css.titleText}>
+            {t('headingLines.second')}
+          </span>
+          <span ref={noiseRef} className={css.titleNoise} aria-hidden='true' />
           <span className={css.caret} aria-hidden='true' />
         </span>
       </SectionHeading>

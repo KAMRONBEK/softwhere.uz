@@ -28,6 +28,7 @@ import css from './s15/section.module.css';
 import Stage from './s15/Stage';
 import Steps from './s15/Steps';
 import { useS15Copy } from './s15/useCopy';
+import { useStoryKeys } from './useStoryKeys';
 
 /** Room above the phone after a jump in the still version (the header and the hint). */
 const STAGE_JUMP_OFFSET = 72;
@@ -87,6 +88,9 @@ export default function S15MobileBuild({ meta }: LabSectionProps) {
     startTransition(() => apiRef.current?.dispatch({ type: 'STEP', step, isStatic: false }));
   }, []);
   useStepScroll(rootRef, trackRef, onStep, jumpRef, !isStatic);
+  const getStep = useCallback(() => apiRef.current?.getStep() ?? 0, []);
+  const glideTo = useCallback((step: number) => jumpRef.current?.(step), []);
+  useStoryKeys({ trackRef, step: getStep, count: STEP_WEIGHTS.length, goTo: glideTo, isEnabled: !isStatic });
   useCopyEntrance(rootRef, css.title, css.titleLine, isStatic);
 
   const onSelect = useCallback(

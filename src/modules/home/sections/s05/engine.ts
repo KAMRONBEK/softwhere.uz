@@ -723,16 +723,13 @@ export class CodeToUIEngine {
       if (!isLanded || typeof nodes.ping.animate !== 'function') continue;
       const box = layout.els[key];
       const pad = key === 'main' ? 0 : 6;
-      Object.assign(nodes.ping.style, {
-        width: `${box.w + pad * 2}px`,
-        height: `${box.h + pad * 2}px`,
-        left: `${box.x - pad}px`,
-        top: `${box.y - pad}px`,
-      });
+      // Placed by transform (size alone keeps its top-left fixed), so a ping never registers as a layout shift.
+      const at = `translate3d(${(box.x - pad).toFixed(1)}px, ${(box.y - pad).toFixed(1)}px, 0)`;
+      Object.assign(nodes.ping.style, { width: `${box.w + pad * 2}px`, height: `${box.h + pad * 2}px`, transform: at });
       nodes.ping.animate(
         [
-          { opacity: 0.9, transform: 'scale(0.985)' },
-          { opacity: 0, transform: 'scale(1.035)' },
+          { opacity: 0.9, transform: `${at} scale(0.985)` },
+          { opacity: 0, transform: `${at} scale(1.035)` },
         ],
         { duration: PING_MS, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }
       );

@@ -22,7 +22,8 @@ const FLICK_SPEED = 1.1; // px per ms before the cursor becomes solid
 const CURSOR_IDLE_MS = 90;
 const IMPACT_FLASH_MS = 520;
 const MAX_FLASHES_PER_FRAME = 3;
-const HOLD_MS = 150;
+/** A deliberate hold picks a block up; shorter, a resting thumb that then swipes still scrolls the page (as in X-Ray). */
+const HOLD_MS = 360;
 const TOUCH_SLOP = 8;
 // Floor shockwaves and the stage thud
 const RIPPLE_MS = 680;

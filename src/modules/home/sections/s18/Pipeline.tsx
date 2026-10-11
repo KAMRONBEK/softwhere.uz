@@ -259,6 +259,9 @@ export default function Pipeline({
 
   const onPointerDown = (event: ReactPointerEvent<HTMLButtonElement>, id: DealId) => {
     if (!isLive || dragRef.current || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    // A new press starts clean: a touch drag ends without a click, so its "ignore the click
+    // after a drop" would otherwise swallow the next tap.
+    suppressClickRef.current = false;
     const drag: DragState = {
       id,
       pointerId: event.pointerId,

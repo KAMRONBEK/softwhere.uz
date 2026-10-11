@@ -22,20 +22,24 @@
   color: var(--accent);
 }
 
-/* Both lines share one grid cell, so the box never changes size. */
+/* Both lines share one grid cell two lines tall, so the box never changes size or moves. Each line is
+   centred by top: 50% plus a transform, so a one-line caption replacing a two-line one never shifts layout. */
 .text {
   display: grid;
   flex: 1;
-  align-items: center;
+  grid-template-rows: 2.6em;
+  align-items: start;
   min-width: 0;
+  font: 400 15px/1.3 var(--font-body);
 }
 
 .line {
+  position: relative;
+  top: 50%;
   grid-area: 1 / 1;
-  font: 400 15px/1.3 var(--font-body);
   color: var(--fg);
   opacity: 0;
-  transform: translate3d(0, 8px, 0);
+  transform: translate3d(0, calc(8px - 50%), 0);
   transition:
     opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1),
     transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
@@ -43,11 +47,11 @@
 
 .line[data-on='1'] {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(0, -50%, 0);
 }
 
 .line[data-on='0'] {
-  transform: translate3d(0, -6px, 0);
+  transform: translate3d(0, calc(-6px - 50%), 0);
   transition-duration: 0.2s, 0.3s;
 }
 
@@ -81,9 +85,8 @@
     padding: 0 4px;
   }
 
-  .line {
+  .text {
     font-size: 13px;
-    line-height: 1.3;
   }
 
   .segs {

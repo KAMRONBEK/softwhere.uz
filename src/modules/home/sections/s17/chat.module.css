@@ -3,8 +3,9 @@
  * conversation or the insights, and the question chips. The panel's height
  * comes from the stage (--chat-h), never from its content, so a new message
  * scrolls inside the log instead of growing the page. With a mouse the log is
- * its own scroll box (data-lenis-prevent); on touch it is not scrollable by
- * hand (a swipe on it scrolls the page) and follows the newest exchange.
+ * its own scroll box while it has room to scroll (useNestedWheel, then the
+ * page); on touch it is not scrollable by hand (a swipe on it scrolls the
+ * page) and follows the newest exchange; the insights pan by themselves.
  * Nothing the visitor reads is smaller than 11px.
  */
 
@@ -207,8 +208,9 @@
   scrollbar-width: thin;
 }
 
-/* Touch: not a nested scroller (no scroll trap); useFollowLatest moves it. */
-.chat[data-touch] .log {
+/* Touch: not nested scrollers (no scroll trap); useFollowLatest and useInsightsPan move them. */
+.chat[data-touch] .log,
+.chat[data-touch] .insightsPane {
   overflow: hidden;
 }
 

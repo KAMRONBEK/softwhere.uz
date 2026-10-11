@@ -26,6 +26,8 @@ const GAP_RATIO = 0.6;
 const MIN_PITCH = 8;
 const MAX_PITCH = 20;
 const TOUCH_READOUT_MS = 2600;
+/** Finger travel (px) that still counts as a tap on the chart. */
+const TAP_SLOP_PX = 12;
 const TIP_HALF = 96;
 const DIM_SCALE = 0.6;
 const DIM_OPACITY = 0.24;
@@ -137,6 +139,8 @@ export default function UnitChart({ facts, active, isShown, isStatic, replay, on
   const replayRef = useRef(replay);
   const pitchRef = useRef(0);
   const touchTimerRef = useRef(0);
+  /** Where the current press started: a tap names a dot, a sideways swipe does not. */
+  const pressRef = useRef<{ x: number; y: number } | null>(null);
   // Latest callback without re-running the count effect when its identity changes.
   const onCountRef = useRef(onCount);
   useEffect(() => {
@@ -253,14 +257,24 @@ export default function UnitChart({ facts, active, isShown, isStatic, replay, on
     setHover(nearest(event));
   };
 
-  // Tap (or click) names a dot too; without hover, the name clears itself.
+  // A click names a dot at once; a tap names it on lift (a swipe that scrolls
+  // the page ends in pointercancel instead, so it never pops a name). Without
+  // hover, the name clears itself.
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!isShown) return;
-    setHover(nearest(event));
+    pressRef.current = { x: event.clientX, y: event.clientY };
+    if (!isShown || event.pointerType !== 'mouse') return;
     window.clearTimeout(touchTimerRef.current);
-    if (event.pointerType !== 'mouse') {
-      touchTimerRef.current = window.setTimeout(() => setHover(null), TOUCH_READOUT_MS);
-    }
+    setHover(nearest(event));
+  };
+
+  const onPointerUp = (event: PointerEvent<HTMLDivElement>) => {
+    const press = pressRef.current;
+    pressRef.current = null;
+    if (!isShown || event.pointerType === 'mouse' || !press) return;
+    if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > TAP_SLOP_PX) return;
+    window.clearTimeout(touchTimerRef.current);
+    setHover(nearest(event));
+    touchTimerRef.current = window.setTimeout(() => setHover(null), TOUCH_READOUT_MS);
   };
 
   // Keep the tooltip inside the chart: centre it on the dot, clamped by its own width.
@@ -296,6 +310,7 @@ export default function UnitChart({ facts, active, isShown, isStatic, replay, on
         if (event.pointerType === 'mouse') setHover(null);
       }}
       onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
     >
       <div ref={dotsRef} className={css.dots}>
         {CHART_PROJECTS.map((item, i) => (

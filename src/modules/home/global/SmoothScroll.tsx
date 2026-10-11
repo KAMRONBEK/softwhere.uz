@@ -2,6 +2,7 @@
 
 import { useEffect, type RefObject } from 'react';
 import { setLabLenis } from './scroll';
+import { useKeepPlace } from './useKeepPlace';
 
 const REFRESH_DEBOUNCE_MS = 200;
 // GSAP's defaults, restored on unmount so the rest of the site is untouched.
@@ -97,5 +98,6 @@ interface SmoothScrollProps {
 export default function SmoothScroll({ enabled, contentRef }: SmoothScrollProps) {
   useLenisOnGsapTicker(enabled);
   useRefreshOnResize(contentRef);
+  useKeepPlace();
   return null;
 }

@@ -101,9 +101,35 @@
   line-height: 1;
 }
 
+/* useTitleFit resets --title-fit to 1 and measures in the same frame: a
+   font-size transition (the reduced-motion reset gives every element a near-zero
+   one) would hand it the old size, and the fit would flip between two values
+   every frame, shaking everything below. The size always changes at once. */
+.title,
+.title * {
+  transition-property: none;
+}
+
 .titleLine {
   display: block;
   white-space: nowrap;
+}
+
+/* The decoding line: noise overlaid on the real (hidden) text, which keeps the layout. */
+.titleLast {
+  position: relative;
+}
+
+.titleText[data-decoding] {
+  color: transparent;
+}
+
+.titleNoise {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 .caret {

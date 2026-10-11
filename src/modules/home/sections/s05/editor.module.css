@@ -312,23 +312,34 @@
   transform: scale(1.25);
 }
 
+/* The three labels share one cell (as wide as the widest), so switching them never moves Ln/Col beside it. */
+.stateText {
+  display: inline-grid;
+}
+
+.idle,
+.typing,
+.compiled {
+  grid-area: 1 / 1;
+}
+
 .compiled,
 .typing,
 [data-done='1'] .idle,
 [data-typing='1'] .idle {
-  display: none;
+  visibility: hidden;
 }
 
 [data-typing='1'] .typing {
-  display: inline;
+  visibility: visible;
 }
 
 [data-done='1'] .compiled {
-  display: inline;
+  visibility: visible;
 }
 
 [data-done='1'] .typing {
-  display: none;
+  visibility: hidden;
 }
 
 [data-typing='1'] .stateDot {

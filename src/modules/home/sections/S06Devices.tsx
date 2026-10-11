@@ -28,7 +28,7 @@ const CAMERA_FOV = 30;
 /** Feature rows that are not on screen stay dimmed to this. */
 const ROW_DIM = 0.42;
 /** Same switch as the CSS: copy below the devices. */
-const PORTRAIT_QUERY = '(max-width: 760px), (max-aspect-ratio: 9 / 10)';
+const PORTRAIT_QUERY = '(max-width: 760px) and (max-aspect-ratio: 1 / 1), (max-aspect-ratio: 9 / 10)';
 
 /** Split into masked chars / words (SplitText reverts with the useGSAP context). */
 function splitMasked(target: HTMLElement | null, type: 'chars' | 'words'): Element[] {

@@ -12,7 +12,10 @@
   flex-direction: column;
   justify-content: center;
   gap: 16px;
-  min-height: 100svh;
+  /* The first screen, but never taller than the section's reservation (the
+     manifesto is shorter than a screen): a taller stand-in would push the
+     page down until the section mounts at its real height. */
+  min-height: min(100svh, var(--lab-fallback-h, 100svh));
   max-width: 880px;
   margin: 0 auto;
   padding: calc(var(--lab-header-h, 56px) + 24px) 16px 48px;
