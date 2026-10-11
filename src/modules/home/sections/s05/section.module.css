@@ -142,6 +142,13 @@
 @media (min-width: 900px), (min-width: 600px) and (orientation: landscape) {
   .intro {
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    container-type: inline-size;
+  }
+
+  /* "Koddan mahsulotgacha.": one 14-letter word that can't break, wider than the title
+     column at the base size, so it ran into the copy beside it. Capped by the row's width. */
+  .title:lang(uz) {
+    font-size: min(calc(clamp(46px, 7.4vw, 128px) * var(--display-scale)), 6.1cqi);
   }
 
   .copy {
