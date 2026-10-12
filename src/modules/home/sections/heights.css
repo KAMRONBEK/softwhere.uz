@@ -37,7 +37,9 @@
      in all four styles and the three locales from 320 to 2560px wide and 320 to 1440px tall (the
      drawer opens below the reservation, never into it). Below 900px the arena is
      clamp(360px, 100svh - 300px, 600px) (s13/stack.module.css), the rest is fitted in px/vw. */
-  --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + max(866px, 1184px - 77.1vw));
+  --lab-h-stack-physics: calc(
+    clamp(360px, 100svh - 300px, 600px) + max(840px, 926px - 18.33vw, 1111px - 63.33vw, 1187px - 83.33vw, 1863px - 276.7vw)
+  );
   /* 12 · idea, network and plan stacked on phones (steps below, see the 12 block). */
   --lab-h-ai-demo: max(100svh, 1870px);
   /* 12 with the real AI brief in its slot (the idle composer; see the 12-slot block). */
@@ -110,6 +112,30 @@
   }
 }
 
+/* 18 in uz and ru on phones and tablets: their panel sets 60–130px taller than the English fit
+   above, and the finale is the last section, so a visitor who reaches the bottom before its code
+   loads saw the footer jump by that much (CLS 0.12–0.15 at 390×844). Measured 2026-10-12 in all
+   four styles, uz and ru, 320–860px every 10px at 844px tall, fitted from below as steps (each
+   sample's lower neighbour) and moved to the 600px-tall panel (its svh gaps add ~20px by 844px,
+   given back by the clamp). The English terms stay in as a floor. */
+@media (max-width: 404px) {
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-finale: calc(
+      120svh +
+        max(100svh, max(1068px, min(1115px, 1307px - 64vw), 1437px - 86.36vw, 1320px - 59.17vw, 995px) + clamp(0px, 8svh - 48px, 20px))
+    );
+  }
+}
+
+@media (min-width: 405px) and (max-width: 860px) {
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-finale: calc(
+      120svh +
+        max(100svh, max(986px, 1176px - 38.6vw, 1320px - 59.17vw, 995px, 955px + 6.67vw, 943px + 8.46vw) + clamp(0px, 8svh - 48px, 20px))
+    );
+  }
+}
+
 @media (min-width: 900px) {
   [data-lab-root] {
     --lab-h-telegram: calc(580svh + max(415px, 768px - 28.3vw));
@@ -122,6 +148,27 @@
 @media (min-width: 600px) {
   [data-lab-root] {
     --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + max(795px, 1200px - 60vw));
+  }
+}
+
+/* 17 in uz and ru on phones and tablets: their copy and toolbox set 20–140px taller than the English
+   fit above (a 60–100px jump at 390×844 when its code loads late). The English phone fit was also up
+   to 14px over the real height at 350–540px (a blank tail), so it was refitted with it: measured
+   2026-10-12 in all four styles and the three locales at 320–880px, 844px tall, the rest past the
+   arena fitted from below (lower hull, 12px under it). Not on landscape phones (their own fit below). */
+@media (max-width: 599px) and (min-height: 521px) {
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-stack-physics: calc(
+      clamp(360px, 100svh - 300px, 600px) + max(862px, 972px - 23.33vw, 1303px - 100vw, 1317px - 103.33vw, 1500px - 150vw)
+    );
+  }
+}
+
+@media (min-width: 600px) and (max-width: 899px) and (min-height: 521px) {
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-stack-physics: calc(
+      clamp(360px, 100svh - 300px, 600px) + max(795px, 1200px - 60vw, 986px - 25vw, 758px + 7.5vw, 711px + 13.33vw)
+    );
   }
 }
 
@@ -413,5 +460,33 @@
 @media (prefers-reduced-motion: reduce) and (min-width: 900px) {
   [data-lab-root] {
     --lab-h-telegram: 940px;
+  }
+}
+
+/*
+ * 16 · Process. The column (s12/Vertical.tsx: phones, tablets, landscape phones and reduced motion)
+ * is as tall as its content, px and vw only (no svh): measured 2026-10-12
+ * in all four styles and the three locales at 320–700px every 10px plus 1280–1920px (flat from 670px,
+ * where the column stops at 640px) and fitted from below (the lower hull, 12px under it). Style A is
+ * the shortest; B (the tallest) runs up to ~330px past the floor. uz and ru set longer and have their
+ * own fit. The column's own min-height is this value too (s12/process.module.css --s12-h), so its
+ * figure zones only stretch by the hull's slack (≤ ~30px) instead of a fixed 2780px or 320svh floor.
+ * Desktop with motion keeps the horizontal track's own height (the svh clamp at the end).
+ */
+[data-lab-root] {
+  --lab-h-process: max(3430px - 206.67vw, 2936px - 76.67vw, min(2321px + 73.33vw, 2596px + 21.54vw, 2701px));
+}
+
+[data-lab-root]:not(:lang(en)) {
+  --lab-h-process: max(4142px - 370vw, 3944px - 315vw, 3216px - 123.33vw, min(2368px + 83.33vw, 2643px + 31.54vw, 2851px));
+}
+
+/* Desktop with motion: the sticky horizontal track (s12/Horizontal.tsx) scrubs 320svh, 380svh from
+   just past 960px, never under 2780px. Restated for :lang so it outranks the uz/ru column fit. CSS
+   cannot see the low tier, which shows the column here too: it keeps this taller floor. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 960px) {
+  [data-lab-root],
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-process: clamp(max(320svh, 2780px), calc(320svh + (100vw - 959px) * 100), 380svh);
   }
 }

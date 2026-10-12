@@ -8,6 +8,8 @@ const TRAIL_STEP = 34;
 const HOLD_MS = 360;
 const SLOP = 8;
 const KEY_STEP = 0.06;
+/** Share of the stage (or of the screen, if the stage is taller) that must be on screen for arrows to move the lens. */
+const KEY_VISIBLE = 0.5;
 
 type TouchMode = 'idle' | 'pending' | 'drag' | 'scroll';
 
@@ -25,7 +27,9 @@ const isOnControl = (target: EventTarget | null) => target instanceof Element &&
  *   lens): a hold that grabbed would trap a visitor who pauses before
  *   scrolling, with half the phone's screen under the stage. The stage keeps
  *   `touch-action: pan-y`.
- * - Keyboard: arrow keys move the lens when the stage has focus.
+ * - Keyboard: arrow keys move the lens when the stage has focus and is
+ *   mostly on screen. Scrolled away (still focused from a click), they go
+ *   back to scrolling the page.
  */
 export function useLensInput(stageRef: RefObject<HTMLElement | null>, controllerRef: RefObject<LensController | null>): void {
   useEffect(() => {
@@ -163,6 +167,11 @@ export function useLensInput(stageRef: RefObject<HTMLElement | null>, controller
     };
 
     // ── Keyboard ────────────────────────────────────────────────────────────
+    const isMostlyOnScreen = () => {
+      refreshRect();
+      const visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+      return visible >= Math.min(rect.height, window.innerHeight) * KEY_VISIBLE;
+    };
     const onKeyDown = (e: KeyboardEvent) => {
       const step = Math.min(c.width, c.height) * KEY_STEP;
       const moves: Record<string, [number, number]> = {
@@ -172,7 +181,7 @@ export function useLensInput(stageRef: RefObject<HTMLElement | null>, controller
         ArrowDown: [0, step],
       };
       const move = moves[e.key];
-      if (!move) return;
+      if (!move || e.altKey || e.ctrlKey || e.metaKey || !isMostlyOnScreen()) return;
       e.preventDefault();
       const base = c.isPlaced ? c.target : c.pos;
       c.target = [Math.min(Math.max(base[0] + move[0], 0), c.width), Math.min(Math.max(base[1] + move[1], 0), c.height)];

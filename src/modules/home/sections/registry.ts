@@ -129,7 +129,7 @@ const MIN_HEIGHT: Partial<Record<SectionId, string>> = {
   'work-wall': 'var(--lab-h-work-wall)',
   numbers: '300svh',
   globe: '280svh',
-  process: 'clamp(max(320svh, 2780px), calc(320svh + (100vw - 959px) * 100), 380svh)',
+  process: 'var(--lab-h-process)',
   'stack-physics': 'var(--lab-h-stack-physics)',
   finale: 'var(--lab-h-finale)',
 };

@@ -1,7 +1,8 @@
 # Handover: homepage relaunch, AI demo, localization, QA
 
 Last updated 2026-10-12. Everything below is on `main` and live on https://softwhere.uz.
-Work branch: `feat/homepage-wow` (same as `main` at handover). Read `CLAUDE.md` first.
+Work branch: `feat/homepage-wow`. It is one commit ahead of `main` (the open-work round below),
+not pushed or merged yet. Read `CLAUDE.md` first.
 
 ## Ground rules (founder decisions; keep them)
 
@@ -18,7 +19,8 @@ Work branch: `feat/homepage-wow` (same as `main` at handover). Read `CLAUDE.md` 
 
 | Commit | What |
 |---|---|
-| (this) | QA pass: scroll, swipe, rotation and layout fixes across the homepage (details below) |
+| (this) | Open-work round: CLS/reservations, devices first frame, x-ray keys, touch glide, language switch keeps section, Tab reaches lazy sections (details below) |
+| `a99a884` | QA pass: scroll, swipe, rotation and layout fixes across the homepage (details below) |
 | `f2d1652` | Uzbek code-to-ui heading no longer overlaps its copy at 1280–1440px |
 | `f7e3a99` | Uzbek + Russian copy transcreated site-wide; style guide; `tests/i18n/parity.ts` |
 | `7d6b97e` | Telegram + RAG sections scroll-driven; glowing loading skeletons |
@@ -82,43 +84,87 @@ in uz/ru/en, at 1440/1280 desktop, 390/360 phones and landscape phones.
   "how we build" stories (uz/ru have their own fit via `:lang`).
 - **Keyboard:** new `sections/useStoryKeys.ts`, keyboard step navigation in the 4 build
   stories.
-- **Interrupted:** the last QA agent (mobile/web/RAG/CRM) was stopped before it reported. Its
-  changes compile, and a smoke test passed: every step reached in order on desktop and phone,
-  no errors, no overflow. The RAG phone layout shift and CRM pipeline edits are not
-  individually verified.
+- **Interrupted QA agent:** its sections were re-verified in the next round (below).
+
+### Open-work round (2026-10-12, second session): what changed
+
+Every item was fixed by one agent and re-tested in a real browser by a second agent.
+
+- **Phone CLS (old item 1):** with warm chunks the scroll-through was already ~0.02 (390x844
+  uz/ru/en). The spikes only show when a section's chunk lands while it is on screen
+  (repro: delay `/_next/static` 3 s via `page.route`).
+  - Devices: `s06/CssDevices.tsx` measured the stage in `useEffect`, so the first frame used
+    the default layout (CLS 0.112). Now a layout effect; plus `transition: none` on the CSS
+    scene so reduced motion doesn't shift either. Devices now contributes 0.
+  - Finale uz/ru and stack-physics: `heights.css` reservations were fitted on English only.
+    New `:not(:lang(en))` fits (phones/tablets) plus a refit of the English stack-physics
+    phone value (it left a 5–14px blank strip at 350–540px).
+  - Delayed-chunk result at 390x844: en 0.002, ru 0.065, **uz 0.072–0.091** (borderline; see
+    open work).
+- **Process reservation (old item 4):** new `--lab-h-process` in `heights.css` (used by
+  `registry.ts` and `s12/process.module.css`). Phone/tablet/reduced-motion column is fitted
+  12px under natural height per locale; desktop with motion is unchanged (1280x720 = 2780px,
+  1440x900 = 3420px). No blank tail anywhere measured (228 viewport/locale/style cases).
+- **x-ray arrows (old item 2):** `s03/useLensInput.ts` only handles arrows while the stage is
+  at least half on screen; off screen the page scrolls. Ctrl/Alt/Meta+arrow are ignored.
+- **Touch step glide (old item 3):** `useStepStory.goTo` without Lenis uses
+  `window.scrollTo({ behavior: 'smooth' })` (instant under reduced motion).
+- **RAG/CRM re-check (old item 5):** RAG phone CLS ~0.001, CRM touch drag works and doesn't
+  trap the page, reservations have no blank tails. One fix: the RAG chat log
+  (`s17/Assistant.tsx` `useFollowLatest`) no longer yanks you back to the newest answer while
+  you wheel up through it; the hold lasts until you wheel back to the end or a new turn starts.
+- **Tab through lazy sections (old item 6):** `LazyMount.tsx` puts a 1px visually hidden
+  sentinel `<button>` (localized label `home.shared.loadSection`) at the top of each unmounted
+  section. Focusing it mounts the section and hands focus to its first control (last control
+  on Shift+Tab); a section with no controls passes focus on. Gives up after 8 s on a dead
+  chunk. Lazy loading unchanged (1/18 sections mounted on load). Tab and Shift+Tab walk hero →
+  footer with no drops to `<body>` in en and uz.
+- **Language switch (old item 7):** `LabHeaderLanguage.tsx` adds the `#id` of the section in
+  view on click (rendered href stays hash-free); the existing hash landing does the rest.
+  Lands at the section's top, not mid-story; from the finale it lands at the contact form.
+- **Globe (old item 8a):** the count is data-driven and reads "four" in all 3 locales; "five"
+  could not be found anywhere it renders. The hand-typed `summary` (no-JS/crawler text) named
+  the wrong regions; it now says Uzbekistan, Europe, North America and Australia. **Founder:
+  re-check the uz/ru wording.**
 
 ## Open work for the next session (in priority order)
 
-1. **Phone layout shift during section swaps** (`components/SectionFallback.*` / LazyMount):
-   CLS is about 0.11 on a 390×844 scroll-through (target < 0.1). Repro: a layout-shift
-   PerformanceObserver with `buffered: true`, then scrollTo in 40px steps from 1.5 screens
-   above `#telegram`. About 0.11 at y≈8709, just before the devices/telegram stand-ins are
-   removed. The stand-in's own box changes in the frame before the swap.
-2. **x-ray swallows arrow keys after a click** on the lens (tabindex=0): ArrowUp/Down stop
-   scrolling the page even after you leave the section. Only handle arrows while the lens is
-   on screen, or blur it when off-screen.
-3. **`useStepStory.goTo` on touch** (no Lenis there) jumps instantly. Glide with
-   `window.scrollTo({ behavior: 'smooth' })` unless reduced motion is on.
-4. **Process reservation** in `registry.ts` (`max(320svh, 2780px)` below 960px) leaves blank
-   tails of up to ~215px on phones, and ~500px under reduced motion on desktop. Refit it.
-5. **Re-verify the interrupted QA agent's sections**: RAG phone layout shift (was 0.31 in view),
-   CRM pipeline drag on touch, inner scroll areas not trapping page scroll, and the CRM
-   reservation (was 255px short at 390×844 uz).
-6. **A11y:** Tab skips lazily unmounted sections (from work-wall, Tab jumps to latest posts),
-   so controls in between can't be reached by keyboard until scrolled near. Needs a design
-   that doesn't hurt lazy loading.
-7. **Language switch** does a clean load at the top. Optional: keep the current section with a
-   `#hash`.
-8. **Content:**
-   - The code-to-ui project poster has English text baked into the image.
-   - The globe says "four continents" in ru but "five" in the English copy; the count is
-     data-driven, so check the data.
+1. **Push + preview:** push `feat/homepage-wow`, check the Vercel preview, then merge on the
+   founder's go. Local `yarn build` compiles and type-checks but can't prerender `/blog`:
+   `DATABASE_URL` in `.env.local` is empty on this machine.
+2. **uz finale footer CLS:** with delayed chunks, `HomeFooter` in the finale shrinks
+   (762→677px), uz CLS 0.072–0.091 at 390x844, just under 0.1. The fit is limited by the
+   spread between the 4 styles; a per-`[data-style]` reservation would fix it. Same idea would
+   remove the 215–367px growth of style B in the process column when it mounts.
+3. **Hidden controls Tab can't reach:**
+   - Hero CTAs are `visibility:hidden` once scrolled past, so Shift+Tab from x-ray skips them.
+   - x-ray "Full x-ray" / "Next project" (`S03XRay.tsx`, `[data-xray-rise]` `gsap.from`
+     autoAlpha) stay hidden until scrolled to 95%. Animate opacity only, or reveal on
+     `focusin`.
+4. **code-to-ui video (old item 8b):** English chapter captions are burned into
+   `public/videos/driveme.mp4` and its poster `assets/code-to-ui/driveme-frame.jpg`; they move
+   between chapters, so no crop hides them. Options: per-locale re-render
+   (`driveme.<locale>.mp4`, `CARD_MEDIA` keyed by locale), a caption-free render with DOM
+   captions from messages, or accept it.
+5. **Smaller items:**
+   - Reduced-motion reservations for RAG/CRM are 100–356px short (safe direction, no blank
+     tail, but the page can nudge when they mount).
+   - uz/ru finale at 861px+ is not refitted (CLS there is ~0.035, low).
+   - The globe `summary` region list is still hand-typed copy, not derived from the data.
+   - ru globe finale body ends in `other {# страны}`; check it reads right.
+   - Low-tier desktop (no WebGL) keeps the 380svh process floor and its old tail; CSS can't
+     detect the tier.
+   - The Tab sentinel is not tested on the latest-posts block (needs `DATABASE_URL`), and a
+     mouse click on a stand-in link before mount rests on a `:focus-visible` guard only.
+   - All browser numbers were taken on the dev server; production chunk timing differs.
 
 ## How to test (this machine)
 
-- **Dev server:** `npx next dev -p 3100`. Only one per folder. `.env.local` overrides with
+- **Dev server:** `npx next dev -p 3100`. Stop it before `yarn build` (both use `.next`). Only one per folder. `.env.local` overrides with
   empty `MOONSHOT_API_KEY` and `API_SECRET`, so export them from `.env` first.
-- **Headless Chromium with the real GPU (RTX 4060):** Playwright from node_modules.
+- **Headless Chromium with the real GPU:** Playwright from node_modules. On this Windows machine
+  Chromium is under `%LOCALAPPDATA%/ms-playwright`; `--ignore-gpu-blocklist --enable-gpu` is
+  enough. The Linux notes below are from the earlier machine.
   - Executable: `~/.cache/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell`.
   - Args: `--no-sandbox --disable-dev-shm-usage --enable-features=NetworkServiceInProcess2
     --disable-features=NetworkServiceSandbox --ignore-gpu-blocklist --enable-gpu --use-gl=angle --use-angle=gl-egl`.

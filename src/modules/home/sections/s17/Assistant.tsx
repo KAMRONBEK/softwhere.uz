@@ -171,26 +171,38 @@ function EntryView({ entry }: { entry: Entry }) {
  * question at the top once the answer outgrows the box, else its end. On
  * touch the log doesn't scroll by hand (a swipe on it scrolls the page), so
  * a finished answer shows its end: the sources. Never moves while a pointer
- * is down on the log.
+ * is down on the log, nor while the reader has wheeled back up through the
+ * current exchange (a streaming answer finishing must not yank them down):
+ * that hold lasts until they wheel back to the end or a new entry arrives
+ * (turnKey changes).
  */
 function useFollowLatest(
   logRef: RefObject<HTMLDivElement | null>,
   followKey: string,
+  turnKey: string,
   isReduced: boolean,
   isTouch: boolean,
   isDone: boolean
 ) {
   const isHeldRef = useRef(false);
+  const turnKeyRef = useRef(turnKey);
+  const readingKeyRef = useRef<string | null>(null);
   useEffect(() => {
     const log = logRef.current;
     if (!log) return;
     const hold = () => (isHeldRef.current = true);
     const release = () => (isHeldRef.current = false);
+    const onWheel = (event: WheelEvent) => {
+      if (event.deltaY < 0 && log.scrollTop > 1) readingKeyRef.current = turnKeyRef.current;
+      else if (event.deltaY > 0 && log.scrollHeight - log.clientHeight - log.scrollTop <= 1) readingKeyRef.current = null;
+    };
     log.addEventListener('pointerdown', hold, { passive: true });
+    log.addEventListener('wheel', onWheel, { passive: true });
     window.addEventListener('pointerup', release, { passive: true });
     window.addEventListener('pointercancel', release, { passive: true });
     return () => {
       log.removeEventListener('pointerdown', hold);
+      log.removeEventListener('wheel', onWheel);
       window.removeEventListener('pointerup', release);
       window.removeEventListener('pointercancel', release);
     };
@@ -200,12 +212,14 @@ function useFollowLatest(
     const log = logRef.current;
     const entries = log?.querySelectorAll<HTMLElement>('[data-entry]');
     const latest = entries?.[entries.length - 1];
-    if (!log || !latest || isHeldRef.current) return;
+    turnKeyRef.current = turnKey;
+    if (!log || !latest || isHeldRef.current || readingKeyRef.current === turnKey) return;
+    readingKeyRef.current = null;
     const top = latest.getBoundingClientRect().top - log.getBoundingClientRect().top + log.scrollTop - 10;
     const bottom = top + latest.offsetHeight + 22 - log.clientHeight;
     const target = Math.max(0, isTouch && isDone ? bottom : Math.min(top, bottom));
     log.scrollTo({ top: target, behavior: isReduced ? 'auto' : 'smooth' });
-  }, [logRef, followKey, isReduced, isTouch, isDone]);
+  }, [logRef, followKey, turnKey, isReduced, isTouch, isDone]);
 }
 
 /**
@@ -283,8 +297,9 @@ export default function Assistant() {
   const isReady = state.pipeline === 'ready';
   const isLocked = !isReady || isBusy(state);
   const latest = lastTurn(state);
-  const followKey = `${state.run}:${state.log.length}:${latest?.status ?? ''}:${state.tab}`;
-  useFollowLatest(logRef, followKey, isReduced, isTouch, latest?.status === 'done');
+  const turnKey = `${state.run}:${state.log.length}:${state.tab}`;
+  const followKey = `${turnKey}:${latest?.status ?? ''}`;
+  useFollowLatest(logRef, followKey, turnKey, isReduced, isTouch, latest?.status === 'done');
   const askedCount = turns(state).filter(turn => turn.status === 'done').length;
   const isLive = !state.hasInteracted;
   useChipInView(chipsRef, state.ghost ?? hintTarget, isReduced);

@@ -121,7 +121,8 @@
   transform: none;
 }
 
-/* Figure zones: floors sized so the tallest style (Concrete) fits the 2780px reserve on a 360px phone. */
+/* Figure zones: each figure's room. The column's floor (--lab-h-process in sections/heights.css) is fitted
+   under these, so the zones stretch by a few px at most. */
 .vZone {
   flex: 1 0 auto;
   min-height: 160px;

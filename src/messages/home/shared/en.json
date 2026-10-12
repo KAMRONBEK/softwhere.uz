@@ -1,5 +1,6 @@
 {
   "sectionError": "This section crashed. The rest of the page still works.",
+  "loadSection": "Load this section's interactive part",
   "quoteOpen": "“",
   "quoteClose": "”",
   "callCta": "Book a call",

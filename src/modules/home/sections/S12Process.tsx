@@ -20,7 +20,9 @@ import ProcessVertical from './s12/Vertical';
  * - Reduced motion / low tier: the vertical layout with the whole route drawn
  *   and every word and flag visible. Nothing moves.
  *
- * Height (registry minHeight): clamp(max(320svh, 2780px), calc(320svh + (100vw - 959px) * 100), 380svh).
+ * Height (registry minHeight): --lab-h-process in sections/heights.css. The
+ * horizontal track's clamp(max(320svh, 2780px), …, 380svh) on desktop with
+ * motion; the column's content height (fitted per locale) everywhere else.
  */
 const WIDE_QUERY = '(min-width: 960px)';
 

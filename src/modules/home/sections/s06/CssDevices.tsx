@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 import { useLabLogo } from '../../logos';
 import fx from './cssDevices.module.css';
 import { DEVICE_APPS, LAPTOP_SITE, SCREENS_PER_APP } from './data';
@@ -36,6 +36,9 @@ const PHONE_ASPECT = 0.48;
 /** Matches the WebGL framing: portrait copy needs this much room under the phone. */
 const TALL_COPY_PX = 424;
 const TALL_TOP_PX = 58;
+
+/** Layout effects only run in the browser; this keeps SSR quiet. */
+const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 /**
  * The phone is laid out at its largest size (the apps pose) and scaled down
@@ -128,18 +131,23 @@ export default function CssDevices({ runtime }: CssDevicesProps) {
   const refs = useRef<Refs>({ phone: null, laptop: null, lid: null, display: null, shade: null, tap: null, screens: [] });
   const [size, setSize] = useState({ width: 0, height: 0 });
 
-  useEffect(() => {
+  // Measured and posed before the first paint, so the frames never show at a
+  // default size and then jump when the chunk lands with the section on screen.
+  useIsomorphicLayoutEffect(() => {
     const box = boxRef.current;
     if (!box) return;
-    const observer = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
+    const measure = () => {
+      const width = box.clientWidth;
+      const height = box.clientHeight;
       setSize(previous => (previous.width === width && previous.height === height ? previous : { width, height }));
-    });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
     observer.observe(box);
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!size.width) return;
     const layout = layoutFor(size.width, size.height);
     const apply = () => {

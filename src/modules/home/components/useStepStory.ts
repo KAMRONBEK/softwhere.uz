@@ -14,7 +14,8 @@ const JUMP_PER_STEP_S = 0.12;
  * into a step index: the stuck range is cut into `count` equal slices.
  * Progress rails ([data-fill='x'|'y'][data-index], optionally spanning
  * [data-span] steps from that index) inside `scopeRef` are written directly
- * every frame (no re-render); React only hears about step changes. `goTo` scrolls to a step (a Lenis glide).
+ * every frame (no re-render); React only hears about step changes. `goTo` scrolls to a step: a Lenis glide,
+ * or a native smooth scroll where Lenis is off (touch), instant under reduced motion.
  *
  * Still version (`isScroll` false, reduced motion): no scroll story at all;
  * the step is the one the visitor picked (the last, the finished site, until
@@ -77,7 +78,8 @@ export function useStepStory(
       const y = trigger.start + ((index + STEP_LANDING) / count) * (trigger.end - trigger.start);
       const lenis = getLabLenis();
       if (lenis) lenis.scrollTo(y, { duration: JUMP_BASE_S + JUMP_PER_STEP_S * Math.abs(index - stepRef.current) });
-      else scrollToY(y);
+      else if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) scrollToY(y);
+      else window.scrollTo({ top: y, behavior: 'smooth' });
     },
     [count, isScroll]
   );

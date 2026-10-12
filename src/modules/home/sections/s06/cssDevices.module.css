@@ -11,6 +11,16 @@
   --screen-black: #060607;
 }
 
+/* globals.css turns every property change into a 0.01ms transition under
+   reduced motion (transition-property defaults to `all`). The first measure
+   resolves the frames at their default size, so the measured size and pose
+   would then hold the old values for a painted frame: a layout shift. The
+   frames are posed from script every frame and never transition. */
+.scene,
+.scene * {
+  transition: none !important;
+}
+
 /* Light styles: a deep accent-tinted phone (same finish as the WebGL one). */
 [data-scheme='light'] .scene {
   --body: color-mix(in srgb, var(--fg) 62%, var(--accent));
