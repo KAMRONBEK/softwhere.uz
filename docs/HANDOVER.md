@@ -1,13 +1,15 @@
 # Handover: homepage relaunch, AI demo, localization, QA
 
 Last updated 2026-10-12. Everything below is on `main` and live on https://softwhere.uz.
-Work branch: `feat/homepage-wow`. It is one commit ahead of `main` (the open-work round below),
-not pushed or merged yet. Read `CLAUDE.md` first.
+Work branch: `feat/homepage-wow` (same as `main` at handover). Read `CLAUDE.md` first.
 
 ## Ground rules (founder decisions; keep them)
 
-- **Attribution:** no Claude/AI attribution anywhere on GitHub (commits, PRs, comments).
-- **Production:** don't merge to `main` (= production deploy on Vercel) without the founder's go.
+- **Attribution:** no Claude/AI attribution anywhere on GitHub (commits, PRs, comments, author
+  names, `Co-Authored-By` or `Claude-Session` trailers, `claude/*` branch names). History was
+  rewritten on 2026-10-12 to remove the old ones; old SHAs before then are gone.
+- **Production:** `main` = production deploy on Vercel. The founder gave a standing go on
+  2026-10-12 to ship verified work to `main`.
   Pushes to `feat/homepage-wow` give a Vercel preview, which needs Vercel login.
 - **Secrets:** never print API keys. Don't commit `.env*` or `.claude/settings.local.json`.
 - **Database:** live DB content changes need founder sign-off. The Neon DB is shared by
@@ -19,7 +21,8 @@ not pushed or merged yet. Read `CLAUDE.md` first.
 
 | Commit | What |
 |---|---|
-| (this) | Open-work round: CLS/reservations, devices first frame, x-ray keys, touch glide, language switch keeps section, Tab reaches lazy sections (details below) |
+| (this) | Final round: per-style height fits, hidden-from-Tab controls, uz/ru code-to-ui video, globe summary test (details below) |
+| `7e7b3c4` | Open-work round: CLS/reservations, devices first frame, x-ray keys, touch glide, language switch keeps section, Tab reaches lazy sections (details below) |
 | `a99a884` | QA pass: scroll, swipe, rotation and layout fixes across the homepage (details below) |
 | `f2d1652` | Uzbek code-to-ui heading no longer overlaps its copy at 1280–1440px |
 | `f7e3a99` | Uzbek + Russian copy transcreated site-wide; style guide; `tests/i18n/parity.ts` |
@@ -127,36 +130,42 @@ Every item was fixed by one agent and re-tested in a real browser by a second ag
   the wrong regions; it now says Uzbekistan, Europe, North America and Australia. **Founder:
   re-check the uz/ru wording.**
 
+### Final round (2026-10-12): what changed
+
+- **Height reservations are now generated per style × locale** (`heights.css`, finale, process,
+  telegram, mobile/web/rag/crm-build, stack-physics; motion and reduced motion). Each fit sits
+  ~12px under the measured natural height, so no blank bands. Delayed-chunk phone CLS is now
+  0.004–0.032 in uz/ru across all 4 styles (was 0.06–0.10). Tools and how to re-fit:
+  `scripts/home-reservations/README.md`. Cost: `heights.css` is 20KB gzip (was 5.5KB) and blocks
+  rendering on the homepage.
+- **Controls hidden from Tab:** entrances in hero, x-ray, telegram, web/rag/crm-build and globe
+  fade `opacity` instead of `autoAlpha`; `global/revealOnFocus.ts` finishes an entrance when
+  focus lands in it. The hero scrolls back into view when Shift+Tab reaches its CTAs.
+- **code-to-ui video in uz/ru:** `public/videos/driveme.{uz,ru}.mp4` + posters, rendered with the
+  `video/` Remotion package (now has a `locale` field; see `docs/portfolio-videos.md`).
+  `s05/content.ts` `CARD_MEDIA` is keyed by locale. **Founder: skim the uz/ru captions** in
+  `video/src/projects/driveme.{uz,ru}.json` and `video/src/strings.ts`.
+- **Globe summary:** stays typed copy (case forms), guarded by `tests/home/globe.ts`;
+  `yarn test:home` runs it plus i18n parity.
+
 ## Open work for the next session (in priority order)
 
-1. **Push + preview:** push `feat/homepage-wow`, check the Vercel preview, then merge on the
-   founder's go. Local `yarn build` compiles and type-checks but can't prerender `/blog`:
-   `DATABASE_URL` in `.env.local` is empty on this machine.
-2. **uz finale footer CLS:** with delayed chunks, `HomeFooter` in the finale shrinks
-   (762→677px), uz CLS 0.072–0.091 at 390x844, just under 0.1. The fit is limited by the
-   spread between the 4 styles; a per-`[data-style]` reservation would fix it. Same idea would
-   remove the 215–367px growth of style B in the process column when it mounts.
-3. **Hidden controls Tab can't reach:**
-   - Hero CTAs are `visibility:hidden` once scrolled past, so Shift+Tab from x-ray skips them.
-   - x-ray "Full x-ray" / "Next project" (`S03XRay.tsx`, `[data-xray-rise]` `gsap.from`
-     autoAlpha) stay hidden until scrolled to 95%. Animate opacity only, or reveal on
-     `focusin`.
-4. **code-to-ui video (old item 8b):** English chapter captions are burned into
-   `public/videos/driveme.mp4` and its poster `assets/code-to-ui/driveme-frame.jpg`; they move
-   between chapters, so no crop hides them. Options: per-locale re-render
-   (`driveme.<locale>.mp4`, `CARD_MEDIA` keyed by locale), a caption-free render with DOM
-   captions from messages, or accept it.
-5. **Smaller items:**
-   - Reduced-motion reservations for RAG/CRM are 100–356px short (safe direction, no blank
-     tail, but the page can nudge when they mount).
-   - uz/ru finale at 861px+ is not refitted (CLS there is ~0.035, low).
-   - The globe `summary` region list is still hand-typed copy, not derived from the data.
-   - ru globe finale body ends in `other {# страны}`; check it reads right.
-   - Low-tier desktop (no WebGL) keeps the 380svh process floor and its old tail; CSS can't
-     detect the tier.
-   - The Tab sentinel is not tested on the latest-posts block (needs `DATABASE_URL`), and a
-     mouse click on a stand-in link before mount rests on a `:focus-visible` guard only.
-   - All browser numbers were taken on the dev server; production chunk timing differs.
+1. **Work-wall reduced-motion reservation on desktop** is 258–1106px short; with slow chunks,
+   uz style A at 1440x720 reaches CLS 0.115–0.19 (the only measured case over 0.1). Re-fit with
+   `scripts/home-reservations/`.
+2. **Reservations go stale** whenever copy, fonts or layout change. Re-fit the touched sections.
+   If `heights.css` size matters more than slow-network CLS, raise the fit tolerance.
+3. **Smaller items:**
+   - Landscape reduced-motion mobile/web-build are 170–800px short; CRM, mobile-build and stack
+     with motion on tablets/desktop up to 110–230px short (safe direction, no blank bands).
+   - mobile-build with motion at 768x1024, en style A, is 11px over (tiny blank band).
+   - LazyMount's Tab hand-off sometimes skips devices/mobile-build in fast uz walks (timing);
+     the Telegram demo once dropped focus to `<body>` when its autopilot disabled a key.
+   - Mobile-build step cards 02–06 are hidden by design (the step buttons are reachable).
+   - Low-tier desktop (no WebGL) keeps the 380svh process floor; CSS can't detect the tier.
+   - The Tab sentinel isn't tested on the latest-posts block (needs `DATABASE_URL` locally).
+   - Browser numbers come from the dev server in headless Chromium; real Safari/fonts can wrap
+     1–2px differently.
 
 ## How to test (this machine)
 

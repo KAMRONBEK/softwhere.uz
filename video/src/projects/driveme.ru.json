@@ -1,0 +1,103 @@
+{
+  "slug": "driveme",
+  "locale": "ru",
+  "name": "DriveMe",
+  "tagline": "Премиум-поездки с личным водителем — приложения пассажира и водителя на одной платформе",
+  "category": "Заказ поездок",
+  "location": "Узбекистан",
+  "years": "2025–26",
+  "status": "live",
+  "role": "Приложения для пассажиров и водителей премиального сервиса",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Expo SDK 54", "TypeScript", "Expo Router", "Google Maps", "Маршруты Yandex", "Фоновый GPS", "Payme"],
+  "accent": "#14a052",
+  "icon": {
+    "src": "projects/driveme/icon.webp"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-04.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-03.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-05.webp"
+        }
+      ],
+      "title": "Приложение пассажира: заказ водителя",
+      "body": "Отметьте маршрут на карте, выберите класс авто и следите за назначенным водителем в реальном времени.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-03.webp"
+        }
+      ],
+      "title": "Цену задаёт маршрут",
+      "body": "Маршрут Yandex на картах Google Maps измеряет поездку; если Yandex недоступен, подключается резервный сервис."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-04.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-05.webp"
+        }
+      ],
+      "title": "Business, Premium или Minivan",
+      "body": "У каждого класса цена сразу с сервисным сбором. Оплата наличными, Uzcard, Humo, Visa или Mastercard."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-03.webp"
+        }
+      ],
+      "title": "Приложение водителя: сначала детали заказа",
+      "body": "В заказе видны цена, маршрут, расстояние и способ оплаты — водитель знает всё, прежде чем принять заказ."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-04.webp"
+        }
+      ],
+      "title": "Фоновый GPS на каждой смене",
+      "body": "В поездке по таксометру GPS-точка пишется каждые 5 с в движении; без сети точки копятся и уходят, когда связь вернётся."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-ipad-03.webp"
+        },
+        {
+          "src": "projects/driveme/driver-appstore-05.webp"
+        }
+      ],
+      "title": "Выплаты и документы",
+      "body": "Пополнение через Payme, вывод заработка, фото документов и салона на проверку — с телефона или iPad.",
+      "seconds": 4.4
+    }
+  ]
+}

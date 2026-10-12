@@ -19,6 +19,7 @@ import { useInView } from '../components/useInView';
 import { useStepStory } from '../components/useStepStory';
 import { useLabDevice } from '../device/useDeviceTier';
 import { gsap, useGSAP, SPLIT_KEEP_NBSP } from '../global/gsap';
+import { revealOnFocus } from '../global/revealOnFocus';
 import { scrollToSection } from '../global/scroll';
 import { useLabTheme } from '../theme/useLabTheme';
 import type { LabSectionProps } from '../types';
@@ -145,9 +146,11 @@ function useCopyEntrance(rootRef: RefObject<HTMLDivElement | null>, isReduced: b
             scrollTrigger: trigger,
           }),
       });
-      gsap.from(root.querySelectorAll<HTMLElement>('[data-enter]'), {
+      // Opacity, not autoAlpha: the controls among them stay in the Tab order before the entrance plays.
+      const rest = root.querySelectorAll<HTMLElement>('[data-enter]');
+      const entrance = gsap.from(rest, {
         y: 26,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 1,
         ease: 'power3.out',
         stagger: 0.07,
@@ -155,7 +158,11 @@ function useCopyEntrance(rootRef: RefObject<HTMLDivElement | null>, isReduced: b
         scrollTrigger: trigger,
         clearProps: 'transform',
       });
-      return () => split.revert();
+      const releaseFocus = revealOnFocus(root, entrance, rest);
+      return () => {
+        releaseFocus();
+        split.revert();
+      };
     },
     { scope: rootRef, dependencies: [isReduced], revertOnUpdate: true }
   );

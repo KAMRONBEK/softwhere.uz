@@ -25,4 +25,5 @@ export const bundleProject = () => {
   return bundle({ entryPoint: path.join(VIDEO_ROOT, 'src/index.ts'), publicDir: PUBLIC_DIR, rootDir: VIDEO_ROOT });
 };
 
-export const selectProject = (serveUrl, id) => selectComposition({ serveUrl, id, inputProps: {} });
+/** Project ids are file names (`driveme`, `driveme.uz`); Remotion ids allow no dots (see compositionIdFor in src/schema.ts). */
+export const selectProject = (serveUrl, id) => selectComposition({ serveUrl, id: id.replace('.', '-'), inputProps: {} });

@@ -1,7 +1,7 @@
 import { staticFile, type CalculateMetadataFunction } from 'remotion';
 import { z } from 'zod';
 import type { PromoProps } from './ProjectPromo';
-import { projectSchema, type Dimensions, type MediaMap, type ProjectConfig } from './schema';
+import { compositionIdFor, fileIdFor, projectSchema, type Dimensions, type MediaMap, type ProjectConfig } from './schema';
 import { buildTimeline } from './timeline';
 
 /** Every screenshot a config shows (icons are drawn at fixed sizes and need no measuring). */
@@ -25,8 +25,8 @@ export const calculatePromoMetadata: CalculateMetadataFunction<PromoProps> = asy
     throw new Error(`Invalid src/projects/${compositionId}.json:\n${z.prettifyError(parsed.error)}`);
   }
   const config = parsed.data;
-  if (config.slug !== compositionId) {
-    throw new Error(`slug "${config.slug}" must match its file name (${compositionId}.json)`);
+  if (compositionIdFor(fileIdFor(config)) !== compositionId) {
+    throw new Error(`slug "${config.slug}" and locale "${config.locale}" must match the file name (expected ${fileIdFor(config)}.json)`);
   }
 
   const sources = shotSources(config);

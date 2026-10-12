@@ -8,6 +8,7 @@ import LazyCanvas from '../components/LazyCanvas';
 import { useLabDevice } from '../device/useDeviceTier';
 import { gsap, ScrollTrigger, useGSAP } from '../global/gsap';
 import { getLabLenis } from '../global/scroll';
+import { revealOnFocus } from '../global/revealOnFocus';
 import { HOME_FACTS } from '../media/facts';
 import { useLabTheme } from '../theme/useLabTheme';
 import type { LabSectionProps } from '../types';
@@ -262,18 +263,23 @@ export default function S11Globe({ meta }: LabSectionProps) {
       setEntrance(runtime, isStatic ? 1 : entrance.progress);
 
       // The copy arrives once, as the section comes in, and the first count rolls.
+      // Opacity, not autoAlpha: the route's stop buttons must stay in the Tab order.
+      let unreveal: (() => void) | undefined;
       if (!reducedMotion) {
-        gsap.from(root.querySelectorAll('[data-reveal]'), {
+        const revealed = root.querySelectorAll('[data-reveal]');
+        const rise = gsap.from(revealed, {
           y: 34,
-          autoAlpha: 0,
+          opacity: 0,
           duration: 1.1,
           ease: 'power3.out',
           stagger: 0.09,
           scrollTrigger: { trigger: root, start: 'top 70%', once: true },
           onStart: () => rollCount(runtime.beat),
         });
+        unreveal = revealOnFocus(root, rise, revealed);
       }
       return () => {
+        unreveal?.();
         storyRef.current = null;
         setBeatListener(runtime, null);
         count?.kill();

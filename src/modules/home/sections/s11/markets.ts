@@ -152,6 +152,15 @@ const countryCount = new Set(projects.map(p => (placeOf(p)?.tag ? p.location : n
 /** Continents the portfolio reaches (the heading's "four continents"; HOME_FACTS.continents). */
 export const CONTINENT_COUNT = new Set(projects.map(p => placeOf(p)?.continent).filter(Boolean)).size;
 
+/**
+ * Every region the portfolio reaches, in data order. The section summary
+ * (home.globe.summary, the no-JS/crawler text) names them by hand in each
+ * language; tests/home/globe.ts fails when the two drift apart.
+ */
+export const MARKET_REGIONS: readonly RegionId[] = [
+  ...new Set(projects.map(p => placeOf(p)?.region).filter((region): region is RegionId => Boolean(region))),
+];
+
 // ── Story beats ────────────────────────────────────────────────────────
 
 /**

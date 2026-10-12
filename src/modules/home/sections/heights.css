@@ -9,14 +9,22 @@
  * 390×844, 844×390, 820×1180, 1024×768, 1280×720, 1440×900 and 1920×1080 and
  * fitted from below (style A, the shortest). Scroll stories with a fixed
  * height use plain svh lengths in registry.ts.
+ *
+ * Where the styles or the locales differ by more than a few dozen px (07–11 and 17 on phones,
+ * 10 · RAG, 11 · CRM under reduced motion, 16 · Process, 18 · Finale), each style and locale has
+ * its own fit ([data-style] is set before first paint, :lang comes from the page): a max() of
+ * pieces, each a line in px and vw that stays 12px under every measurement, where
+ * `- max(0px, 100vw - Npx) * 1000` (or `Npx - 100vw`) switches a piece off past the width at
+ * which the copy rewraps and the height steps, so the fit follows the steps instead of sitting
+ * under the lowest of them. Generated from measurements (2026-10-12): refit, do not hand-edit.
  */
 
 [data-lab-root] {
   /* 02 · see the per-style block below. */
   --lab-h-manifesto: 100svh;
   /* 07 · intro + a 580svh track (100svh + 16 slices × 30svh, S07Telegram SLICE_SCROLL_SVH) + outro;
-     fitted from below in all four styles at 320–2560px on 2026-10-11 (see the 07 blocks). */
-  --lab-h-telegram: calc(580svh + max(535px, 1092px - 116.67vw));
+     the intro and outro per style and locale (--lab-tg-rest, the 07 blocks below). */
+  --lab-h-telegram: calc(580svh + var(--lab-tg-rest, 490px));
   /* 08–11 · the "how we build" chapter: each scroll track in svh + the rest (intro, outro) fitted
      from below; phones here, the other sizes and uz/ru in the 08–11 motion blocks below.
      08 · intro + a 392.5svh track (STEP_UNIT_SVH 45 × the step weights + 100svh, s15/data.ts) + outro. */
@@ -27,11 +35,10 @@
     420svh,
     calc(300svh + max(1758px - 181.75vw, 1594px - 135.96vw, 1208px - 42.31vw, 1013px - 7.95vw, min(697px + 38.48vw, 989px)))
   );
-  /* 10 · intro + a 550svh track (100svh + 6 scenes × SCENE_SVH 75, S17RagBuild.tsx) + outro. */
-  --lab-h-rag-build: calc(550svh + max(2368px - 291.45vw, 1555px - 74.55vw, 1468px - 54.62vw, 1391px - 43.33vw, 1071px));
-  /* 11 · intro + a 400svh track (s18/story.ts SCROLL_SCREENS) + outro; --lab-crm-rest is the
-     reduced-motion rest (see below). */
-  --lab-crm-rest: max(755px, 1524px - 113.6vw);
+  /* 10 · intro + a 550svh track (100svh + 6 scenes × SCENE_SVH 75, S17RagBuild.tsx) + outro; the
+     intro and outro per style and locale (--lab-rag-rest, the 10 blocks below). */
+  --lab-h-rag-build: calc(550svh + var(--lab-rag-rest, 1060px));
+  /* 11 · intro + a 400svh track (s18/story.ts SCROLL_SCREENS) + outro. */
   --lab-h-crm-build: calc(400svh + max(2074px - 231.71vw, 1734px - 144.55vw, 1594px - 110.58vw, 1002px - 6.22vw));
   /* 17 · the physics tower (copy, picker and arena) + the closed toolbox drawer; refitted 2026-10-12
      in all four styles and the three locales from 320 to 2560px wide and 320 to 1440px tall (the
@@ -44,10 +51,11 @@
   --lab-h-ai-demo: max(100svh, 1870px);
   /* 12 with the real AI brief in its slot (the idle composer; see the 12-slot block). */
   --lab-h-ai-demo-slot: max(100svh, max(874px, 1000px - 30vw));
-  /* 18 · 120svh warp track + the contact panel (at least 100svh; taller than a phone screen).
-     The panel's own height refitted 2026-10-12 in all four styles and the three locales at
-     320–2560px wide, 320–1180px tall (its svh gaps are left out: fitted from below). */
-  --lab-h-finale: calc(120svh + max(100svh, max(1068px, min(1115px, 1307px - 64vw))));
+  /* 18 · 120svh warp track + the contact panel: at least 100svh, else its content, which is the
+     copy and form (--lab-finale-body, per style and locale in the 18 blocks below) plus the
+     panel's svh gaps (s14/panel.module.css: the row gap and the deck's margin; from 861px the
+     direct links' margin too). */
+  --lab-h-finale: calc(120svh + max(100svh, var(--lab-finale-body, 560px) + clamp(36px, 6svh, 72px) + clamp(20px, 3svh, 32px)));
   /* 13 · the wall is pinned for a viewport of scroll (S09WorkWall: 200svh incl. a 64px tail). */
   --lab-h-work-wall: 200svh;
   /* 05 · a 250svh scroll story (150svh still frame under reduced motion, below). */
@@ -100,45 +108,673 @@
   }
 }
 
-@media (min-width: 405px) {
-  [data-lab-root] {
-    --lab-h-finale: calc(120svh + max(100svh, max(986px, 1176px - 38.6vw)));
-  }
-}
-
+/*
+ * 18 · Finale: the panel's content less its svh gaps, measured 2026-10-12 in all four styles and
+ * the three locales at 320–860px every 10px (every 1px across each step), on landscape phones and
+ * tablets, and at 861–2560px on screens 560–720px tall (taller ones show the 100svh floor). Below
+ * 861px it is the same at every screen height, so one width fit holds from 320×568 to 860×1180.
+ * The reservation sits 12–18px under the real height on phones (it was 25–85px short in uz/ru, so
+ * a visitor who reached the footer before the finale's code loaded saw it jump).
+ */
 @media (min-width: 861px) {
   [data-lab-root] {
-    --lab-h-finale: calc(120svh + max(100svh, clamp(636px, 490px + 13vw, 740px)));
-  }
-}
-
-/* 18 in uz and ru on phones and tablets: their panel sets 60–130px taller than the English fit
-   above, and the finale is the last section, so a visitor who reaches the bottom before its code
-   loads saw the footer jump by that much (CLS 0.12–0.15 at 390×844). Measured 2026-10-12 in all
-   four styles, uz and ru, 320–860px every 10px at 844px tall, fitted from below as steps (each
-   sample's lower neighbour) and moved to the 600px-tall panel (its svh gaps add ~20px by 844px,
-   given back by the clamp). The English terms stay in as a floor. */
-@media (max-width: 404px) {
-  [data-lab-root]:not(:lang(en)) {
     --lab-h-finale: calc(
-      120svh +
-        max(100svh, max(1068px, min(1115px, 1307px - 64vw), 1437px - 86.36vw, 1320px - 59.17vw, 995px) + clamp(0px, 8svh - 48px, 20px))
+      120svh + max(100svh, var(--lab-finale-body, 560px) + clamp(36px, 6svh, 72px) + clamp(20px, 3svh, 32px) + clamp(28px, 5svh, 52px))
     );
   }
 }
 
-@media (min-width: 405px) and (max-width: 860px) {
-  [data-lab-root]:not(:lang(en)) {
-    --lab-h-finale: calc(
-      120svh +
-        max(100svh, max(986px, 1176px - 38.6vw, 1320px - 59.17vw, 995px, 955px + 6.67vw, 943px + 8.46vw) + clamp(0px, 8svh - 48px, 20px))
+@media (prefers-reduced-motion: no-preference) and (max-width: 860px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-finale-body: max(
+      1159px - max(0px, 100vw - 357px) * 1000,
+      1116px - max(0px, 100vw - 400px) * 1000,
+      1092px - max(0px, 100vw - 406px) * 1000,
+      1068px - max(0px, 100vw - 419px) * 1000,
+      1026px - max(0px, 100vw - 469px) * 1000,
+      1007px - max(0px, 100vw - 490px) * 1000,
+      983px - max(0px, 100vw - 594px) * 1000,
+      875px + 13.75vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-finale-body: max(
+      1150px - max(0px, 100vw - 321px) * 1000,
+      1125px - max(0px, 100vw - 328px) * 1000,
+      1102px - max(0px, 100vw - 400px) * 1000,
+      1079px - max(0px, 100vw - 424px) * 1000,
+      1054px - max(0px, 100vw - 495px) * 1000,
+      1035px - max(0px, 100vw - 521px) * 1000,
+      979px - max(0px, 100vw - 620px) * 1000,
+      901px + 9.05vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-finale-body: max(
+      1087px + 28vw - max(0px, 100vw - 323px) * 1000,
+      1130px - max(0px, 100vw - 388px) * 1000,
+      1084px - max(0px, 100vw - 412px) * 1000,
+      1060px - max(0px, 100vw - 420px) * 1000,
+      1035px - max(0px, 100vw - 487px) * 1000,
+      1017px - max(0px, 100vw - 511px) * 1000,
+      988px + 0.6vw - max(0px, 100vw - 610px) * 1000,
+      873px + 15.56vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-finale-body: max(
+      1145px - max(0px, 100vw - 356px) * 1000,
+      1093px - max(0px, 100vw - 391px) * 1000,
+      1068px - max(0px, 100vw - 397px) * 1000,
+      1044px - max(0px, 100vw - 461px) * 1000,
+      1026px - max(0px, 100vw - 475px) * 1000,
+      1001px - max(0px, 100vw - 571px) * 1000,
+      898px + 13.2vw,
+      873px + 17.14vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-finale-body: max(
+      1141px - max(0px, 100vw - 325px) * 1000,
+      1116px - max(0px, 100vw - 364px) * 1000,
+      1097px - 1.5vw - max(0px, 100vw - 393px) * 1000,
+      1050px - max(0px, 100vw - 400px) * 1000,
+      1026px - max(0px, 100vw - 510px) * 1000,
+      1001px - max(0px, 100vw - 525px) * 1000,
+      979px - max(0px, 100vw - 544px) * 1000,
+      956px + 0.6vw,
+      873px + 14vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-finale-body: max(
+      1127px - max(0px, 100vw - 339px) * 1000,
+      1102px - max(0px, 100vw - 391px) * 1000,
+      1078px - max(0px, 100vw - 407px) * 1000,
+      1054px - max(0px, 100vw - 431px) * 1000,
+      998px - max(0px, 100vw - 547px) * 1000,
+      976px - max(0px, 100vw - 578px) * 1000,
+      900px + 9.09vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-finale-body: max(
+      1155px - max(0px, 100vw - 332px) * 1000,
+      1130px - max(0px, 100vw - 363px) * 1000,
+      1084px - max(0px, 100vw - 380px) * 1000,
+      1059px - max(0px, 100vw - 408px) * 1000,
+      1035px - max(0px, 100vw - 526px) * 1000,
+      1011px - max(0px, 100vw - 541px) * 1000,
+      988px - max(0px, 100vw - 562px) * 1000,
+      908px + 10vw,
+      873px + 15.56vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-finale-body: max(
+      1145px - max(0px, 100vw - 326px) * 1000,
+      1093px - max(0px, 100vw - 357px) * 1000,
+      1068px - max(0px, 100vw - 392px) * 1000,
+      1044px - max(0px, 100vw - 490px) * 1000,
+      1020px - max(0px, 100vw - 501px) * 1000,
+      998px - max(0px, 100vw - 530px) * 1000,
+      979px - max(0px, 100vw - 557px) * 1000,
+      874px + 8.5vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-finale-body: max(
+      1050px - max(0px, 100vw - 351px) * 1000,
+      1034px - 0.83vw - max(0px, 100vw - 400px) * 1000,
+      1007px - max(0px, 100vw - 419px) * 1000,
+      982px - max(0px, 100vw - 445px) * 1000,
+      960px - max(0px, 100vw - 497px) * 1000,
+      915px + 0.48vw,
+      877px + 6.67vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-finale-body: max(
+      1046px - max(0px, 100vw - 327px) * 1000,
+      1022px - max(0px, 100vw - 351px) * 1000,
+      1006px - 0.83vw - max(0px, 100vw - 399px) * 1000,
+      979px - max(0px, 100vw - 434px) * 1000,
+      954px - max(0px, 100vw - 451px) * 1000,
+      929px + 0.48vw,
+      872px + 9.6vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-finale-body: max(
+      1084px - max(0px, 100vw - 327px) * 1000,
+      1059px - max(0px, 100vw - 351px) * 1000,
+      1040px - max(0px, 100vw - 406px) * 1000,
+      1016px - max(0px, 100vw - 434px) * 1000,
+      992px - max(0px, 100vw - 438px) * 1000,
+      945px - max(0px, 100vw - 456px) * 1000,
+      922px,
+      872px + 8vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-finale-body: max(
+      1068px - max(0px, 100vw - 331px) * 1000,
+      1049px - max(0px, 100vw - 390px) * 1000,
+      1026px - max(0px, 100vw - 403px) * 1000,
+      1001px - max(0px, 100vw - 408px) * 1000,
+      950px - max(0px, 100vw - 420px) * 1000,
+      927px,
+      875px + 8.46vw
     );
   }
 }
 
-@media (min-width: 900px) {
+@media (prefers-reduced-motion: no-preference) and (min-width: 861px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-finale-body: max(
+      683px - max(0px, 100vw - 870px) * 1000,
+      475px + 17.65vw - max(0px, 100vw - 970px) * 1000,
+      354px + 27.86vw - max(0px, 100vw - 1180px) * 1000,
+      303px + 30.14vw - max(0px, 100vw - 1751px) * 1000,
+      831px - max(0px, 1752px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-finale-body: max(
+      516px + 10vw - max(0px, 100vw - 896px) * 1000,
+      384px + 18.33vw - max(0px, 100vw - 1230px) * 1000,
+      283px + 24.38vw - max(0px, 100vw - 1629px) * 1000,
+      427px + 24.75vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1630px - 100vw) * 1000,
+      861px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-finale-body: max(
+      579px + 15vw - max(0px, 100vw - 900px) * 1000,
+      376px + 31.25vw - max(0px, 100vw - 1010px) * 1000,
+      353px + 31vw - max(0px, 100vw - 1210px) * 1000,
+      312px + 32.5vw - max(0px, 100vw - 1489px) * 1000,
+      360px + 29.89vw - max(0px, 100vw - 1751px) * 1000 - max(0px, 1490px - 100vw) * 1000,
+      884px - max(0px, 1752px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-finale-body: max(
+      736px - max(0px, 100vw - 870px) * 1000,
+      503px + 20.59vw - max(0px, 100vw - 932px) * 1000,
+      361px + 33.33vw - max(0px, 100vw - 1130px) * 1000,
+      319px + 35vw - max(0px, 100vw - 1469px) * 1000,
+      347px + 33.72vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1470px - 100vw) * 1000,
+      938px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-finale-body: max(
+      536px + 10vw - max(0px, 100vw - 900px) * 1000,
+      390px + 20vw - max(0px, 100vw - 1010px) * 1000,
+      568px,
+      302px + 23.35vw - max(0px, 100vw - 1751px) * 1000,
+      711px - max(0px, 1752px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-finale-body: max(
+      449px + 17.5vw - max(0px, 100vw - 932px) * 1000,
+      501px + 6.34vw - max(0px, 100vw - 1090px) * 1000,
+      341px + 20vw - max(0px, 100vw - 1469px) * 1000,
+      365px + 19.16vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1470px - 100vw) * 1000,
+      701px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-finale-body: max(
+      333px + 35vw - max(0px, 100vw - 910px) * 1000,
+      396px + 21.67vw - max(0px, 100vw - 1030px) * 1000,
+      604px - max(0px, 100vw - 1070px) * 1000 - max(0px, 1031px - 100vw) * 1000,
+      310px + 25vw - max(0px, 100vw - 1751px) * 1000,
+      751px - max(0px, 1752px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-finale-body: max(
+      532px + 15vw - max(0px, 100vw - 900px) * 1000,
+      385px + 25vw - max(0px, 100vw - 970px) * 1000,
+      613px - max(0px, 100vw - 990px) * 1000,
+      332px + 25.56vw - max(0px, 100vw - 1469px) * 1000,
+      348px + 25.27vw - max(0px, 100vw - 1751px) * 1000 - max(0px, 1470px - 100vw) * 1000,
+      791px - max(0px, 1752px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-finale-body: max(
+      504px + 4.13vw,
+      343px + 16.12vw - max(0px, 100vw - 1509px) * 1000,
+      362px + 19.91vw - max(0px, 100vw - 1751px) * 1000 - max(0px, 1510px - 100vw) * 1000,
+      711px - max(0px, 1752px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-finale-body: max(496px + 5vw, 301px + 21.09vw - max(0px, 100vw - 1751px) * 1000, 671px - max(0px, 1752px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-finale-body: max(
+      504px + 4.13vw,
+      408px + 11.67vw - max(0px, 1410px - 100vw) * 1000,
+      718px + 1.29vw - max(0px, 1670px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-finale-body: max(
+      504px + 4.13vw,
+      315px + 18.84vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1370px - 100vw) * 1000,
+      645px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+}
+
+/* 18 under reduced motion: the heading is not split into letters and sets up to ~110px shorter, so
+   it has its own fits, measured the same way (phones every 10px, 870–2560px 560px tall). */
+@media (prefers-reduced-motion: reduce) and (max-width: 860px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-finale-body: max(
+      1072px + 0.5vw - max(0px, 100vw - 400px) * 1000,
+      1026px - max(0px, 100vw - 460px) * 1000,
+      1007px - max(0px, 100vw - 490px) * 1000,
+      983px - max(0px, 100vw - 590px) * 1000,
+      878px + 13.33vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-finale-body: max(
+      1150px - max(0px, 100vw - 320px) * 1000,
+      1102px - max(0px, 100vw - 400px) * 1000,
+      1079px - max(0px, 100vw - 420px) * 1000,
+      1054px - max(0px, 100vw - 490px) * 1000,
+      1035px - max(0px, 100vw - 510px) * 1000,
+      979px - max(0px, 100vw - 620px) * 1000,
+      902px + 8.89vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-finale-body: max(
+      1084px - max(0px, 100vw - 410px) * 1000,
+      1060px - max(0px, 100vw - 420px) * 1000,
+      1036px - max(0px, 100vw - 480px) * 1000,
+      1017px - max(0px, 100vw - 510px) * 1000,
+      988px + 0.6vw - max(0px, 100vw - 610px) * 1000,
+      874px + 15.45vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-finale-body: max(
+      1093px - max(0px, 100vw - 390px) * 1000,
+      1045px - max(0px, 100vw - 460px) * 1000,
+      1026px - max(0px, 100vw - 470px) * 1000,
+      1001px - max(0px, 100vw - 570px) * 1000,
+      876px + 16.67vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-finale-body: max(
+      1141px - max(0px, 100vw - 320px) * 1000,
+      1124px - 2.13vw - max(0px, 100vw - 360px) * 1000,
+      1092px - max(0px, 100vw - 390px) * 1000,
+      1050px - max(0px, 100vw - 400px) * 1000,
+      1026px - max(0px, 100vw - 510px) * 1000,
+      1001px - max(0px, 100vw - 520px) * 1000,
+      979px - max(0px, 100vw - 540px) * 1000,
+      878px + 13.33vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-finale-body: max(
+      1127px - max(0px, 100vw - 330px) * 1000,
+      1102px - max(0px, 100vw - 390px) * 1000,
+      1078px - max(0px, 100vw - 400px) * 1000,
+      1054px - max(0px, 100vw - 420px) * 1000,
+      998px - max(0px, 100vw - 540px) * 1000,
+      976px - max(0px, 100vw - 570px) * 1000,
+      900px + 9.09vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-finale-body: max(
+      1155px - max(0px, 100vw - 330px) * 1000,
+      1141px - 3.2vw - max(0px, 100vw - 360px) * 1000,
+      1084px - max(0px, 100vw - 380px) * 1000,
+      1059px - max(0px, 100vw - 400px) * 1000,
+      1036px - max(0px, 100vw - 520px) * 1000,
+      1011px - max(0px, 100vw - 540px) * 1000,
+      988px - max(0px, 100vw - 560px) * 1000,
+      877px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-finale-body: max(
+      1145px - max(0px, 100vw - 320px) * 1000,
+      1093px - max(0px, 100vw - 350px) * 1000,
+      1068px - max(0px, 100vw - 390px) * 1000,
+      1045px - max(0px, 100vw - 490px) * 1000,
+      1020px - max(0px, 100vw - 500px) * 1000,
+      998px - max(0px, 100vw - 530px) * 1000,
+      979px - max(0px, 100vw - 550px) * 1000,
+      875px + 8.46vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-finale-body: max(
+      1050px - max(0px, 100vw - 350px) * 1000,
+      1031px - max(0px, 100vw - 400px) * 1000,
+      1007px - max(0px, 100vw - 410px) * 1000,
+      983px - max(0px, 100vw - 440px) * 1000,
+      960px - max(0px, 100vw - 490px) * 1000,
+      876px + 6.67vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-finale-body: max(
+      1046px - max(0px, 100vw - 320px) * 1000,
+      1022px - max(0px, 100vw - 350px) * 1000,
+      1003px - max(0px, 100vw - 390px) * 1000,
+      979px - max(0px, 100vw - 430px) * 1000,
+      954px - max(0px, 100vw - 450px) * 1000,
+      929px + 0.48vw,
+      872px + 9.6vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-finale-body: max(
+      1084px - max(0px, 100vw - 320px) * 1000,
+      1059px - max(0px, 100vw - 350px) * 1000,
+      1040px - max(0px, 100vw - 400px) * 1000,
+      1017px - max(0px, 100vw - 430px) * 1000,
+      945px - max(0px, 100vw - 450px) * 1000,
+      881px + 6.67vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-finale-body: max(
+      1068px - max(0px, 100vw - 330px) * 1000,
+      1049px - max(0px, 100vw - 390px) * 1000,
+      1026px - max(0px, 100vw - 400px) * 1000,
+      950px - max(0px, 100vw - 420px) * 1000,
+      886px + 6.67vw
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 861px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-finale-body: max(
+      510px + 5.45vw - max(0px, 100vw - 1130px) * 1000,
+      474px + 6.67vw - max(0px, 100vw - 1750px) * 1000,
+      592px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-finale-body: max(
+      605px - max(0px, 100vw - 890px) * 1000,
+      417px + 15vw - max(0px, 100vw - 1230px) * 1000,
+      312px + 22.22vw - max(0px, 100vw - 1750px) * 1000,
+      701px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-finale-body: max(
+      578px - max(0px, 100vw - 890px) * 1000,
+      515px + 5vw - max(0px, 100vw - 1170px) * 1000,
+      467px + 7.22vw - max(0px, 100vw - 1589px) * 1000,
+      494px + 6.43vw - max(0px, 100vw - 1920px) * 1000 - max(0px, 1590px - 100vw) * 1000,
+      618px - max(0px, 1921px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-finale-body: max(
+      592px - max(0px, 100vw - 870px) * 1000,
+      510px + 5.5vw - max(0px, 100vw - 1110px) * 1000,
+      431px + 10vw - max(0px, 100vw - 1429px) * 1000,
+      325px + 18.27vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1430px - 100vw) * 1000,
+      645px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-finale-body: max(
+      625px - max(0px, 100vw - 890px) * 1000,
+      390px + 20vw - max(0px, 100vw - 1010px) * 1000,
+      515px + 5vw,
+      298px + 23.64vw - max(0px, 100vw - 1750px) * 1000,
+      712px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-finale-body: max(
+      449px + 17.5vw - max(0px, 100vw - 932px) * 1000,
+      515px + 5vw,
+      312px + 22.22vw - max(0px, 100vw - 1750px) * 1000,
+      701px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-finale-body: max(
+      422px + 25vw - max(0px, 100vw - 910px) * 1000,
+      412px + 20vw - max(0px, 100vw - 1030px) * 1000,
+      604px - max(0px, 100vw - 1070px) * 1000 - max(0px, 1031px - 100vw) * 1000,
+      310px + 25vw - max(0px, 100vw - 1750px) * 1000,
+      752px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-finale-body: max(
+      666px - max(0px, 100vw - 890px) * 1000,
+      385px + 25vw - max(0px, 100vw - 970px) * 1000,
+      613px - max(0px, 100vw - 990px) * 1000,
+      331px + 25.62vw - max(0px, 100vw - 1469px) * 1000,
+      342px + 25.67vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1470px - 100vw) * 1000,
+      792px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-finale-body: max(
+      467px + 7.22vw,
+      355px + 20.36vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1510px - 100vw) * 1000,
+      712px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-finale-body: max(496px + 5vw, 298px + 21.32vw - max(0px, 100vw - 1750px) * 1000, 672px - max(0px, 1751px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-finale-body: max(467px + 7.22vw, 356px + 15vw, 727px + 0.94vw - max(0px, 1690px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-finale-body: max(
+      496px + 5vw,
+      323px + 18.38vw - max(0px, 100vw - 1750px) * 1000 - max(0px, 1410px - 100vw) * 1000,
+      645px - max(0px, 1751px - 100vw) * 1000
+    );
+  }
+}
+
+/* 07 with motion: the intro and outro (the section less its 580svh track), measured 2026-10-12 in
+   all four styles and the three locales on landscape phones, tablets (760–899px) and at
+   900–2560px, 360–1440px tall (the same at every height); 12–50px under the real height. The
+   shared fit from 2026-10-11 had come out 13–50px over English (a blank tail). Phones held upright
+   have their own blocks at the end. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 899px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-tg-rest: max(
+      753px - max(0px, 100vw - 320px) * 1000,
+      890px - 60vw - max(0px, 100vw - 370px) * 1000,
+      754px - 33.14vw,
+      567px - 1.61vw - max(0px, 689px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-tg-rest: max(
+      789px - max(0px, 100vw - 320px) * 1000,
+      721px - max(0px, 100vw - 380px) * 1000,
+      793px - 35.27vw,
+      568px + 1.88vw - max(0px, 689px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-tg-rest: max(
+      1367px - 200vw,
+      1028px - 92.31vw - max(0px, 100vw - 380px) * 1000 - max(0px, 350px - 100vw) * 1000,
+      761px - 31.67vw,
+      580px - 1.8vw - max(0px, 710px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-tg-rest: max(
+      1004px - 77.42vw - max(0px, 100vw - 360px) * 1000,
+      834px - 39.2vw - max(0px, 100vw - 440px) * 1000,
+      751px - 27.14vw,
+      593px - max(0px, 699px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-tg-rest: max(
+      722px + 3.23vw - max(0px, 100vw - 360px) * 1000,
+      871px - 55.56vw,
+      818px - 40vw - max(0px, 510px - 100vw) * 1000,
+      568px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-tg-rest: max(893px - 38.8vw - max(0px, 100vw - 380px) * 1000, 816px - 28.5vw, 589px + 6.25vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-tg-rest: max(
+      733px + 3.33vw - max(0px, 100vw - 375px) * 1000,
+      929px - 64.29vw,
+      794px - 33.33vw - max(0px, 510px - 100vw) * 1000,
+      581px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-tg-rest: max(756px - max(0px, 100vw - 350px) * 1000, 1043px - 94.4vw, 777px - 30vw, 590px);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-tg-rest: max(984px - 104vw - max(0px, 100vw - 370px) * 1000, 608px - 12.22vw - max(0px, 100vw - 500px) * 1000, 492px);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-tg-rest: max(931px - 76.67vw, 714px - 19.02vw - max(0px, 100vw - 500px) * 1000 - max(0px, 430px - 100vw) * 1000, 568px);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-tg-rest: max(675px - max(0px, 100vw - 330px) * 1000, 952px - 100vw, 617px - 12.22vw - max(0px, 100vw - 500px) * 1000, 502px);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-tg-rest: max(983px - 100vw, 783px - 43.64vw - max(0px, 100vw - 490px) * 1000, 526px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
   [data-lab-root] {
-    --lab-h-telegram: calc(580svh + max(415px, 768px - 28.3vw));
+    --lab-h-telegram: calc(580svh + var(--lab-tg-rest, 385px));
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-tg-rest: max(518px - max(0px, 100vw - 932px) * 1000, 439px - 0.2vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-tg-rest: max(518px - max(0px, 100vw - 932px) * 1000, 596px - 14.47vw, 414px + 1.55vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-tg-rest: max(518px - max(0px, 100vw - 932px) * 1000, 745px - 29.06vw, 439px - 0.2vw);
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-tg-rest: max(518px - max(0px, 100vw - 932px) * 1000, 465px - max(0px, 100vw - 1024px) * 1000, 382px + 2.26vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-tg-rest: max(518px - max(0px, 100vw - 932px) * 1000, 639px - 17.11vw - max(0px, 100vw - 1180px) * 1000, 401px + 0.39vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-tg-rest: max(613px - 10.12vw, 477px + 2.36vw - max(0px, 1366px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-tg-rest: max(518px - max(0px, 100vw - 932px) * 1000, 487px - max(0px, 100vw - 1024px) * 1000, 411px);
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-tg-rest: max(1239px - 78.79vw, 442px + 2.9vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-tg-rest: max(453px - max(0px, 100vw - 932px) * 1000, 490px - 8.97vw, 377px + 0.49vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-tg-rest: max(453px - max(0px, 100vw - 932px) * 1000, 380px + 2.03vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-tg-rest: max(453px - max(0px, 100vw - 932px) * 1000, 490px - 8.97vw, 379px + 0.98vw - max(0px, 1440px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-tg-rest: max(453px - max(0px, 100vw - 932px) * 1000, 395px);
   }
 }
 
@@ -181,7 +817,6 @@
 
 @media (min-width: 900px) {
   [data-lab-root] {
-    --lab-crm-rest: max(620px, 1020px - 32vw);
     --lab-h-stack-physics: calc(100svh + clamp(200px, 11.4vw + 82px, 255px));
   }
 }
@@ -202,7 +837,6 @@
       420svh,
       calc(300svh + max(2350px - 317.75vw, 1794px - 163.33vw, 1554px - 99.21vw, 1180px - 30vw, min(910px + 15.06vw, 1024px)))
     );
-    --lab-h-rag-build: calc(550svh + max(1832px - 123.91vw, 1790px - 114.09vw, 1468px - 54.62vw, 1104px - 1.17vw));
     --lab-h-crm-build: calc(
       400svh +
         max(
@@ -218,16 +852,303 @@
   }
 }
 
+/* 10 with motion: the intro and outro (the section less its 550svh track), measured 2026-10-12 in
+   all four styles and the three locales at 320–940px every 10–20px (phones 640–932px tall,
+   landscape phones, tablets) and 959–2560px on laptops and desktops 720–1440px tall (the same at
+   every height); 12–45px under the real height. Style B and uz/ru ran 100–240px past the old shared
+   fit, and English ran 7–50px over it (a blank tail) at 840–1280px. Breakpoints: 760 and 1100
+   (s17/section.module.css). */
+@media (prefers-reduced-motion: no-preference) and (max-width: 759px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-rag-rest: max(
+      1427px - max(0px, 100vw - 410px) * 1000,
+      1357px - max(0px, 100vw - 420px) * 1000,
+      2281px - 225vw - max(0px, 421px - 100vw) * 1000,
+      1266px + 4.76vw - max(0px, 100vw - 490px) * 1000,
+      1764px - 105vw - max(0px, 100vw - 520px) * 1000 - max(0px, 491px - 100vw) * 1000,
+      1205px - max(0px, 100vw - 550px) * 1000,
+      1126px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-rag-rest: max(
+      1674px - max(0px, 100vw - 330px) * 1000,
+      1628px - max(0px, 100vw - 350px) * 1000,
+      1541px - max(0px, 100vw - 360px) * 1000,
+      1471px - max(0px, 100vw - 430px) * 1000,
+      1426px - max(0px, 100vw - 440px) * 1000,
+      1502px - 28.33vw - max(0px, 100vw - 510px) * 1000,
+      1921px - 115vw - max(0px, 100vw - 567px) * 1000 - max(0px, 511px - 100vw) * 1000,
+      1300px - max(0px, 100vw - 580px) * 1000 - max(0px, 568px - 100vw) * 1000,
+      1220px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-rag-rest: max(
+      1667px - max(0px, 100vw - 320px) * 1000,
+      2295px - 210vw - max(0px, 100vw - 350px) * 1000,
+      1843px - 105vw - max(0px, 100vw - 409px) * 1000,
+      2263px - 200vw - max(0px, 100vw - 430px) * 1000 - max(0px, 410px - 100vw) * 1000,
+      1812px - 110vw - max(0px, 100vw - 489px) * 1000,
+      1305px - max(0px, 100vw - 500px) * 1000,
+      1791px - 105vw - max(0px, 100vw - 530px) * 1000 - max(0px, 501px - 100vw) * 1000,
+      1221px - max(0px, 100vw - 580px) * 1000,
+      1142px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-rag-rest: max(
+      1614px - max(0px, 100vw - 330px) * 1000,
+      1523px - max(0px, 100vw - 340px) * 1000,
+      1457px - max(0px, 100vw - 400px) * 1000,
+      1805px - 110vw - max(0px, 100vw - 430px) * 1000,
+      1304px + 3.23vw - max(0px, 100vw - 480px) * 1000,
+      2313px - 215vw - max(0px, 481px - 100vw) * 1000,
+      1236px - max(0px, 100vw - 540px) * 1000,
+      1157px
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-rag-rest: max(
+      1701px - max(0px, 100vw - 320px) * 1000,
+      1621px - max(0px, 100vw - 340px) * 1000,
+      1552px - max(0px, 100vw - 350px) * 1000,
+      1483px - max(0px, 100vw - 375px) * 1000,
+      1676px - 62.86vw - max(0px, 100vw - 414px) * 1000,
+      2044px - 156.25vw - max(0px, 100vw - 440px) * 1000 - max(0px, 415px - 100vw) * 1000,
+      1348px - max(0px, 100vw - 460px) * 1000,
+      1595px - 63.33vw - max(0px, 100vw - 500px) * 1000,
+      1587px - 70vw - max(0px, 100vw - 560px) * 1000,
+      1804px - 115vw - max(0px, 100vw - 590px) * 1000,
+      1049px + 10vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-rag-rest: max(
+      1745px - max(0px, 100vw - 320px) * 1000,
+      1702px - max(0px, 100vw - 330px) * 1000,
+      1979px - 105vw - max(0px, 100vw - 360px) * 1000,
+      2069px - 146.67vw,
+      2355px - 209.52vw - max(0px, 410px - 100vw) * 1000,
+      1575px - 36vw - max(0px, 100vw - 520px) * 1000,
+      1374px - max(0px, 100vw - 590px) * 1000,
+      1955px - 110vw - max(0px, 591px - 100vw) * 1000,
+      1181px + 14vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-rag-rest: max(
+      1709px - max(0px, 100vw - 320px) * 1000,
+      1640px - max(0px, 100vw - 330px) * 1000,
+      1595px - max(0px, 100vw - 350px) * 1000,
+      1549px - max(0px, 100vw - 360px) * 1000,
+      2316px - 225vw,
+      2007px - 137.5vw - max(0px, 100vw - 440px) * 1000 - max(0px, 400px - 100vw) * 1000,
+      2374px - 223.33vw - max(0px, 441px - 100vw) * 1000,
+      2234px - 186.36vw - max(0px, 100vw - 520px) * 1000 - max(0px, 489px - 100vw) * 1000,
+      1235px - max(0px, 100vw - 570px) * 1000,
+      1178px - max(0px, 100vw - 600px) * 1000,
+      1060px + 11.25vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-rag-rest: max(
+      2312px - 218.18vw - max(0px, 100vw - 340px) * 1000,
+      2272px - 220vw,
+      1950px - 126.47vw - max(0px, 100vw - 400px) * 1000 - max(0px, 374px - 100vw) * 1000,
+      2178px - 185.71vw - max(0px, 100vw - 420px) * 1000 - max(0px, 401px - 100vw) * 1000,
+      2334px - 225vw - max(0px, 421px - 100vw) * 1000,
+      2136px - 172.73vw - max(0px, 100vw - 480px) * 1000 - max(0px, 460px - 100vw) * 1000,
+      1254px - max(0px, 100vw - 540px) * 1000,
+      1819px - 115vw - max(0px, 100vw - 570px) * 1000,
+      1088px + 10vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-rag-rest: max(
+      1468px - max(0px, 100vw - 330px) * 1000,
+      1402px - max(0px, 100vw - 350px) * 1000,
+      1335px - max(0px, 100vw - 360px) * 1000,
+      1458px - 47.5vw - max(0px, 100vw - 420px) * 1000,
+      1225px - max(0px, 100vw - 460px) * 1000,
+      1538px - 73.33vw - max(0px, 100vw - 500px) * 1000,
+      1023px + 5vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-rag-rest: max(
+      1491px - max(0px, 100vw - 340px) * 1000,
+      1402px - max(0px, 100vw - 360px) * 1000,
+      1572px - 65vw - max(0px, 100vw - 420px) * 1000,
+      1373px - 24.29vw - max(0px, 100vw - 500px) * 1000,
+      1208px - max(0px, 100vw - 510px) * 1000,
+      1121px + 5vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-rag-rest: max(
+      1462px - max(0px, 100vw - 340px) * 1000,
+      2197px - 235vw - max(0px, 100vw - 375px) * 1000,
+      1507px - 54.29vw - max(0px, 100vw - 420px) * 1000,
+      1510px - 62.5vw - max(0px, 100vw - 490px) * 1000,
+      2324px - 230vw - max(0px, 100vw - 510px) * 1000 - max(0px, 491px - 100vw) * 1000,
+      1054px + 2.5vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-rag-rest: max(
+      1432px - max(0px, 100vw - 330px) * 1000,
+      1388px - max(0px, 100vw - 340px) * 1000,
+      1605px - 82vw - max(0px, 100vw - 410px) * 1000,
+      1583px - 80vw - max(0px, 100vw - 470px) * 1000,
+      1187px - max(0px, 100vw - 480px) * 1000,
+      1053px + 5vw
+    );
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 760px) and (max-width: 1099px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-rag-rest: max(1013px + 7.5vw - max(0px, 100vw - 860px) * 1000, 996px + 6.58vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-rag-rest: 1146px;
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-rag-rest: 1073px;
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-rag-rest: 1110px - 3.36vw;
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-rag-rest: 1042px;
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-rag-rest: 1158px + 4.29vw;
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-rag-rest: 1058px;
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-rag-rest: 1073px;
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-rag-rest: 962px;
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-rag-rest: max(1067px - 1.79vw - max(0px, 100vw - 959px) * 1000, 995px);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-rag-rest: 1022px - 5vw;
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-rag-rest: 1053px - 8.18vw;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 1100px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-rag-rest: max(775px - max(0px, 100vw - 1280px) * 1000, 753px - max(0px, 100vw - 1366px) * 1000, 730px);
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-rag-rest: max(821px - max(0px, 100vw - 1100px) * 1000, 798px - max(0px, 100vw - 1366px) * 1000, 775px);
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-rag-rest: max(
+      798px - max(0px, 100vw - 1100px) * 1000,
+      775px - max(0px, 100vw - 1366px) * 1000,
+      753px - max(0px, 100vw - 1440px) * 1000,
+      730px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-rag-rest: max(775px - max(0px, 100vw - 1280px) * 1000, 753px - max(0px, 100vw - 1366px) * 1000, 730px);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-rag-rest: max(
+      798px - max(0px, 100vw - 1100px) * 1000,
+      776px - max(0px, 100vw - 1180px) * 1000,
+      725px - max(0px, 100vw - 1280px) * 1000,
+      702px - max(0px, 100vw - 1440px) * 1000,
+      679px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-rag-rest: max(827px - max(0px, 100vw - 1180px) * 1000, 804px - max(0px, 100vw - 1366px) * 1000, 781px);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-rag-rest: max(
+      798px - max(0px, 100vw - 1100px) * 1000,
+      776px - max(0px, 100vw - 1180px) * 1000,
+      725px - max(0px, 100vw - 1366px) * 1000,
+      702px - max(0px, 100vw - 1440px) * 1000,
+      679px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-rag-rest: max(
+      776px - max(0px, 100vw - 1100px) * 1000,
+      753px - max(0px, 100vw - 1180px) * 1000,
+      725px - max(0px, 100vw - 1280px) * 1000,
+      702px - max(0px, 100vw - 1366px) * 1000,
+      667px + 0.78vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-rag-rest: max(736px - max(0px, 100vw - 1100px) * 1000, 679px);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-rag-rest: max(730px - max(0px, 100vw - 1180px) * 1000, 708px);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-rag-rest: max(730px - max(0px, 100vw - 1100px) * 1000, 702px - max(0px, 100vw - 1180px) * 1000, 679px);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-rag-rest: max(702px - max(0px, 100vw - 1100px) * 1000, 679px - max(0px, 100vw - 1536px) * 1000, 647px);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) and (min-width: 760px) {
   [data-lab-root] {
     --lab-h-web-build: max(420svh, calc(300svh + max(1172px - 43.33vw, 1070px - 30.89vw)));
-    --lab-h-rag-build: calc(550svh + 986px);
     --lab-h-crm-build: calc(400svh + max(1256px - 50.83vw, 966px - 16.54vw));
   }
 
   [data-lab-root]:not(:lang(en)) {
     --lab-h-web-build: max(420svh, calc(300svh + min(790px + 12.03vw, 898px)));
-    --lab-h-rag-build: calc(550svh + max(1106px - 9.78vw, min(980px + 4.33vw, 1027px)));
     --lab-h-crm-build: calc(400svh + 1311px - 50.81vw);
   }
 }
@@ -246,16 +1167,6 @@
       calc(320svh + max(1947px - 124.06vw, 1244px - 48.68vw, 948px - 19.17vw, 708px - 0.35vw, min(605px + 7.14vw, 787px)))
     );
     --lab-h-crm-build: calc(400svh + max(1452px - 66.25vw, 1205px - 39.71vw, 986px - 17.79vw, 890px - 10.62vw, 727px));
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) and (min-width: 1100px) {
-  [data-lab-root] {
-    --lab-h-rag-build: calc(550svh + max(1226px - 40.5vw, 999px - 22.79vw, 688px));
-  }
-
-  [data-lab-root]:not(:lang(en)) {
-    --lab-h-rag-build: calc(550svh + max(1195px - 37.72vw, 1051px - 26.51vw, 688px));
   }
 }
 
@@ -289,32 +1200,329 @@
   }
 }
 
-/* 10 · reduced motion: no scroll track; the files, index map and chat as content (stacked below 760px). */
+/* 10 · reduced motion: no scroll track; the files, index map and chat as content (stacked below
+   760px), at least a screen tall. Per style and locale (--lab-rag-still), measured 2026-10-12 at
+   320–2560px; 12–35px under the real height (it was 100–360px short). From 1100px the map's width
+   follows the screen height (s17/section.module.css), which adds up to 175px on tall screens: the
+   clamp() is a lower bound of that, measured 600–1300px tall. */
 @media (prefers-reduced-motion: reduce) {
   [data-lab-root] {
-    --lab-h-rag-build: max(100svh, 2260px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) and (min-width: 760px) {
-  [data-lab-root] {
-    --lab-h-rag-build: max(100svh, 1745px);
+    --lab-h-rag-build: max(100svh, var(--lab-rag-still, 1460px));
   }
 }
 
 @media (prefers-reduced-motion: reduce) and (min-width: 1100px) {
   [data-lab-root] {
-    --lab-h-rag-build: max(100svh, 1220px);
+    --lab-h-rag-build: max(
+      100svh,
+      var(--lab-rag-still, 1460px) + clamp(0px, (100svh - 880px) * 0.7, min(174px, max(0px, (100vw - 1225px) * 0.47)))
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 759px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-rag-still: max(
+      2498px - max(0px, 100vw - 412px) * 1000,
+      3099px - 155vw - max(0px, 413px - 100vw) * 1000,
+      2094px + 70vw - max(0px, 100vw - 490px) * 1000,
+      2388px - max(0px, 100vw - 560px) * 1000,
+      2286px + 12.5vw,
+      1879px + 78vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-rag-still: max(
+      2751px - max(0px, 100vw - 320px) * 1000,
+      2716px - max(0px, 100vw - 330px) * 1000,
+      2506px + 50vw - max(0px, 100vw - 350px) * 1000,
+      2605px - max(0px, 100vw - 360px) * 1000,
+      2556px - max(0px, 100vw - 430px) * 1000,
+      2546px - max(0px, 100vw - 440px) * 1000,
+      2414px + 19.67vw - max(0px, 100vw - 520px) * 1000,
+      2496px - max(0px, 100vw - 580px) * 1000,
+      2392px + 12.5vw,
+      1960px + 80vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-rag-still: max(
+      2722px - max(0px, 100vw - 320px) * 1000,
+      2979px - 100vw - max(0px, 100vw - 350px) * 1000,
+      2526px - max(0px, 100vw - 430px) * 1000,
+      2445px - max(0px, 100vw - 500px) * 1000,
+      2816px - 76.67vw - max(0px, 501px - 100vw) * 1000,
+      2093px + 58.33vw - max(0px, 100vw - 580px) * 1000 - max(0px, 560px - 100vw) * 1000,
+      2313px + 12.5vw,
+      1880px + 80vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-rag-still: max(
+      2650px - max(0px, 100vw - 330px) * 1000,
+      3168px - 180vw - max(0px, 100vw - 344px) * 1000,
+      2528px - max(0px, 100vw - 400px) * 1000,
+      2783px - 80vw,
+      2125px + 70vw - max(0px, 100vw - 480px) * 1000 - max(0px, 460px - 100vw) * 1000,
+      2404px - max(0px, 100vw - 540px) * 1000,
+      2240px + 24vw,
+      1896px + 80vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-rag-still: max(
+      2757px - max(0px, 100vw - 320px) * 1000,
+      3101px - 130vw - max(0px, 100vw - 340px) * 1000,
+      2608px - max(0px, 100vw - 350px) * 1000,
+      3131px - 160vw - max(0px, 100vw - 370px) * 1000,
+      2225px + 75vw - max(0px, 100vw - 412px) * 1000,
+      2899px - 96.43vw - max(0px, 100vw - 460px) * 1000 - max(0px, 413px - 100vw) * 1000,
+      2399px + 9.52vw - max(0px, 100vw - 500px) * 1000,
+      2406px - max(0px, 100vw - 560px) * 1000,
+      2798px - 76.67vw - max(0px, 561px - 100vw) * 1000,
+      1853px + 80vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-rag-still: max(
+      2801px - max(0px, 100vw - 320px) * 1000,
+      2764px - max(0px, 100vw - 330px) * 1000,
+      3131px - 130vw - max(0px, 100vw - 360px) * 1000,
+      2743px - 40vw - max(0px, 100vw - 440px) * 1000,
+      2511px + 8.33vw - max(0px, 100vw - 579px) * 1000,
+      2593px - max(0px, 100vw - 590px) * 1000 - max(0px, 580px - 100vw) * 1000,
+      2525px,
+      1991px + 83.33vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-rag-still: max(
+      2764px - max(0px, 100vw - 320px) * 1000,
+      2702px - max(0px, 100vw - 330px) * 1000,
+      2472px + 50vw - max(0px, 100vw - 350px) * 1000,
+      2611px - max(0px, 100vw - 360px) * 1000,
+      3114px - 150vw,
+      2926px - 94.12vw - max(0px, 100vw - 460px) * 1000 - max(0px, 400px - 100vw) * 1000,
+      2623px - 32.5vw - max(0px, 100vw - 520px) * 1000,
+      2039px + 70vw - max(0px, 100vw - 570px) * 1000,
+      1982px + 70vw - max(0px, 100vw - 600px) * 1000,
+      1872px + 80vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-rag-still: max(
+      3250px - 185vw - max(0px, 100vw - 344px) * 1000,
+      3125px - 160vw,
+      3097px - 142.62vw - max(0px, 380px - 100vw) * 1000,
+      2726px - 54.55vw - max(0px, 100vw - 480px) * 1000 - max(0px, 460px - 100vw) * 1000,
+      2416px - max(0px, 100vw - 540px) * 1000,
+      2825px - 80vw - max(0px, 541px - 100vw) * 1000,
+      1892px + 80vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-rag-still: max(
+      2504px - max(0px, 100vw - 330px) * 1000,
+      2280px + 50vw - max(0px, 100vw - 350px) * 1000,
+      2399px - max(0px, 100vw - 360px) * 1000,
+      2425px - 18.57vw - max(0px, 100vw - 500px) * 1000,
+      1848px + 71.67vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-rag-still: max(
+      2533px - max(0px, 100vw - 340px) * 1000,
+      2499px - max(0px, 100vw - 344px) * 1000,
+      2458px - max(0px, 100vw - 360px) * 1000,
+      2409px - max(0px, 100vw - 420px) * 1000,
+      2153px + 52.46vw - max(0px, 100vw - 500px) * 1000,
+      2377px - max(0px, 100vw - 510px) * 1000,
+      1940px + 72.5vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-rag-still: max(
+      2504px - max(0px, 100vw - 340px) * 1000,
+      2452px - max(0px, 100vw - 350px) * 1000,
+      2997px - 160vw - max(0px, 100vw - 370px) * 1000,
+      2431px - 14vw - max(0px, 100vw - 430px) * 1000,
+      2380px - 5vw - max(0px, 100vw - 500px) * 1000,
+      2340px - max(0px, 100vw - 510px) * 1000,
+      1853px + 73.33vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-rag-still: max(
+      2475px - max(0px, 100vw - 330px) * 1000,
+      3100px - 200vw - max(0px, 100vw - 344px) * 1000,
+      2527px - 41.67vw - max(0px, 100vw - 439px) * 1000,
+      2357px - max(0px, 100vw - 470px) * 1000 - max(0px, 440px - 100vw) * 1000,
+      2335px - max(0px, 100vw - 480px) * 1000,
+      1876px + 72vw
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 760px) and (max-width: 1099px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-rag-still: max(1814px - max(0px, 100vw - 860px) * 1000, 1814px - 1.92vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-rag-still: max(1915px - 2.84vw - max(0px, 100vw - 920px) * 1000, 1772px + 11.9vw - max(0px, 100vw - 1024px) * 1000, 1821px);
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-rag-still: max(1882px - 7.44vw - max(0px, 100vw - 920px) * 1000, 1847px - 3.85vw);
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-rag-still: max(1779px + 7.5vw - max(0px, 100vw - 840px) * 1000, 1802px + 1.82vw - max(0px, 100vw - 1024px) * 1000, 1731px);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-rag-still: max(1838px - 6.67vw, 1787px - max(0px, 920px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-rag-still: max(
+      1936px - max(0px, 100vw - 939px) * 1000,
+      1950px - max(0px, 100vw - 1024px) * 1000 - max(0px, 940px - 100vw) * 1000,
+      1884px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-rag-still: 1801px;
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-rag-still: max(1800px + 2.17vw - max(0px, 100vw - 920px) * 1000, 1686px + 13.1vw - max(0px, 100vw - 1024px) * 1000, 1763px);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-rag-still: max(1893px - 22.95vw - max(0px, 100vw - 840px) * 1000, 1665px + 3.75vw - max(0px, 100vw - 1024px) * 1000, 1598px);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-rag-still: max(
+      1729px + 10vw - max(0px, 100vw - 840px) * 1000,
+      1777px + 1.25vw - max(0px, 100vw - 960px) * 1000,
+      1738px - max(0px, 100vw - 1024px) * 1000,
+      1699px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-rag-still: max(
+      1822px - 11.8vw - max(0px, 100vw - 1022px) * 1000,
+      1724px - max(0px, 100vw - 1024px) * 1000 - max(0px, 1023px - 100vw) * 1000,
+      1628px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-rag-still: max(
+      1851px - 15vw - max(0px, 100vw - 939px) * 1000,
+      1735px - max(0px, 100vw - 960px) * 1000 - max(0px, 940px - 100vw) * 1000,
+      1704px - max(0px, 100vw - 1024px) * 1000,
+      1630px
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 1100px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-rag-still: max(1561px - max(0px, 100vw - 1280px) * 1000, 1538px - max(0px, 100vw - 1366px) * 1000, 1515px);
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-rag-still: max(1606px - max(0px, 100vw - 1100px) * 1000, 1583px - max(0px, 100vw - 1366px) * 1000, 1560px);
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-rag-still: max(
+      1584px - max(0px, 100vw - 1100px) * 1000,
+      1561px - max(0px, 100vw - 1366px) * 1000,
+      1538px - max(0px, 100vw - 1440px) * 1000,
+      1515px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-rag-still: max(1561px - max(0px, 100vw - 1280px) * 1000, 1538px - max(0px, 100vw - 1366px) * 1000, 1515px);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-rag-still: max(
+      1584px - max(0px, 100vw - 1100px) * 1000,
+      1561px - max(0px, 100vw - 1180px) * 1000,
+      1510px - max(0px, 100vw - 1280px) * 1000,
+      1487px - max(0px, 100vw - 1440px) * 1000,
+      1464px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-rag-still: max(1612px - max(0px, 100vw - 1180px) * 1000, 1589px - max(0px, 100vw - 1366px) * 1000, 1567px);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-rag-still: max(
+      1584px - max(0px, 100vw - 1100px) * 1000,
+      1561px - max(0px, 100vw - 1180px) * 1000,
+      1510px - max(0px, 100vw - 1366px) * 1000,
+      1487px - max(0px, 100vw - 1440px) * 1000,
+      1464px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-rag-still: max(
+      1561px - max(0px, 100vw - 1100px) * 1000,
+      1539px - max(0px, 100vw - 1180px) * 1000,
+      1510px - max(0px, 100vw - 1280px) * 1000,
+      1487px - max(0px, 100vw - 1366px) * 1000,
+      1440px + 1.25vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-rag-still: max(1521px - max(0px, 100vw - 1100px) * 1000, 1464px);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-rag-still: max(1516px - max(0px, 100vw - 1180px) * 1000, 1493px);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-rag-still: max(1516px - max(0px, 100vw - 1100px) * 1000, 1487px - max(0px, 100vw - 1180px) * 1000, 1464px);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-rag-still: max(1487px - max(0px, 100vw - 1100px) * 1000, 1464px - max(0px, 100vw - 1440px) * 1000, 1433px);
   }
 }
 
 /* Reduced motion: 08, 09 and 11 drop their scroll tracks (the phone beside every step; the
-   static site; the finished admin in a max(640px, min(100svh, 900px)) window); 10 has its own
-   blocks above; 17 keeps its height. */
+   static site; the finished admin in a max(640px, min(100svh, 900px)) window plus the rest of the
+   section, --lab-crm-rest, per style and locale in the 11 blocks below); 10 has its own blocks
+   above; 17 keeps its height. */
 @media (prefers-reduced-motion: reduce) {
   [data-lab-root] {
     --lab-h-mobile-build: 2390px;
-    --lab-h-crm-build: calc(max(640px, min(100svh, 900px)) + var(--lab-crm-rest));
+    --lab-h-crm-build: calc(max(640px, min(100svh, 900px)) + var(--lab-crm-rest, 600px));
   }
 }
 
@@ -327,6 +1535,248 @@
 @media (prefers-reduced-motion: reduce) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
   [data-lab-root] {
     --lab-h-mobile-build: 1660px;
+  }
+}
+
+/* 11 · reduced motion: the section past the admin window (--lab-crm-rest), measured 2026-10-12 in
+   all four styles and the three locales at 320–2560px and 320–1180px tall. */
+@media (prefers-reduced-motion: reduce) and (max-width: 899px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-crm-rest: max(
+      1560px - max(0px, 100vw - 320px) * 1000,
+      1512px - max(0px, 100vw - 330px) * 1000,
+      1851px - 120vw - max(0px, 100vw - 370px) * 1000,
+      2226px - 230vw - max(0px, 100vw - 410px) * 1000 - max(0px, 371px - 100vw) * 1000,
+      1739px - 115vw - max(0px, 100vw - 480px) * 1000,
+      1151px - max(0px, 100vw - 530px) * 1000,
+      1164px - 20.78vw - max(0px, 100vw - 800px) * 1000,
+      2153px - 146.67vw - max(0px, 801px - 100vw) * 1000,
+      891px + 5vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-crm-rest: max(
+      1651px - max(0px, 100vw - 320px) * 1000,
+      1579px - max(0px, 100vw - 330px) * 1000,
+      2044px - 156.67vw - max(0px, 100vw - 370px) * 1000,
+      2308px - 230vw - max(0px, 100vw - 410px) * 1000 - max(0px, 371px - 100vw) * 1000,
+      1594px - 65.71vw - max(0px, 100vw - 490px) * 1000,
+      1495px - 52.5vw - max(0px, 100vw - 560px) * 1000,
+      1190px - 6.92vw - max(0px, 100vw - 759px) * 1000,
+      1045px - max(0px, 100vw - 768px) * 1000,
+      1347px - 42.86vw - max(0px, 100vw - 850px) * 1000,
+      951px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-crm-rest: max(
+      1607px - max(0px, 100vw - 320px) * 1000,
+      2240px - 220vw - max(0px, 100vw - 340px) * 1000,
+      1842px - 115vw - max(0px, 100vw - 380px) * 1000,
+      1966px - 156.67vw - max(0px, 100vw - 429px) * 1000,
+      1835px - 119.05vw - max(0px, 100vw - 460px) * 1000 - max(0px, 430px - 100vw) * 1000,
+      1276px - max(0px, 100vw - 480px) * 1000,
+      1221px - max(0px, 100vw - 510px) * 1000,
+      1547px - 73.33vw - max(0px, 100vw - 550px) * 1000,
+      1131px - 7.14vw - max(0px, 100vw - 759px) * 1000,
+      1436px - 56.25vw - max(0px, 100vw - 844px) * 1000 - max(0px, 760px - 100vw) * 1000,
+      896px + 5vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-crm-rest: max(
+      2247px - 230vw - max(0px, 100vw - 340px) * 1000,
+      2276px - 240vw - max(0px, 100vw - 360px) * 1000,
+      1954px - 156.67vw - max(0px, 100vw - 409px) * 1000,
+      1618px - 73.33vw - max(0px, 100vw - 450px) * 1000,
+      1271px - max(0px, 100vw - 470px) * 1000,
+      1188px - max(0px, 100vw - 510px) * 1000,
+      1095px - max(0px, 100vw - 759px) * 1000,
+      992px - max(0px, 100vw - 770px) * 1000,
+      1217px - 34.29vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-crm-rest: max(
+      1565px - max(0px, 100vw - 330px) * 1000,
+      1493px - max(0px, 100vw - 340px) * 1000,
+      1442px - max(0px, 100vw - 360px) * 1000,
+      1359px + 3.33vw - max(0px, 100vw - 410px) * 1000,
+      1269px - max(0px, 100vw - 420px) * 1000,
+      1198px - max(0px, 100vw - 480px) * 1000,
+      1115px + 6.67vw - max(0px, 100vw - 530px) * 1000,
+      1378px - 54vw - max(0px, 100vw - 590px) * 1000,
+      1174px - 22.35vw - max(0px, 100vw - 790px) * 1000,
+      1136px - 20vw - max(0px, 100vw - 890px) * 1000,
+      909px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-crm-rest: max(
+      1603px - max(0px, 100vw - 340px) * 1000,
+      1876px - 110vw - max(0px, 100vw - 370px) * 1000,
+      1409px - max(0px, 100vw - 400px) * 1000,
+      1371px - max(0px, 100vw - 430px) * 1000,
+      1761px - 110vw,
+      1229px + 5vw - max(0px, 100vw - 550px) * 1000,
+      1292px - 18.57vw - max(0px, 100vw - 759px) * 1000,
+      1045px - max(0px, 100vw - 770px) * 1000,
+      1924px - 117.5vw - max(0px, 771px - 100vw) * 1000,
+      938px + 4.08vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-crm-rest: max(
+      2361px - 250vw - max(0px, 100vw - 340px) * 1000,
+      2305px - 240vw - max(0px, 100vw - 370px) * 1000,
+      1370px - max(0px, 100vw - 430px) * 1000,
+      1253px - max(0px, 100vw - 490px) * 1000,
+      1222px - max(0px, 100vw - 500px) * 1000,
+      1173px - max(0px, 100vw - 540px) * 1000,
+      1238px - 23.49vw - max(0px, 100vw - 760px) * 1000,
+      2289px - 166.67vw - max(0px, 761px - 100vw) * 1000,
+      962px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-crm-rest: max(
+      1556px - max(0px, 100vw - 320px) * 1000,
+      2181px - 210vw - max(0px, 100vw - 350px) * 1000,
+      1375px + 3.33vw - max(0px, 100vw - 400px) * 1000,
+      2239px - 230vw - max(0px, 401px - 100vw) * 1000,
+      1231px + 9.09vw - max(0px, 100vw - 450px) * 1000,
+      2318px - 240vw - max(0px, 451px - 100vw) * 1000,
+      1142px + 9.09vw - max(0px, 100vw - 510px) * 1000,
+      1239px - 22.86vw - max(0px, 100vw - 729px) * 1000,
+      1029px + 10vw - max(0px, 100vw - 759px) * 1000 - max(0px, 730px - 100vw) * 1000,
+      933px + 4vw - max(0px, 100vw - 860px) * 1000,
+      896px
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-crm-rest: max(
+      1346px - max(0px, 100vw - 340px) * 1000,
+      1299px - max(0px, 100vw - 360px) * 1000,
+      1245px - max(0px, 100vw - 390px) * 1000,
+      1669px - 120vw - max(0px, 100vw - 459px) * 1000,
+      1867px - 156.67vw - max(0px, 100vw - 510px) * 1000 - max(0px, 460px - 100vw) * 1000,
+      1063px - max(0px, 100vw - 530px) * 1000,
+      1008px - 5.79vw - max(0px, 100vw - 759px) * 1000,
+      1223px - 42vw - max(0px, 100vw - 880px) * 1000 - max(0px, 760px - 100vw) * 1000,
+      831px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-crm-rest: max(
+      1399px - max(0px, 100vw - 330px) * 1000,
+      1343px - max(0px, 100vw - 340px) * 1000,
+      1479px - 57.5vw - max(0px, 100vw - 410px) * 1000,
+      1524px - 75vw - max(0px, 100vw - 540px) * 1000,
+      1091px - 2.63vw - max(0px, 100vw - 759px) * 1000,
+      894px - max(0px, 100vw - 870px) * 1000,
+      846px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-crm-rest: max(
+      2106px - 233.33vw - max(0px, 100vw - 350px) * 1000,
+      1523px - 76.67vw - max(0px, 100vw - 410px) * 1000,
+      1491px - 73.33vw - max(0px, 100vw - 520px) * 1000,
+      2142px - 200vw - max(0px, 100vw - 540px) * 1000 - max(0px, 521px - 100vw) * 1000,
+      1017px - 4.21vw - max(0px, 100vw - 759px) * 1000,
+      1094px - 26.25vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-crm-rest: max(
+      1332px - max(0px, 100vw - 330px) * 1000,
+      1451px - 57.5vw - max(0px, 100vw - 390px) * 1000,
+      1492px - 75vw - max(0px, 100vw - 480px) * 1000,
+      2125px - 210vw - max(0px, 100vw - 500px) * 1000 - max(0px, 481px - 100vw) * 1000,
+      1040px - 6.11vw - max(0px, 100vw - 759px) * 1000,
+      867px + 2.5vw - max(0px, 100vw - 820px) * 1000,
+      810px + 3.33vw
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 900px) {
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-crm-rest: max(
+      1394px - 52.5vw,
+      861px + 2.78vw - max(0px, 100vw - 1060px) * 1000,
+      1146px - 28.75vw - max(0px, 100vw - 1180px) * 1000,
+      768px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-crm-rest: max(1333px - 42.24vw - max(0px, 100vw - 1139px) * 1000, 885px - max(0px, 100vw - 1140px) * 1000, 928px - 8.08vw, 812px);
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-crm-rest: max(
+      1229px - 33.33vw - max(0px, 100vw - 1099px) * 1000,
+      897px - max(0px, 100vw - 1100px) * 1000 - max(0px, 1100px - 100vw) * 1000,
+      1176px - 30vw - max(0px, 100vw - 1230px) * 1000,
+      773px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-crm-rest: max(899px - max(0px, 100vw - 1024px) * 1000, 1185px - 32.69vw, 778px);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-crm-rest: max(1382px - 55vw, 1023px - 17.95vw - max(0px, 100vw - 1280px) * 1000, 768px);
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-crm-rest: max(976px - max(0px, 100vw - 920px) * 1000, 1609px - 75vw, 1096px - 20.56vw - max(0px, 1023px - 100vw) * 1000, 812px);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-crm-rest: max(
+      965px - max(0px, 100vw - 920px) * 1000,
+      872px - max(0px, 100vw - 1060px) * 1000,
+      1026px - 17.06vw - max(0px, 100vw - 1280px) * 1000,
+      773px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-crm-rest: max(874px - max(0px, 100vw - 1000px) * 1000, 1042px - 19.29vw - max(0px, 100vw - 1230px) * 1000, 778px);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-crm-rest: max(
+      1009px - 19.8vw - max(0px, 100vw - 1060px) * 1000,
+      917px - 16.11vw,
+      699px + 0.94vw - max(0px, 1599px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-crm-rest: max(982px - 15.2vw - max(0px, 100vw - 1060px) * 1000, 804px - max(0px, 100vw - 1100px) * 1000, 728px + 2.01vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-crm-rest: max(974px - 15.32vw - max(0px, 100vw - 1060px) * 1000, 1343px - 52.5vw - max(0px, 1061px - 100vw) * 1000, 732px);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-crm-rest: max(1224px - 42.57vw - max(0px, 100vw - 1024px) * 1000, 783px - 3.16vw, 738px);
   }
 }
 
@@ -397,9 +1847,11 @@
   }
 }
 
-/* Reduced motion: the work wall is a justified gallery of all 54 projects (fitted from below:
+/* Reduced motion: the work wall is a justified gallery of every project (fitted from below:
    its rows re-pack with the width, so the height steps; re-measured 2026-10-10 at 320–2560px,
-   where 429px and 1099px had come out shorter than their floors); code-to-ui is one still frame. */
+   where 429px and 1099px had come out shorter than their floors, and 2026-10-12 in all four styles
+   and the three locales, where 375–599px had grown 30–60px past the gallery: lowered); code-to-ui
+   is one still frame. */
 @media (prefers-reduced-motion: reduce) {
   [data-lab-root] {
     --lab-h-work-wall: max(100svh, 3000px);
@@ -427,13 +1879,13 @@
 
 @media (prefers-reduced-motion: reduce) and (max-width: 599px) {
   [data-lab-root] {
-    --lab-h-work-wall: 2700px;
+    --lab-h-work-wall: 2627px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) and (max-width: 429px) {
   [data-lab-root] {
-    --lab-h-work-wall: 3360px;
+    --lab-h-work-wall: 3316px;
   }
 }
 
@@ -444,7 +1896,9 @@
 }
 
 /* 07 · reduced motion: no track; intro, phone, legend and outro in one column (the legend beside the
-   phone from 900px), measured 2026-10-11 in styles A and C at 320–2560px and fitted from below. */
+   phone from 900px), measured 2026-10-11 in styles A and C at 320–2560px and fitted from below
+   (landscape phones re-measured 2026-10-12 in all four styles and locales: lowered to 986px).
+   Screens at least 561px tall have per-style fits (the 07–09 reduced-motion blocks below). */
 @media (prefers-reduced-motion: reduce) {
   [data-lab-root] {
     --lab-h-telegram: 1580px;
@@ -453,7 +1907,7 @@
 
 @media (prefers-reduced-motion: reduce) and (max-width: 899px) and (orientation: landscape) and (max-height: 560px) {
   [data-lab-root] {
-    --lab-h-telegram: 1030px;
+    --lab-h-telegram: 986px;
   }
 }
 
@@ -464,29 +1918,1654 @@
 }
 
 /*
- * 16 · Process. The column (s12/Vertical.tsx: phones, tablets, landscape phones and reduced motion)
- * is as tall as its content, px and vw only (no svh): measured 2026-10-12
- * in all four styles and the three locales at 320–700px every 10px plus 1280–1920px (flat from 670px,
- * where the column stops at 640px) and fitted from below (the lower hull, 12px under it). Style A is
- * the shortest; B (the tallest) runs up to ~330px past the floor. uz and ru set longer and have their
- * own fit. The column's own min-height is this value too (s12/process.module.css --s12-h), so its
- * figure zones only stretch by the hull's slack (≤ ~30px) instead of a fixed 2780px or 320svh floor.
- * Desktop with motion keeps the horizontal track's own height (the svh clamp at the end).
+ * 07, 08 and 09 under reduced motion on screens at least 561px tall (landscape phones keep the
+ * fits above): no scroll tracks, so each is its content: 07 the intro, phone, legend and outro (the
+ * legend beside the phone from 900px); 08 the steps and the phone, min(100svh - 120px, 680px) tall
+ * below 900px (beside the steps from 900px); 09 the steps and the static site, min(74svh, 640px)
+ * tall below 900px. Measured 2026-10-12 in all four styles and the three locales at 320–2560px
+ * wide and 561–1440px tall, per style and locale (the shared fits above had fallen 100–800px
+ * short as the copy grew); the svh parts are added back, the rest fitted from below (up to ~110px
+ * under the real height: the steps are many and close). Restated for :lang to outrank the blocks
+ * above.
  */
-[data-lab-root] {
-  --lab-h-process: max(3430px - 206.67vw, 2936px - 76.67vw, min(2321px + 73.33vw, 2596px + 21.54vw, 2701px));
+@media (prefers-reduced-motion: reduce) and (min-height: 561px) and (max-width: 899px) {
+  [data-lab-root],
+  [data-lab-root]:not(:lang(en)) {
+    /* 07: the phone is ~51 × its type unit tall (--pu, s07/stage.module.css). */
+    --lab-h-telegram: calc(var(--lab-tg-still, 733px) + clamp(9px, min((100svh - 56px) / 48, 82vw / 23), 15.5px) * 51);
+    --lab-h-mobile-build: calc(min(100svh - 120px, 680px) + var(--lab-mobile-still, 1690px));
+    --lab-h-web-build: calc(min(74svh, 640px) + var(--lab-web-still, 1657px));
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-tg-still: max(
+      1153px - max(0px, 100vw - 320px) * 1000,
+      1359px - 93.17vw,
+      1278px - 74.55vw - max(0px, 509px - 100vw) * 1000,
+      841px - 2.97vw - max(0px, 700px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-tg-still: max(
+      1212px - max(0px, 100vw - 320px) * 1000,
+      1481px - 108.29vw,
+      995px - max(0px, 100vw - 510px) * 1000,
+      1228px - 57.69vw,
+      893px - 3.66vw - max(0px, 739px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-tg-still: max(
+      1762px - 201.83vw,
+      1887px - 219.35vw - max(0px, 361px - 100vw) * 1000,
+      1298px - 73.64vw,
+      844px - 0.89vw - max(0px, 709px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-tg-still: max(1534px - 121.88vw, 1354px - 81vw, 854px + 1.43vw - max(0px, 679px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-tg-still: max(1498px - 114.46vw - max(0px, 100vw - 380px) * 1000, 1235px - 62.21vw - max(0px, 100vw - 570px) * 1000, 830px);
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-tg-still: max(1540px - 108.71vw - max(0px, 100vw - 400px) * 1000, 1359px - 72.49vw, 914px);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-tg-still: max(1487px - 103.95vw - max(0px, 100vw - 390px) * 1000, 1341px - 78.82vw, 855px);
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-tg-still: max(1712px - 169.3vw - max(0px, 100vw - 375px) * 1000, 1272px - 64.01vw - max(0px, 100vw - 560px) * 1000, 864px);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-tg-still: max(1331px - 105.49vw, 1217px - 76.36vw - max(0px, 500px - 100vw) * 1000, 681px + 7.5vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-tg-still: max(1341px - 84.2vw, 744px + 12vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-tg-still: max(1351px - 103.24vw, 1294px - 86vw - max(0px, 550px - 100vw) * 1000, 700px + 7.27vw);
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-tg-still: max(1436px - 118.61vw, 1408px - 105vw - max(0px, 549px - 100vw) * 1000, 711px + 10vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-mobile-still: max(
+      2755px - max(0px, 100vw - 320px) * 1000,
+      2630px - max(0px, 100vw - 330px) * 1000,
+      3278px - 230vw - max(0px, 100vw - 350px) * 1000,
+      3169px - 210vw - max(0px, 100vw - 375px) * 1000,
+      3162px - 220vw - max(0px, 100vw - 400px) * 1000,
+      2165px - max(0px, 100vw - 420px) * 1000,
+      3168px - 250vw,
+      2308px - 57.5vw,
+      1884px + 15vw - max(0px, 100vw - 820px) * 1000,
+      1753px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-mobile-still: max(
+      2788px - max(0px, 100vw - 330px) * 1000,
+      2741px - max(0px, 100vw - 340px) * 1000,
+      3161px - 172vw - max(0px, 100vw - 380px) * 1000,
+      2471px - max(0px, 100vw - 390px) * 1000,
+      2346px - max(0px, 100vw - 414px) * 1000,
+      2278px - max(0px, 100vw - 420px) * 1000,
+      2196px - 13.08vw - max(0px, 100vw - 749px) * 1000,
+      1969px + 25vw - max(0px, 100vw - 820px) * 1000,
+      1802px + 30vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-mobile-still: max(
+      2720px - max(0px, 100vw - 330px) * 1000,
+      2605px - max(0px, 100vw - 340px) * 1000,
+      3332px - 233.33vw - max(0px, 100vw - 375px) * 1000,
+      2386px - max(0px, 100vw - 390px) * 1000,
+      2318px - max(0px, 100vw - 410px) * 1000,
+      2252px - max(0px, 100vw - 420px) * 1000,
+      2160px - max(0px, 100vw - 450px) * 1000,
+      2048px - max(0px, 100vw - 820px) * 1000,
+      1796px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-mobile-still: max(
+      2725px - max(0px, 100vw - 320px) * 1000,
+      3271px - 220vw - max(0px, 100vw - 350px) * 1000,
+      3210px - 215vw - max(0px, 100vw - 375px) * 1000,
+      2346px - max(0px, 100vw - 390px) * 1000,
+      2867px - 168.33vw,
+      2006px + 10vw - max(0px, 100vw - 820px) * 1000,
+      1740px + 30vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-mobile-still: max(
+      2917px - max(0px, 100vw - 320px) * 1000,
+      2784px - max(0px, 100vw - 330px) * 1000,
+      2676px - max(0px, 100vw - 340px) * 1000,
+      3370px - 236vw - max(0px, 100vw - 380px) * 1000,
+      3192px - 210vw - max(0px, 100vw - 400px) * 1000,
+      3165px - 210vw - max(0px, 100vw - 414px) * 1000,
+      3130px - 220vw - max(0px, 100vw - 460px) * 1000,
+      2509px - 96.67vw,
+      1968px - max(0px, 100vw - 820px) * 1000,
+      2451px - 70vw - max(0px, 821px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-mobile-still: max(
+      2939px - max(0px, 100vw - 330px) * 1000,
+      2783px - max(0px, 100vw - 340px) * 1000,
+      3397px - 220vw - max(0px, 100vw - 380px) * 1000,
+      2538px - max(0px, 100vw - 390px) * 1000,
+      3395px - 240vw - max(0px, 100vw - 410px) * 1000,
+      2387px - max(0px, 100vw - 420px) * 1000,
+      2496px - 57.5vw,
+      2086px + 20vw - max(0px, 100vw - 820px) * 1000,
+      1925px + 25vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-mobile-still: max(
+      2940px - max(0px, 100vw - 320px) * 1000,
+      2853px - max(0px, 100vw - 330px) * 1000,
+      2718px - max(0px, 100vw - 340px) * 1000,
+      3391px - 230vw - max(0px, 100vw - 370px) * 1000,
+      3336px - 220vw - max(0px, 100vw - 390px) * 1000,
+      3370px - 240vw - max(0px, 100vw - 414px) * 1000,
+      2361px - max(0px, 100vw - 420px) * 1000,
+      2883px - 146.67vw - max(0px, 100vw - 470px) * 1000,
+      2034px - max(0px, 100vw - 820px) * 1000,
+      1769px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-mobile-still: max(
+      2769px - max(0px, 100vw - 320px) * 1000,
+      2705px - max(0px, 100vw - 330px) * 1000,
+      3306px - 210vw - max(0px, 100vw - 360px) * 1000,
+      2458px - max(0px, 100vw - 375px) * 1000,
+      2388px - max(0px, 100vw - 390px) * 1000,
+      3181px - 220vw - max(0px, 100vw - 440px) * 1000,
+      3079px - 210vw - max(0px, 100vw - 460px) * 1000,
+      2045px - max(0px, 100vw - 820px) * 1000,
+      2315px - 42.5vw - max(0px, 821px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-mobile-still: max(
+      2393px - max(0px, 100vw - 330px) * 1000,
+      2623px - 100vw - max(0px, 100vw - 370px) * 1000,
+      2194px - max(0px, 100vw - 375px) * 1000,
+      2107px - max(0px, 100vw - 380px) * 1000,
+      2608px - 150vw - max(0px, 100vw - 440px) * 1000,
+      2354px - 101.43vw,
+      1742px + 10vw - max(0px, 100vw - 820px) * 1000,
+      1862px - 17.5vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-mobile-still: max(
+      2419px - max(0px, 100vw - 330px) * 1000,
+      2711px - 110vw - max(0px, 100vw - 370px) * 1000,
+      2247px - max(0px, 100vw - 375px) * 1000,
+      2132px - max(0px, 100vw - 390px) * 1000,
+      2133px - 21vw - max(0px, 100vw - 699px) * 1000,
+      1919px + 15vw - max(0px, 100vw - 820px) * 1000,
+      1793px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-mobile-still: max(
+      2394px - max(0px, 100vw - 330px) * 1000,
+      2780px - 143.33vw - max(0px, 100vw - 375px) * 1000,
+      2181px - max(0px, 100vw - 380px) * 1000,
+      2514px - 132vw,
+      1715px + 14.29vw - max(0px, 100vw - 820px) * 1000,
+      1604px + 10vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-mobile-still: max(
+      2415px - max(0px, 100vw - 320px) * 1000,
+      2308px - max(0px, 100vw - 350px) * 1000,
+      2220px - max(0px, 100vw - 360px) * 1000,
+      2733px - 177vw - max(0px, 100vw - 490px) * 1000,
+      1846px + 1.9vw - max(0px, 100vw - 820px) * 1000,
+      1605px + 17.5vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-web-still: max(
+      2564px - max(0px, 100vw - 320px) * 1000,
+      2403px - max(0px, 100vw - 330px) * 1000,
+      2302px - max(0px, 100vw - 350px) * 1000,
+      2670px - 125.09vw - max(0px, 100vw - 460px) * 1000,
+      2468px - 98vw,
+      1749px + 15vw - max(0px, 100vw - 750px) * 1000,
+      1707px + 2.2vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-web-still: max(
+      2632px - max(0px, 100vw - 320px) * 1000,
+      2545px - max(0px, 100vw - 330px) * 1000,
+      3213px - 230vw - max(0px, 100vw - 370px) * 1000,
+      2817px - 132vw,
+      2557px - 65.29vw - max(0px, 100vw - 688px) * 1000 - max(0px, 490px - 100vw) * 1000,
+      2032px + 20vw - max(0px, 100vw - 750px) * 1000,
+      1863px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-web-still: max(
+      2565px - max(0px, 100vw - 320px) * 1000,
+      2476px - max(0px, 100vw - 330px) * 1000,
+      3112px - 220vw - max(0px, 100vw - 350px) * 1000,
+      3021px - 202.2vw - max(0px, 100vw - 412px) * 1000,
+      3130px - 215.6vw - max(0px, 100vw - 440px) * 1000 - max(0px, 413px - 100vw) * 1000,
+      2967px - 190vw - max(0px, 100vw - 470px) * 1000,
+      2442px - 92.5vw,
+      1798px + 16vw - max(0px, 100vw - 750px) * 1000,
+      1678px + 12.5vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-web-still: max(
+      3173px - 230vw - max(0px, 100vw - 340px) * 1000,
+      2719px - 112.44vw - max(0px, 100vw - 420px) * 1000,
+      3033px - 190vw - max(0px, 100vw - 440px) * 1000 - max(0px, 421px - 100vw) * 1000,
+      2171px - max(0px, 100vw - 450px) * 1000,
+      2479px - 100vw,
+      1775px + 20vw - max(0px, 100vw - 750px) * 1000,
+      1663px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-web-still: max(
+      2646px - max(0px, 100vw - 320px) * 1000,
+      2517px - max(0px, 100vw - 340px) * 1000,
+      2474px - max(0px, 100vw - 350px) * 1000,
+      2464px - 29.6vw - max(0px, 100vw - 370px) * 1000,
+      2294px - max(0px, 100vw - 380px) * 1000,
+      2840px - 157.14vw - max(0px, 100vw - 420px) * 1000,
+      2531px - 92.8vw - max(0px, 100vw - 450px) * 1000,
+      2426px - 90vw,
+      1921px - max(0px, 100vw - 750px) * 1000,
+      1968px - 20vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-web-still: max(
+      2708px - max(0px, 100vw - 330px) * 1000,
+      2644px - max(0px, 100vw - 340px) * 1000,
+      2576px - max(0px, 100vw - 350px) * 1000,
+      2620px - 29.6vw - max(0px, 100vw - 370px) * 1000,
+      2400px - max(0px, 100vw - 390px) * 1000,
+      3267px - 230vw,
+      2195px - 1.54vw - max(0px, 100vw - 750px) * 1000,
+      2084px - 4.44vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-web-still: max(
+      2633px - max(0px, 100vw - 330px) * 1000,
+      2569px - max(0px, 100vw - 340px) * 1000,
+      2501px - max(0px, 100vw - 350px) * 1000,
+      2421px - max(0px, 100vw - 370px) * 1000,
+      2303px + 14.36vw - max(0px, 100vw - 390px) * 1000,
+      2991px - 175vw - max(0px, 100vw - 440px) * 1000,
+      2165px - max(0px, 100vw - 460px) * 1000,
+      2819px - 156.67vw,
+      1997px - max(0px, 100vw - 750px) * 1000,
+      1950px - 7.78vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-web-still: max(
+      2641px - max(0px, 100vw - 320px) * 1000,
+      3265px - 220vw - max(0px, 100vw - 350px) * 1000,
+      3292px - 243.92vw - max(0px, 100vw - 420px) * 1000,
+      3189px - 225.6vw - max(0px, 100vw - 440px) * 1000,
+      2755px - 138vw,
+      1941px + 20vw - max(0px, 100vw - 750px) * 1000,
+      1958px
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-web-still: max(
+      2320px - max(0px, 100vw - 320px) * 1000,
+      3037px - 245vw - max(0px, 100vw - 350px) * 1000,
+      2449px - 95vw - max(0px, 100vw - 718px) * 1000,
+      1723px + 15vw - max(0px, 100vw - 750px) * 1000,
+      2260px - 71.67vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-web-still: max(
+      2385px - max(0px, 100vw - 320px) * 1000,
+      2317px - max(0px, 100vw - 340px) * 1000,
+      2632px - 119.9vw - max(0px, 100vw - 400px) * 1000,
+      2534px - 110vw,
+      2219px - 38vw - max(0px, 100vw - 718px) * 1000 - max(0px, 499px - 100vw) * 1000,
+      1864px + 20vw - max(0px, 100vw - 750px) * 1000,
+      2165px - 40vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-web-still: max(
+      2373px - max(0px, 100vw - 320px) * 1000,
+      2984px - 220vw - max(0px, 100vw - 350px) * 1000,
+      2597px - 128.06vw - max(0px, 100vw - 420px) * 1000,
+      2465px - 97.5vw,
+      1756px + 15vw - max(0px, 100vw - 750px) * 1000,
+      1997px - 35.56vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-web-still: max(
+      2263px - max(0px, 100vw - 330px) * 1000,
+      2814px - 188.6vw,
+      2465px - 97.5vw,
+      1747px + 17.5vw - max(0px, 100vw - 750px) * 1000,
+      1690px
+    );
+  }
 }
 
-[data-lab-root]:not(:lang(en)) {
-  --lab-h-process: max(4142px - 370vw, 3944px - 315vw, 3216px - 123.33vw, min(2368px + 83.33vw, 2643px + 31.54vw, 2851px));
+@media (prefers-reduced-motion: reduce) and (min-height: 561px) and (min-width: 900px) {
+  [data-lab-root],
+  [data-lab-root]:not(:lang(en)) {
+    /* 07: the fits below hold at 900px tall and up; on shorter screens the phone shrinks with the
+       height (51 × --pu, (100svh - 170px) / 48 here), so the section is capped by that line: the
+       rest per locale, the lowest of the four styles at 1280–2560 × 720 less 12px (without it the
+       reservation ran 90–285px past the content at 1280–1920 × 600–800). */
+    --lab-h-telegram: min(var(--lab-tg-still, 950px), var(--lab-tg-short, 434px) + (100svh - 170px) * 51 / 48);
+    --lab-h-mobile-build: var(--lab-mobile-still, 1714px);
+    --lab-h-web-build: var(--lab-web-still, 1688px);
+  }
+
+  [data-lab-root]:lang(ru) {
+    --lab-tg-short: 457px;
+  }
+
+  [data-lab-root]:lang(uz) {
+    --lab-tg-short: 467px;
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-tg-still: max(
+      1036px - max(0px, 100vw - 1179px) * 1000,
+      1141px - max(0px, 100vw - 1180px) * 1000 - max(0px, 1180px - 100vw) * 1000,
+      1069px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      1001px,
+      1264px - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-tg-still: max(
+      841px + 21.05vw - max(0px, 100vw - 1180px) * 1000,
+      1069px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      1001px,
+      1252px + 1.17vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-tg-still: max(
+      841px + 21.05vw - max(0px, 100vw - 1180px) * 1000,
+      1069px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      1001px,
+      1264px - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-tg-still: max(
+      1036px - max(0px, 100vw - 1179px) * 1000,
+      1051px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1180px - 100vw) * 1000,
+      989px,
+      1240px + 1.07vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-tg-still: max(
+      697px + 35.26vw - max(0px, 100vw - 1180px) * 1000,
+      1041px - max(0px, 100vw - 1280px) * 1000,
+      973px,
+      1227px + 0.49vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-tg-still: max(
+      1021px + 6.73vw - max(0px, 100vw - 1099px) * 1000,
+      1528px - 33.33vw - max(0px, 100vw - 1280px) * 1000 - max(0px, 1100px - 100vw) * 1000,
+      1076px,
+      1321px + 1.76vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-tg-still: max(1081px - 2.5vw - max(0px, 100vw - 1280px) * 1000, 976px, 1229px + 0.98vw - max(0px, 1440px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-tg-still: max(697px + 36.25vw - max(0px, 100vw - 1180px) * 1000, 1058px, 1302px + 1.66vw - max(0px, 1440px - 100vw) * 1000);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-tg-still: max(
+      601px + 37.82vw - max(0px, 100vw - 1180px) * 1000,
+      1018px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      950px,
+      1207px + 0.39vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-tg-still: max(
+      988px - max(0px, 100vw - 1099px) * 1000,
+      1056px - max(0px, 100vw - 1180px) * 1000 - max(0px, 1100px - 100vw) * 1000,
+      1040px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      979px,
+      1229px + 1.17vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-tg-still: max(
+      601px + 37.82vw - max(0px, 100vw - 1180px) * 1000,
+      1018px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      954px,
+      1206px + 0.98vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-tg-still: max(
+      772px + 21.05vw - max(0px, 100vw - 1179px) * 1000,
+      1095px - max(0px, 100vw - 1180px) * 1000 - max(0px, 1180px - 100vw) * 1000,
+      1028px - max(0px, 100vw - 1280px) * 1000 - max(0px, 1181px - 100vw) * 1000,
+      966px,
+      1217px + 1.07vw - max(0px, 1440px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-mobile-still: max(
+      2330px - max(0px, 100vw - 900px) * 1000,
+      2208px - max(0px, 100vw - 940px) * 1000,
+      2126px - max(0px, 100vw - 1024px) * 1000,
+      2053px - max(0px, 100vw - 1100px) * 1000,
+      1925px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-mobile-still: max(
+      2879px - 52.38vw - max(0px, 100vw - 940px) * 1000,
+      3074px - 84.38vw - max(0px, 100vw - 1098px) * 1000,
+      2210px - max(0px, 100vw - 1100px) * 1000,
+      2117px - max(0px, 100vw - 1180px) * 1000,
+      1961px + 5.17vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-mobile-still: max(2269px - max(0px, 100vw - 940px) * 1000, 2911px - 75vw - max(0px, 100vw - 1100px) * 1000, 1925px + 3.35vw);
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-mobile-still: max(2718px - 55vw - max(0px, 100vw - 1024px) * 1000, 2121px - max(0px, 100vw - 1100px) * 1000, 1944px + 3.2vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-mobile-still: max(
+      2460px - max(0px, 100vw - 900px) * 1000,
+      3308px - 105vw - max(0px, 100vw - 960px) * 1000,
+      2251px - max(0px, 100vw - 1024px) * 1000,
+      2075px - max(0px, 100vw - 1180px) * 1000,
+      1998px - max(0px, 100vw - 1280px) * 1000,
+      1880px + 2.94vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-mobile-still: max(
+      2537px - max(0px, 100vw - 920px) * 1000,
+      2471px - max(0px, 100vw - 940px) * 1000,
+      2386px - max(0px, 100vw - 960px) * 1000,
+      2626px - 38.16vw - max(0px, 100vw - 1180px) * 1000,
+      2103px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-mobile-still: max(
+      2542px - max(0px, 100vw - 900px) * 1000,
+      2479px - max(0px, 100vw - 920px) * 1000,
+      4348px - 210vw - max(0px, 100vw - 960px) * 1000,
+      2211px - max(0px, 100vw - 1100px) * 1000,
+      2137px - max(0px, 100vw - 1180px) * 1000,
+      2180px - 15.12vw,
+      1968px + 1.4vw - max(0px, 1919px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-mobile-still: max(
+      2414px - max(0px, 100vw - 900px) * 1000,
+      3642px - 146.67vw,
+      2233px - max(0px, 100vw - 1024px) * 1000,
+      2155px - max(0px, 100vw - 1100px) * 1000,
+      2079px - max(0px, 100vw - 1180px) * 1000,
+      1946px + 3.75vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-mobile-still: max(
+      2921px - 95vw - max(0px, 100vw - 1022px) * 1000,
+      2028px - max(0px, 100vw - 1024px) * 1000,
+      2163px - 29vw,
+      1762px + 1.46vw - max(0px, 1536px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-mobile-still: max(2145px - max(0px, 100vw - 920px) * 1000, 2026px + 6.25vw - max(0px, 100vw - 1024px) * 1000, 1853px + 4.94vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-mobile-still: max(
+      2768px - 75vw - max(0px, 100vw - 1024px) * 1000,
+      1898px - max(0px, 100vw - 1100px) * 1000,
+      2289px - 41.4vw,
+      1697px + 1.04vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-mobile-still: max(2405px - 36.59vw - max(0px, 100vw - 960px) * 1000, 2222px - 32vw, 1758px + 2.83vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-web-still: max(
+      2388px - 17.07vw - max(0px, 100vw - 960px) * 1000,
+      2078px - max(0px, 100vw - 1100px) * 1000,
+      1966px - max(0px, 100vw - 1180px) * 1000,
+      1878px - max(0px, 100vw - 1280px) * 1000,
+      1734px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-web-still: max(
+      3029px - 75.61vw - max(0px, 100vw - 960px) * 1000,
+      2177px - max(0px, 100vw - 1100px) * 1000,
+      2107px - max(0px, 100vw - 1180px) * 1000,
+      2042px - max(0px, 100vw - 1280px) * 1000,
+      1819px + 1.96vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-web-still: max(
+      4189px - 204.88vw - max(0px, 100vw - 960px) * 1000,
+      2142px - max(0px, 100vw - 1100px) * 1000,
+      2020px - max(0px, 100vw - 1180px) * 1000,
+      1917px - max(0px, 100vw - 1280px) * 1000,
+      1768px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-web-still: max(
+      3086px - 91.8vw - max(0px, 100vw - 1024px) * 1000,
+      2064px - max(0px, 100vw - 1180px) * 1000,
+      1995px - max(0px, 100vw - 1280px) * 1000,
+      1874px - max(0px, 100vw - 1440px) * 1000,
+      1820px
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-web-still: max(
+      2308px + 10vw - max(0px, 100vw - 960px) * 1000,
+      2225px - max(0px, 100vw - 1024px) * 1000,
+      2070px - max(0px, 100vw - 1180px) * 1000,
+      1917px - max(0px, 100vw - 1280px) * 1000,
+      1757px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-web-still: max(
+      3138px - 65.85vw - max(0px, 100vw - 960px) * 1000,
+      2400px - max(0px, 100vw - 1024px) * 1000,
+      2243px - max(0px, 100vw - 1180px) * 1000,
+      2124px - max(0px, 100vw - 1280px) * 1000,
+      1928px + 2.29vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-web-still: max(
+      3579px - 121.95vw - max(0px, 100vw - 960px) * 1000,
+      2333px - max(0px, 100vw - 1024px) * 1000,
+      2187px - max(0px, 100vw - 1180px) * 1000,
+      2061px - max(0px, 100vw - 1280px) * 1000,
+      1861px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-web-still: max(
+      2833px - 45vw - max(0px, 100vw - 960px) * 1000,
+      2290px - max(0px, 100vw - 1100px) * 1000,
+      2196px - max(0px, 100vw - 1180px) * 1000,
+      2103px - max(0px, 100vw - 1280px) * 1000,
+      1928px
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-web-still: max(
+      2069px + 5vw - max(0px, 100vw - 960px) * 1000,
+      2045px - max(0px, 100vw - 1024px) * 1000,
+      1920px - max(0px, 100vw - 1180px) * 1000,
+      2210px - 36.25vw,
+      1688px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-web-still: max(
+      2067px + 12.5vw - max(0px, 100vw - 960px) * 1000,
+      1972px - max(0px, 100vw - 1099px) * 1000,
+      2011px - max(0px, 100vw - 1180px) * 1000 - max(0px, 1100px - 100vw) * 1000,
+      1900px - max(0px, 100vw - 1280px) * 1000,
+      1783px - 0.63vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-web-still: max(
+      2814px - 76vw - max(0px, 100vw - 1100px) * 1000,
+      1951px - max(0px, 100vw - 1180px) * 1000,
+      1839px - max(0px, 100vw - 1280px) * 1000,
+      1701px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-web-still: max(
+      2199px - 7.32vw - max(0px, 100vw - 960px) * 1000,
+      2032px - max(0px, 100vw - 1024px) * 1000,
+      1933px - max(0px, 100vw - 1180px) * 1000,
+      1844px - max(0px, 100vw - 1280px) * 1000,
+      1714px
+    );
+  }
+}
+
+/*
+ * 16 · Process. The column (s12/Vertical.tsx: phones, tablets, landscape phones and reduced motion)
+ * is as tall as its content, px and vw only (no svh). Style B runs up to ~330px past A and uz/ru
+ * set longer, so each style and locale has its own fit (--lab-process-column): measured 2026-10-12
+ * at 320–700px every 10px, on landscape phones and tablets, and under reduced motion up to 2560px
+ * (flat from ~670px, where the column stops at 640px); 12–40px under the real height. The column's
+ * own min-height is this value too (s12/process.module.css --s12-h), so its figure zones only
+ * stretch by that slack. Desktop with motion keeps the horizontal track's own height (the svh
+ * clamp at the end).
+ */
+[data-lab-root] {
+  --lab-h-process: var(--lab-process-column, 2600px);
+}
+
+[data-lab-root][data-style='A']:lang(uz) {
+  --lab-process-column: max(
+    2975px - max(0px, 100vw - 330px) * 1000,
+    3524px - 190vw - max(0px, 100vw - 350px) * 1000,
+    3301px - 140vw - max(0px, 100vw - 370px) * 1000,
+    2736px - max(0px, 100vw - 400px) * 1000,
+    2398px + 74.32vw - max(0px, 100vw - 571px) * 1000,
+    2689px + 23.14vw - max(0px, 100vw - 700px) * 1000 - max(0px, 572px - 100vw) * 1000,
+    2851px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='B']:lang(uz) {
+  --lab-process-column: max(
+    3050px - max(0px, 100vw - 320px) * 1000,
+    3620px - 190vw - max(0px, 100vw - 340px) * 1000,
+    3235px - 80vw - max(0px, 100vw - 379px) * 1000,
+    2959px - max(0px, 100vw - 380px) * 1000 - max(0px, 380px - 100vw) * 1000,
+    2852px + 15vw - max(0px, 100vw - 429px) * 1000,
+    2475px + 105.45vw - max(0px, 100vw - 551px) * 1000 - max(0px, 430px - 100vw) * 1000,
+    2825px + 41.67vw - max(0px, 100vw - 620px) * 1000 - max(0px, 552px - 100vw) * 1000,
+    3038px + 0.62vw - max(0px, 621px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='C']:lang(uz) {
+  --lab-process-column: max(
+    3552px - 190vw - max(0px, 100vw - 340px) * 1000,
+    3377px - 140vw - max(0px, 100vw - 360px) * 1000,
+    3193px - 100vw - max(0px, 100vw - 380px) * 1000,
+    2783px,
+    2446px + 83.33vw - max(0px, 100vw - 561px) * 1000 - max(0px, 430px - 100vw) * 1000,
+    2770px + 25.56vw - max(0px, 100vw - 700px) * 1000 - max(0px, 562px - 100vw) * 1000,
+    2949px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='D']:lang(uz) {
+  --lab-process-column: max(
+    2958px - max(0px, 100vw - 320px) * 1000,
+    3576px - 200vw - max(0px, 100vw - 340px) * 1000,
+    2874px - max(0px, 100vw - 350px) * 1000,
+    2838px - max(0px, 100vw - 360px) * 1000,
+    2800px - max(0px, 100vw - 390px) * 1000,
+    2374px + 98.57vw - max(0px, 100vw - 551px) * 1000,
+    2757px + 29.08vw - max(0px, 100vw - 700px) * 1000 - max(0px, 552px - 100vw) * 1000,
+    2961px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='A']:lang(ru) {
+  --lab-process-column: max(
+    3009px - max(0px, 100vw - 330px) * 1000,
+    2974px - max(0px, 100vw - 340px) * 1000,
+    2951px - max(0px, 100vw - 350px) * 1000,
+    3235px - 110vw - max(0px, 100vw - 380px) * 1000,
+    3200px - 106.67vw,
+    2452px + 72.66vw - max(0px, 100vw - 571px) * 1000 - max(0px, 430px - 100vw) * 1000,
+    2737px + 22.31vw - max(0px, 100vw - 700px) * 1000 - max(0px, 572px - 100vw) * 1000,
+    2894px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='B']:lang(ru) {
+  --lab-process-column: max(
+    3728px - 190vw - max(0px, 100vw - 340px) * 1000,
+    3077px - max(0px, 100vw - 360px) * 1000,
+    3038px,
+    2528px + 116.67vw - max(0px, 100vw - 551px) * 1000 - max(0px, 450px - 100vw) * 1000,
+    3174px - max(0px, 100vw - 560px) * 1000 - max(0px, 552px - 100vw) * 1000,
+    2901px + 40.5vw - max(0px, 100vw - 700px) * 1000 - max(0px, 561px - 100vw) * 1000,
+    3185px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='C']:lang(ru) {
+  --lab-process-column: max(
+    3050px - max(0px, 100vw - 320px) * 1000,
+    3646px - 200vw - max(0px, 100vw - 340px) * 1000,
+    2961px - max(0px, 100vw - 360px) * 1000,
+    3254px - 100vw - max(0px, 100vw - 390px) * 1000,
+    2842px - max(0px, 100vw - 410px) * 1000,
+    2822px,
+    2502px + 72.73vw - max(0px, 100vw - 571px) * 1000 - max(0px, 470px - 100vw) * 1000,
+    2775px + 24.79vw - max(0px, 100vw - 700px) * 1000 - max(0px, 572px - 100vw) * 1000,
+    2949px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='D']:lang(ru) {
+  --lab-process-column: max(
+    3062px - max(0px, 100vw - 320px) * 1000,
+    3038px - max(0px, 100vw - 340px) * 1000,
+    2978px - max(0px, 100vw - 350px) * 1000,
+    3223px - 80vw - max(0px, 100vw - 370px) * 1000,
+    2906px - max(0px, 100vw - 380px) * 1000,
+    2799px + 20vw - max(0px, 100vw - 429px) * 1000,
+    2428px + 109.09vw - max(0px, 100vw - 551px) * 1000 - max(0px, 430px - 100vw) * 1000,
+    2766px + 47.5vw - max(0px, 100vw - 630px) * 1000 - max(0px, 552px - 100vw) * 1000,
+    3027px + 0.58vw - max(0px, 631px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='A']:lang(en) {
+  --lab-process-column: max(
+    3054px - 95vw - max(0px, 100vw - 350px) * 1000,
+    3136px - 120vw - max(0px, 100vw - 370px) * 1000 - max(0px, 351px - 100vw) * 1000,
+    2756px - 30vw - max(0px, 100vw - 400px) * 1000,
+    2351px + 64.47vw - max(0px, 100vw - 571px) * 1000,
+    2604px + 20vw - max(0px, 100vw - 667px) * 1000 - max(0px, 572px - 100vw) * 1000,
+    2701px - max(0px, 668px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='B']:lang(en) {
+  --lab-process-column: max(
+    3001px - 50vw - max(0px, 100vw - 360px) * 1000,
+    2797px - max(0px, 100vw - 380px) * 1000,
+    2438px + 86vw - max(0px, 100vw - 551px) * 1000,
+    2794px + 21.28vw - max(0px, 100vw - 700px) * 1000 - max(0px, 552px - 100vw) * 1000,
+    2943px - max(0px, 701px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='C']:lang(en) {
+  --lab-process-column: max(
+    3408px - 190vw,
+    2761px - max(0px, 100vw - 360px) * 1000,
+    3203px - 130vw - max(0px, 100vw - 380px) * 1000,
+    3238px - 145vw,
+    2345px + 74.29vw - max(0px, 100vw - 561px) * 1000,
+    2668px + 16.67vw - max(0px, 100vw - 580px) * 1000 - max(0px, 562px - 100vw) * 1000,
+    2724px + 0.82vw - max(0px, 581px - 100vw) * 1000
+  );
+}
+
+[data-lab-root][data-style='D']:lang(en) {
+  --lab-process-column: max(
+    3432px - 180.95vw - max(0px, 100vw - 350px) * 1000,
+    2779px - max(0px, 100vw - 360px) * 1000,
+    2746px - max(0px, 100vw - 370px) * 1000,
+    2324px + 99.38vw - max(0px, 100vw - 550px) * 1000,
+    2671px + 28.57vw - max(0px, 100vw - 700px) * 1000 - max(0px, 551px - 100vw) * 1000,
+    2871px - max(0px, 701px - 100vw) * 1000
+  );
 }
 
 /* Desktop with motion: the sticky horizontal track (s12/Horizontal.tsx) scrubs 320svh, 380svh from
-   just past 960px, never under 2780px. Restated for :lang so it outranks the uz/ru column fit. CSS
-   cannot see the low tier, which shows the column here too: it keeps this taller floor. */
+   just past 960px, never under 2780px. CSS cannot see the low tier, which shows the column here
+   too: it keeps this taller floor. */
 @media (prefers-reduced-motion: no-preference) and (min-width: 960px) {
+  [data-lab-root] {
+    --lab-h-process: clamp(max(320svh, 2780px), calc(320svh + (100vw - 959px) * 100), 380svh);
+  }
+}
+
+/*
+ * 07–11 and 17 on phones held upright (320–759px wide, at least 561px tall; landscape phones keep
+ * the fits above): the copy and stages around each scroll track (or the 17 arena) differ by style
+ * (B and C set up to ~190px taller than A) and by locale, so each has its own fit, measured
+ * 2026-10-12 in all four styles and the three locales at 320–750px every 10px and 640–932px tall
+ * (the same at every height). With the old shared fits a section mounting late in style B/C/D grew
+ * by 60–190px and pushed the next one down (CLS up to 0.1 at 360×740). Restated for :lang so it
+ * outranks the uz/ru blocks above.
+ */
+@media (prefers-reduced-motion: no-preference) and (max-width: 759px) and (min-height: 561px) {
   [data-lab-root],
   [data-lab-root]:not(:lang(en)) {
-    --lab-h-process: clamp(max(320svh, 2780px), calc(320svh + (100vw - 959px) * 100), 380svh);
+    --lab-h-telegram: calc(580svh + var(--lab-tg-rest, 490px));
+    --lab-h-mobile-build: calc(392.5svh + var(--lab-mobile-rest, 700px));
+    --lab-h-web-build: max(420svh, calc(300svh + var(--lab-web-rest, 960px)));
+    --lab-h-crm-build: calc(400svh + var(--lab-crm-track-rest, 960px));
+    --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + var(--lab-stack-rest, 790px));
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-tg-rest: max(
+      753px - max(0px, 100vw - 320px) * 1000,
+      890px - 60vw - max(0px, 100vw - 370px) * 1000,
+      754px - 33.14vw,
+      499px + 8.33vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-tg-rest: max(789px - max(0px, 100vw - 320px) * 1000, 721px - max(0px, 100vw - 380px) * 1000, 794px - 35.45vw, 578px);
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-tg-rest: max(
+      1367px - 200vw,
+      1028px - 92.31vw - max(0px, 100vw - 380px) * 1000 - max(0px, 350px - 100vw) * 1000,
+      761px - 31.67vw,
+      495px + 10vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-tg-rest: max(
+      1004px - 77.42vw - max(0px, 100vw - 360px) * 1000,
+      834px - 39.2vw - max(0px, 100vw - 440px) * 1000,
+      751px - 27.14vw,
+      499px + 13.33vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-tg-rest: max(
+      722px + 3.23vw - max(0px, 100vw - 360px) * 1000,
+      871px - 55.56vw,
+      818px - 40vw - max(0px, 510px - 100vw) * 1000,
+      568px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-tg-rest: max(893px - 38.8vw - max(0px, 100vw - 380px) * 1000, 816px - 28.5vw, 634px);
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-tg-rest: max(
+      733px + 3.33vw - max(0px, 100vw - 375px) * 1000,
+      929px - 64.29vw,
+      794px - 33.33vw - max(0px, 510px - 100vw) * 1000,
+      581px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-tg-rest: max(756px - max(0px, 100vw - 350px) * 1000, 1043px - 94.4vw, 777px - 30vw, 590px);
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-tg-rest: max(984px - 104vw - max(0px, 100vw - 370px) * 1000, 608px - 12.22vw - max(0px, 100vw - 500px) * 1000, 542px - 7.5vw);
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-tg-rest: max(931px - 76.67vw, 714px - 19.02vw - max(0px, 100vw - 500px) * 1000 - max(0px, 430px - 100vw) * 1000, 588px - 2.86vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-tg-rest: max(
+      675px - max(0px, 100vw - 330px) * 1000,
+      952px - 100vw,
+      617px - 12.22vw - max(0px, 100vw - 500px) * 1000,
+      539px - 5.38vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-tg-rest: max(983px - 100vw, 783px - 43.64vw - max(0px, 100vw - 490px) * 1000, 566px - 6.15vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-mobile-rest: max(
+      1797px - 240vw,
+      981px - max(0px, 100vw - 360px) * 1000,
+      1135px - 55vw - max(0px, 100vw - 414px) * 1000,
+      892px - max(0px, 100vw - 430px) * 1000,
+      951px - 26.67vw - max(0px, 100vw - 570px) * 1000,
+      702px + 14.44vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-mobile-rest: max(
+      1813px - 218.18vw - max(0px, 100vw - 340px) * 1000,
+      1045px - max(0px, 100vw - 380px) * 1000,
+      1002px - max(0px, 100vw - 390px) * 1000,
+      1324px - 91.67vw - max(0px, 100vw - 420px) * 1000,
+      955px - 13.08vw,
+      743px + 22.5vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-mobile-rest: max(
+      1792px - 225.16vw,
+      1650px - 181.25vw - max(0px, 369px - 100vw) * 1000,
+      923px + 9vw - max(0px, 100vw - 420px) * 1000,
+      914px - max(0px, 100vw - 450px) * 1000,
+      844px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-mobile-rest: max(
+      1751px - 220vw,
+      1023px - max(0px, 100vw - 350px) * 1000,
+      947px + 8.57vw - max(0px, 100vw - 390px) * 1000,
+      1252px - 81.33vw - max(0px, 100vw - 450px) * 1000,
+      857px,
+      704px + 25vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-mobile-rest: max(
+      1042px - max(0px, 100vw - 330px) * 1000,
+      997px - max(0px, 100vw - 340px) * 1000,
+      924px + 7vw - max(0px, 100vw - 380px) * 1000,
+      1361px - 120vw - max(0px, 100vw - 420px) * 1000 - max(0px, 381px - 100vw) * 1000,
+      1088px - 57.5vw - max(0px, 100vw - 480px) * 1000,
+      883px - 21.11vw,
+      692px + 10vw - max(0px, 710px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-mobile-rest: max(
+      1092px - max(0px, 100vw - 330px) * 1000,
+      1045px - max(0px, 100vw - 350px) * 1000,
+      975px + 7.25vw - max(0px, 100vw - 390px) * 1000,
+      1410px - 122vw,
+      896px - 4.71vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-mobile-rest: max(
+      1827px - 240vw - max(0px, 100vw - 340px) * 1000,
+      1144px - 50.5vw - max(0px, 100vw - 400px) * 1000,
+      898px - max(0px, 100vw - 470px) * 1000,
+      868px - 9.23vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-mobile-rest: max(
+      1049px - max(0px, 100vw - 320px) * 1000,
+      1160px - 53.19vw - max(0px, 100vw - 375px) * 1000,
+      913px - max(0px, 100vw - 440px) * 1000,
+      904px - 15vw,
+      714px + 16.67vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-mobile-rest: max(
+      1581px - 214.29vw,
+      1329px - 133.53vw - max(0px, 100vw - 380px) * 1000 - max(0px, 359px - 100vw) * 1000,
+      759px + 4.76vw - max(0px, 100vw - 430px) * 1000,
+      870px - 28.75vw - max(0px, 100vw - 520px) * 1000,
+      641px + 10vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-mobile-rest: max(
+      1200px - 90vw - max(0px, 100vw - 373px) * 1000,
+      872px - max(0px, 100vw - 380px) * 1000,
+      881px - 15vw,
+      698px + 18vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-mobile-rest: max(
+      1171px - 90vw - max(0px, 100vw - 373px) * 1000,
+      811px + 14.5vw - max(0px, 100vw - 380px) * 1000,
+      822px - 16.92vw - max(0px, 100vw - 540px) * 1000,
+      652px + 10vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-mobile-rest: max(878px - max(0px, 100vw - 360px) * 1000, 880px - 19.75vw - max(0px, 100vw - 490px) * 1000, 758px + 0.48vw);
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-web-rest: max(
+      1395px - max(0px, 100vw - 320px) * 1000,
+      1324px - max(0px, 100vw - 330px) * 1000,
+      1196px - max(0px, 100vw - 460px) * 1000,
+      1501px - 80vw - max(0px, 100vw - 550px) * 1000 - max(0px, 461px - 100vw) * 1000,
+      1284px - 45vw,
+      927px + 14vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-web-rest: max(
+      2036px - 200vw - max(0px, 100vw - 340px) * 1000,
+      1281px - max(0px, 100vw - 390px) * 1000,
+      1269px - 12.31vw - max(0px, 100vw - 570px) * 1000,
+      1727px - 95vw - max(0px, 571px - 100vw) * 1000,
+      1020px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-web-rest: max(
+      1355px - max(0px, 100vw - 330px) * 1000,
+      1311px - max(0px, 100vw - 340px) * 1000,
+      1432px - 55vw - max(0px, 100vw - 449px) * 1000,
+      1730px - 120vw - max(0px, 100vw - 480px) * 1000 - max(0px, 450px - 100vw) * 1000,
+      1418px - 63vw,
+      927px + 16.67vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-web-rest: max(
+      1371px - max(0px, 100vw - 320px) * 1000,
+      1490px - 57.5vw - max(0px, 100vw - 419px) * 1000,
+      1236px + 10vw - max(0px, 100vw - 440px) * 1000,
+      1231px - max(0px, 100vw - 450px) * 1000,
+      1415px - 53.75vw - max(0px, 100vw - 540px) * 1000,
+      1088px,
+      969px + 20vw - max(0px, 740px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-web-rest: max(
+      1333px - max(0px, 100vw - 350px) * 1000,
+      1533px - 73.33vw - max(0px, 100vw - 390px) * 1000,
+      1197px - max(0px, 100vw - 420px) * 1000,
+      1147px - max(0px, 100vw - 450px) * 1000,
+      1351px - 55vw - max(0px, 100vw - 500px) * 1000,
+      1076px - 9.17vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-web-rest: max(
+      2135px - 223.81vw,
+      1336px + 10vw - max(0px, 100vw - 375px) * 1000,
+      1715px - 107.06vw - max(0px, 100vw - 470px) * 1000,
+      1187px - 1.54vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-web-rest: max(
+      1409px - max(0px, 100vw - 320px) * 1000,
+      1724px - 117.5vw - max(0px, 100vw - 388px) * 1000,
+      1578px - 76.67vw - max(0px, 100vw - 430px) * 1000 - max(0px, 389px - 100vw) * 1000,
+      2309px - 250vw - max(0px, 100vw - 450px) * 1000 - max(0px, 431px - 100vw) * 1000,
+      1177px - max(0px, 100vw - 460px) * 1000,
+      1315px - 40vw - max(0px, 100vw - 520px) * 1000,
+      1080px
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-web-rest: max(
+      1774px - 120vw - max(0px, 100vw - 369px) * 1000,
+      2128px - 208.57vw - max(0px, 100vw - 420px) * 1000 - max(0px, 370px - 100vw) * 1000,
+      2185px - 225vw - max(0px, 421px - 100vw) * 1000,
+      1653px - 100vw - max(0px, 100vw - 490px) * 1000 - max(0px, 460px - 100vw) * 1000,
+      1137px,
+      1169px - max(0px, 750px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-web-rest: max(
+      1190px - max(0px, 100vw - 340px) * 1000,
+      1550px - 120vw - max(0px, 100vw - 400px) * 1000,
+      1161px - 28.75vw - max(0px, 100vw - 500px) * 1000,
+      1125px - 26.67vw,
+      867px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-web-rest: max(1583px - 115vw - max(0px, 100vw - 410px) * 1000, 1221px - 30vw, 932px + 17.5vw);
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-web-rest: max(
+      1941px - 230vw,
+      1423px - 80vw - max(0px, 100vw - 400px) * 1000,
+      1169px - 25.58vw - max(0px, 100vw - 510px) * 1000,
+      1137px - 25vw,
+      886px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-web-rest: max(
+      1559px - 120vw - max(0px, 100vw - 380px) * 1000,
+      1189px - 28.75vw - max(0px, 100vw - 480px) * 1000,
+      1225px - 40vw,
+      897px + 16vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-crm-track-rest: max(
+      1535px - max(0px, 100vw - 320px) * 1000,
+      1487px - max(0px, 100vw - 330px) * 1000,
+      1928px - 150vw - max(0px, 100vw - 375px) * 1000,
+      2200px - 230vw - max(0px, 100vw - 414px) * 1000,
+      1713px - 115vw - max(0px, 100vw - 498px) * 1000,
+      1777px - 125vw - max(0px, 100vw - 530px) * 1000 - max(0px, 499px - 100vw) * 1000,
+      1159px - 24.29vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-crm-track-rest: max(
+      1626px - max(0px, 100vw - 320px) * 1000,
+      1554px - max(0px, 100vw - 330px) * 1000,
+      1933px - 134.29vw - max(0px, 100vw - 380px) * 1000,
+      2283px - 230vw - max(0px, 100vw - 410px) * 1000 - max(0px, 381px - 100vw) * 1000,
+      1594px - 71.21vw - max(0px, 100vw - 490px) * 1000,
+      1481px - 55vw - max(0px, 100vw - 560px) * 1000,
+      1164px - 6.92vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-crm-track-rest: max(
+      1582px - max(0px, 100vw - 320px) * 1000,
+      2215px - 220vw - max(0px, 100vw - 340px) * 1000,
+      1928px - 146.67vw - max(0px, 100vw - 390px) * 1000,
+      2009px - 171.43vw,
+      2303px - 228.57vw - max(0px, 440px - 100vw) * 1000,
+      771px + 100vw - max(0px, 100vw - 480px) * 1000,
+      1735px - 110vw - max(0px, 100vw - 539px) * 1000,
+      1174px - max(0px, 100vw - 540px) * 1000 - max(0px, 540px - 100vw) * 1000,
+      1125px - max(0px, 100vw - 550px) * 1000,
+      1109px - 7.86vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-crm-track-rest: max(
+      2285px - 250vw - max(0px, 100vw - 360px) * 1000,
+      1760px - 110vw - max(0px, 100vw - 390px) * 1000,
+      1659px - 88.46vw - max(0px, 100vw - 450px) * 1000,
+      1245px - max(0px, 100vw - 470px) * 1000,
+      1789px - 125vw - max(0px, 100vw - 510px) * 1000,
+      1068px
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-crm-track-rest: max(
+      1540px - max(0px, 100vw - 330px) * 1000,
+      1468px - max(0px, 100vw - 340px) * 1000,
+      1417px - max(0px, 100vw - 360px) * 1000,
+      1348px - max(0px, 100vw - 414px) * 1000,
+      1243px - max(0px, 100vw - 420px) * 1000,
+      1172px - max(0px, 100vw - 480px) * 1000,
+      1089px + 6.67vw - max(0px, 100vw - 530px) * 1000,
+      1352px - 54vw - max(0px, 100vw - 590px) * 1000,
+      999px
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-crm-track-rest: max(
+      1578px - max(0px, 100vw - 340px) * 1000,
+      1868px - 115vw - max(0px, 100vw - 375px) * 1000,
+      1409px - max(0px, 100vw - 400px) * 1000,
+      1346px - max(0px, 100vw - 430px) * 1000,
+      1758px - 115vw,
+      1203px + 5vw - max(0px, 100vw - 550px) * 1000,
+      1256px - 17.14vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-crm-track-rest: max(
+      2231px - 218.18vw - max(0px, 100vw - 340px) * 1000,
+      2280px - 240vw - max(0px, 100vw - 375px) * 1000,
+      1345px - max(0px, 100vw - 430px) * 1000,
+      1227px - max(0px, 100vw - 490px) * 1000,
+      1197px - max(0px, 100vw - 500px) * 1000,
+      1147px - max(0px, 100vw - 540px) * 1000,
+      1190px - 20vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-crm-track-rest: max(
+      1531px - max(0px, 100vw - 320px) * 1000,
+      2156px - 210vw - max(0px, 100vw - 350px) * 1000,
+      1363px - max(0px, 100vw - 400px) * 1000,
+      2172px - 220vw - max(0px, 401px - 100vw) * 1000,
+      1246px - max(0px, 100vw - 450px) * 1000,
+      1211px - max(0px, 100vw - 470px) * 1000,
+      1162px - max(0px, 100vw - 510px) * 1000,
+      1213px - 22.86vw,
+      1002px + 10vw - max(0px, 739px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-crm-track-rest: max(
+      1315px + 9.09vw - max(0px, 100vw - 340px) * 1000,
+      2151px - 250vw - max(0px, 100vw - 360px) * 1000 - max(0px, 341px - 100vw) * 1000,
+      1245px - max(0px, 100vw - 390px) * 1000,
+      2096px - 230vw - max(0px, 391px - 100vw) * 1000,
+      1365px - 50vw - max(0px, 100vw - 490px) * 1000 - max(0px, 429px - 100vw) * 1000,
+      2059px - 200vw - max(0px, 100vw - 529px) * 1000 - max(0px, 491px - 100vw) * 1000,
+      1037px - max(0px, 100vw - 530px) * 1000,
+      1008px - 5.79vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-crm-track-rest: max(
+      1374px - max(0px, 100vw - 330px) * 1000,
+      1343px - max(0px, 100vw - 340px) * 1000,
+      1272px - max(0px, 100vw - 400px) * 1000,
+      1350px - 36.67vw - max(0px, 100vw - 490px) * 1000,
+      1466px - 63.33vw - max(0px, 100vw - 540px) * 1000 - max(0px, 491px - 100vw) * 1000,
+      1091px - 2.63vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-crm-track-rest: max(
+      1700px - 114.29vw - max(0px, 100vw - 350px) * 1000,
+      1446px - 57.5vw - max(0px, 100vw - 414px) * 1000,
+      1299px - 31.82vw - max(0px, 100vw - 500px) * 1000,
+      2324px - 240vw - max(0px, 100vw - 540px) * 1000 - max(0px, 501px - 100vw) * 1000,
+      1015px - 4vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-crm-track-rest: max(
+      1332px - max(0px, 100vw - 330px) * 1000,
+      1255px - max(0px, 100vw - 380px) * 1000,
+      1326px - 36.67vw - max(0px, 100vw - 470px) * 1000,
+      2099px - 210vw - max(0px, 100vw - 500px) * 1000 - max(0px, 471px - 100vw) * 1000,
+      1038px - 5.79vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-stack-rest: max(
+      1020px - max(0px, 100vw - 380px) * 1000,
+      1200px - 66.67vw - max(0px, 100vw - 430px) * 1000,
+      900px - max(0px, 100vw - 440px) * 1000,
+      848px + 1.99vw - max(0px, 100vw - 610px) * 1000,
+      740px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-stack-rest: max(
+      1138px - max(0px, 100vw - 320px) * 1000,
+      1082px - max(0px, 100vw - 330px) * 1000,
+      1024px - max(0px, 100vw - 360px) * 1000,
+      1142px - 53.33vw,
+      847px + 16.53vw - max(0px, 100vw - 590px) * 1000 - max(0px, 469px - 100vw) * 1000,
+      906px - max(0px, 100vw - 620px) * 1000,
+      874px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-stack-rest: max(
+      1259px - 61.9vw - max(0px, 100vw - 350px) * 1000,
+      1399px - 115vw - max(0px, 100vw - 375px) * 1000,
+      945px - max(0px, 100vw - 390px) * 1000,
+      1142px - 60vw - max(0px, 100vw - 430px) * 1000,
+      792px + 17.02vw - max(0px, 100vw - 590px) * 1000,
+      991px - 23.57vw - max(0px, 591px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-stack-rest: max(
+      1079px - max(0px, 100vw - 340px) * 1000,
+      1013px - max(0px, 100vw - 360px) * 1000,
+      1719px - 210vw,
+      1471px - 142.86vw - max(0px, 399px - 100vw) * 1000,
+      802px + 17.88vw - max(0px, 100vw - 590px) * 1000,
+      1052px - 31.43vw - max(0px, 591px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-stack-rest: max(
+      1043px - max(0px, 100vw - 360px) * 1000,
+      968px - max(0px, 100vw - 390px) * 1000,
+      1063px - 38.33vw - max(0px, 100vw - 470px) * 1000,
+      791px + 14.85vw - max(0px, 100vw - 590px) * 1000,
+      900px - 10.91vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-stack-rest: max(
+      1112px - max(0px, 100vw - 330px) * 1000,
+      1019px - max(0px, 100vw - 340px) * 1000,
+      1270px - 83.75vw,
+      923px - max(0px, 100vw - 600px) * 1000 - max(0px, 451px - 100vw) * 1000,
+      906px - max(0px, 100vw - 610px) * 1000,
+      919px - 7.78vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-stack-rest: max(
+      1102px - max(0px, 100vw - 320px) * 1000,
+      1061px - max(0px, 100vw - 330px) * 1000,
+      1381px - 112.5vw - max(0px, 100vw - 400px) * 1000,
+      991px - 24vw - max(0px, 100vw - 548px) * 1000,
+      1229px - 61.9vw - max(0px, 100vw - 600px) * 1000 - max(0px, 549px - 100vw) * 1000,
+      979px - 21.25vw - max(0px, 100vw - 690px) * 1000 - max(0px, 601px - 100vw) * 1000,
+      669px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-stack-rest: max(
+      1079px - max(0px, 100vw - 330px) * 1000,
+      1787px - 230vw,
+      980px - max(0px, 100vw - 375px) * 1000,
+      930px - max(0px, 100vw - 390px) * 1000,
+      808px + 16.79vw - max(0px, 100vw - 590px) * 1000,
+      1093px - 38.33vw - max(0px, 100vw - 670px) * 1000 - max(0px, 591px - 100vw) * 1000,
+      684px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-stack-rest: max(
+      1341px - 110vw - max(0px, 100vw - 369px) * 1000,
+      966px - max(0px, 100vw - 370px) * 1000,
+      1474px - 160vw,
+      838px - max(0px, 100vw - 620px) * 1000,
+      839px - 4.17vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-stack-rest: max(
+      983px - max(0px, 100vw - 340px) * 1000,
+      865px + 5vw - max(0px, 100vw - 590px) * 1000,
+      883px - max(0px, 100vw - 600px) * 1000,
+      865px - 2.5vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-stack-rest: max(
+      978px - max(0px, 100vw - 340px) * 1000,
+      1151px - 76.67vw,
+      850px - max(0px, 100vw - 590px) * 1000,
+      927px - 18.57vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-stack-rest: max(
+      1633px - 200vw - max(0px, 100vw - 340px) * 1000,
+      954px - 23.33vw,
+      787px + 16.48vw - max(0px, 100vw - 590px) * 1000 - max(0px, 490px - 100vw) * 1000,
+      901px - 13.75vw
+    );
+  }
+}
+
+/* 17 under reduced motion on phones held upright: the tower sets shorter than with motion (the
+   motion fit was up to 96px over it), so it has its own fit, measured the same way. */
+@media (prefers-reduced-motion: reduce) and (max-width: 759px) and (min-height: 561px) {
+  [data-lab-root],
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + var(--lab-stack-rest, 738px));
+  }
+
+  [data-lab-root][data-style='A']:lang(uz) {
+    --lab-stack-rest: max(
+      984px - 28.71vw - max(0px, 100vw - 430px) * 1000,
+      844px - max(0px, 100vw - 440px) * 1000,
+      792px + 1.99vw - max(0px, 100vw - 610px) * 1000,
+      684px + 15vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(uz) {
+    --lab-stack-rest: max(
+      1011px - max(0px, 100vw - 320px) * 1000,
+      1291px - 110vw,
+      1100px - 56.67vw - max(0px, 389px - 100vw) * 1000,
+      791px + 16.53vw - max(0px, 100vw - 590px) * 1000 - max(0px, 469px - 100vw) * 1000,
+      850px - max(0px, 100vw - 620px) * 1000,
+      818px
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(uz) {
+    --lab-stack-rest: max(
+      1178px - 70.59vw - max(0px, 100vw - 375px) * 1000,
+      889px - max(0px, 100vw - 390px) * 1000,
+      1086px - 60vw - max(0px, 100vw - 430px) * 1000,
+      736px + 17.02vw - max(0px, 100vw - 590px) * 1000,
+      935px - 23.57vw - max(0px, 591px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(uz) {
+    --lab-stack-rest: max(
+      971px - max(0px, 100vw - 340px) * 1000,
+      1607px - 200vw,
+      1371px - 133.33vw - max(0px, 380px - 100vw) * 1000,
+      746px + 17.88vw - max(0px, 100vw - 590px) * 1000,
+      996px - 31.43vw - max(0px, 591px - 100vw) * 1000
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(ru) {
+    --lab-stack-rest: max(
+      1150px - 67.21vw - max(0px, 100vw - 390px) * 1000,
+      1007px - 38.33vw - max(0px, 100vw - 470px) * 1000,
+      735px + 14.85vw - max(0px, 100vw - 590px) * 1000,
+      844px - 10.91vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(ru) {
+    --lab-stack-rest: max(
+      1004px - max(0px, 100vw - 330px) * 1000,
+      963px - max(0px, 100vw - 340px) * 1000,
+      1214px - 83.75vw,
+      789px + 16.79vw - max(0px, 100vw - 590px) * 1000 - max(0px, 451px - 100vw) * 1000,
+      850px - max(0px, 100vw - 610px) * 1000,
+      863px - 7.78vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(ru) {
+    --lab-stack-rest: max(
+      994px - max(0px, 100vw - 320px) * 1000,
+      1241px - 90vw - max(0px, 100vw - 390px) * 1000,
+      1255px - 100vw,
+      822px - max(0px, 100vw - 590px) * 1000,
+      907px - 18.89vw - max(0px, 100vw - 690px) * 1000,
+      613px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(ru) {
+    --lab-stack-rest: max(
+      1336px - 114.29vw - max(0px, 100vw - 350px) * 1000,
+      924px - max(0px, 100vw - 375px) * 1000,
+      874px - max(0px, 100vw - 390px) * 1000,
+      830px - max(0px, 100vw - 590px) * 1000,
+      1037px - 38.33vw - max(0px, 100vw - 670px) * 1000 - max(0px, 591px - 100vw) * 1000,
+      628px + 20vw
+    );
+  }
+
+  [data-lab-root][data-style='A']:lang(en) {
+    --lab-stack-rest: max(
+      1233px - 110vw - max(0px, 100vw - 369px) * 1000,
+      858px - max(0px, 100vw - 370px) * 1000,
+      839px - 12.86vw - max(0px, 100vw - 558px) * 1000,
+      1025px - 40.48vw - max(0px, 100vw - 620px) * 1000 - max(0px, 559px - 100vw) * 1000,
+      783px - 4.17vw
+    );
+  }
+
+  [data-lab-root][data-style='B']:lang(en) {
+    --lab-stack-rest: max(
+      1090px - 70vw,
+      740px + 21.19vw - max(0px, 100vw - 590px) * 1000 - max(0px, 419px - 100vw) * 1000,
+      827px - max(0px, 100vw - 600px) * 1000 - max(0px, 591px - 100vw) * 1000,
+      809px - 2.5vw
+    );
+  }
+
+  [data-lab-root][data-style='C']:lang(en) {
+    --lab-stack-rest: max(
+      1324px - 141.94vw,
+      845px - 11.43vw - max(0px, 100vw - 549px) * 1000,
+      776px + 6.45vw - max(0px, 100vw - 590px) * 1000 - max(0px, 550px - 100vw) * 1000,
+      871px - 18.57vw
+    );
+  }
+
+  [data-lab-root][data-style='D']:lang(en) {
+    --lab-stack-rest: max(
+      1585px - 219.05vw,
+      877px - 18.33vw - max(0px, 100vw - 499px) * 1000,
+      734px + 16.05vw - max(0px, 100vw - 590px) * 1000 - max(0px, 500px - 100vw) * 1000,
+      845px - 13.75vw
+    );
+  }
+}
+
+/* 17 under reduced motion on landscape phones and on tablets (760–899px): the tower sets shorter
+   than with motion, and the motion fits above ran up to ~55px past it (a blank tail). Measured
+   2026-10-12 in all four styles and the three locales; the rest past the arena fitted from below. */
+@media (prefers-reduced-motion: reduce) and (max-width: 899px) and (max-height: 520px) and (orientation: landscape) {
+  [data-lab-root],
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-stack-physics: calc(max(320px, 100svh - 40px) + 598px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 760px) and (max-width: 899px) and (min-height: 521px) {
+  [data-lab-root],
+  [data-lab-root]:not(:lang(en)) {
+    --lab-h-stack-physics: calc(clamp(360px, 100svh - 300px, 600px) + 731px);
   }
 }

@@ -7,7 +7,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { PUBLIC_DIR, VIDEO_ROOT } from './lib/images.mjs';
 
-const { projectSchema } = await import('../src/schema.ts');
+const { fileIdFor, projectSchema } = await import('../src/schema.ts');
 
 /** Titles longer than this usually wrap to three lines at caption width. */
 const LONG_TITLE = 44;
@@ -33,8 +33,9 @@ const validateFile = async file => {
   if (!parsed.success) return { errors: [z.prettifyError(parsed.error)], warnings: [] };
 
   const config = parsed.data;
-  const expected = path.basename(file, '.json');
-  const slugErrors = config.slug === expected ? [] : [`slug "${config.slug}" must equal the file name "${expected}"`];
+  const name = path.basename(file, '.json');
+  const expected = fileIdFor(config);
+  const slugErrors = name === expected ? [] : [`slug "${config.slug}" + locale "${config.locale}" need the file name "${expected}.json"`];
   const missing = [];
   for (const src of referencedFiles(config)) {
     if (!(await exists(path.join(PUBLIC_DIR, src)))) missing.push(`missing file video/public/${src}`);

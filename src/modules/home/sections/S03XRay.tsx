@@ -6,6 +6,7 @@ import LazyCanvas from '../components/LazyCanvas';
 import { SectionHeading } from '../components/LabSection';
 import { useLabDevice, useMediaQuery } from '../device/useDeviceTier';
 import { gsap, ScrollTrigger, useGSAP } from '../global/gsap';
+import { revealOnFocus } from '../global/revealOnFocus';
 import { useProjectDescriber } from '../media/useProjectDescriber';
 import { useLabTheme } from '../theme/useLabTheme';
 import type { LabSectionProps } from '../types';
@@ -181,16 +182,20 @@ export default function S03XRay({ meta }: LabSectionProps) {
           scrollTrigger: { trigger: lines[0].parentElement ?? lines[0], start: 'top 92%', once: true },
         });
       }
-      rootRef.current.querySelectorAll<HTMLElement>('[data-xray-rise]').forEach(el => {
-        gsap.from(el, {
+      // Opacity, not autoAlpha: "Full x-ray" and "Next project" stay in the Tab order before they rise.
+      const root = rootRef.current;
+      const cleanups = Array.from(root.querySelectorAll<HTMLElement>('[data-xray-rise]'), el => {
+        const rise = gsap.from(el, {
           y: 18,
-          autoAlpha: 0,
+          opacity: 0,
           duration: 0.8,
           delay: 0.12,
           ease: 'power3.out',
           scrollTrigger: { trigger: el, start: 'top 95%', once: true },
         });
+        return revealOnFocus(root, rise, [el]);
       });
+      return () => cleanups.forEach(cleanup => cleanup());
     },
     { scope: rootRef, dependencies: [reducedMotion, isWide] }
   );

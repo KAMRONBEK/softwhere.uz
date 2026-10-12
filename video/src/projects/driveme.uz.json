@@ -1,0 +1,103 @@
+{
+  "slug": "driveme",
+  "locale": "uz",
+  "name": "DriveMe",
+  "tagline": "Oʻzbekistonda shaxsiy haydovchi xizmati: yoʻlovchi va haydovchi ilovalari bir platformada",
+  "category": "Taksi xizmati",
+  "location": "Oʻzbekiston",
+  "years": "2025–26",
+  "status": "live",
+  "role": "Premium haydovchi xizmati uchun yoʻlovchi va haydovchi ilovalari",
+  "platforms": ["iOS", "Android"],
+  "tech": ["React Native", "Expo SDK 54", "TypeScript", "Expo Router", "Google Maps", "Yandex marshrutlari", "Fon rejimida GPS", "Payme"],
+  "accent": "#14a052",
+  "icon": {
+    "src": "projects/driveme/icon.webp"
+  },
+  "links": {
+    "appStore": true,
+    "googlePlay": true
+  },
+  "scenes": [
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-04.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-03.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-05.webp"
+        }
+      ],
+      "title": "Yoʻlovchi ilovasi: haydovchi chaqirish",
+      "body": "Xaritada yoʻnalishni belgilaysiz, avtomobil sinfini tanlaysiz va biriktirilgan haydovchini real vaqtda kuzatasiz.",
+      "seconds": 4.2
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-03.webp"
+        }
+      ],
+      "title": "Narxni marshrut belgilaydi",
+      "body": "Google Maps xaritasida Yandex marshrutlari safarni oʻlchaydi; Yandex ishlamay qolsa, zaxira provayder ishga tushadi."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/rider-appstore-04.webp"
+        },
+        {
+          "src": "projects/driveme/rider-appstore-05.webp"
+        }
+      ],
+      "title": "Business, Premium yoki Minivan",
+      "body": "Har bir sinf narxi xizmat haqi bilan birga koʻrsatiladi. Naqd pul, Uzcard, Humo, Visa yoki Mastercard bilan toʻlaysiz."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-03.webp"
+        }
+      ],
+      "title": "Haydovchi ilovasi: avval buyurtmani koʻradi",
+      "body": "Buyurtmada narx, marshrut, masofa va toʻlov turi koʻrinadi — haydovchi qabul qilishdan oldin hammasini biladi."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-04.webp"
+        }
+      ],
+      "title": "Har bir smenada fon rejimida GPS",
+      "body": "Taksometrli safarda harakat paytida har 5 soniyada GPS nuqtasi yoziladi; internet uzilsa, nuqtalar saqlanib, keyin yuboriladi."
+    },
+    {
+      "type": "mobile",
+      "frame": "card",
+      "shots": [
+        {
+          "src": "projects/driveme/driver-appstore-ipad-03.webp"
+        },
+        {
+          "src": "projects/driveme/driver-appstore-05.webp"
+        }
+      ],
+      "title": "Toʻlovlar va hujjatlar",
+      "body": "Payme orqali balansni toʻldirish, daromadni yechib olish, hujjat va salon suratlarini tekshiruvga yuborish — telefonda yoki iPadda.",
+      "seconds": 4.4
+    }
+  ]
+}

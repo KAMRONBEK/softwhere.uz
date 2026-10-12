@@ -4,6 +4,7 @@ import { Chip } from '../components/Chip';
 import { SoftwhereMark } from '../components/SoftwhereMark';
 import { FONTS } from '../fonts';
 import type { ProjectConfig } from '../schema';
+import { STRINGS } from '../strings';
 import { COLORS } from '../theme';
 
 const TECH_DELAY = 10;
@@ -19,9 +20,10 @@ const Kicker = ({ children }: { children: string }) => (
 
 /** Where the product can be found today — or an honest "archived" / "launching soon" note. */
 const availabilityChips = (config: ProjectConfig): string[] => {
+  const strings = STRINGS[config.locale];
   if (config.status !== 'live' && config.statusLabel) return [config.statusLabel];
-  if (config.status === 'archived') return [`Shipped ${config.years}`, 'Archived'];
-  if (config.status === 'pre-launch') return ['Launching soon'];
+  if (config.status === 'archived') return [strings.shipped(config.years), strings.archived];
+  if (config.status === 'pre-launch') return [strings.launchingSoon];
   return [
     ...(config.links.appStore ? ['App Store'] : []),
     ...(config.links.googlePlay ? ['Google Play'] : []),
@@ -33,8 +35,9 @@ const availabilityChips = (config: ProjectConfig): string[] => {
 export const OutroScene = ({ config }: { config: ProjectConfig }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const strings = STRINGS[config.locale];
   const availability = availabilityChips(config);
-  const availabilityLabel = config.status === 'live' ? 'Available on' : 'Status';
+  const availabilityLabel = config.status === 'live' ? strings.availableOn : strings.status;
   const brandIn = enter(frame, fps, 18);
   // Lands after the last tech chip has risen in.
   const availabilityDelay = TECH_DELAY + config.tech.length * TECH_STAGGER + 2;
@@ -43,7 +46,7 @@ export const OutroScene = ({ config }: { config: ProjectConfig }) => {
     <AbsoluteFill style={{ flexDirection: 'row', alignItems: 'center', padding: '0 140px' }}>
       <div style={{ flex: 1, paddingRight: 90 }}>
         <div style={rise(enter(frame, fps, 0), 16)}>
-          <Kicker>Case study</Kicker>
+          <Kicker>{strings.caseStudy}</Kicker>
         </div>
         <h2
           style={{
@@ -74,7 +77,7 @@ export const OutroScene = ({ config }: { config: ProjectConfig }) => {
           </p>
         ) : null}
         <div style={{ marginTop: 38, ...rise(enter(frame, fps, 9), 14) }}>
-          <Kicker>Tech stack</Kicker>
+          <Kicker>{strings.techStack}</Kicker>
         </div>
         <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 12, maxWidth: 980 }}>
           {config.tech.map((tech, i) => (
@@ -117,7 +120,7 @@ export const OutroScene = ({ config }: { config: ProjectConfig }) => {
             color: COLORS.text,
           }}
         >
-          Let&apos;s build your next product.
+          {strings.signOff}
         </p>
         <p style={{ margin: '26px 0 0', fontFamily: FONTS.mono, fontSize: 30, color: COLORS.accent2 }}>softwhere.uz</p>
       </div>

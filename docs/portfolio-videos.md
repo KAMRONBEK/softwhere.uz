@@ -1,6 +1,7 @@
 # Portfolio videos
 
-Every portfolio entry can carry a short silent walkthrough video (16:9, 1080p, English captions)
+Every portfolio entry can carry a short silent walkthrough video (16:9, 1080p, English captions;
+some also have Uzbek and Russian renders, see below)
 that plays in the homepage portfolio slider. The videos are rendered locally with
 [Remotion](https://www.remotion.dev) from the self-contained project in [`video/`](../video) — no paid
 APIs or hosted services are involved.
@@ -59,12 +60,38 @@ yarn studio                                          # optional: interactive pre
 
 Finally reference it from `src/shared/data/projects.ts` with `video: promoVideo('<slug>')`.
 
+## Uzbek and Russian versions
+
+Captions are burned into the pixels, so a video in another language is its own render. A locale
+variant is a full copy of the config in `src/projects/<slug>.<locale>.json` with `"locale": "uz"` or
+`"ru"` and the same `slug` and material; only the words change (tagline, category, location, role,
+descriptive tech chips, scene titles and bodies). The composition's own labels (outro kickers,
+"Available on", sign-off) come from `video/src/strings.ts`. Write the copy by
+[`localization/uz-ru-style-guide.md`](localization/uz-ru-style-guide.md): siz / вы, oʻ and gʻ with
+U+02BB, «ёлочки». Sora has no Cyrillic, so Russian display text falls back to Inter, as on the site.
+
+```bash
+yarn -s validate src/projects/<slug>.uz.json src/projects/<slug>.ru.json
+node scripts/render.mjs --only=<slug>.uz,<slug>.ru --no-poster   # → public/videos/<slug>.<locale>.mp4
+```
+
+The composition id is `<slug>-<locale>` (Remotion ids allow no dots); the scripts take the file name.
+Store screenshots inside the scenes stay as published (mostly English). Only DriveMe has variants
+today: the homepage code-to-ui card (`src/modules/home/sections/s05/content.ts`, `CARD_MEDIA`) picks
+`driveme.<locale>.mp4` and its still `assets/code-to-ui/driveme-frame.<locale>.jpg`. The still is
+the frame at 4.5 s, made the same way for every locale:
+
+```bash
+ffmpeg -ss 4.5 -i public/videos/driveme.uz.mp4 -frames:v 1 frame.png
+# then sharp: resize(960, 540).jpeg({ quality: 80, progressive: true }) → driveme-frame.uz.jpg
+```
+
 ## Content rules
 
 - Show public material only: store listings, the product's public site, archived store screenshots, or
   local renders with mocked data. Never ratings, download counts, real user data, client admin panels,
   IP addresses, source code or credentials.
-- Captions are English, concrete and honest. Client work is framed by the studio's actual role (the
+- Captions are English (uz/ru variants transcreate them), concrete and honest. Client work is framed by the studio's actual role (the
   config's `role` field), and a client's corporate website is never presented as Softwhere's work.
 - Delisted products use `"status": "archived"` so the outro says so instead of showing store badges.
 
@@ -83,4 +110,4 @@ people; a larger company needs a [Remotion company license](https://www.remotion
 video ends. Slides without a video fall back to the screenshot / icon / initials visual from
 `projectImages.ts` and advance after `STILL_SLIDE_MS`.
 
-_Last verified against code: 2026-10-04._
+_Last verified against code: 2026-10-12._

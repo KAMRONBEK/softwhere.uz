@@ -49,8 +49,17 @@ const videoSceneSchema = z.object({
 
 export const sceneSchema = z.discriminatedUnion('type', [mobileSceneSchema, webSceneSchema, videoSceneSchema]);
 
+/** Languages a video's words can be in; `en` is the default and keeps the plain `<slug>` name. */
+export const LOCALES = ['en', 'uz', 'ru'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 export const projectSchema = z.object({
   slug: z.string().regex(/^[a-z0-9-]+$/),
+  /**
+   * Language of every caption and label. A non-English variant lives in `<slug>.<locale>.json`
+   * (same slug and material), renders as composition `<slug>-<locale>` to `<slug>.<locale>.mp4`.
+   */
+  locale: z.enum(LOCALES).default('en'),
   name: z.string().min(1).max(40),
   tagline: z.string().min(1).max(90),
   category: z.string().min(1).max(40),
@@ -90,3 +99,10 @@ export type ProjectConfig = z.infer<typeof projectSchema>;
 export type Dimensions = { width: number; height: number };
 /** Natural size of every image a config references, keyed by its src. Filled in calculateMetadata. */
 export type MediaMap = Readonly<Record<string, Dimensions>>;
+
+/** `driveme` → `driveme`, `driveme.uz` → `driveme-uz`: Remotion ids allow no dots (mirrored in scripts/lib/remotion.mjs). */
+export const compositionIdFor = (fileId: string): string => fileId.replace('.', '-');
+
+/** The file name (without `.json`) a config must live in. */
+export const fileIdFor = (config: Pick<ProjectConfig, 'slug' | 'locale'>): string =>
+  config.locale === 'en' ? config.slug : `${config.slug}.${config.locale}`;

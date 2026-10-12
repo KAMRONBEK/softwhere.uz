@@ -178,8 +178,9 @@ interface PreviewProps {
  * video, the inspector frame, the landing ping and the scripted pointer.
  */
 function Preview({ className, uiText, startsDark, isChecked, isPlaying, isTouch, handlers }: PreviewProps) {
-  const title = useProjectDescriber().title(CARD_PROJECT);
-  const media = useMemo(() => ({ ...CARD_MEDIA, name: title }), [title]);
+  const describer = useProjectDescriber();
+  const title = describer.title(CARD_PROJECT);
+  const media = useMemo(() => ({ ...CARD_MEDIA[describer.locale], name: title }), [describer.locale, title]);
   return (
     <div className={`${css.slot} ${className ?? ''}`} data-slot=''>
       <i className={css.lift} data-lift='' aria-hidden='true' />

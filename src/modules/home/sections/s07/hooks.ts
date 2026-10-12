@@ -2,6 +2,7 @@
 
 import { useEffect, type Dispatch, type RefObject } from 'react';
 import { gsap, useGSAP } from '../../global/gsap';
+import { revealOnFocus } from '../../global/revealOnFocus';
 import { planNext, type ChatAction, type ChatState } from './machine';
 import { ceilingBlocks } from './story';
 
@@ -68,11 +69,12 @@ export function usePhoneTilt(refs: TiltRefs, isEnabled: boolean, isTouch: boolea
       const root = refs.root.current;
       if (!isEnabled || !stage || !scrollTilt || !pointerTilt || !entrance || !glare || !floor || !root) return;
 
-      gsap.from(entrance, {
+      // Opacity, not autoAlpha: the phone's buttons stay in the Tab order before it arrives.
+      const arrival = gsap.from(entrance, {
         yPercent: 16,
         rotationX: 34,
         rotationZ: -4,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 1.6,
         ease: 'expo.out',
         scrollTrigger: { trigger: stage, start: 'top 82%', once: true },
@@ -123,7 +125,9 @@ export function usePhoneTilt(refs: TiltRefs, isEnabled: boolean, isTouch: boolea
       stage.addEventListener('pointerdown', onDown, { passive: true });
       window.addEventListener('pointerup', onUp, { passive: true });
       window.addEventListener('pointercancel', onUp, { passive: true });
+      const releaseFocus = revealOnFocus(root, arrival, [entrance]);
       return () => {
+        releaseFocus();
         root.removeEventListener('pointermove', onMove);
         root.removeEventListener('pointerleave', rest);
         stage.removeEventListener('pointerdown', onDown);

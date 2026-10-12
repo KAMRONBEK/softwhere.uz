@@ -28,7 +28,8 @@
     "mcp:yandex-webmaster": "node scripts/yandex-webmaster-mcp.js",
     "test:estimator": "tsx tests/estimator/logic.ts && tsx tests/estimator/e2e.ts",
     "test:estimator:logic": "tsx tests/estimator/logic.ts",
-    "test:estimator:e2e": "tsx tests/estimator/e2e.ts"
+    "test:estimator:e2e": "tsx tests/estimator/e2e.ts",
+    "test:home": "tsx tests/home/globe.ts && tsx tests/i18n/parity.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

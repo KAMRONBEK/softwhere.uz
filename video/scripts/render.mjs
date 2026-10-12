@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Renders project compositions to ../public/videos/<slug>.mp4 (+ <slug>.jpg poster) for the website.
-// Usage: node scripts/render.mjs [--only=talim-ai,truck-me] [--concurrency=4] [--no-poster]
+// Locale variants (src/projects/<slug>.<locale>.json) render to <slug>.<locale>.mp4.
+// Usage: node scripts/render.mjs [--only=talim-ai,truck-me,driveme.uz] [--concurrency=4] [--no-poster]
 import { mkdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { renderMedia, renderStill } from '@remotion/renderer';

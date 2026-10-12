@@ -8,7 +8,7 @@ import { SectionHeading } from '../components/LabSection';
 import LazyCanvas from '../components/LazyCanvas';
 import { useLabDevice } from '../device/useDeviceTier';
 import { gsap, ScrollTrigger, useGSAP, SPLIT_KEEP_NBSP } from '../global/gsap';
-import { scrollToSection } from '../global/scroll';
+import { scrollToSection, scrollToY } from '../global/scroll';
 import { useLabLogo, useLogoInk } from '../logos';
 import { useHomeFacts } from '../context/HomeFactsContext';
 import { useLabTheme } from '../theme/useLabTheme';
@@ -168,7 +168,24 @@ export default function S01Hero({ meta }: LabSectionProps) {
       ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom top', onUpdate: measure, onRefresh: measure });
 
       const scrub = (share: number) => ({ trigger: root, start: 'top top', end: after(share), scrub: true });
-      gsap.to(copyRef.current, { autoAlpha: 0, ease: 'power1.in', scrollTrigger: scrub(COPY_FADE) });
+      // The copy fades with opacity, not autoAlpha: the CTAs stay in the Tab order once scrolled past
+      // (Shift+Tab up from the x-ray lands on them). Faded out, they let the pointer through as before,
+      // and keyboard focus arriving on a faded CTA brings the hero back to the top so it reads.
+      const copy = copyRef.current;
+      const passPointer = (self: ScrollTrigger) => {
+        if (copy) copy.style.pointerEvents = self.progress >= 1 ? 'none' : '';
+      };
+      gsap.to(copy, {
+        opacity: 0,
+        ease: 'power1.in',
+        scrollTrigger: { ...scrub(COPY_FADE), onUpdate: passPointer, onRefresh: passPointer },
+      });
+      const onCopyFocus = (event: FocusEvent) => {
+        const target = event.target;
+        if (!(target instanceof Element) || !target.matches(':focus-visible')) return;
+        if (Number(gsap.getProperty(copy, 'opacity')) < 1) scrollToY(root.getBoundingClientRect().top + window.scrollY);
+      };
+      copy?.addEventListener('focusin', onCopyFocus);
       gsap.to(hintRef.current, { autoAlpha: 0, ease: 'none', scrollTrigger: scrub(HINT_FADE) });
       if (markZoneRef.current) gsap.to(markZoneRef.current, { autoAlpha: 0, ease: 'steps(1)', scrollTrigger: scrub(ZONE_FADE) });
       gsap.to(backdropRef.current, { autoAlpha: 0, ease: 'none', scrollTrigger: scrub(GLOW_FADE) });
@@ -192,7 +209,7 @@ export default function S01Hero({ meta }: LabSectionProps) {
           gsap.set(ghost, { autoAlpha: 1 });
           gsap.fromTo(letters, { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'power2.inOut', delay: at });
           gsap.to(ghostSplit.chars, { opacity: 0, duration: 0.7, ease: 'power2.in', delay: (index: number) => at(index) + 0.12 });
-          gsap.from('[data-hero-rise]', { y: 14, autoAlpha: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, delay: 0.55 });
+          gsap.from('[data-hero-rise]', { y: 14, opacity: 0, duration: 0.9, ease: 'expo.out', stagger: 0.08, delay: 0.55 });
         }
 
         // The same wind that strips the mark takes the headline, word by word,
@@ -221,6 +238,8 @@ export default function S01Hero({ meta }: LabSectionProps) {
       const frame = requestAnimationFrame(() => context.add(splitHeadline));
       return () => {
         cancelAnimationFrame(frame);
+        copy?.removeEventListener('focusin', onCopyFocus);
+        if (copy) copy.style.pointerEvents = '';
         knockRef.current = null;
       };
     },
