@@ -256,9 +256,12 @@ const answerFirstBlock = (locale: string) => `READER-FIRST STRUCTURE:
 function internalLinksBlock(locale: string): string {
   return `INTERNAL LINKS — include 2-3 where they genuinely fit the sentence, as real Markdown links with descriptive anchor text (NEVER placeholder text like "[related service]"):
 - Project cost estimator: /${locale}/estimator
-- Services overview: /${locale}#services
-- AI solutions: /${locale}#ai
-- Portfolio / past work: /${locale}#portfolio
+- Services overview: /${locale}/services
+- Website development: /${locale}/services/web-development
+- Mobile app development: /${locale}/services/mobile-apps
+- Telegram bot development: /${locale}/services/telegram-bots
+- AI solutions: /${locale}#ai-demo
+- Portfolio / past work: /${locale}#work-wall
 - Blog: /${locale}/blog
 - Get a quote / contact us: /${locale}#contact`;
 }

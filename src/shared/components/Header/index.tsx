@@ -236,13 +236,13 @@ function Header() {
 
         <ul className={css.links}>
           <li>
-            <Link href={`/${lang}#services`}>{t('services')}</Link>
+            <Link href={`/${lang}/services`}>{t('services')}</Link>
           </li>
           <li>
-            <Link href={`/${lang}#portfolio`}>{t('work')}</Link>
+            <Link href={`/${lang}#work-wall`}>{t('work')}</Link>
           </li>
           <li>
-            <Link href={`/${lang}#ai`}>{t('ai')}</Link>
+            <Link href={`/${lang}#ai-demo`}>{t('ai')}</Link>
           </li>
           <li>
             <Link href={`/${lang}/blog`}>{t('blog')}</Link>
@@ -277,17 +277,17 @@ function Header() {
       <nav id='mobile-nav' className={`${css.navMobile} ${isOpen ? css.navOpen : ''}`} inert={!isOpen}>
         <ul className={css.mobileLinks}>
           <li>
-            <Link href={`/${lang}#services`} onClick={toggleMenu}>
+            <Link href={`/${lang}/services`} onClick={toggleMenu}>
               {t('services')}
             </Link>
           </li>
           <li>
-            <Link href={`/${lang}#portfolio`} onClick={toggleMenu}>
+            <Link href={`/${lang}#work-wall`} onClick={toggleMenu}>
               {t('work')}
             </Link>
           </li>
           <li>
-            <Link href={`/${lang}#ai`} onClick={toggleMenu}>
+            <Link href={`/${lang}#ai-demo`} onClick={toggleMenu}>
               {t('ai')}
             </Link>
           </li>

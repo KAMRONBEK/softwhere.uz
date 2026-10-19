@@ -36,7 +36,9 @@
     "ai-demo": "Bepul hisob-kitob",
     "work-wall": "Loyihalar",
     "process": "Qanday ishlaymiz",
-    "stack-physics": "Texnologiyalar"
+    "stack-physics": "Texnologiyalar",
+    "services": "Xizmatlar",
+    "blog": "Blog"
   },
   "theme": {
     "label": "Mavzu",

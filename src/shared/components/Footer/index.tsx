@@ -10,6 +10,9 @@ import css from './style.module.css';
 
 function Footer() {
   const t = useTranslations('footer');
+  // The services hub label. Read from `header`, which the site layout already
+  // sends to the browser; `servicePages` is server-only (src/core/messages.ts).
+  const tHeader = useTranslations('header');
   const params = useParams();
   const locale = (params?.locale as string) || 'uz';
 
@@ -91,11 +94,14 @@ function Footer() {
             </svg>
             <p>{t('requestLabel')}</p>
           </div>
-          <a href='#contact'>{t('requestLabel')}</a>
+          <Link href={`/${locale}#contact`}>{t('requestLabel')}</Link>
         </div>
       </div>
 
       <nav aria-label={t('servicesNavLabel')} className='flex flex-wrap justify-center gap-x-6 gap-y-2 mt-8 text-sm'>
+        <Link href={`/${locale}/services`} className='hover:opacity-70'>
+          {tHeader('services')}
+        </Link>
         <Link href={`/${locale}/services/web-development`} className='hover:opacity-70'>
           {t('servicesWeb')}
         </Link>

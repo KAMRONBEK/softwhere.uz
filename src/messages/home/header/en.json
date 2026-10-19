@@ -36,7 +36,9 @@
     "ai-demo": "Free estimate",
     "work-wall": "Work",
     "process": "Working with us",
-    "stack-physics": "Stack"
+    "stack-physics": "Stack",
+    "services": "Services",
+    "blog": "Blog"
   },
   "theme": {
     "label": "Theme",
