@@ -1,7 +1,8 @@
 'use client';
 
 import { SplitText } from 'gsap/SplitText';
-import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import { startTransition, useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { SectionHeading } from '../components/LabSection';
 import { useInView } from '../components/useInView';
@@ -110,6 +111,8 @@ function GetLine({ id }: { id: StepId }) {
 
 function Outro() {
   const copy = useCopy();
+  const locale = useLocale();
+  const t = useTranslations('home.web-build');
   return (
     <footer className={css.outro}>
       <div className={css.deliver} data-enter>
@@ -133,6 +136,11 @@ function Outro() {
             <ArrowIcon className={css.ctaIcon} />
           </button>
           <p className={css.footnote}>{copy.footnote}</p>
+          <p className={css.footnote}>
+            <Link className={css.serviceLink} href={`/${locale}/services/web-development`}>
+              {t('serviceLink')}
+            </Link>
+          </p>
         </div>
       </div>
     </footer>

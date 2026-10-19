@@ -1,6 +1,7 @@
 {
   "heading": "Your shop, inside Telegram.",
   "summary": "A bot that takes the order, the payment and the pickup time, right in the chat your customers already use. Nothing to install, no sign-up.",
+  "serviceLink": "Telegram bot and Mini App development: services and prices",
   "lead": "A bot that takes the order, the payment and the pickup time, right in the chat your customers already use. Nothing to install, no sign-up. Go on, order a coffee.",
   "legend": {
     "bot": {

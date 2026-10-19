@@ -389,37 +389,48 @@ export default function S13StackPhysics({ meta }: LabSectionProps) {
     entranceRef.current = 'auto';
     const isFirstShow = !hasBuiltRef.current && scrollSpeed() < FAST_SCROLL;
     const entrance = canDrop && (wanted === 'build' || (wanted === 'auto' && isFirstShow)) ? 'build' : 'placed';
-    const stage = new StackStage({
-      root,
-      list,
-      tiles,
-      faces,
-      flashes: flashRefs.current.slice(0, count),
-      ripples: rippleRefs.current.filter((ripple): ripple is HTMLSpanElement => ripple !== null),
-      shaker: shakerRef.current,
-      layout: placed,
-      floor: placed.floor,
-      ceiling: placed.ceiling,
-      fenceLeft: placed.fenceLeft,
-      entrance,
-      timing: placed.isWide ? { maxDrop: 260, rowDelayMs: 150, colDelayMs: 50 } : { maxDrop: 190, rowDelayMs: 130, colDelayMs: 45 },
-      seed: SEED + run,
-      isInteractive,
-      hasFlourish,
-      onActive: index => setActiveId(placed.key.split('|')[index] ?? null),
-      onState: onStageState,
-      onLayerBuilt,
+    let stage: StackStage | null = null;
+    const build = () => {
+      stage = new StackStage({
+        root,
+        list,
+        tiles,
+        faces,
+        flashes: flashRefs.current.slice(0, count),
+        ripples: rippleRefs.current.filter((ripple): ripple is HTMLSpanElement => ripple !== null),
+        shaker: shakerRef.current,
+        layout: placed,
+        floor: placed.floor,
+        ceiling: placed.ceiling,
+        fenceLeft: placed.fenceLeft,
+        entrance,
+        timing: placed.isWide ? { maxDrop: 260, rowDelayMs: 150, colDelayMs: 50 } : { maxDrop: 190, rowDelayMs: 130, colDelayMs: 45 },
+        seed: SEED + run,
+        isInteractive,
+        hasFlourish,
+        onActive: index => setActiveId(placed.key.split('|')[index] ?? null),
+        onState: onStageState,
+        onLayerBuilt,
+      });
+      hasBuiltRef.current = true;
+      stageRef.current = stage;
+      stage.setGravity(gravityRef.current.x, gravityRef.current.y);
+      stage.setAutoRebuild(!isTiltOnRef.current);
+      stage.setVisible(isVisibleRef.current);
+      // The new tower is placed (or parked above its slots): the cleared heap may show again.
+      list.removeAttribute('data-clearing');
+    };
+    // Placed a frame after the tiles took their slot sizes, never in the same frame: sized and
+    // moved on screen at once, the blocks' text counted as a layout shift (CLS) when the section
+    // mounted mid-scroll. Sized while still parked off screen, then moved by transform only, it does not.
+    let frameId = requestAnimationFrame(() => {
+      frameId = requestAnimationFrame(build);
     });
-    hasBuiltRef.current = true;
-    stageRef.current = stage;
-    stage.setGravity(gravityRef.current.x, gravityRef.current.y);
-    stage.setAutoRebuild(!isTiltOnRef.current);
-    stage.setVisible(isVisibleRef.current);
-    // The new tower is placed (or parked above its slots): the cleared heap may show again.
-    list.removeAttribute('data-clearing');
     return () => {
-      stage.dispose();
-      if (stageRef.current === stage) stageRef.current = null;
+      cancelAnimationFrame(frameId);
+      const built = stage as StackStage | null;
+      built?.dispose();
+      if (built && stageRef.current === built) stageRef.current = null;
       tiles.forEach(tile => {
         tile.style.transform = '';
         tile.style.opacity = '';

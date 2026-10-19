@@ -69,3 +69,74 @@
   padding: 0;
   list-style: none;
 }
+
+/* Server-rendered stand-in content (src/modules/home/standins): the live
+   section's steps, deliverables, projects and figures, as plain lists. */
+.standinList {
+  display: grid;
+  gap: 14px 28px;
+  max-width: 880px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .standinList {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.standinList h3 {
+  margin: 0;
+  color: var(--fg);
+  font: 600 1rem / 1.3 var(--font-body);
+}
+
+.standinList p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.standinList p:first-child {
+  margin-top: 0;
+}
+
+.standinList .standinStrong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.standinWork {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.standinWork img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--aspect);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  object-fit: cover;
+}
+
+.standinWork h3 {
+  margin: 8px 0 0;
+  color: var(--fg);
+  font: 600 0.9375rem / 1.3 var(--font-body);
+}
+
+.standinWork p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}

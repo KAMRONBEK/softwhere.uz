@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { startTransition, useCallback, useRef, type CSSProperties, type MouseEvent } from 'react';
 import { SectionHeading } from '../components/LabSection';
@@ -187,6 +188,11 @@ export default function S15MobileBuild({ meta }: LabSectionProps) {
               <ArrowIcon className={css.ctaIcon} />
             </a>
             <p className={css.footnote}>{t('footnote')}</p>
+            <p className={css.footnote}>
+              <Link className={css.serviceLink} href={`/${locale}/services/mobile-apps`}>
+                {t('serviceLink')}
+              </Link>
+            </p>
           </div>
         </footer>
       </div>

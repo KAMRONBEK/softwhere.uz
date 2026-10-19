@@ -8,6 +8,7 @@ import LatestPosts, { type HomePost } from '@/modules/home/global/LatestPosts';
 import { HOME_FACTS } from '@/modules/home/media/facts';
 import ThemeScript from '@/modules/home/theme/ThemeScript';
 import { eagerHomeMessages } from '@/modules/home/sections/eagerMessages';
+import { homeStandIns } from '@/modules/home/standins';
 import { SECTION_IDS, type LabState } from '@/modules/home/types';
 import HomeAIBrief from './HomeAIBrief';
 
@@ -55,6 +56,7 @@ export default async function HomeExperience({ locale, mode, initial }: HomeExpe
         mode={mode}
         initial={initial}
         slots={homeSlots()}
+        standIns={homeStandIns(locale)}
         bootScript={<ThemeScript />}
         appendix={<LatestPosts locale={locale} posts={posts} />}
         footer={<HomeFooter locale={locale} />}
