@@ -768,8 +768,8 @@
     },
     "index": {
       "metaTitle": "Xizmatlar: sayt, mobil ilova va Telegram bot yaratish | SoftWhere",
-      "metaDescription": "Toshkentda sayt, mobil ilova, Telegram bot, CRM/ERP va AI yechimlar yaratish. Xizmatni tanlang — narxi, muddati va ish tartibi uning sahifasida.",
-      "h1": "Toshkentda dasturiy taʼminot yaratish xizmatlari",
+      "metaDescription": "Sayt, mobil ilova, Telegram bot, CRM/ERP va AI yechimlar yaratish. Xizmatni tanlang — narxi, muddati va ish tartibi uning sahifasida.",
+      "h1": "Mobil ilova, sayt va AI yechimlar yaratish xizmatlari",
       "intro": "Sayt, mobil ilova, Telegram bot, CRM va AI yechimlarni boshidan oxirigacha qilamiz: reja, dizayn, dasturlash, ishga tushirish va qoʻllab-quvvatlash. Kerakli xizmatni tanlang yoki narxni kalkulyatorda hisoblang.",
       "moreTitle": "Yana nimalar qilamiz",
       "crmTitle": "CRM va ERP tizimlar",
@@ -857,7 +857,7 @@
     }
   },
   "metadata": {
-    "title": "Toshkentda mobil ilova, sayt va Telegram bot yaratish — SoftWhere",
-    "description": "Toshkentda mobil ilova, sayt va Telegram bot yaratamiz: iOS va Android, CRM, AI avtomatlashtirish. {projects} ta mahsulot ishga tushirdik. Narx va muddat — bepul."
+    "title": "Mobil ilova, sayt va Telegram bot yaratish — SoftWhere",
+    "description": "iOS va Android ilovalar, saytlar, Telegram botlar va AI yechimlar yaratamiz. AQSH, Yevropa va Oʻzbekistondagi mijozlar uchun {projects} ta mahsulot ishga tushirdik."
   }
 }

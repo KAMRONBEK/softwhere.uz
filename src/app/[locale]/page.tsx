@@ -87,7 +87,6 @@ async function OfferCatalogJsonLd({ locale }: { locale: Locale }) {
           '@type': 'Service',
           name: t(`${SERVICE_NAMESPACES[slug]}.h1`),
           url: `${ENV.BASE_URL}/${locale}/services/${slug}`,
-          areaServed: { '@type': 'City', name: 'Tashkent' },
         },
       })),
     },
