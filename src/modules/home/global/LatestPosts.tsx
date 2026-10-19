@@ -72,7 +72,7 @@ export default async function LatestPosts({ locale, posts }: LatestPostsProps) {
                 <time className={css.date} dateTime={post.publishedAt}>
                   {formatPostDate(post.publishedAt, locale)}
                 </time>
-                <span className={css.cardTitle}>{post.title}</span>
+                <h3 className={css.cardTitle}>{post.title}</h3>
                 <span className={css.read} aria-hidden='true'>
                   {t('read')}
                   <Arrow />

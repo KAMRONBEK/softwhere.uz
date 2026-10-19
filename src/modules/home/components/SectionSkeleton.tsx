@@ -6,8 +6,9 @@ export type SkeletonShape = 'stage' | 'browser' | 'phone' | 'orb' | 'grid';
 
 /**
  * Per-section hint. Sections not listed get the plain stage; `null` means the
- * stand-in's own copy is the whole section (the manifesto is a type poster),
- * so it shows no stage at all. The hero has its own stand-in (HeroFallback).
+ * stand-in's own content is the whole section (the manifesto is a type
+ * poster; the work wall's stand-in shows its real tiles), so it shows no
+ * stage at all. The hero has its own stand-in (HeroFallback).
  */
 const SHAPES: Partial<Record<SectionId, SkeletonShape | null>> = {
   manifesto: null,
@@ -18,7 +19,8 @@ const SHAPES: Partial<Record<SectionId, SkeletonShape | null>> = {
   'mobile-build': 'phone',
   'web-build': 'browser',
   'crm-build': 'browser',
-  'work-wall': 'grid',
+  // The stand-in shows the wall's first real tiles (standins/WorkStandIn.tsx).
+  'work-wall': null,
   numbers: 'grid',
   globe: 'orb',
   'stack-physics': 'grid',

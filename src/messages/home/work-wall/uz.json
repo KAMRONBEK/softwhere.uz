@@ -2,6 +2,7 @@
   "heading": "{projects} ta tayyor loyiha.",
   "headingRest": "ta tayyor loyiha.",
   "summary": "Har bir kartochkada biz ishga tushirgan loyihaning video-obzori. {us} tasi AQSH bozori uchun yaratilgan, {liveInStore} tasi App Store va Google Playda bor.",
+  "thumbAlt": "{name} loyihasidan ekran",
   "hintPointer": "Devorni suring. Loyihani ochish uchun kartochkani bosing.",
   "hintTouch": "Devorni suring. Loyihani ochish uchun kartochkaga teging.",
   "cursorDrag": "Suring",

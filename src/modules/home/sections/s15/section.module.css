@@ -369,3 +369,15 @@
     filter: brightness(1.06);
   }
 }
+
+/* The contextual link to the service page (the same link the server stand-in carries). */
+.serviceLink {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+.serviceLink:hover {
+  text-decoration-color: currentColor;
+}

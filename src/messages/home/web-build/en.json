@@ -1,8 +1,9 @@
 {
   "heading": "A bakery opens online in four weeks.",
-  "summary": "How we build a website, shown on an example bakery: six steps from grey boxes to launch day.",
-  "lead": "How we build a website, shown on an example bakery: six steps from grey boxes to launch day. Scroll to build it, then resize it, switch it to dark or edit today’s special yourself.",
-  "leadStill": "How we build a website, shown on an example bakery: six steps from grey boxes to launch day. Pick a step to see it, then resize the site, switch it to dark or edit today’s special yourself.",
+  "summary": "How we build a website — a landing page or a company site with an admin panel — shown on an example bakery: six steps from grey boxes to launch day.",
+  "serviceLink": "Website development, from landing pages to online stores: services and prices",
+  "lead": "How we build a website — a landing page or a company site with an admin panel — shown on an example bakery: six steps from grey boxes to launch day. Scroll to build it, then resize it, switch it to dark or edit today’s special yourself.",
+  "leadStill": "How we build a website — a landing page or a company site with an admin panel — shown on an example bakery: six steps from grey boxes to launch day. Pick a step to see it, then resize the site, switch it to dark or edit today’s special yourself.",
   "stepsLabel": "How we build a website",
   "stepAction": "{term}, {when}. Show this step",
   "getLabel": "You get",

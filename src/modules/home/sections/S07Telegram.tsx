@@ -2,6 +2,7 @@
 
 import { SplitText } from 'gsap/SplitText';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useReducer, useRef, type CSSProperties, type RefObject } from 'react';
 import { SectionHeading } from '../components/LabSection';
@@ -253,7 +254,10 @@ export default function S07Telegram({ meta }: LabSectionProps) {
 
         <footer className={css.outro}>
           <p className={css.reach} data-enter>
-            {copy.reach}
+            {copy.reach}{' '}
+            <Link className={css.serviceLink} href={`/${locale}/services/telegram-bots`}>
+              {t('serviceLink')}
+            </Link>
           </p>
           <div className={css.foot} data-enter>
             {PROOF_PROJECT && (
