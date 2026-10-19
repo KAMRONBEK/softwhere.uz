@@ -35,11 +35,16 @@ export default function HeroFallback({ meta }: LabSectionProps) {
       <div className={css.content}>
         <div className={css.copy}>
           <div className={css.titleWrap}>
-            <SectionHeading meta={meta} as='h1' className={css.title}>
+            <p className={css.title} data-hero-title=''>
               {t('heading')}
-            </SectionHeading>
+            </p>
           </div>
-          <p className={css.subline}>{t('summary', facts)}</p>
+          <div className={css.subline}>
+            <SectionHeading meta={meta} as='h1' className={css.lead}>
+              {t('lead')}
+            </SectionHeading>{' '}
+            {t('summary', facts)}
+          </div>
           <div className={css.actions}>
             <a href='#finale' className={`${css.cta} ${css.primary}`}>
               {tShared('callCta')}

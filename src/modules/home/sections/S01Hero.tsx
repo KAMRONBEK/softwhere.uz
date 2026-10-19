@@ -152,7 +152,7 @@ export default function S01Hero({ meta }: LabSectionProps) {
     (context, contextSafe) => {
       const root = rootRef.current;
       const stage = stageRef.current;
-      const title = root?.querySelector('h1');
+      const title = root?.querySelector<HTMLElement>('[data-hero-title]');
       const ghost = root?.querySelector<HTMLElement>('[data-hero-ghost]');
       if (!root || !stage || !title || !ghost || reducedMotion) return;
       const io = inputRef.current;
@@ -297,18 +297,21 @@ export default function S01Hero({ meta }: LabSectionProps) {
         {/* The logo lives in the visitor header (global/LabHeader), not here. */}
         <div ref={copyRef} className={css.copy}>
           <div className={css.titleWrap}>
-            <SectionHeading meta={meta} as='h1' className={css.title}>
+            <p className={css.title} data-hero-title=''>
               {t('heading')}
-            </SectionHeading>
+            </p>
             {isInteractive && (
               <div className={`${css.title} ${css.ghost}`} data-hero-ghost='' aria-hidden='true'>
                 {t('heading')}
               </div>
             )}
           </div>
-          <p className={css.subline} data-hero-rise=''>
+          <div className={css.subline} data-hero-rise=''>
+            <SectionHeading meta={meta} as='h1' className={css.lead}>
+              {t('lead')}
+            </SectionHeading>{' '}
             {t('summary', facts)}
-          </p>
+          </div>
           <div className={css.actions} data-hero-rise=''>
             <a href='#finale' className={`${css.cta} ${css.primary}`} onClick={jumpTo('finale')} data-magnetic=''>
               {tShared('callCta')}

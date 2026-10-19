@@ -200,6 +200,15 @@
   text-wrap: pretty;
 }
 
+/* The page's h1 (the keyword sentence) runs inline at the start of the subline, styled as plain subline text. */
+.lead {
+  display: inline;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
