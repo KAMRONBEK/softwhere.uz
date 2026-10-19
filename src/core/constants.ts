@@ -60,3 +60,15 @@ export const ENV = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   BASE_URL: (process.env.NEXT_PUBLIC_BASE_URL || 'https://softwhere.uz').trim().replace(/\/+$/, ''),
 } as const;
+
+// Open Graph locales (language_TERRITORY, as og:locale expects). The site's
+// URL locales are bare language codes, which OG consumers do not recognise.
+export const OG_LOCALE = { uz: 'uz_UZ', ru: 'ru_RU', en: 'en_US' } as const;
+
+export type OgLocaleKey = keyof typeof OG_LOCALE;
+
+/** `openGraph.locale` plus the other two locales as `alternateLocale`. */
+export function ogLocaleFields(locale: OgLocaleKey): { locale: string; alternateLocale: string[] } {
+  const others = (Object.keys(OG_LOCALE) as OgLocaleKey[]).filter(key => key !== locale);
+  return { locale: OG_LOCALE[locale], alternateLocale: others.map(key => OG_LOCALE[key]) };
+}

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 
 const SECTIONS = ['collect', 'use', 'store', 'analytics', 'cookies', 'ai', 'rights', 'changes'] as const;
 
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
       url: `${ENV.BASE_URL}/${locale}/privacy-policy`,
       siteName: 'SoftWhere.uz',
-      locale,
+      ...ogLocaleFields(locale),
       type: 'website',
     },
     // Own canonical: without it the page would inherit the home canonical

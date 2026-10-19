@@ -24,6 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '',
     '/blog',
     '/estimator',
+    '/services',
     '/services/web-development',
     '/services/mobile-apps',
     '/services/telegram-bots',
@@ -48,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           // No lastModified for static pages: stamping new Date() on every
           // sitemap render churned the field and trains Google to ignore it.
           changeFrequency: 'weekly' as const,
-          priority: page === '' ? 1 : 0.8,
+          priority: page === '' ? 1 : page.startsWith('/services') ? 0.9 : 0.8,
           alternates: { languages },
         };
       })

@@ -110,11 +110,8 @@ export async function BlogPostSchema({ post }: { post: BlogPost }) {
       description,
       image: post.coverImage?.url || (await buildOgUrl({ title: post.title, locale })),
       author,
-      publisher: {
-        '@type': 'Organization',
-        name: 'SoftWhere.uz',
-        logo: { '@type': 'ImageObject', url: `${baseUrl}/icons/logo.svg` },
-      },
+      // The site-wide Organization node (locale layout) carries name and logo.
+      publisher: { '@id': `${baseUrl}/#organization` },
       datePublished: post.createdAt,
       dateModified: post.updatedAt,
       mainEntityOfPage: {

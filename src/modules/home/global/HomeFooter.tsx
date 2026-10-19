@@ -2,7 +2,15 @@ import type { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { CONTACT_INFO, SOCIAL_LINKS } from '@/core/constants';
+import { SERVICE_SLUGS, type ServiceSlug } from '@/shared/data/services';
 import css from './HomeFooter.module.css';
+
+/** The footer's short label for each service page (home.shared.footer). */
+const FOOTER_LABEL_KEYS = {
+  'web-development': 'web',
+  'mobile-apps': 'mobile',
+  'telegram-bots': 'bots',
+} as const satisfies Record<ServiceSlug, string>;
 
 const PHONE_PRETTY = CONTACT_INFO.PHONE.replace(/^\+998(\d{2})(\d{3})(\d{2})(\d{2})$/, '+998 $1 $2 $3 $4');
 const TELEGRAM_HANDLE = `@${SOCIAL_LINKS.TELEGRAM.replace(/^https:\/\/t\.me\//, '')}`;
@@ -21,6 +29,9 @@ interface HomeFooterProps {
  */
 export default async function HomeFooter({ locale }: HomeFooterProps) {
   const t = await getTranslations({ locale, namespace: 'home.shared.footer' });
+  // Server-only read of the site messages: this footer renders no client
+  // component, so the strings never need to reach the home client provider.
+  const ts = await getTranslations({ locale, namespace: 'servicePages.common' });
   const year = new Date().getFullYear();
 
   return (
@@ -32,14 +43,13 @@ export default async function HomeFooter({ locale }: HomeFooterProps) {
           </p>
           <ul className={css.list}>
             <li>
-              <Link href={`/${locale}/services/web-development`}>{t('web')}</Link>
+              <Link href={`/${locale}/services`}>{ts('servicesHub')}</Link>
             </li>
-            <li>
-              <Link href={`/${locale}/services/mobile-apps`}>{t('mobile')}</Link>
-            </li>
-            <li>
-              <Link href={`/${locale}/services/telegram-bots`}>{t('bots')}</Link>
-            </li>
+            {SERVICE_SLUGS.map(slug => (
+              <li key={slug}>
+                <Link href={`/${locale}/services/${slug}`}>{t(FOOTER_LABEL_KEYS[slug])}</Link>
+              </li>
+            ))}
           </ul>
         </nav>
 

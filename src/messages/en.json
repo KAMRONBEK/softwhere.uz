@@ -21,7 +21,7 @@
   },
   "estimator": {
     "title": "Project Estimator",
-    "metaTitle": "Website, App & Telegram Bot Cost Calculator | Softwhere",
+    "metaTitle": "Website, App & Telegram Bot Cost Calculator | SoftWhere",
     "metaDescription": "How much does a website, mobile app or Telegram bot cost in Tashkent? Get a ballpark price and timeline in 2 minutes. Landing pages from $300, bots from $250.",
     "eyebrow": "Project estimator",
     "headline": "What will it cost to build?",
@@ -763,10 +763,22 @@
       "otherServicesTitle": "Other services",
       "link_webDevelopment": "Website Development",
       "link_mobileApps": "Mobile App Development",
-      "link_telegramBots": "Telegram Bot Development"
+      "link_telegramBots": "Telegram Bot Development",
+      "servicesHub": "Services"
+    },
+    "index": {
+      "metaTitle": "Services: Website, App & Telegram Bot Development | SoftWhere",
+      "metaDescription": "Website, mobile app, Telegram bot, CRM/ERP and AI development in Tashkent. Compare our services, then open one for prices, timelines and how we work.",
+      "h1": "Software development services in Tashkent",
+      "intro": "We build websites, mobile apps, Telegram bots, CRM and AI tools end to end: plan, design, code, launch and support. Pick a service or get a price range from the estimator.",
+      "moreTitle": "What else we build",
+      "crmTitle": "CRM and ERP systems",
+      "crmDesc": "We move work out of spreadsheets into a system with roles, reports and clear workflows.",
+      "aiTitle": "AI assistant on your documents",
+      "aiDesc": "AI answers from your company files and cites the source for every answer."
     },
     "webDevelopment": {
-      "metaTitle": "Web Development in Tashkent — Landing to SaaS | Softwhere",
+      "metaTitle": "Web Development in Tashkent — Landing to SaaS | SoftWhere",
       "metaDescription": "Web development in Tashkent: landing pages from $300, corporate websites, e-commerce stores, SaaS and CRM. Three languages, SEO-ready, a year of free hosting.",
       "h1": "Website & Web App Development in Tashkent",
       "intro": "We design, build, and launch websites that sell — from a one-week landing page to a full e-commerce store or SaaS platform. Modern stack (Next.js, React), fast loading, SEO-ready structure, and Uzbek/Russian/English support out of the box.",
@@ -794,7 +806,7 @@
       "why4": "A year of free hosting for early clients, plus support after launch."
     },
     "mobileApps": {
-      "metaTitle": "Mobile App Development in Tashkent | Softwhere",
+      "metaTitle": "Mobile App Development in Tashkent | SoftWhere",
       "metaDescription": "iOS and Android app development in Tashkent: e-commerce, delivery, booking, fintech. An MVP in 90 days from $3,000. React Native and Flutter.",
       "h1": "Mobile App Development in Tashkent",
       "intro": "We build cross-platform apps for iOS and Android with React Native and Flutter: one codebase, native feel, published to the App Store and Google Play. From a 90-day MVP to a full product with backend and analytics.",
@@ -816,7 +828,7 @@
       "why4": "Support and iteration after launch — with no forced lock-in to us."
     },
     "telegramBots": {
-      "metaTitle": "Telegram Bot & Mini App Development in Tashkent | Softwhere",
+      "metaTitle": "Telegram Bot & Mini App Development in Tashkent | SoftWhere",
       "metaDescription": "Telegram bots for business in Uzbekistan: order taking, Payme/Click payments, customer support, Mini Apps. From $250, launched in 1–2 weeks.",
       "h1": "Telegram Bot & Mini App Development",
       "intro": "Telegram is the main customer channel in Uzbekistan. We build bots that take orders, answer customers, and accept payment right in the chat — plus full Mini Apps, applications that run inside Telegram with nothing to install.",
@@ -846,6 +858,6 @@
   },
   "metadata": {
     "title": "Mobile App, Website & Telegram Bot Development in Tashkent — SoftWhere",
-    "description": "A studio in Tashkent: iOS and Android apps, websites, Telegram bots and AI automation. 50+ products launched for clients in Uzbekistan, the US and Europe. A price range and timeline, free."
+    "description": "Mobile app, website and Telegram bot development in Tashkent: iOS, Android, CRM and AI automation. {projects} products launched. Free price and timeline estimate."
   }
 }
