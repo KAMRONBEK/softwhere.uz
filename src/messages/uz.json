@@ -21,7 +21,7 @@
   },
   "estimator": {
     "title": "Loyiha kalkulyatori",
-    "metaTitle": "Sayt, mobil ilova va Telegram bot narxini hisoblash | Softwhere",
+    "metaTitle": "Sayt, mobil ilova va Telegram bot narxini hisoblash | SoftWhere",
     "metaDescription": "Toshkentda sayt, mobil ilova yoki Telegram bot qancha turadi? 2 daqiqada taxminiy narx va muddatni bilib oling. Lending 3,5 mln soʻmdan, botlar 3 mln soʻmdan.",
     "eyebrow": "Loyiha kalkulyatori",
     "headline": "Loyihangiz qanchaga tushadi?",
@@ -730,7 +730,7 @@
   },
   "privacy": {
     "title": "Maxfiylik siyosati",
-    "metaDescription": "SoftWhere.uz maʼlumotlaringiz bilan qanday ishlaydi: aloqa va kalkulyator formalari orqali nima yigʻiladi, qayerda saqlanadi va bu borada biz bilan qanday bogʻlanish mumkin.",
+    "metaDescription": "SoftWhere.uz maʼlumotlaringiz bilan qanday ishlaydi: aloqa va kalkulyator formalarida nima yigʻiladi, qayerda saqlanadi va qanday bogʻlanish mumkin.",
     "updated": "Oxirgi yangilanish: 2026-yil 19-iyul",
     "intro": "SoftWhere.uz («biz») — Toshkentdagi (Oʻzbekiston) dasturlash studiyasi. Bu sahifada saytimiz qanday maʼlumotlarni, nima uchun yigʻishi va ular bilan nima boʻlishi tushuntirilgan. Murojaatingizga javob berish uchun eng zarur maʼlumotnigina yigʻamiz — ortigʻini emas.",
     "collectTitle": "Qanday maʼlumotlarni yigʻamiz",
@@ -763,10 +763,22 @@
       "otherServicesTitle": "Boshqa xizmatlar",
       "link_webDevelopment": "Sayt yaratish",
       "link_mobileApps": "Mobil ilova yaratish",
-      "link_telegramBots": "Telegram bot yaratish"
+      "link_telegramBots": "Telegram bot yaratish",
+      "servicesHub": "Xizmatlar"
+    },
+    "index": {
+      "metaTitle": "Xizmatlar: sayt, mobil ilova va Telegram bot yaratish | SoftWhere",
+      "metaDescription": "Toshkentda sayt, mobil ilova, Telegram bot, CRM/ERP va AI yechimlar yaratish. Xizmatni tanlang — narxi, muddati va ish tartibi uning sahifasida.",
+      "h1": "Toshkentda dasturiy taʼminot yaratish xizmatlari",
+      "intro": "Sayt, mobil ilova, Telegram bot, CRM va AI yechimlarni boshidan oxirigacha qilamiz: reja, dizayn, dasturlash, ishga tushirish va qoʻllab-quvvatlash. Kerakli xizmatni tanlang yoki narxni kalkulyatorda hisoblang.",
+      "moreTitle": "Yana nimalar qilamiz",
+      "crmTitle": "CRM va ERP tizimlar",
+      "crmDesc": "Excel jadvallaridagi ishni rollar, hisobotlar va jarayonlarga ega tizimga koʻchiramiz.",
+      "aiTitle": "Hujjatlaringiz asosidagi AI yordamchi",
+      "aiDesc": "AI kompaniya fayllaringizdan javob beradi va har bir javobning manbasini koʻrsatadi."
     },
     "webDevelopment": {
-      "metaTitle": "Toshkentda sayt yaratish — lendingdan SaaSgacha | Softwhere",
+      "metaTitle": "Toshkentda sayt yaratish — lendingdan SaaSgacha | SoftWhere",
       "metaDescription": "Toshkentda sayt yaratish: lending 3,5 mln soʻmdan, korporativ sayt, internet-doʻkon, SaaS va CRM. Uch tilda, SEOga tayyor, bir yil bepul hosting.",
       "h1": "Toshkentda sayt va veb-ilova yaratish",
       "intro": "Sotadigan saytlarni loyihalaymiz, ishlab chiqamiz va ishga tushiramiz: bir haftalik lendingdan internet-doʻkon yoki SaaS platformagacha. Zamonaviy texnologiyalar (Next.js, React), tez yuklanish, SEOga mos tuzilma hamda oʻzbek, rus va ingliz tillari — boshidanoq.",
@@ -794,7 +806,7 @@
       "why4": "Birinchi mijozlarga bir yil bepul hosting va ishga tushgandan keyin qoʻllab-quvvatlash."
     },
     "mobileApps": {
-      "metaTitle": "Toshkentda mobil ilova yaratish — iOS va Android | Softwhere",
+      "metaTitle": "Toshkentda mobil ilova yaratish — iOS va Android | SoftWhere",
       "metaDescription": "Toshkentda iOS va Android uchun mobil ilova yaratish: internet-doʻkon, yetkazib berish, bron, fintech. MVP 90 kunda, 35 mln soʻmdan. React Native va Flutter.",
       "h1": "Toshkentda mobil ilova yaratish",
       "intro": "React Native va Flutter yordamida iOS va Android uchun kross-platforma ilovalar ishlab chiqamiz: bitta kod, nativ ilovadek ishlaydi, App Store va Google Playga joylaymiz. 90 kunlik MVPdan backend va analitikali toʻliq mahsulotgacha.",
@@ -816,8 +828,8 @@
       "why4": "Ishga tushgandan keyin ham qoʻllab-quvvatlaymiz va rivojlantiramiz — sizni bizga bogʻlab qoʻymaymiz."
     },
     "telegramBots": {
-      "metaTitle": "Toshkentda Telegram bot va Mini App yaratish | Softwhere",
-      "metaDescription": "Oʻzbekistonda biznes uchun Telegram bot yaratish: buyurtma qabul qilish, Payme/Click orqali toʻlov, mijozlarni qoʻllab-quvvatlash, Mini App. 3 mln soʻmdan, 1–2 haftada tayyor.",
+      "metaTitle": "Toshkentda Telegram bot va Mini App yaratish | SoftWhere",
+      "metaDescription": "Biznes uchun Telegram bot va Mini App yaratish: buyurtmalar, Payme/Click orqali toʻlov, mijozlarni qoʻllab-quvvatlash. 3 mln soʻmdan, 1–2 haftada tayyor.",
       "h1": "Telegram bot va Mini App yaratish",
       "intro": "Oʻzbekistonda mijozlar bilan asosiy aloqa — Telegram. Buyurtma qabul qiladigan, mijozlarga javob beradigan va toʻlovni chatning oʻzida qabul qiladigan botlar yaratamiz. Shuningdek, toʻlaqonli Mini App — hech narsa oʻrnatmasdan Telegram ichida ishlaydigan ilovalar.",
       "offer1Title": "Axborot botlari",
@@ -846,6 +858,6 @@
   },
   "metadata": {
     "title": "Toshkentda mobil ilova, sayt va Telegram bot yaratish — SoftWhere",
-    "description": "Toshkentdagi dasturlash studiyasi: iOS va Android ilovalar, saytlar, Telegram botlar va AI yordamida avtomatlashtirish. Oʻzbekiston, AQSH va Yevropadagi mijozlar uchun 50 dan ortiq mahsulot ishga tushirdik. Narx oraligʻi va muddatni bepul aytamiz."
+    "description": "Toshkentda mobil ilova, sayt va Telegram bot yaratamiz: iOS va Android, CRM, AI avtomatlashtirish. {projects} ta mahsulot ishga tushirdik. Narx va muddat — bepul."
   }
 }

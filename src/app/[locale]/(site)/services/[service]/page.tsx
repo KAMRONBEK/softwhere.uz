@@ -3,19 +3,13 @@ import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
+import { SERVICE_NAMESPACES, type ServiceSlug } from '@/shared/data/services';
 import { safeJsonLd } from '@/shared/utils/security';
 
-// Commercial landing pages for the estimator's strongest categories. Slugs are
-// stable URL segments; namespaces key into `servicePages.*` in the messages.
-const SERVICE_NAMESPACES = {
-  'web-development': 'webDevelopment',
-  'mobile-apps': 'mobileApps',
-  'telegram-bots': 'telegramBots',
-} as const;
-
-type ServiceSlug = keyof typeof SERVICE_NAMESPACES;
+// Commercial landing pages for the estimator's strongest categories. The
+// slug → `servicePages.*` namespace map lives in shared/data/services.ts.
 
 const OFFERING_KEYS = ['offer1', 'offer2', 'offer3', 'offer4', 'offer5'] as const;
 const WHY_KEYS = ['why1', 'why2', 'why3', 'why4'] as const;
@@ -54,7 +48,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
       url,
       siteName: 'SoftWhere.uz',
-      locale,
+      ...ogLocaleFields(locale),
       type: 'website',
       images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
@@ -99,14 +93,15 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
         { '@type': 'Country', name: 'Uzbekistan' },
         { '@type': 'City', name: 'Tashkent' },
       ],
-      provider: { '@type': 'Organization', name: 'SoftWhere.uz', url: ENV.BASE_URL },
+      provider: { '@id': `${ENV.BASE_URL}/#organization` },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'SoftWhere.uz', item: `${ENV.BASE_URL}/${locale}` },
-        { '@type': 'ListItem', position: 2, name: t('h1'), item: url },
+        { '@type': 'ListItem', position: 2, name: tc('servicesHub'), item: `${ENV.BASE_URL}/${locale}/services` },
+        { '@type': 'ListItem', position: 3, name: t('h1'), item: url },
       ],
     },
   ];

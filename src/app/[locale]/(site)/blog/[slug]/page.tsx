@@ -23,7 +23,7 @@ import { validateLocale } from '@/core/auth';
 import { logger } from '@/core/logger';
 import { buildOgUrl } from '@/core/og';
 import { getSlugRoot } from '@/shared/utils/slug';
-import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { ENV, BLOG_CONFIG, OG_LOCALE } from '@/core/constants';
 import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
 import { jetbrainsMono } from '@/shared/fonts';
 
@@ -294,7 +294,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       authors: [process.env.BLOG_AUTHOR_NAME || process.env.NEXT_PUBLIC_BLOG_AUTHOR || 'SoftWhere.uz'],
       url: canonicalUrl,
       siteName: 'SoftWhere.uz',
-      locale: post.locale,
+      // No alternateLocale: a post's translations are separate URLs, listed in hreflang.
+      locale: OG_LOCALE[post.locale],
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
@@ -698,7 +699,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
                       {t('cta.estimate')}
                     </TrackedCTALink>
                     <TrackedCTALink
-                      href={`/${locale}#portfolio`}
+                      href={`/${locale}#work-wall`}
                       type='view_work'
                       slug={post.slug}
                       className='inline-flex items-center px-6 py-3 bg-transparent text-[#160a04] font-semibold rounded-lg border-2 border-[#160a04] hover:bg-[#160a04] hover:text-[#ffe9dc] transition-colors duration-300'

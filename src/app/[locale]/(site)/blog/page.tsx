@@ -6,7 +6,7 @@ import BlogListClient, { BlogPostSummary } from '@/modules/blog/components/BlogL
 import { listPublished } from '@/modules/blog/model/posts.repository';
 import { validateLocale } from '@/core/auth';
 import { safeJsonLd } from '@/shared/utils/security';
-import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 import { pickMessages } from '@/core/messages';
 
 // ISR: cache until a write busts the 'blog-posts' tag (see the note in
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
       url: `${ENV.BASE_URL}/${locale}/blog`,
       siteName: 'SoftWhere.uz',
-      locale,
+      ...ogLocaleFields(locale),
       type: 'website',
     },
     alternates: {

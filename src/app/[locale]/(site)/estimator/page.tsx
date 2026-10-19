@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Locale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { Wizard } from '@/modules/estimator/components';
-import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
 import { pickMessages } from '@/core/messages';
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
       url: `${ENV.BASE_URL}/${locale}/estimator`,
       siteName: 'SoftWhere.uz',
-      locale,
+      ...ogLocaleFields(locale),
       type: 'website',
       // Page metadata shallow-replaces the layout's openGraph, so re-declare the
       // dynamic OG card here or the estimator would have no og:image.

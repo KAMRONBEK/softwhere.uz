@@ -6,7 +6,8 @@ import { hasLocale, Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import React from 'react';
-import { ENV, SOCIAL_LINKS } from '@/core/constants';
+import { CONTACT_INFO, ENV, SOCIAL_LINKS } from '@/core/constants';
+import { HOME_FACTS } from '@/modules/home/media/facts';
 import { safeJsonLd } from '@/shared/utils/security';
 
 // The site fonts (Inter, Sora, Manrope) live in (site)/layout.tsx: the
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = (await params) as { locale: Locale };
   const t = await getTranslations({ locale, namespace: 'metadata' });
   const title = t('title');
-  const description = t('description');
+  const description = t('description', { projects: HOME_FACTS.projects });
 
   // Only site-wide defaults belong here. openGraph/twitter/alternates used to
   // live in this layout, but Next merges page metadata shallowly: any route
@@ -48,6 +49,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+// One Organization node for the whole site: the homepage OfferCatalog, the
+// service pages' provider and blog posts' publisher reference it by this @id.
+const ORGANIZATION_ID = `${ENV.BASE_URL}/#organization`;
+
 function StructuredData() {
   const schemas = [
     {
@@ -55,10 +60,14 @@ function StructuredData() {
       // Plain Organization: schema.org deprecated ProfessionalService, and
       // local-intent ranking comes from a Business Profile, not from markup.
       '@type': 'Organization',
+      '@id': ORGANIZATION_ID,
       name: 'SoftWhere.uz',
+      alternateName: 'SoftWhere',
       url: ENV.BASE_URL,
-      logo: `${ENV.BASE_URL}/icons/logo.svg`,
-      email: 'kamuranbek98@gmail.com',
+      // Raster logo: Google's logo guidelines do not accept SVG.
+      logo: { '@type': 'ImageObject', url: `${ENV.BASE_URL}/favicon-256.png`, width: 256, height: 256 },
+      email: CONTACT_INFO.EMAIL,
+      address: { '@type': 'PostalAddress', addressLocality: 'Tashkent', addressCountry: 'UZ' },
       areaServed: [
         { '@type': 'Country', name: 'Uzbekistan' },
         { '@type': 'City', name: 'Tashkent' },
@@ -67,7 +76,7 @@ function StructuredData() {
       sameAs: [SOCIAL_LINKS.TELEGRAM, SOCIAL_LINKS.INSTAGRAM],
       contactPoint: {
         '@type': 'ContactPoint',
-        telephone: '+998332499111',
+        telephone: CONTACT_INFO.PHONE,
         contactType: 'customer service',
         availableLanguage: ['Uzbek', 'Russian', 'English'],
       },
@@ -75,10 +84,12 @@ function StructuredData() {
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
+      '@id': `${ENV.BASE_URL}/#website`,
       name: 'SoftWhere.uz',
+      alternateName: 'SoftWhere',
       url: ENV.BASE_URL,
       inLanguage: ['uz', 'ru', 'en'],
-      publisher: { '@type': 'Organization', name: 'SoftWhere.uz' },
+      publisher: { '@id': ORGANIZATION_ID },
     },
   ];
 

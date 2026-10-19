@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { ENV, BLOG_CONFIG } from '@/core/constants';
+import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
 import { DEFAULT_LAB_STATE } from '@/modules/home/config';
+import { HOME_FACTS } from '@/modules/home/media/facts';
 import { LAB_STYLES } from '@/modules/home/theme/styles';
+import { SERVICE_NAMESPACES, SERVICE_SLUGS } from '@/shared/data/services';
+import { safeJsonLd } from '@/shared/utils/security';
 import HomeExperience from './_home/HomeExperience';
 
 // ISR: publishes bust the 'blog-posts' tag, which re-renders this page and
@@ -19,7 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = (await params) as { locale: Locale };
   const t = await getTranslations({ locale, namespace: 'metadata' });
   const title = t('title');
-  const description = t('description');
+  // {projects} comes from the portfolio data, so it matches the hero's count.
+  const description = t('description', { projects: HOME_FACTS.projects });
   const ogImageUrl = await buildOgUrl({ title, locale });
 
   return {
@@ -30,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description,
       url: `${ENV.BASE_URL}/${locale}`,
       siteName: 'SoftWhere.uz',
-      locale,
+      ...ogLocaleFields(locale),
       type: 'website',
       images: [{ url: ogImageUrl, width: 1200, height: 630 }],
     },
@@ -65,10 +69,41 @@ export const viewport: Viewport = {
 // visitor's style and each section's interactive version arrive on the client.
 // The site Header, Footer, widgets and fonts live in (site)/layout.tsx, which
 // this page is outside of: the home module draws its own header and footer.
-// JSON-LD (Organization, WebSite) comes from the locale layout.
+// JSON-LD (Organization, WebSite) comes from the locale layout; this page adds
+// the services the Organization offers, referenced by its @id.
+async function OfferCatalogJsonLd({ locale }: { locale: Locale }) {
+  const t = await getTranslations({ locale, namespace: 'servicePages' });
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${ENV.BASE_URL}/#organization`,
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: t('index.h1'),
+      url: `${ENV.BASE_URL}/${locale}/services`,
+      itemListElement: SERVICE_SLUGS.map(slug => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          name: t(`${SERVICE_NAMESPACES[slug]}.h1`),
+          url: `${ENV.BASE_URL}/${locale}/services/${slug}`,
+          areaServed: { '@type': 'City', name: 'Tashkent' },
+        },
+      })),
+    },
+  };
+
+  return <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />;
+}
+
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = (await params) as { locale: Locale };
   setRequestLocale(locale);
 
-  return <HomeExperience locale={locale} mode='home' initial={DEFAULT_LAB_STATE} />;
+  return (
+    <>
+      <OfferCatalogJsonLd locale={locale} />
+      <HomeExperience locale={locale} mode='home' initial={DEFAULT_LAB_STATE} />
+    </>
+  );
 }
