@@ -35,6 +35,30 @@ export const HEADER_LINKS: readonly HeaderLink[] = [
   { target: 'stack-physics', group: ['stack-physics'] },
 ];
 
+/** The site's own pages the header links to (real URLs, so crawlers follow them); label keys `links.<key>`. */
+export type PageTarget = 'services' | 'blog';
+
+export interface PageLink {
+  key: PageTarget;
+  /** The path after the locale: `/services` → `/uz/services`. */
+  path: `/${string}`;
+}
+
+/** In the phone sheet after the chapters, in this order. */
+export const PAGE_LINKS: readonly PageLink[] = [
+  { key: 'services', path: '/services' },
+  { key: 'blog', path: '/blog' },
+];
+
+/**
+ * The desktop bar has no room for every item: at 1280px the Russian and
+ * Uzbek labels already fill it. So the bar trades "Stack" for "Services"
+ * (narrower in uz and ru) and leaves "Blog" to the phone sheet and the
+ * footer. The sheet keeps every link.
+ */
+export const BAR_LINKS: readonly HeaderLink[] = HEADER_LINKS.filter(link => link.target !== 'stack-physics');
+export const BAR_PAGE_LINKS: readonly PageLink[] = PAGE_LINKS.filter(link => link.key === 'services');
+
 /** "Book a call" (home.shared.callCta) jumps to the finale's form. */
 export const CTA_TARGET = 'finale' satisfies SectionId;
 

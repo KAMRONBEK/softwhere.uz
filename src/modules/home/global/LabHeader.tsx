@@ -1,13 +1,14 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useCallback, useRef, useState, type MouseEvent } from 'react';
 import { useLabState } from '../context/LabContext';
 import { useLabLogo } from '../logos';
 import { pickStyle, type PickOptions } from '../theme/switchStyle';
 import { useLabStyle } from '../theme/useLabTheme';
 import type { SectionId, StyleId } from '../types';
-import { BUILD_GROUP, CTA_TARGET, HEADER_LINKS } from './LabHeader.copy';
+import { BAR_LINKS, BAR_PAGE_LINKS, BUILD_GROUP, CTA_TARGET, HEADER_LINKS } from './LabHeader.copy';
 import { useCurrentSection, useFocusWithin, useHideOnScroll, type DismissReason } from './LabHeader.hooks';
 import { LanguageLinks } from './LabHeaderLanguage';
 import { MenuButton, MenuSheet } from './LabHeaderMenu';
@@ -44,6 +45,7 @@ function focusSection(id: SectionId): void {
 export default function LabHeader() {
   const t = useTranslations('home.header');
   const tShared = useTranslations('home.shared');
+  const locale = useLocale();
   const { state, update } = useLabState();
   const style = useLabStyle();
   const { Logo } = useLabLogo();
@@ -142,7 +144,7 @@ export default function LabHeader() {
                 onJump={jumpTo}
               />
             </li>
-            {HEADER_LINKS.map(link => (
+            {BAR_LINKS.map(link => (
               <li key={link.target}>
                 <a
                   href={`#${link.target}`}
@@ -152,6 +154,13 @@ export default function LabHeader() {
                 >
                   {t(`links.${link.target}`)}
                 </a>
+              </li>
+            ))}
+            {BAR_PAGE_LINKS.map(link => (
+              <li key={link.key}>
+                <Link href={`/${locale}${link.path}`} className={css.link}>
+                  {t(`links.${link.key}`)}
+                </Link>
               </li>
             ))}
           </ul>

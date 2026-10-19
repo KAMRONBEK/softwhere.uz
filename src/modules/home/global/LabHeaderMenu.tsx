@@ -1,9 +1,10 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useEffect, useRef, type CSSProperties, type MouseEvent, type RefObject } from 'react';
 import type { SectionId, StyleId } from '../types';
-import { BUILD_STORIES, CTA_TARGET, HEADER_LINKS } from './LabHeader.copy';
+import { BUILD_STORIES, CTA_TARGET, HEADER_LINKS, PAGE_LINKS } from './LabHeader.copy';
 import { LanguageLinks } from './LabHeaderLanguage';
 import { useDismiss, type DismissReason } from './LabHeader.hooks';
 import { StoryList } from './LabHeaderStories';
@@ -87,6 +88,7 @@ interface MenuSheetProps {
 export function MenuSheet({ id, headerRef, style, currentSection, currentLink, onDismiss, onClose, onPickStyle, onJump }: MenuSheetProps) {
   const t = useTranslations('home.header');
   const tShared = useTranslations('home.shared');
+  const locale = useLocale();
   const sheetRef = useRef<HTMLDivElement>(null);
   usePageLock(headerRef, true);
   useDismiss(headerRef, true, onDismiss);
@@ -105,6 +107,8 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
     onJump(target);
   };
   const linksFrom = BUILD_STORIES.length + 1;
+  const pagesFrom = linksFrom + HEADER_LINKS.length;
+  const afterLinks = pagesFrom + PAGE_LINKS.length;
 
   return (
     <div ref={sheetRef} id={id} className={css.sheet} data-lenis-prevent=''>
@@ -128,23 +132,26 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
               </a>
             </li>
           ))}
+          {PAGE_LINKS.map((link, index) => (
+            <li key={link.key} style={{ '--i': pagesFrom + index } as CSSProperties}>
+              <Link href={`/${locale}${link.path}`} className={css.sheetLink}>
+                {t(`links.${link.key}`)}
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
-      <div className={css.sheetTheme} style={{ '--i': linksFrom + HEADER_LINKS.length } as CSSProperties}>
+      {/* Language before theme: with the two page links the sheet runs past one phone screen, and the language switch stays in it. */}
+      <div className={css.sheetLanguageGroup} style={{ '--i': afterLinks } as CSSProperties}>
+        <p className={css.sheetLabel}>{t('language.label')}</p>
+        <LanguageLinks variant='sheet' />
+      </div>
+      <div className={css.sheetTheme} style={{ '--i': afterLinks + 1 } as CSSProperties}>
         <p className={css.sheetLabel}>{t('theme.label')}</p>
         <ThemeOptions value={style} onPick={onPickStyle} layout='row' />
         <p className={css.sheetHint}>{t('theme.hint')}</p>
       </div>
-      <div className={css.sheetLanguageGroup} style={{ '--i': linksFrom + HEADER_LINKS.length + 1 } as CSSProperties}>
-        <p className={css.sheetLabel}>{t('language.label')}</p>
-        <LanguageLinks variant='sheet' />
-      </div>
-      <a
-        href={`#${CTA_TARGET}`}
-        className={css.sheetCta}
-        style={{ '--i': linksFrom + HEADER_LINKS.length + 2 } as CSSProperties}
-        onClick={jump(CTA_TARGET)}
-      >
+      <a href={`#${CTA_TARGET}`} className={css.sheetCta} style={{ '--i': afterLinks + 2 } as CSSProperties} onClick={jump(CTA_TARGET)}>
         {tShared('callCta')}
       </a>
     </div>

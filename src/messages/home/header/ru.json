@@ -36,7 +36,9 @@
     "ai-demo": "Бесплатная оценка",
     "work-wall": "Проекты",
     "process": "Как мы работаем",
-    "stack-physics": "Технологии"
+    "stack-physics": "Технологии",
+    "services": "Услуги",
+    "blog": "Блог"
   },
   "theme": {
     "label": "Тема",

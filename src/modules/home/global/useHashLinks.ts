@@ -12,12 +12,29 @@ function idFromHash(hash: string): string {
   }
 }
 
+/**
+ * Section ids the old homepage used. The site header, the AI blog generator
+ * and posts already stored in the database still link to them, so map each
+ * one to the section that now covers it.
+ */
+const LEGACY_HASH: Readonly<Record<string, string>> = {
+  services: 'manifesto',
+  portfolio: 'work-wall',
+  ai: 'ai-demo',
+};
+
+/** The id to scroll to: the hash itself when the page has it, else its legacy alias. */
+function resolveHashId(id: string): string {
+  if (!id || document.getElementById(id)) return id;
+  return LEGACY_HASH[id] ?? id;
+}
+
 /** The id an in-page link points at ('#work-wall' → 'work-wall'), or null for any other link. */
 function hashTarget(event: MouseEvent): { anchor: HTMLAnchorElement; id: string } | null {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return null;
   const anchor = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
   if (!anchor || anchor.target) return null;
-  const id = idFromHash(anchor.getAttribute('href') ?? '');
+  const id = resolveHashId(idFromHash(anchor.getAttribute('href') ?? ''));
   return id ? { anchor, id } : null;
 }
 
@@ -49,7 +66,7 @@ export function useHashLinks(): void {
  */
 export function useHashLanding(): void {
   useEffect(() => {
-    const id = idFromHash(window.location.hash);
+    const id = resolveHashId(idFromHash(window.location.hash));
     if (!id) return;
     const frame = requestAnimationFrame(() => scrollToAnchor(id));
     return () => cancelAnimationFrame(frame);
