@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { CSSProperties, ReactNode } from 'react';
+import { useContext, type CSSProperties, type ReactNode } from 'react';
 import { useHomeFacts } from '../context/HomeFactsContext';
+import { LabStandInsContext } from '../context/LabContext';
 import type { LabSectionProps } from '../types';
 import { SectionHeading } from './LabSection';
 import SectionSkeleton, { skeletonShapeFor } from './SectionSkeleton';
@@ -35,6 +36,8 @@ export default function SectionFallback({ meta, summary, children }: SectionFall
   const t = useTranslations(`home.${meta.id}` as const);
   const facts = useHomeFacts();
   const shape = skeletonShapeFor(meta.id);
+  // Server-rendered extra content for this section (LabShell `standIns`), after its own children.
+  const extra = useContext(LabStandInsContext)[meta.id];
   return (
     <div
       className={css.root}
@@ -47,6 +50,7 @@ export default function SectionFallback({ meta, summary, children }: SectionFall
         </SectionHeading>
         <p className={css.summary}>{summary ?? t('summary', facts)}</p>
         {children}
+        {extra}
         {shape ? <SectionSkeleton shape={shape} /> : null}
       </div>
     </div>

@@ -11,7 +11,14 @@ import LazyMount from './components/LazyMount';
 import SectionErrorBoundary from './components/SectionErrorBoundary';
 import { DEFAULT_LAB_STATE, LAB_PARAMS, toLabSearch } from './config';
 import { HomeFactsContext, type HomeFacts } from './context/HomeFactsContext';
-import { LabContext, LabSlotsContext, type LabContextState, type LabContextValue, type LabSlots } from './context/LabContext';
+import {
+  LabContext,
+  LabSlotsContext,
+  LabStandInsContext,
+  type LabContextState,
+  type LabContextValue,
+  type LabSlots,
+} from './context/LabContext';
 import { useReducedMotion } from './device/useDeviceTier';
 import CursorLayer from './global/CursorLayer';
 import LabHeader from './global/LabHeader';
@@ -99,14 +106,18 @@ function SectionSlot({ section, isEager, isPanel }: { section: LabSectionDef; is
       <Component meta={meta} />
     </SectionErrorBoundary>
   );
+  // The hero never goes through LazyMount: swapping its server stand-in for `content` after
+  // hydration remounted the LCP <h1> (a second, later LCP entry ~2.3s after FCP on mobile).
+  // On the server HeroGate renders the same HeroFallback, so hydration adopts that DOM as is.
+  const isAlwaysMounted = isEager || meta.id === FIRST_SECTION;
   return (
-    <LabSection meta={meta}>
-      {isEager ? (
+    <LabSection meta={meta} hasBadge={isPanel}>
+      {isAlwaysMounted ? (
         content
       ) : (
-        // Only the hero mounts before the visitor's first scroll: the sections under it are
-        // within a viewport on load, but their code waits until the page is actually scrolled.
-        <LazyMount fallback={<Fallback meta={meta} />} style={{ minHeight: meta.minHeight }} waitForScroll={meta.id !== FIRST_SECTION}>
+        // The sections under the hero are within a viewport on load, but their code waits
+        // until the page is actually scrolled.
+        <LazyMount fallback={<Fallback meta={meta} />} style={{ minHeight: meta.minHeight }} waitForScroll>
           {content}
         </LazyMount>
       )}
@@ -127,6 +138,12 @@ interface LabShellProps {
   initial: LabState;
   /** Real features injected into sections by id (see LabSlots). */
   slots?: LabSlots;
+  /**
+   * Server-rendered extra static content per section, shown inside its stand-in
+   * (SectionFallback). Kept apart from `slots`: withSlotFloor would read these
+   * as filled slots and reserve the slot height.
+   */
+  standIns?: LabSlots;
   /**
    * The pre-paint style script (theme/ThemeScript.tsx), from the page.
    * Rendered as the lab root's first child so it sets the visitor's style on
@@ -150,7 +167,7 @@ function withoutStyle({ logo, logoColor, quality, only }: LabState): LabContextS
 
 const NO_SLOTS: LabSlots = {};
 
-/** The section that mounts without waiting for a scroll (the hero, gated by its own boot signal). */
+/** The section that is always mounted, never behind LazyMount (the hero, gated by its own boot signal). */
 const FIRST_SECTION: SectionId = 'hero';
 
 /** The section the `appendix` renders in front of. */
@@ -169,7 +186,16 @@ const APPENDIX_BEFORE: SectionId = 'finale';
  * never re-renders the shell or the sections that only use the CSS tokens.
  * Everything else is plain state, mirrored into the URL.
  */
-export default function LabShell({ mode = 'lab', initial, slots = NO_SLOTS, bootScript, appendix, footer, facts }: LabShellProps) {
+export default function LabShell({
+  mode = 'lab',
+  initial,
+  slots = NO_SLOTS,
+  standIns = NO_SLOTS,
+  bootScript,
+  appendix,
+  footer,
+  facts,
+}: LabShellProps) {
   const [local, setLocal] = useState<LabContextState>(() => withoutStyle(initial));
   const isLab = mode === 'lab';
   const isPanelFlag = usePanelFlag();
@@ -198,38 +224,40 @@ export default function LabShell({ mode = 'lab', initial, slots = NO_SLOTS, boot
     <LabContext.Provider value={contextValue}>
       <HomeFactsContext.Provider value={facts}>
         <LabSlotsContext.Provider value={slots}>
-          <style>{LAB_TOKENS_CSS}</style>
-          {isLab ? <UrlSync local={local} isPanel={isPanel} /> : null}
-          {/* data-lab-root: the theme/token selector (theme/tokens.ts LAB_ROOT_ATTR). React only
+          <LabStandInsContext.Provider value={standIns}>
+            <style>{LAB_TOKENS_CSS}</style>
+            {isLab ? <UrlSync local={local} isPanel={isPanel} /> : null}
+            {/* data-lab-root: the theme/token selector (theme/tokens.ts LAB_ROOT_ATTR). React only
             ever renders the default style here; the boot script (before hydration) and
             StyleRootSync (after) set the visitor's, hence suppressHydrationWarning (this
             element's own attributes only). */}
-          <div
-            ref={rootRef}
-            data-lab-root=''
-            data-style={DEFAULT_LAB_STATE.style}
-            data-logo-color={local.logoColor}
-            data-panel={isPanel ? '' : undefined}
-            className={`${LAB_FONT_CLASSNAMES} ${css.root}`}
-            suppressHydrationWarning
-          >
-            {bootScript}
-            <LabHeader />
-            <main ref={mainRef}>
-              {visible.map(section => (
-                <Fragment key={section.meta.id}>
-                  {local.only === null && section.meta.id === APPENDIX_BEFORE ? appendix : null}
-                  <SectionSlot section={section} isEager={local.only !== null} isPanel={isPanel} />
-                </Fragment>
-              ))}
-            </main>
-            {local.only === null ? footer : null}
-            <CursorLayer />
-            {isPanel && <ControlPanel sections={SECTION_METAS} />}
-          </div>
-          {/* After the root, so rootRef is attached when its layout effect runs (client-side mounts). */}
-          <StyleRootSync rootRef={rootRef} />
-          <SmoothScroll enabled={!reducedMotion} contentRef={mainRef} />
+            <div
+              ref={rootRef}
+              data-lab-root=''
+              data-style={DEFAULT_LAB_STATE.style}
+              data-logo-color={local.logoColor}
+              data-panel={isPanel ? '' : undefined}
+              className={`${LAB_FONT_CLASSNAMES} ${css.root}`}
+              suppressHydrationWarning
+            >
+              {bootScript}
+              <LabHeader />
+              <main ref={mainRef}>
+                {visible.map(section => (
+                  <Fragment key={section.meta.id}>
+                    {local.only === null && section.meta.id === APPENDIX_BEFORE ? appendix : null}
+                    <SectionSlot section={section} isEager={local.only !== null} isPanel={isPanel} />
+                  </Fragment>
+                ))}
+              </main>
+              {local.only === null ? footer : null}
+              <CursorLayer />
+              {isPanel && <ControlPanel sections={SECTION_METAS} />}
+            </div>
+            {/* After the root, so rootRef is attached when its layout effect runs (client-side mounts). */}
+            <StyleRootSync rootRef={rootRef} />
+            <SmoothScroll enabled={!reducedMotion} contentRef={mainRef} />
+          </LabStandInsContext.Provider>
         </LabSlotsContext.Provider>
       </HomeFactsContext.Provider>
     </LabContext.Provider>

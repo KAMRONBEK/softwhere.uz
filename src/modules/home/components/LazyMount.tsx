@@ -222,10 +222,12 @@ export default function LazyMount({
           onKeyDown={event => {
             if (event.key === 'Tab' && focusEdge === (event.shiftKey ? 'last' : 'first')) event.preventDefault();
           }}
+          // The name is an attribute, not a text node, so it stays out of the indexable page text;
+          // the focus pill shows it through CSS (LazyMount.module.css, data-label).
+          aria-label={t('loadSection')}
+          data-label={t('loadSection')}
           data-lab-sentinel=''
-        >
-          {t('loadSection')}
-        </button>
+        />
       ) : null}
       {isMounted ? children : fallback}
     </div>
