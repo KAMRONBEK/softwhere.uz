@@ -49,6 +49,13 @@ const NO_SLOTS: LabSlots = {};
 
 export const LabSlotsContext = createContext<LabSlots>(NO_SLOTS);
 
+/**
+ * Server-rendered extra static content per section, shown inside its stand-in
+ * (SectionFallback) so crawlers and the first paint get it. Separate from
+ * LabSlotsContext on purpose: a stand-in is not a filled slot.
+ */
+export const LabStandInsContext = createContext<LabSlots>(NO_SLOTS);
+
 /** The node injected for this section, or null when the section should render its own fallback. */
 export function useLabSlot(id: SectionId): ReactNode {
   return useContext(LabSlotsContext)[id] ?? null;

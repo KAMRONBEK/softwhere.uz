@@ -9,15 +9,17 @@ export function sectionHeadingId(meta: Pick<SectionMeta, 'id'>): string {
 interface LabSectionProps {
   meta: SectionMeta;
   children: ReactNode;
+  /** Show the founder-facing "03 · X-Ray" badge (the lab's ?panel=1 only; kept out of the public HTML). */
+  hasBadge?: boolean;
 }
 
 /**
  * Full-bleed section frame the shell puts around every section: the DOM id
  * (jump target, ?only= value), a reserved min-height, and the founder-facing
- * badge ("03 · X-Ray") that stays pinned to the top while the section scrolls,
+ * badge ("03 · X-Ray", with the founder's panel only) that stays pinned to the top while the section scrolls,
  * and optional fades that melt the section's edges into the page colour.
  */
-export default function LabSection({ meta, children }: LabSectionProps) {
+export default function LabSection({ meta, children, hasBadge = false }: LabSectionProps) {
   return (
     <section
       id={meta.id}
@@ -26,11 +28,13 @@ export default function LabSection({ meta, children }: LabSectionProps) {
       aria-labelledby={sectionHeadingId(meta)}
       data-section={meta.id}
     >
-      <div className={css.badgeRail} aria-hidden='true'>
-        <span className={css.badge}>
-          {meta.number} · {meta.name}
-        </span>
-      </div>
+      {hasBadge ? (
+        <div className={css.badgeRail} aria-hidden='true'>
+          <span className={css.badge}>
+            {meta.number} · {meta.name}
+          </span>
+        </div>
+      ) : null}
       {children}
       {meta.fadeEdges.map(edge => (
         <div key={edge} className={`${css.fade} ${edge === 'top' ? css.fadeTop : css.fadeBottom}`} aria-hidden='true' />
