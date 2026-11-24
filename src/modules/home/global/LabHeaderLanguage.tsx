@@ -29,6 +29,12 @@ function sectionHere(): string | null {
   return here && here !== sections[0] ? here.id : null;
 }
 
+/** On a blog post without a version in `language` (its hreflang alternates name the ones it has), that language's blog. */
+function missingPostFallback(pathname: string, language: string): string | null {
+  if (!/^\/[a-z]{2}\/blog\/[^/]+/.test(pathname)) return null;
+  return document.head.querySelector(`link[rel='alternate'][hreflang='${language}']`) ? null : `/${language}/blog`;
+}
+
 /**
  * uz / ru / en as plain links to the same page in each language, server
  * rendered so crawlers follow them (the hreflang alternates are in the page
@@ -58,6 +64,9 @@ export function LanguageLinks({ variant }: LanguageLinksProps) {
                 onClick={event => {
                   if (isCurrent) return;
                   trackEvent('language_switch', { from: locale, to: language.id });
+                  // The post's own URL in that language would redirect straight back here.
+                  const fallback = missingPostFallback(pathname, language.id);
+                  if (fallback) event.currentTarget.href = fallback;
                   // On the element only: the rendered href stays hash-free for crawlers, and the next click re-reads the place.
                   event.currentTarget.hash = sectionHere() ?? '';
                 }}

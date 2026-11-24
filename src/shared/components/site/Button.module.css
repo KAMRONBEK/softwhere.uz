@@ -85,3 +85,10 @@
     transform: none;
   }
 }
+
+@media (forced-colors: active) {
+  .primary,
+  .secondary {
+    border: 1px solid ButtonText;
+  }
+}

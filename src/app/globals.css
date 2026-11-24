@@ -484,3 +484,10 @@ html:has([data-site-root]) {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* The estimator's fixed bottom bar must not cover what the keyboard focuses. */
+@media (max-width: 1279.98px) {
+  html:has([data-testid='mobile-bar']) {
+    scroll-padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  }
+}
