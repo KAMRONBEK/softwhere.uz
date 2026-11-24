@@ -1,13 +1,9 @@
-import { format } from 'date-fns';
-import type { Locale as DateFnsLocale } from 'date-fns';
-import { ru, uz } from 'date-fns/locale';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { validateLocale } from '@/core/auth';
 import { getLatestPosts } from '../lib/latestPosts';
-
-const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
+import { formatPostDate } from '../utils/postDate';
 
 /**
  * Server-rendered latest-posts block for the homepage. Gives crawlers a path
@@ -58,11 +54,7 @@ export default async function LatestPostsSection({ locale }: { locale: string })
               )}
               <div className='p-4'>
                 <h3 className='font-semibold font-display text-ember-text line-clamp-2 mb-2'>{post.title}</h3>
-                <p className='text-ember-muted text-sm'>
-                  {format(new Date(post.createdAt), locale === 'en' ? 'MMMM dd, yyyy' : 'd MMMM yyyy', {
-                    locale: DATE_LOCALES[locale],
-                  })}
-                </p>
+                <p className='text-ember-muted text-sm'>{formatPostDate(post.createdAt, locale)}</p>
               </div>
             </Link>
           ))}

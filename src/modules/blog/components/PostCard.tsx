@@ -23,19 +23,25 @@ const LEAD_SIZES = '(max-width: 900px) 100vw, 60vw';
 
 /** A post in a list: the site's card with a picture on top. */
 export default function PostCard({ title, slug, locale, coverImage, as, category, date, isLead, hasCredit, isPriority }: PostCardProps) {
+  const credit =
+    hasCredit && coverImage ? (
+      // Above the card's stretched link, so the credit stays clickable.
+      <span className={css.credit}>
+        Photo by{' '}
+        <a href={`${coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`} target='_blank' rel='noopener noreferrer'>
+          {coverImage.authorName}
+        </a>
+      </span>
+    ) : undefined;
   const media = (
-    <>
-      <PostCover src={coverImage?.thumbUrl} alt={title} seed={slug} sizes={isLead ? LEAD_SIZES : GRID_SIZES} isPriority={isPriority} />
-      {hasCredit && coverImage?.thumbUrl ? (
-        // Above the card's stretched link, so the credit stays clickable.
-        <span className={css.credit}>
-          Photo by{' '}
-          <a href={`${coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`} target='_blank' rel='noopener noreferrer'>
-            {coverImage.authorName}
-          </a>
-        </span>
-      ) : null}
-    </>
+    <PostCover
+      src={coverImage?.thumbUrl}
+      alt={title}
+      seed={slug}
+      sizes={isLead ? LEAD_SIZES : GRID_SIZES}
+      isPriority={isPriority}
+      credit={credit}
+    />
   );
   const meta =
     category || date ? (
