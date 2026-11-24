@@ -46,25 +46,6 @@ const MAX_CATEGORIES = 40; // bar rows; beyond this the card is a wall, not a ch
 // and are never real blog figures. Reject rather than render garbage.
 const MAX_MAGNITUDE = 1e12;
 
-/**
- * Slice-color slot order per doughnut slice count (1-based --chart-N slots).
- * In a ring the LAST slice touches the FIRST, so the linear slot order is not
- * enough: e.g. with 5 slices, slots 1..5 close the ring green↔orange — a pair
- * that collapses under deuteranopia (ΔE 3.6). These orders were derived by
- * enumerating slot arrangements (anchored on the ember-orange slot 1) and
- * maximizing the worst CYCLIC-adjacent CVD ΔE with the dataviz validator in
- * both themes; every ring pair clears ΔE ≥ 10 (target 8). Re-derive if the
- * --chart-* hexes change.
- */
-export const DONUT_SLOT_ORDER: Record<number, number[]> = {
-  1: [1],
-  2: [1, 4],
-  3: [1, 2, 4],
-  4: [1, 4, 3, 6],
-  5: [1, 2, 4, 3, 6],
-  6: [1, 2, 3, 4, 5, 6],
-};
-
 // null = a genuine gap (Chart.js uses null for "no point here"). OUT_OF_RANGE
 // is distinct: it means the config carries a number we refuse to plot, which
 // must reject the whole chart rather than quietly become a gap.

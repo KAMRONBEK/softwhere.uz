@@ -18,6 +18,7 @@ import { postLead } from '@/shared/utils/lead';
 import { SectionHeading } from '../../components/LabSection';
 import { useInView } from '../../components/useInView';
 import { useLabLogo } from '../../logos';
+import EntranceFrame from '../../logos/EntranceFrame';
 import type { SectionMeta } from '../../types';
 import { BRAND, channelsForLocale, type ChannelId } from './copy';
 import { CheckMark, MailIcon, PhoneIcon, TelegramIcon } from './icons';
@@ -305,7 +306,7 @@ export default function ContactPanel({ ref, meta, onLaunch, onTypingChange, isRe
       </div>
 
       <div ref={footRef} className={css.foot}>
-        <div className={css.logoSlot}>{hasSeenFoot && <Logo className={css.logo} title={BRAND} animate />}</div>
+        <div className={css.logoSlot}>{hasSeenFoot && <Logo className={css.logo} title={BRAND} frame={EntranceFrame} />}</div>
         <p className={css.place}>
           <span>{t('place')}</span>
           <span>

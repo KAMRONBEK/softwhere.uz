@@ -1,7 +1,5 @@
 'use client';
 
-import { useBlogContext } from '@/modules/blog/context/BlogContext';
-import { logger } from '@/core/logger';
 import { trackEvent } from '@/shared/utils/analytics';
 import { useEffect } from 'react';
 
@@ -25,8 +23,6 @@ interface BlogPostClientProps {
 }
 
 export default function BlogPostClient({ post, category, readingTime, children }: BlogPostClientProps) {
-  const { setCurrentPost } = useBlogContext();
-
   useEffect(() => {
     trackEvent('blog_post_view', {
       slug: post.slug,
@@ -35,32 +31,6 @@ export default function BlogPostClient({ post, category, readingTime, children }
       readingTime,
     });
   }, [post.slug, post.locale, category, readingTime]);
-
-  useEffect(() => {
-    const postContext = {
-      generationGroupId: post.generationGroupId,
-      locale: post.locale,
-      slug: post.slug,
-    };
-
-    logger.info(
-      `Setting current post in context: ${post.title} (${post.locale})`,
-      {
-        slug: post.slug,
-        locale: post.locale,
-        generationGroupId: post.generationGroupId,
-      },
-      'BLOG_POST_CLIENT'
-    );
-
-    setCurrentPost(postContext);
-
-    // Cleanup when component unmounts
-    return () => {
-      logger.info('Clearing current post from context', undefined, 'BLOG_POST_CLIENT');
-      setCurrentPost(null);
-    };
-  }, [post, setCurrentPost]);
 
   return <>{children}</>;
 }

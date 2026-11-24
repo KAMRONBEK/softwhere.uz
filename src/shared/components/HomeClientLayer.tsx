@@ -2,14 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 
 const ToastContainer = dynamic(() => import('react-toastify').then(m => m.ToastContainer), { ssr: false });
 
 function HomeClientLayer({ locale }: { locale: string }) {
   const router = useRouter();
-  const { resolvedTheme } = useTheme();
   const [clickCount, setClickCount] = useState(0);
   const [showAdminButton, setShowAdminButton] = useState(false);
 
@@ -69,7 +67,7 @@ function HomeClientLayer({ locale }: { locale: string }) {
         title='Secret admin access'
       />
 
-      <ToastContainer autoClose={3000} closeOnClick theme={resolvedTheme === 'dark' ? 'dark' : 'light'} />
+      <ToastContainer autoClose={3000} closeOnClick />
     </>
   );
 }

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
+import { Page, PageHero, Section } from '@/shared/components/site';
+import css from './privacy.module.css';
 
 const SECTIONS = ['collect', 'use', 'store', 'analytics', 'cookies', 'ai', 'rights', 'changes'] as const;
 
@@ -43,20 +45,17 @@ export default async function PrivacyPolicyPage({ params }: { params: Promise<{ 
   const t = await getTranslations({ locale, namespace: 'privacy' });
 
   return (
-    <main className='page-layout' style={{ backgroundColor: 'var(--bg)' }}>
-      <div className='container py-20'>
-        <div className='max-w-3xl mx-auto'>
-          <h1 className='text-4xl font-bold font-display text-ember-text leading-tight tracking-tight mb-3'>{t('title')}</h1>
-          <p className='text-ember-muted text-sm mb-8'>{t('updated')}</p>
-          <p className='text-ember-text leading-7'>{t('intro')}</p>
-          {SECTIONS.map(section => (
-            <section key={section} className='mt-10'>
-              <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-3'>{t(`${section}Title`)}</h2>
-              <p className='text-ember-text leading-7 whitespace-pre-line'>{t(`${section}Body`)}</p>
-            </section>
-          ))}
-        </div>
-      </div>
-    </main>
+    <Page>
+      <PageHero title={<span className={css.title}>{t('title')}</span>} meta={t('updated')} />
+      <Section>
+        <p className={css.intro}>{t('intro')}</p>
+        {SECTIONS.map(section => (
+          <section key={section} className={css.clause}>
+            <h2 className={css.heading}>{t(`${section}Title`)}</h2>
+            <p className={css.body}>{t(`${section}Body`)}</p>
+          </section>
+        ))}
+      </Section>
+    </Page>
   );
 }

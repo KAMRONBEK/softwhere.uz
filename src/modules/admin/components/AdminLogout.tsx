@@ -23,7 +23,7 @@ export function AdminLogout() {
     <button
       onClick={logout}
       disabled={loading}
-      className='inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent hover:text-ember-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+      className='inline-flex items-center px-3 py-1.5 min-h-[44px] text-xs font-semibold rounded-[calc(var(--radius)*0.7)] bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent hover:underline decoration-[color:var(--accent)] underline-offset-4 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
     >
       {loading ? 'Signing out…' : 'Log out'}
     </button>

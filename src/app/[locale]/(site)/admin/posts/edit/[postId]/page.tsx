@@ -1,9 +1,9 @@
 'use client';
 
-import React, { use, useState, useEffect } from 'react';
+import React, { use, useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Button from '@/shared/components/Button';
+import { AdminButton } from '@/modules/admin/components';
 import { adminFetch } from '@/modules/admin/utils/adminFetch';
 import { createSlug } from '@/shared/utils/slug';
 
@@ -28,6 +28,12 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const saveErrorRef = useRef<HTMLDivElement>(null);
+
+  // The alert is at the top of the page, the submit button at the bottom.
+  useEffect(() => {
+    if (saveError) saveErrorRef.current?.scrollIntoView({ block: 'center' });
+  }, [saveError]);
 
   // Form state
   const [title, setTitle] = useState('');
@@ -128,8 +134,8 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
   if (loading) {
     return (
       <div className='admin-layout'>
-        <div className='container mx-auto px-6 py-8'>
-          <div className='bg-ember-surface rounded-lg border border-ember-border p-8'>
+        <div className='container mx-auto py-8'>
+          <div className='bg-ember-surface rounded-[calc(var(--radius)*0.7)] border border-ember-border p-8'>
             <div className='flex items-center justify-center'>
               <svg className='animate-spin h-8 w-8 text-ember-muted mr-3' fill='none' viewBox='0 0 24 24'>
                 <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
@@ -150,9 +156,9 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
   if (error) {
     return (
       <div className='admin-layout'>
-        <div className='container mx-auto px-6 py-8'>
-          <div className='bg-ember-surface rounded-lg border border-ember-border p-8 text-center'>
-            <svg className='mx-auto h-12 w-12 text-red-400 mb-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+        <div className='container mx-auto py-8'>
+          <div className='bg-ember-surface rounded-[calc(var(--radius)*0.7)] border border-ember-border p-8 text-center'>
+            <svg className='mx-auto h-12 w-12 text-ember-accent mb-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
                 strokeLinecap='round'
                 strokeLinejoin='round'
@@ -160,11 +166,11 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z'
               />
             </svg>
-            <h3 className='text-lg font-medium text-ember-text mb-2 font-display'>Error Loading Post</h3>
-            <p className='text-red-400 mb-4'>{error}</p>
+            <h3 className='text-lg font-medium text-ember-text mb-2'>Error Loading Post</h3>
+            <p className='text-ember-text mb-4'>{error}</p>
             <Link
               href={`/${locale}/admin/posts`}
-              className='inline-flex items-center px-4 py-2 text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-lg hover:border-ember-accent transition-colors duration-200'
+              className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-[calc(var(--radius)*0.7)] hover:border-ember-accent transition-colors duration-200'
             >
               <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
@@ -179,12 +185,14 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
 
   return (
     <div className='admin-layout'>
-      <div className='container mx-auto px-6 py-8'>
+      <div className='container mx-auto py-8'>
         {/* Header Section */}
         <div className='mb-8'>
-          <div className='flex items-center justify-between mb-4'>
+          <div className='flex flex-wrap items-start justify-between gap-4 mb-4'>
             <div>
-              <h1 className='text-3xl font-bold text-ember-text mb-2 font-display'>Edit Post</h1>
+              <h1 className='text-[length:calc(2rem*var(--display-scale,1))] leading-tight [font-weight:var(--display-weight)] tracking-[var(--display-tracking)] text-ember-text font-display mb-2'>
+                Edit Post
+              </h1>
               <p className='text-ember-muted'>Make changes to your blog post</p>
               {post && (
                 <div className='flex items-center mt-2 text-sm text-ember-muted'>
@@ -199,8 +207,10 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
               {post && (
                 <Link
                   href={`/${locale}/blog/${post.slug}`}
+                  // A draft's page is a 404; prefetching it can race the publish purge and leave that 404 cached.
+                  prefetch={false}
                   target='_blank'
-                  className='inline-flex items-center px-4 py-2 text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-lg hover:border-ember-accent transition-colors duration-200'
+                  className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-[calc(var(--radius)*0.7)] hover:border-ember-accent transition-colors duration-200'
                 >
                   <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path
@@ -215,7 +225,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
               )}
               <Link
                 href={`/${locale}/admin/posts`}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-lg hover:border-ember-accent transition-colors duration-200'
+                className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-[calc(var(--radius)*0.7)] hover:border-ember-accent transition-colors duration-200'
               >
                 <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
@@ -228,9 +238,9 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
 
         {/* Success Alert */}
         {saveSuccess && (
-          <div className='mb-6 p-4 bg-[rgba(34,197,94,0.15)] border border-green-400/30 rounded-lg'>
+          <div className='mb-6 p-4 bg-ember-surface border border-[color:var(--border-strong)] border-l-4 border-l-[color:var(--accent)] rounded-[calc(var(--radius)*0.7)]'>
             <div className='flex items-center'>
-              <svg className='w-5 h-5 text-green-400 mr-3' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='w-5 h-5 text-ember-accent mr-3' fill='currentColor' viewBox='0 0 20 20'>
                 <path
                   fillRule='evenodd'
                   d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
@@ -238,8 +248,8 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 />
               </svg>
               <div>
-                <h3 className='text-sm font-medium text-green-400'>Post saved successfully!</h3>
-                <p className='text-sm text-green-300 mt-1'>Redirecting to posts list...</p>
+                <h3 className='text-sm font-medium text-ember-text'>Post saved successfully!</h3>
+                <p className='text-sm text-ember-text mt-1'>Redirecting to posts list...</p>
               </div>
             </div>
           </div>
@@ -247,9 +257,13 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
 
         {/* Error Alert */}
         {saveError && (
-          <div className='mb-6 p-4 bg-[rgba(239,68,68,0.15)] border border-red-400/30 rounded-lg'>
+          <div
+            ref={saveErrorRef}
+            role='alert'
+            className='mb-6 p-4 bg-ember-surface border border-[color:var(--accent)] border-l-4 rounded-[calc(var(--radius)*0.7)]'
+          >
             <div className='flex items-center'>
-              <svg className='w-5 h-5 text-red-400 mr-3' fill='currentColor' viewBox='0 0 20 20'>
+              <svg className='w-5 h-5 text-ember-accent mr-3' fill='currentColor' viewBox='0 0 20 20'>
                 <path
                   fillRule='evenodd'
                   d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
@@ -257,17 +271,17 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 />
               </svg>
               <div>
-                <h3 className='text-sm font-medium text-red-400'>Error saving post</h3>
-                <p className='text-sm text-red-300 mt-1'>{saveError}</p>
+                <h3 className='text-sm font-medium text-ember-text'>Error saving post</h3>
+                <p className='text-sm text-ember-text mt-1'>{saveError}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Main Form */}
-        <div className='bg-ember-surface rounded-xl shadow-sm border border-ember-border overflow-hidden'>
+        <div className='bg-ember-surface rounded-[var(--radius)] border border-ember-border overflow-hidden'>
           <div className='px-6 py-4 border-b border-ember-border bg-ember-surface2'>
-            <h2 className='text-lg font-semibold text-ember-text font-display'>Post Details</h2>
+            <h2 className='text-lg font-semibold font-sans text-ember-text'>Post Details</h2>
             <p className='text-sm text-ember-muted mt-1'>Update the information below to modify your post</p>
           </div>
 
@@ -282,7 +296,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 id='title'
                 value={title}
                 onChange={handleTitleChange}
-                className='w-full px-4 py-3 rounded-lg bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-200'
+                className='w-full min-h-[48px] px-4 py-3 rounded-[calc(var(--radius)*0.7)] bg-ember-bg border border-[color:var(--border-strong)] text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] transition-colors duration-200'
                 placeholder='Enter post title...'
                 required
               />
@@ -299,7 +313,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   id='slug'
                   value={slug}
                   onChange={e => setSlug(e.target.value)}
-                  className='w-full px-4 py-3 rounded-lg bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-200'
+                  className='w-full min-h-[48px] pl-4 pr-11 py-3 rounded-[calc(var(--radius)*0.7)] bg-ember-bg border border-[color:var(--border-strong)] text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] transition-colors duration-200'
                   placeholder='url-friendly-slug'
                   required
                 />
@@ -327,7 +341,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   id='status'
                   value={status}
                   onChange={e => setStatus(e.target.value as 'draft' | 'published')}
-                  className='w-full px-4 py-3 rounded-lg bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-200'
+                  className='w-full min-h-[48px] px-4 py-3 rounded-[calc(var(--radius)*0.7)] bg-ember-bg border border-[color:var(--border-strong)] text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] transition-colors duration-200'
                 >
                   <option value='draft'>Draft</option>
                   <option value='published'>Published</option>
@@ -342,7 +356,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   id='locale'
                   value={postLocale}
                   onChange={e => setPostLocale(e.target.value as 'en' | 'ru' | 'uz')}
-                  className='w-full px-4 py-3 rounded-lg bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-200'
+                  className='w-full min-h-[48px] px-4 py-3 rounded-[calc(var(--radius)*0.7)] bg-ember-bg border border-[color:var(--border-strong)] text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] transition-colors duration-200'
                 >
                   <option value='ru'>🇷🇺 Russian</option>
                   <option value='uz'>🇺🇿 Uzbek</option>
@@ -360,7 +374,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 id='content'
                 value={content}
                 onChange={e => setContent(e.target.value)}
-                className='w-full px-4 py-3 rounded-lg bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-200 font-mono text-sm'
+                className='w-full min-h-[48px] px-4 py-3 rounded-[calc(var(--radius)*0.7)] bg-ember-bg border border-[color:var(--border-strong)] text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] transition-colors duration-200 font-mono text-base'
                 rows={12}
                 placeholder='Write your post content in Markdown format...'
                 required
@@ -371,7 +385,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   href='https://www.markdownguide.org/basic-syntax/'
                   target='_blank'
                   rel='noopener noreferrer'
-                  className='text-ember-accent hover:text-ember-accent2 ml-1'
+                  className='text-ember-text underline decoration-[color:var(--accent)] underline-offset-4 ml-1'
                 >
                   Learn Markdown syntax
                 </a>
@@ -384,18 +398,14 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                 <button
                   type='button'
                   onClick={() => router.push(`/${locale}/admin/posts`)}
-                  className='px-6 py-3 text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-lg hover:border-ember-accent transition-colors duration-200'
+                  className='px-6 py-3 text-sm font-medium text-ember-text bg-ember-surface border border-ember-border rounded-[calc(var(--radius)*0.7)] hover:border-ember-accent transition-colors duration-200'
                 >
                   Cancel
                 </button>
-                <Button
-                  type='submit'
-                  disabled={saving}
-                  className={`px-6 py-3 text-sm font-medium ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
+                <AdminButton type='submit' disabled={saving}>
                   {saving ? (
                     <div className='flex items-center'>
-                      <svg className='animate-spin -ml-1 mr-2 h-4 w-4 text-white' fill='none' viewBox='0 0 24 24'>
+                      <svg className='animate-spin -ml-1 mr-2 h-4 w-4' fill='none' viewBox='0 0 24 24'>
                         <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
                         <path
                           className='opacity-75'
@@ -408,7 +418,7 @@ export default function EditPostPage({ params }: { params: Promise<{ locale: str
                   ) : (
                     'Save Changes'
                   )}
-                </Button>
+                </AdminButton>
               </div>
             </div>
           </form>

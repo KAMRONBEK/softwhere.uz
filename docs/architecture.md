@@ -75,20 +75,11 @@ src/
 
 #### Known violations (tracked, not yet resolved)
 
-The boundaries rule currently runs at **`warn`** severity because one real
-cross-layer coupling remains that needs a follow-up refactor rather than a file
-move:
-
-- `shared/components/Header` imports `modules/blog` (`BlogContext` + the related-
-  post client) for the language switcher, which jumps to the same blog post in
-  another locale. The global header therefore knows about the blog feature.
-
-Resolved already: `core/http.ts` is now a generic, dependency-free client —
-`ApiResponse`/`AppError` live in `core/http`, and the feature-specific calls were
-moved to `modules/estimator/api.ts` and `modules/blog/api/posts.ts`. Once the
-`Header` coupling is lifted (e.g. inject the language-switch behavior from a
-blog-aware wrapper, or move `Header` composition into `app`), promote the rule to
-**`error`**.
+The boundaries rule runs at **`warn`** severity. One coupling remains: `core/db.ts`
+imports the modules' Drizzle schemas. `shared/components/Header`, which imported
+`modules/blog`, is gone: the header is part of `modules/home` and the language
+switch on a post is a plain link. `core/http.ts` is a generic client; feature
+calls live in their modules.
 
 ### 1.2 Directory Conventions
 
@@ -104,8 +95,7 @@ blog-aware wrapper, or move `Header` composition into `app`), promote the rule t
 > **Not yet adopted.** Earlier drafts described a Zustand-based "Memory Bank"
 > (`store.ts` / `controller.ts` / `selectors.ts`) per module. No such store
 > library or `memory/` folders exist in the codebase today. Module state is
-> handled with local React state and React context (see
-> `modules/blog/context/BlogContext.tsx`). Document and wire up a store
+> handled with local React state and React context. Document and wire up a store
 > convention here before introducing one.
 
 ---

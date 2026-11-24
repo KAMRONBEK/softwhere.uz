@@ -1,37 +1,33 @@
-import Footer from '@/shared/components/Footer';
-import Header from '@/shared/components/Header';
-import ScrollToTop from '@/shared/components/ScrollToTop';
-import TelegramChat from '@/shared/components/TelegramChat';
-import { BlogProvider } from '@/modules/blog/context/BlogContext';
+import type { Viewport } from 'next';
 import { NextIntlClientProvider, type Locale } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
-import { Inter, Manrope, Sora } from 'next/font/google';
 import React from 'react';
-import { CLIENT_MESSAGE_NAMESPACES, pickMessages } from '@/core/messages';
+import { CLIENT_MESSAGE_NAMESPACES, pickMessages, pickSiteChromeMessages } from '@/core/messages';
+import { DEFAULT_LAB_STATE } from '@/modules/home/config';
+import HomeFooter from '@/modules/home/global/HomeFooter';
+import SiteShell from '@/modules/home/site/SiteShell';
+import { LAB_FONTS } from '@/modules/home/theme/fonts';
+import { LAB_STYLES } from '@/modules/home/theme/styles';
+import ThemeScript from '@/modules/home/theme/ThemeScript';
 
-// Inter stays loaded with the Cyrillic subset so RU/UZ text always has full
-// glyph coverage; Sora (display) and Manrope (body) are Latin-only and fall
-// back to Inter for Cyrillic via the --font-* stacks in globals.css.
-// JetBrains Mono intentionally NOT loaded here — see src/shared/fonts.ts.
-//
-// Declared in this route group's layout, not the locale layout, so only the
-// site's pages preload and ship them: the homepage (src/modules/home) draws
-// with its own faces and never uses these.
-const inter = Inter({ subsets: ['latin', 'cyrillic'], display: 'swap' });
-const sora = Sora({ subsets: ['latin'], display: 'swap', weight: ['400', '500', '600', '700', '800'] });
-const manrope = Manrope({ subsets: ['latin'], display: 'swap', weight: ['400', '500', '600', '700', '800'] });
+// As on the homepage: the default look's colour, which the theme script
+// switches to the visitor's look before paint, and real safe-area insets.
+export const viewport: Viewport = {
+  viewportFit: 'cover',
+  themeColor: LAB_STYLES[DEFAULT_LAB_STATE.style].colors.bg,
+};
 
-// The faces as the --font-* variables globals.css, tailwind.config and the
-// shared components read. Set on :root (not a wrapper element) because
-// body's own font-family and portalled UI (toasts, dialogs) resolve them there.
-const FONT_VARIABLES_CSS = `:root{--font-inter:${inter.style.fontFamily};--font-sora:${sora.style.fontFamily};--font-manrope:${manrope.style.fontFamily};}`;
+// The looks' faces on :root too: body's font and portalled UI (toasts,
+// dialogs) resolve --font-body there, outside the themed root.
+const FONT_VARIABLES_CSS = `:root{${Object.values(LAB_FONTS)
+  .map(font => `${font.cssVar}:${font.family}`)
+  .join(';')}}`;
 
 /**
- * Every page except the homepage: the site header and footer, the floating
- * widgets (scroll-to-top, Telegram chat), the site fonts and the client
+ * Every page except the homepage: the homepage's own look (theme tokens,
+ * header, footer) without its sections, the floating widgets and the client
  * messages they read. The homepage (src/app/[locale]/page.tsx) and the
- * noindex /lab staging pages sit outside this group, so none of it is built
- * into or sent with them.
+ * noindex /lab staging pages sit outside this group and draw their own.
  */
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -42,21 +38,18 @@ export default async function SiteLayout({ children, params }: SiteLayoutProps) 
   const { locale } = (await params) as { locale: Locale };
   // Static rendering: set per layout, as the locale layout does.
   setRequestLocale(locale);
-  // Only the namespaces this chrome's client tree reads go to the browser.
+  // Only what this chrome's client tree reads goes to the browser.
   // Pages with extra client needs nest their own provider (src/core/messages.ts, docs/i18n.md).
-  const messages = pickMessages(await getMessages(), CLIENT_MESSAGE_NAMESPACES);
+  const all = await getMessages();
+  const messages = { ...pickMessages(all, CLIENT_MESSAGE_NAMESPACES), ...pickSiteChromeMessages(all) };
 
   return (
     <>
       <style>{FONT_VARIABLES_CSS}</style>
       <NextIntlClientProvider messages={messages}>
-        <BlogProvider>
-          <Header />
+        <SiteShell bootScript={<ThemeScript />} footer={<HomeFooter locale={locale} />}>
           {children}
-          <ScrollToTop />
-          <TelegramChat />
-          <Footer />
-        </BlogProvider>
+        </SiteShell>
       </NextIntlClientProvider>
     </>
   );

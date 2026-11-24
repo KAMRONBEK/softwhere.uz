@@ -2,14 +2,16 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useEffect, useRef, type CSSProperties, type MouseEvent, type RefObject } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, type CSSProperties, type RefObject } from 'react';
 import type { SectionId, StyleId } from '../types';
-import { BUILD_STORIES, CTA_TARGET, HEADER_LINKS, PAGE_LINKS } from './LabHeader.copy';
+import { BUILD_STORIES, CTA_TARGET, HEADER_LINKS, PAGE_LINKS, pageCurrent, SITE_ESTIMATOR } from './LabHeader.copy';
 import { LanguageLinks } from './LabHeaderLanguage';
 import { useDismiss, type DismissReason } from './LabHeader.hooks';
 import { StoryList } from './LabHeaderStories';
 import { ThemeOptions, type PickHandler } from './LabHeaderTheme';
 import { getLabLenis } from './scroll';
+import { SectionLink, useHeaderMode } from './SectionLink';
 import css from './LabHeader.module.css';
 
 /** Where the bar shows the chapter links itself (LabHeader.module.css uses the same width). */
@@ -18,21 +20,24 @@ export const LINKS_QUERY = '(min-width: 1280px)';
 
 /**
  * While the sheet is open the page behind it neither scrolls (Lenis stopped,
- * the root overflow clipped) nor takes focus or taps (`inert`).
+ * the root overflow clipped) nor takes focus or taps (`inert`). On site pages
+ * that is everything after the header: content, footer, floating buttons.
  */
 function usePageLock(rootRef: RefObject<HTMLElement | null>, isLocked: boolean): void {
   useEffect(() => {
     if (!isLocked) return;
     const html = document.documentElement;
-    const main = rootRef.current?.closest('[data-lab-root]')?.querySelector('main');
+    const root = rootRef.current?.closest('[data-lab-root]');
+    const selector = root?.hasAttribute('data-site-root') ? '[data-page-content], [data-page-chrome]' : 'main';
+    const behind = [...(root?.querySelectorAll<HTMLElement>(selector) ?? [])];
     const previousOverflow = html.style.overflow;
     html.style.overflow = 'hidden';
     getLabLenis()?.stop();
-    if (main) main.inert = true;
+    for (const el of behind) el.inert = true;
     return () => {
       html.style.overflow = previousOverflow;
       getLabLenis()?.start();
-      if (main) main.inert = false;
+      for (const el of behind) el.inert = false;
     };
   }, [rootRef, isLocked]);
 }
@@ -89,6 +94,8 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
   const t = useTranslations('home.header');
   const tShared = useTranslations('home.shared');
   const locale = useLocale();
+  const pathname = usePathname() ?? '';
+  const isSite = useHeaderMode() === 'site';
   const sheetRef = useRef<HTMLDivElement>(null);
   usePageLock(headerRef, true);
   useDismiss(headerRef, true, onDismiss);
@@ -102,10 +109,6 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
     return () => desktop.removeEventListener('change', onChange);
   }, [onClose]);
 
-  const jump = (target: SectionId) => (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    onJump(target);
-  };
   const linksFrom = BUILD_STORIES.length + 1;
   const pagesFrom = linksFrom + HEADER_LINKS.length;
   const afterLinks = pagesFrom + PAGE_LINKS.length;
@@ -122,19 +125,35 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
         <ul className={css.sheetLinks}>
           {HEADER_LINKS.map((link, index) => (
             <li key={link.target} style={{ '--i': linksFrom + index } as CSSProperties}>
-              <a
-                href={`#${link.target}`}
-                className={css.sheetLink}
-                aria-current={currentLink === link.target ? 'true' : undefined}
-                onClick={jump(link.target)}
-              >
-                {t(`links.${link.target}`)}
-              </a>
+              {isSite && link.target === SITE_ESTIMATOR.target ? (
+                <Link
+                  href={`/${locale}${SITE_ESTIMATOR.path}`}
+                  className={css.sheetLink}
+                  aria-current={pageCurrent(pathname, `/${locale}${SITE_ESTIMATOR.path}`)}
+                  onClick={onClose}
+                >
+                  {t(`links.${link.target}`)}
+                </Link>
+              ) : (
+                <SectionLink
+                  target={link.target}
+                  className={css.sheetLink}
+                  aria-current={currentLink === link.target ? 'true' : undefined}
+                  onJump={onJump}
+                >
+                  {t(`links.${link.target}`)}
+                </SectionLink>
+              )}
             </li>
           ))}
           {PAGE_LINKS.map((link, index) => (
             <li key={link.key} style={{ '--i': pagesFrom + index } as CSSProperties}>
-              <Link href={`/${locale}${link.path}`} className={css.sheetLink}>
+              <Link
+                href={`/${locale}${link.path}`}
+                className={css.sheetLink}
+                aria-current={pageCurrent(pathname, `/${locale}${link.path}`)}
+                onClick={isSite ? onClose : undefined}
+              >
                 {t(`links.${link.key}`)}
               </Link>
             </li>
@@ -151,9 +170,9 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
         <ThemeOptions value={style} onPick={onPickStyle} layout='row' />
         <p className={css.sheetHint}>{t('theme.hint')}</p>
       </div>
-      <a href={`#${CTA_TARGET}`} className={css.sheetCta} style={{ '--i': afterLinks + 2 } as CSSProperties} onClick={jump(CTA_TARGET)}>
+      <SectionLink target={CTA_TARGET} className={css.sheetCta} style={{ '--i': afterLinks + 2 } as CSSProperties} onJump={onJump}>
         {tShared('callCta')}
-      </a>
+      </SectionLink>
     </div>
   );
 }

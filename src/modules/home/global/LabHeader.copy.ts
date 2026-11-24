@@ -59,6 +59,21 @@ export const PAGE_LINKS: readonly PageLink[] = [
 export const BAR_LINKS: readonly HeaderLink[] = HEADER_LINKS.filter(link => link.target !== 'stack-physics');
 export const BAR_PAGE_LINKS: readonly PageLink[] = PAGE_LINKS.filter(link => link.key === 'services');
 
+/**
+ * The header on every other page (site/SiteShell.tsx). There the chapters are
+ * links to the homepage, so the bar spends its width on the site's own pages:
+ * "Free estimate" goes to the estimator itself and "Blog" takes the place of
+ * "Working with us" (the sheet keeps every link).
+ */
+export const SITE_BAR_LINKS: readonly HeaderLink[] = BAR_LINKS.filter(link => link.target !== 'process');
+export const SITE_ESTIMATOR: { target: LinkTarget; path: `/${string}` } = { target: 'ai-demo', path: '/estimator' };
+
+/** aria-current of a page link: the page itself, one below it (a service under Services, a post under Blog), or neither. */
+export function pageCurrent(pathname: string, href: string): 'page' | 'true' | undefined {
+  if (pathname === href) return 'page';
+  return pathname.startsWith(`${href}/`) ? 'true' : undefined;
+}
+
 /** "Book a call" (home.shared.callCta) jumps to the finale's form. */
 export const CTA_TARGET = 'finale' satisfies SectionId;
 

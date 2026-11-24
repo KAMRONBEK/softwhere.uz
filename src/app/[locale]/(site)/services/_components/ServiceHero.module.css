@@ -1,0 +1,116 @@
+.hero {
+  --ink: var(--accent);
+  position: relative;
+  /* Up under the fixed header, so the glow has no seam. */
+  margin-top: calc(-1 * var(--lab-header-h, 64px));
+  padding-top: var(--lab-header-h, 64px);
+  /* The last fifth fades to the ground: no edge where the hero ends. */
+  background:
+    linear-gradient(to bottom, transparent 62%, var(--bg)),
+    radial-gradient(circle 340px at 50% 240px, color-mix(in srgb, var(--ink) var(--glow-mix, 13%), transparent), transparent);
+}
+
+/* A pale ground takes less (S01Hero does the same). */
+:global(:is([data-style='B'], [data-style='C'])) .hero {
+  --glow-mix: 7%;
+}
+
+.hero[data-ink='logo'] {
+  --ink: var(--logo-ink, var(--accent));
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  padding-top: clamp(16px, 2.4vw, 32px);
+  padding-bottom: clamp(24px, 3vw, 40px);
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(20px, 5vw, 36px);
+  flex: 1;
+}
+
+/* Phone and tablet: the figure above the words, as in the homepage's portrait hero. */
+.figure {
+  order: -1;
+  width: clamp(168px, 46vw, 280px);
+  justify-self: center;
+  margin-top: clamp(4px, 2vw, 20px);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  max-width: max(15ch, 10em);
+  font-family: var(--font-display);
+  font-size: calc(clamp(2.1rem, 5vw, 4.25rem) * var(--display-scale, 1));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.03;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.title:lang(ru) {
+  font-size: calc(clamp(1.9rem, 4.3vw, 3.6rem) * var(--display-scale, 1));
+}
+
+.lead {
+  margin: clamp(18px, 2vw, 28px) 0 0;
+  max-width: 56ch;
+  color: var(--muted);
+  font: 400 clamp(1.0625rem, 1.3vw, 1.1875rem) / 1.6 var(--font-body);
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: clamp(26px, 3vw, 36px);
+}
+
+@media (min-width: 1000px) {
+  .hero {
+    background:
+      linear-gradient(to bottom, transparent 62%, var(--bg)),
+      radial-gradient(
+        circle min(680px, 56vw) at calc(50% + min(27vw, 420px)) 46%,
+        color-mix(in srgb, var(--ink) var(--glow-mix, 13%), transparent),
+        transparent
+      );
+  }
+
+  .inner {
+    min-height: min(82svh, 780px);
+  }
+
+  .body {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 72px);
+  }
+
+  .copy {
+    align-self: end;
+  }
+
+  .figure {
+    order: 0;
+    width: min(100%, 56svh, 460px);
+    align-self: center;
+    justify-self: end;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions > * {
+    flex: 1 1 100%;
+  }
+}

@@ -32,7 +32,7 @@ on `main`, not aspirational plans. Each ends with a `_Last verified against code
 | [blog-pipeline.md](./blog-pipeline.md) | End to end: how one topic becomes three linked, grounded, quality-checked posts (uz/ru/en) — research → generation → quality gates → normalization → persistence, plus both entry points and the cron. |
 | [estimator.md](./estimator.md) | Canonical reference for the cost estimator: wizard, catalog, pricing formula, AI refinement, currency, and lead capture. |
 | [i18n.md](./i18n.md) | How `next-intl` is wired — locale routing (uz default, ru, en), middleware/proxy, request config, message bundles, and cross-locale blog linking via `generationGroupId`. |
-| [frontend.md](./frontend.md) | UI architecture: layouts, the shared component library, homepage section composition, theming/tokens, fonts, AOS, and how sections consume i18n + data. |
+| [frontend.md](./frontend.md) | UI architecture: layouts, the four looks and their tokens, the site chrome and primitives, 404 pages, toasts, client messages. |
 | [auth-and-admin.md](./auth-and-admin.md) | Admin auth (Neon Auth session + role gate for humans, Bearer `API_SECRET` for machines) and the leads/posts admin UI behind it. |
 | [portfolio-videos.md](./portfolio-videos.md) | The Remotion project in `video/` that renders the portfolio walkthrough videos: configs, tooling, content rules, encoding, and slider playback. |
 | [seo.md](./seo.md) | Search visibility: dynamic sitemap, robots, per-locale RSS, edge OG images, JSON-LD, canonical/hreflang, slugs, reading time, IndexNow, and Search Console / Yandex over MCP. |

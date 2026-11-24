@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import AIBriefSection from '@/modules/estimator/components/brief/AIBriefSection';
-import Contact from '@/shared/components/sections/Contact';
+import { Container, Page } from '@/shared/components/site';
+import ContactForm from './ContactForm';
 import PageToasts from './PageToasts';
 
 // Not launched yet: noindex, absent from the sitemap and not linked from the
@@ -22,14 +23,14 @@ export default async function AiEstimatePage({ params }: { params: Promise<{ loc
   setRequestLocale(locale);
 
   return (
-    <main className='page-layout'>
-      <div className='container mx-auto pb-16 md:pb-24'>
+    <Page>
+      <Container>
         <AIBriefSection variant='full' />
-      </div>
+      </Container>
       {/* "Talk to us about this plan" prefills this form; it stays outside the
           brief's provider, which only carries the brief's messages. */}
-      <Contact />
+      <ContactForm />
       <PageToasts />
-    </main>
+    </Page>
   );
 }

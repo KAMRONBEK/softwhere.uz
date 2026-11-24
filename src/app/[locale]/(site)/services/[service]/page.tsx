@@ -5,8 +5,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
+import { Arrow, Breadcrumbs, ButtonLink, CtaBand, Page, Section } from '@/shared/components/site';
 import { SERVICE_NAMESPACES, type ServiceSlug } from '@/shared/data/services';
 import { safeJsonLd } from '@/shared/utils/security';
+import { PriceTable } from '../_components/PriceTable';
+import { ServiceHero } from '../_components/ServiceHero';
+import css from '../services.module.css';
 
 // Commercial landing pages for the estimator's strongest categories. The
 // slug → `servicePages.*` namespace map lives in shared/data/services.ts.
@@ -108,94 +112,90 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
 
   const otherServices = (Object.keys(SERVICE_NAMESPACES) as ServiceSlug[]).filter(slug => slug !== service);
 
+  // Row counts differ per service (mobile has only the MVP anchor), so these
+  // keys can't be statically typed.
+  const prices = Array.from({ length: PRICE_ROW_COUNT[service as ServiceSlug] }, (_, i) => ({
+    name: t(`price${i + 1}Name` as never),
+    range: t(`price${i + 1}Range` as never),
+  }));
+  const actions = (
+    <>
+      <ButtonLink href={`/${locale}/estimator`}>{tc('estimateCta')}</ButtonLink>
+      <ButtonLink variant='secondary' href={`/${locale}#contact`}>
+        {tc('contactCta')}
+      </ButtonLink>
+    </>
+  );
+
   return (
-    <main className='page-layout' style={{ backgroundColor: 'var(--bg)' }}>
+    <Page>
       {schemas.map((schema, i) => (
         <script key={i} type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />
       ))}
-      <div className='container py-20'>
-        <div className='max-w-4xl mx-auto'>
-          <header className='mb-12'>
-            <h1 className='text-4xl md:text-5xl font-bold font-display text-ember-text leading-tight tracking-tight mb-5'>{t('h1')}</h1>
-            <p className='text-ember-muted text-lg leading-8 max-w-3xl'>{t('intro')}</p>
-          </header>
+      <ServiceHero
+        title={t('h1')}
+        lead={t('intro')}
+        glyph={service as ServiceSlug}
+        breadcrumb={
+          <Breadcrumbs
+            label={tc('breadcrumb')}
+            items={[
+              { label: 'SoftWhere.uz', href: `/${locale}` },
+              { label: tc('servicesHub'), href: `/${locale}/services` },
+            ]}
+          />
+        }
+        actions={actions}
+      />
 
-          <section className='mb-12'>
-            <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-6'>{tc('offeringsTitle')}</h2>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {OFFERING_KEYS.map(key => (
-                <div key={key} className='bg-ember-surface rounded-lg border border-ember-border p-5'>
-                  <h3 className='font-semibold font-display text-ember-text mb-2'>{t(`${key}Title`)}</h3>
-                  <p className='text-ember-muted text-sm leading-6'>{t(`${key}Desc`)}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className='mb-12'>
-            <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-6'>{tc('pricingTitle')}</h2>
-            <div className='bg-ember-surface rounded-lg border border-ember-border divide-y divide-ember-border'>
-              {Array.from({ length: PRICE_ROW_COUNT[service as ServiceSlug] }, (_, i) => (
-                <div key={i} className='flex flex-wrap items-center justify-between gap-x-4 gap-y-1 p-5'>
-                  {/* Row counts differ per service (mobile has only the MVP
-                      anchor), so these keys can't be statically typed. */}
-                  <span className='text-ember-text font-medium'>{t(`price${i + 1}Name` as never)}</span>
-                  <span className='text-ember-accent font-semibold whitespace-nowrap ml-auto text-right'>
-                    {t(`price${i + 1}Range` as never)}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <p className='text-ember-muted text-sm mt-3'>{tc('pricingNote')}</p>
-          </section>
-
-          <section className='mb-12'>
-            <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-6'>{tc('whyTitle')}</h2>
-            <ul className='space-y-3'>
-              {WHY_KEYS.map(key => (
-                <li key={key} className='flex gap-3 text-ember-text leading-7'>
-                  <span className='text-ember-accent font-bold'>✓</span>
-                  {t(key)}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section className='mb-12 bg-ember-surface rounded-lg border border-ember-border p-8 text-center'>
-            <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-3'>{tc('ctaTitle')}</h2>
-            <p className='text-ember-muted mb-6'>{tc('ctaBody')}</p>
-            <div className='flex flex-wrap justify-center gap-4'>
-              <Link
-                href={`/${locale}/estimator`}
-                className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full px-6 py-3 inline-block'
-              >
-                {tc('estimateCta')}
-              </Link>
-              <Link
-                href={`/${locale}#contact`}
-                className='border border-ember-border text-ember-text font-semibold rounded-full px-6 py-3 inline-block hover:opacity-70'
-              >
-                {tc('contactCta')}
-              </Link>
-            </div>
-          </section>
-
-          <section>
-            <h2 className='text-xl font-bold font-display tracking-tight text-ember-text mb-4'>{tc('otherServicesTitle')}</h2>
-            <div className='flex flex-wrap gap-4'>
-              {otherServices.map(slug => (
-                <Link
-                  key={slug}
-                  href={`/${locale}/services/${slug}`}
-                  className='text-ember-accent font-semibold hover:underline underline-offset-4'
-                >
-                  {tc(`link_${SERVICE_NAMESPACES[slug]}`)} →
-                </Link>
-              ))}
-            </div>
-          </section>
+      <Section>
+        <div className={css.split}>
+          <h2 className={css.heading}>{tc('offeringsTitle')}</h2>
+          <ul className={css.list}>
+            {OFFERING_KEYS.map(key => (
+              <li key={key} className={css.offer}>
+                <h3 className={css.offerTitle}>{t(`${key}Title`)}</h3>
+                <p className={css.text}>{t(`${key}Desc`)}</p>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-    </main>
+      </Section>
+
+      <Section className={css.prices} heading={tc('pricingTitle')}>
+        <PriceTable rows={prices} />
+        <p className={css.note}>{tc('pricingNote')}</p>
+      </Section>
+
+      <Section>
+        <div className={css.split}>
+          <h2 className={css.heading}>{tc('whyTitle')}</h2>
+          <ul className={css.list}>
+            {WHY_KEYS.map(key => (
+              <li key={key} className={css.reason}>
+                <span>{t(key)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Section>
+
+      <Section>
+        <CtaBand title={tc('ctaTitle')} body={tc('ctaBody')} actions={actions} />
+      </Section>
+
+      <Section heading={tc('otherServicesTitle')}>
+        <ul className={css.others}>
+          {otherServices.map(slug => (
+            <li key={slug}>
+              <Link href={`/${locale}/services/${slug}`} className={css.other}>
+                <span>{tc(`link_${SERVICE_NAMESPACES[slug]}`)}</span>
+                <Arrow className={css.arrow} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    </Page>
   );
 }

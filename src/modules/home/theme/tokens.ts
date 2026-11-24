@@ -17,7 +17,7 @@ const SANS_FALLBACK = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
 const MONO_FALLBACK = 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 
 function fontVar(key: LabFontKey): string {
-  return `var(${LAB_FONTS[key].cssVar})`;
+  return LAB_FONTS[key].stack;
 }
 
 /**

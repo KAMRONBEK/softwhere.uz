@@ -3,7 +3,9 @@
 import { SERVICES, getService } from '@/modules/estimator/data/catalog';
 import type { EstimatorInput, ProjectType } from '@/modules/estimator/types';
 import { useTranslations } from 'next-intl';
+import { ServiceIcon } from '../icons';
 import { SelectCard, StepLabel } from '../ui';
+import css from '../ui.module.css';
 
 type Props = {
   input: EstimatorInput;
@@ -17,16 +19,16 @@ export default function TypeStep({ input, onTypeSelect, onSubtypeSelect }: Props
   const service = getService(input.projectType);
 
   return (
-    <div className='space-y-7'>
+    <div className={css.steps}>
       <div>
         <StepLabel hint={t('typeHint')}>{t('typeTitle')}</StepLabel>
-        <div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
+        <div className={css.cards}>
           {SERVICES.map(s => (
             <SelectCard
               key={s.id}
               selected={input.projectType === s.id}
               onClick={() => onTypeSelect(s.id)}
-              icon={s.icon}
+              icon={<ServiceIcon type={s.id} />}
               title={tx(`service.${s.id}`)}
               desc={tx(`serviceDesc.${s.id}`)}
             />
@@ -36,14 +38,13 @@ export default function TypeStep({ input, onTypeSelect, onSubtypeSelect }: Props
 
       <div>
         <StepLabel>{t('subtypeTitle')}</StepLabel>
-        <div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
+        <div className={css.tiles}>
           {service.subtypes.map(s => (
             <SelectCard
               key={s.id}
               compact
               selected={input.subtype === s.id}
               onClick={() => onSubtypeSelect(s.id)}
-              icon={s.icon}
               title={tx(`subtype.${s.id}`)}
             />
           ))}

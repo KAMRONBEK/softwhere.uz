@@ -6,12 +6,22 @@ import type { AbstractIntlMessages } from 'next-intl';
  * `NextIntlClientProvider` serialises whatever it is given into each page's
  * HTML. Handing it the whole bundle (30–48KB per locale, ru largest) shipped
  * `servicePages`, `privacy`, `faq` and the 11–16KB `estimator` namespace into
- * every blog post for zero rendered benefit. This list is the layout's client tree — Header,
- * Footer, TelegramChat — plus the homepage sections that hydrate on the client
- * (Contact, ProjectSlider). Anything else is provided by the page that needs
+ * every blog post for zero rendered benefit. These are what the layout's
+ * floating widgets and the Contact section read; the header's strings come from
+ * `pickSiteChromeMessages`. Anything else is provided by the page that needs
  * it via a nested provider: see `pickMessages` and docs/i18n.md.
  */
-export const CLIENT_MESSAGE_NAMESPACES = ['header', 'footer', 'contact', 'toastMessage', 'projects'] as const;
+export const CLIENT_MESSAGE_NAMESPACES = ['contact', 'toastMessage', 'projects'] as const;
+
+/**
+ * The slice of the homepage's messages the site header reads (the header
+ * itself and the shared "Book a call"), with the rest of `home` left out.
+ */
+export function pickSiteChromeMessages({ home }: AbstractIntlMessages): AbstractIntlMessages {
+  const { header, shared } = home as AbstractIntlMessages;
+  const { callCta } = shared as AbstractIntlMessages;
+  return { home: { header, shared: { callCta } } };
+}
 
 /**
  * Return a copy of `messages` holding only the given top-level namespaces.

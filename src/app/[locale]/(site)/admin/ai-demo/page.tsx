@@ -70,8 +70,8 @@ function seconds(ms: number | null): string {
 
 function Card({ title, children, className = '' }: { title?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`bg-ember-surface rounded-xl border border-ember-border p-5 ${className}`}>
-      {title && <h2 className='text-sm font-semibold text-ember-muted uppercase tracking-wide mb-4'>{title}</h2>}
+    <section className={`bg-ember-surface rounded-[var(--radius)] border border-ember-border p-5 ${className}`}>
+      {title && <h2 className='text-sm font-semibold font-sans text-ember-muted mb-4'>{title}</h2>}
       {children}
     </section>
   );
@@ -79,7 +79,7 @@ function Card({ title, children, className = '' }: { title?: string; children: R
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className='bg-ember-surface rounded-xl border border-ember-border p-4'>
+    <div className='bg-ember-surface rounded-[var(--radius)] border border-ember-border p-4'>
       <div className='text-xs text-ember-muted'>{label}</div>
       <div className='mt-1 text-2xl font-bold text-ember-text tabular-nums'>{value}</div>
       {hint && <div className='mt-1 text-xs text-ember-muted'>{hint}</div>}
@@ -97,8 +97,8 @@ function Meter({ label, spent, cap }: { label: string; spent: number; cap: numbe
           {usd(spent)} of {usd(cap)}
         </span>
       </div>
-      <div className='mt-2 h-2 rounded-full bg-ember-surface2 overflow-hidden'>
-        <div className={`h-full rounded-full ${pct >= 90 ? 'bg-red-400' : 'bg-ember-accent'}`} style={{ width: `${pct}%` }} />
+      <div className='mt-2 h-2 rounded-[var(--radius)] bg-ember-surface2 overflow-hidden'>
+        <div className={`h-full rounded-[var(--radius)] ${pct >= 90 ? 'bg-ember-text' : 'bg-ember-accent'}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -129,22 +129,26 @@ function ProviderSwitch({
               aria-checked={isActive}
               disabled={saving || isActive}
               onClick={() => onChange(option.id)}
-              className={`text-left rounded-xl border p-4 transition-colors disabled:cursor-default ${
+              className={`text-left rounded-[var(--radius)] border p-4 transition-colors disabled:cursor-default ${
                 isActive ? 'border-ember-accent bg-ember-surface2' : 'border-ember-border hover:border-ember-muted'
               }`}
             >
               <div className='flex items-center justify-between gap-2'>
                 <span className='text-lg font-semibold text-ember-text'>{option.name}</span>
-                {isActive && <span className='text-xs font-medium text-ember-accent'>{saving ? 'Saving…' : 'Active'}</span>}
+                {isActive && <span className='text-xs font-medium text-[color:var(--accent-text)]'>{saving ? 'Saving…' : 'Active'}</span>}
               </div>
-              <div className='text-sm text-ember-accent mt-0.5'>{option.tagline}</div>
+              <div className='text-sm text-[color:var(--accent-text)] mt-0.5'>{option.tagline}</div>
               <ul className='mt-3 space-y-1 text-sm text-ember-muted'>
                 {option.facts.map(fact => (
                   <li key={fact}>{fact}</li>
                 ))}
                 <li>{option.backup}</li>
               </ul>
-              {!hasKey && <div className='mt-3 text-xs text-red-400'>No API key on this deployment — the backup will answer instead.</div>}
+              {!hasKey && (
+                <div className='mt-3 text-xs text-ember-text border-l-2 border-[color:var(--accent)] pl-2'>
+                  No API key on this deployment — the backup will answer instead.
+                </div>
+              )}
             </button>
           );
         })}
@@ -271,7 +275,7 @@ function DailyTable({ days }: { days: BriefStats['days'] }) {
                   <td className='py-2 text-right tabular-nums'>{d.delivered}</td>
                   <td className='py-2 text-right tabular-nums pl-4'>{usd(d.costUsd)}</td>
                   <td className='py-2 pl-4'>
-                    <div className='h-2 rounded-full bg-ember-accent/70' style={{ width: `${(d.costUsd / maxCost) * 100}%` }} />
+                    <div className='h-2 rounded-[var(--radius)] bg-ember-accent' style={{ width: `${(d.costUsd / maxCost) * 100}%` }} />
                   </td>
                 </tr>
               ))}
@@ -313,7 +317,7 @@ function RecentTable({ runs }: { runs: BriefStats['recent'] }) {
                     {run.fallbackUsed && <span className='text-ember-muted'> · backup</span>}
                   </td>
                   <td
-                    className={`py-2 pr-4 whitespace-nowrap ${run.status === 'ok' ? 'text-green-400' : run.status === 'error' ? 'text-red-400' : 'text-ember-muted'}`}
+                    className={`py-2 pr-4 whitespace-nowrap ${run.status === 'ok' ? 'text-ember-text' : run.status === 'error' ? 'font-semibold text-ember-text underline decoration-[color:var(--accent)] decoration-2 underline-offset-4' : 'text-ember-muted'}`}
                   >
                     {STATUS_LABEL[run.status] ?? run.status}
                     {run.errorCode && ` (${run.errorCode})`}
@@ -376,18 +380,20 @@ export default function AdminAiDemoPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-ember-surface2 flex items-center justify-center'>
+      <div className='min-h-screen bg-ember-bg flex items-center justify-center'>
         <AdminLoading message='Loading AI demo stats...' />
       </div>
     );
   }
 
   return (
-    <div className='page-layout min-h-screen bg-ember-surface2'>
+    <div className='page-layout !pt-0 min-h-screen bg-ember-bg'>
       <div className='bg-ember-surface border-b border-ember-border'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex items-end justify-between gap-4'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-wrap items-end justify-between gap-4'>
           <div>
-            <h1 className='text-3xl font-bold text-ember-text font-display'>AI demo</h1>
+            <h1 className='text-[length:calc(2rem*var(--display-scale,1))] leading-tight [font-weight:var(--display-weight)] tracking-[var(--display-tracking)] text-ember-text font-display'>
+              AI demo
+            </h1>
             <p className='mt-1 text-sm text-ember-muted'>Who writes the AI project plans, how many people use them and what they cost.</p>
           </div>
           <button
@@ -396,7 +402,7 @@ export default function AdminAiDemoPage() {
               setLoading(true);
               load();
             }}
-            className='text-sm text-ember-muted hover:text-ember-text border border-ember-border rounded-lg px-3 py-1.5'
+            className='text-sm text-ember-muted hover:text-ember-text border border-ember-border rounded-[calc(var(--radius)*0.7)] px-3 py-1.5 min-h-[44px]'
           >
             Refresh
           </button>
@@ -404,7 +410,11 @@ export default function AdminAiDemoPage() {
       </div>
 
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6'>
-        {error && <div className='rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-sm text-red-300'>{error}</div>}
+        {error && (
+          <div className='rounded-[var(--radius)] border border-l-4 border-[color:var(--accent)] bg-ember-surface px-4 py-3 text-sm text-ember-text'>
+            {error}
+          </div>
+        )}
 
         {data && (
           <>
@@ -433,7 +443,7 @@ export default function AdminAiDemoPage() {
                     role='tab'
                     aria-selected={period === p.id}
                     onClick={() => setPeriod(p.id)}
-                    className={`text-sm rounded-lg px-3 py-1.5 border transition-colors ${
+                    className={`text-sm rounded-[calc(var(--radius)*0.7)] px-3 py-1.5 min-h-[44px] border transition-colors ${
                       period === p.id
                         ? 'border-ember-accent text-ember-text bg-ember-surface'
                         : 'border-ember-border text-ember-muted hover:text-ember-text'

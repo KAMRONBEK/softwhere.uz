@@ -1,0 +1,18 @@
+/* Look B, Uzbek: Literata's U+02BB (oʻ, gʻ) has no advance and Sofia Sans lacks it. These one-glyph
+   files are each face's own U+2018 drawn at U+02BB (SIL OFL 1.1, cut with fonttools), for that
+   character only: no other text downloads them. Named in theme/fonts.ts (LAB_FONTS). */
+@font-face {
+  font-family: 'SoftWhere Okina Text';
+  src: url('./fonts-okina/okina-text.woff2') format('woff2');
+  font-weight: 200 900;
+  font-display: swap;
+  unicode-range: U+2BB;
+}
+
+@font-face {
+  font-family: 'SoftWhere Okina Display';
+  src: url('./fonts-okina/okina-display.woff2') format('woff2');
+  font-weight: 1 1000;
+  font-display: swap;
+  unicode-range: U+2BB;
+}

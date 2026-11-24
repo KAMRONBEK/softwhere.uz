@@ -620,13 +620,16 @@
     "message": "Message",
     "messagePlaceholder": "Enter your message here...",
     "btn": "Send",
-    "telegramCta": "Chat with us on Telegram"
+    "telegramCta": "Chat with us on Telegram",
+    "place": "Tashkent, Uzbekistan"
   },
   "toastMessage": {
     "phoneNumber": "Enter phone number!",
     "name": "Enter your name!",
     "message": "Enter message!",
-    "loading": "Please wait..."
+    "loading": "Please wait...",
+    "success": "Message sent.",
+    "error": "Could not send. Please try again."
   },
   "faq": {
     "title": "Website creation stages:",
@@ -731,10 +734,10 @@
   "privacy": {
     "title": "Privacy Policy",
     "metaDescription": "How SoftWhere.uz handles the data you share: what we collect through the contact and estimator forms, where it is stored, and how to reach us about it.",
-    "updated": "Last updated: July 19, 2026",
+    "updated": "Last updated: November 24, 2026",
     "intro": "SoftWhere.uz (\"we\") is a software development studio in Tashkent, Uzbekistan. This page explains what data our website collects, why, and what happens to it. We collect the minimum needed to reply to your enquiry — nothing more.",
     "collectTitle": "What we collect",
-    "collectBody": "The site stores personal data only when you submit a form. The contact form collects your name, phone number, and an optional message. The project estimator's request form collects your name, phone number, an optional comment, your preferred contact method, and the project configuration you assembled (project type, features, the free-text project description you typed, and the price estimate). We do not collect email addresses and we do not store your IP address (it is used transiently for rate limiting only). Browsing the site requires no account.",
+    "collectBody": "The site stores the personal data you enter only when you submit a form. The contact form collects your name, phone number or other contact you enter, and your message. The project estimator's request form collects your name, phone number, an optional comment, your preferred contact method, and the project configuration you assembled (project type, features, the free-text project description you typed, and the price estimate). We do not store your IP address: it is used transiently for rate limiting, and for AI plans we store a keyed one-way hash of it to count unique visitors. Browsing the site requires no account.",
     "useTitle": "How we use it",
     "useBody": "Form submissions are used for one purpose: replying to your enquiry. Each submission is also forwarded as a notification to our team's Telegram chat, so Telegram is a recipient of the data you submit. We do not run marketing mailings and we do not sell or share your data with advertisers.",
     "storeTitle": "Where it is stored",
@@ -742,9 +745,9 @@
     "analyticsTitle": "Analytics",
     "analyticsBody": "We use Vercel Analytics and Vercel Speed Insights — cookieless, aggregate product analytics served from our own domain. There are no advertising trackers, no Google Analytics, no Yandex Metrica, and no cross-site tracking on this site.",
     "cookiesTitle": "Cookies and local storage",
-    "cookiesBody": "The only cookie set for visitors is NEXT_LOCALE, a functional cookie that remembers your language choice. Admin session cookies exist only for site administrators. Your theme preference and currency choice are kept in your browser's local storage, and the estimator draft in session storage (cleared when you close the tab) — none of it ever leaves your device.",
+    "cookiesBody": "One functional cookie can be set for visitors: sw-style remembers the site look you pick, for one year. It is set only when you pick a look. Your language comes from the page address, so no cookie is needed for it. Admin session cookies exist only for site administrators. Your browser's local storage keeps the chosen look, your currency choice, whether you have seen the theme hint, your last AI plan with the idea you typed (shown again for up to 7 days) and the time of your next free plan. Session storage keeps the estimator draft, a look opened from a link and a message prepared for the contact form; it is cleared when you close the tab. What these two storages hold reaches us only if you submit it.",
     "aiTitle": "AI processing in the estimator",
-    "aiBody": "To produce a price estimate, the project configuration — including the free-text project description you type — is processed by our AI providers (Moonshot AI and DeepSeek). Your name and phone number are never sent to them. Please do not put personal data into the project description field.",
+    "aiBody": "To produce a price estimate, the project configuration — including the free-text project description you type — is processed by our AI providers (Moonshot AI and DeepSeek). Your name and phone number are never sent to them. Please do not put personal data into the project description field. The same applies to AI plans: the idea you type is sent to these providers.",
     "rightsTitle": "Your rights",
     "rightsBody": "You can ask us at any time what data we hold about you, or ask us to delete it. Write to kamuranbek98@gmail.com or call +998 33 249-91-11 and we will handle it promptly.",
     "changesTitle": "Changes to this policy",
@@ -764,7 +767,8 @@
       "link_webDevelopment": "Website Development",
       "link_mobileApps": "Mobile App Development",
       "link_telegramBots": "Telegram Bot Development",
-      "servicesHub": "Services"
+      "servicesHub": "Services",
+      "breadcrumb": "Breadcrumb"
     },
     "index": {
       "metaTitle": "Services: Website, App & Telegram Bot Development | SoftWhere",
@@ -855,6 +859,12 @@
       "why3": "Bots integrate with your CRM, inventory, and website.",
       "why4": "Hosting, monitoring, and support of the bot after launch."
     }
+  },
+  "notFound": {
+    "title": "This page does not exist",
+    "body": "It may have moved, or the link has a typo.",
+    "home": "Go to the homepage",
+    "services": "See our services"
   },
   "metadata": {
     "title": "Mobile App, Website & AI Development — SoftWhere",

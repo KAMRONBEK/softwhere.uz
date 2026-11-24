@@ -2,6 +2,7 @@
 
 import { SectionHeading } from '../components/LabSection';
 import { useLabLogo } from '../logos';
+import EntranceFrame from '../logos/EntranceFrame';
 import type { SectionMeta } from '../types';
 import css from './SectionPlaceholder.module.css';
 
@@ -21,7 +22,7 @@ export default function SectionPlaceholder({ meta, as = 'h2', showLogo = false }
       <span className={css.number} aria-hidden='true'>
         {meta.number}
       </span>
-      {showLogo && <Logo className={css.logo} animate />}
+      {showLogo && <Logo className={css.logo} frame={EntranceFrame} />}
       <SectionHeading meta={meta} as={as} className={css.title} />
       <p className={css.brief}>{meta.brief}</p>
       <p className={css.tag}>Placeholder</p>

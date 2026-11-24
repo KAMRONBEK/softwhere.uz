@@ -2,19 +2,31 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCallback, useRef, useState, type MouseEvent } from 'react';
 import { useLabState } from '../context/LabContext';
 import { useLabLogo } from '../logos';
 import { pickStyle, type PickOptions } from '../theme/switchStyle';
 import { useLabStyle } from '../theme/useLabTheme';
 import type { SectionId, StyleId } from '../types';
-import { BAR_LINKS, BAR_PAGE_LINKS, BUILD_GROUP, CTA_TARGET, HEADER_LINKS } from './LabHeader.copy';
+import {
+  BAR_LINKS,
+  BAR_PAGE_LINKS,
+  BUILD_GROUP,
+  CTA_TARGET,
+  HEADER_LINKS,
+  PAGE_LINKS,
+  pageCurrent,
+  SITE_BAR_LINKS,
+  SITE_ESTIMATOR,
+} from './LabHeader.copy';
 import { useCurrentSection, useFocusWithin, useHideOnScroll, type DismissReason } from './LabHeader.hooks';
 import { LanguageLinks } from './LabHeaderLanguage';
 import { MenuButton, MenuSheet } from './LabHeaderMenu';
 import { BuildMenu } from './LabHeaderStories';
 import { ThemePicker } from './LabHeaderTheme';
 import { scrollToSection, scrollToY } from './scroll';
+import { SectionLink, useHeaderMode } from './SectionLink';
 import css from './LabHeader.module.css';
 
 type Layer = 'none' | 'theme' | 'menu' | 'stories';
@@ -41,11 +53,16 @@ function focusSection(id: SectionId): void {
  * up; always there at the top. Below 1280px the chapters move into a sheet
  * behind a menu button, and the bar keeps the picker and a compact "Book a
  * call". Painted only with the style tokens, so it belongs to every style.
+ *
+ * On the site's other pages (HeaderModeContext 'site') the same bar links to
+ * the homepage and its sections, and marks the current page by its path.
  */
 export default function LabHeader() {
   const t = useTranslations('home.header');
   const tShared = useTranslations('home.shared');
   const locale = useLocale();
+  const pathname = usePathname() ?? '';
+  const isSite = useHeaderMode() === 'site';
   const { state, update } = useLabState();
   const style = useLabStyle();
   const { Logo } = useLabLogo();
@@ -93,6 +110,8 @@ export default function LabHeader() {
   const jumpTo = useCallback(
     (id: SectionId) => {
       setLayer('none');
+      // Another page: the link itself goes to the homepage.
+      if (isSite) return;
       // Solo mode shows one section: switch to the target instead of scrolling.
       if (state.only) {
         update({ only: id });
@@ -105,13 +124,8 @@ export default function LabHeader() {
         hideNow();
       });
     },
-    [state.only, update, hideNow]
+    [isSite, state.only, update, hideNow]
   );
-
-  const onLinkClick = (id: SectionId) => (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    jumpTo(id);
-  };
 
   const onLogoClick = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -129,9 +143,15 @@ export default function LabHeader() {
       data-menu={layer === 'menu' ? 'open' : undefined}
     >
       <div className={css.bar}>
-        <a href='#hero' className={css.home} aria-label={t('homeLabel')} onClick={onLogoClick}>
-          <Logo className={css.logo} title='SoftWhere' />
-        </a>
+        {isSite ? (
+          <Link href={`/${locale}`} className={css.home} aria-label={t('siteHomeLabel')} onClick={closeLayer}>
+            <Logo className={css.logo} title='SoftWhere' />
+          </Link>
+        ) : (
+          <a href='#hero' className={css.home} aria-label={t('homeLabel')} onClick={onLogoClick}>
+            <Logo className={css.logo} title='SoftWhere' />
+          </a>
+        )}
 
         <nav className={css.nav} aria-label={t('navLabel')}>
           <ul className={css.links}>
@@ -144,21 +164,31 @@ export default function LabHeader() {
                 onJump={jumpTo}
               />
             </li>
-            {BAR_LINKS.map(link => (
+            {(isSite ? SITE_BAR_LINKS : BAR_LINKS).map(link => (
               <li key={link.target}>
-                <a
-                  href={`#${link.target}`}
-                  className={css.link}
-                  aria-current={currentLink === link.target ? 'true' : undefined}
-                  onClick={onLinkClick(link.target)}
-                >
-                  {t(`links.${link.target}`)}
-                </a>
+                {isSite && link.target === SITE_ESTIMATOR.target ? (
+                  <Link
+                    href={`/${locale}${SITE_ESTIMATOR.path}`}
+                    className={css.link}
+                    aria-current={pageCurrent(pathname, `/${locale}${SITE_ESTIMATOR.path}`)}
+                  >
+                    {t(`links.${link.target}`)}
+                  </Link>
+                ) : (
+                  <SectionLink
+                    target={link.target}
+                    className={css.link}
+                    aria-current={currentLink === link.target ? 'true' : undefined}
+                    onJump={jumpTo}
+                  >
+                    {t(`links.${link.target}`)}
+                  </SectionLink>
+                )}
               </li>
             ))}
-            {BAR_PAGE_LINKS.map(link => (
+            {(isSite ? PAGE_LINKS : BAR_PAGE_LINKS).map(link => (
               <li key={link.key}>
-                <Link href={`/${locale}${link.path}`} className={css.link}>
+                <Link href={`/${locale}${link.path}`} className={css.link} aria-current={pageCurrent(pathname, `/${locale}${link.path}`)}>
                   {t(`links.${link.key}`)}
                 </Link>
               </li>
@@ -175,13 +205,13 @@ export default function LabHeader() {
             onOpenChange={setThemeOpen}
             onPick={pickFromPopover}
           />
-          <a href={`#${CTA_TARGET}`} className={css.cta} data-magnetic='' onClick={onLinkClick(CTA_TARGET)}>
+          <SectionLink target={CTA_TARGET} className={css.cta} data-magnetic='' onJump={jumpTo}>
             {/* Phones: a shorter label, so the menu button keeps its place in every language. */}
             <span className={css.ctaFull}>{tShared('callCta')}</span>
             <span className={css.ctaShort} aria-hidden='true'>
               {t('ctaShort')}
             </span>
-          </a>
+          </SectionLink>
           <div ref={menuButtonWrapRef} className={css.menuSlot}>
             <MenuButton isOpen={layer === 'menu'} controls={SHEET_ID} onToggle={() => setLayer(layer === 'menu' ? 'none' : 'menu')} />
           </div>

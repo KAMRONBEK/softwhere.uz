@@ -2,12 +2,17 @@
 
 import { submitEstimateLead } from '@/modules/estimator/api';
 import type { AiRefinement, EstimatorInput } from '@/modules/estimator/types';
+import { buttonClass } from '@/shared/components/site';
 import { trackEvent } from '@/shared/utils/analytics';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { PhoneInput, defaultCountries, parseCountry, type ParsedCountry } from 'react-international-phone';
 import 'react-international-phone/style.css';
+import { replaceWithPastedUzPhone } from '@/shared/utils/phonePaste';
+import { PhoneIcon, TelegramIcon } from './icons';
+import css from './ResultPanel.module.css';
 import { SegmentedPill } from './ui';
+import ui from './ui.module.css';
 
 // Same market-relevant subset the contact form uses (keeps SSR HTML small).
 const RELEVANT_COUNTRIES = new Set(['uz', 'ru', 'kz', 'kg', 'tj', 'tm', 'az', 'tr', 'ae', 'us', 'gb', 'de']);
@@ -89,92 +94,94 @@ export default function LeadForm({ input, ai }: Props) {
 
   if (done) {
     return (
-      <div className='rounded-2xl border border-ember-accent bg-[rgba(255,91,30,0.08)] p-6 text-center'>
-        <div className='text-3xl mb-2'>✅</div>
-        <div className='font-display font-bold text-ember-text text-lg mb-1'>{t('leadSuccessTitle')}</div>
-        <p className='text-sm text-ember-muted'>{t('leadSuccessSub')}</p>
+      <div className={`${css.panel} ${css.raised} ${css.done}`} role='status'>
+        <svg viewBox='0 0 52 52' width='48' height='48' fill='none' stroke='currentColor' strokeWidth='2.5' aria-hidden='true'>
+          <circle cx='26' cy='26' r='23' />
+          <path d='m16 27 7 7 14-15' strokeLinecap='round' strokeLinejoin='round' />
+        </svg>
+        <h3 className={css.formTitle}>{t('leadSuccessTitle')}</h3>
+        <p className={css.muted}>{t('leadSuccessSub')}</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className='rounded-2xl border border-ember-border bg-ember-surface p-5 sm:p-6'>
-      <div className='font-display font-bold text-ember-text text-lg mb-1'>{t('leadTitle')}</div>
-      <p className='text-sm text-ember-muted mb-5'>{t('leadSub')}</p>
+    <form onSubmit={handleSubmit} className={`${css.panel} ${css.raised}`}>
+      <h3 className={css.formTitle}>{t('leadTitle')}</h3>
+      <p className={css.muted}>{t('leadSub')}</p>
 
-      <div className='grid sm:grid-cols-2 gap-4 mb-4'>
+      <div className={css.fields}>
+        <div className={css.two}>
+          <div>
+            <label htmlFor='lead-name' className={css.label}>
+              {t('leadName')}
+            </label>
+            <input
+              id='lead-name'
+              type='text'
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder={t('leadNamePlaceholder')}
+              aria-invalid={error === t('leadErrorName') || undefined}
+              className={ui.field}
+            />
+          </div>
+          <div className={`estimator-phone ${css.phone}`} data-invalid={error === t('leadErrorPhone') || undefined}>
+            <label htmlFor='lead-phone' className={css.label}>
+              {t('leadPhone')}
+            </label>
+            <PhoneInput
+              defaultCountry='uz'
+              countries={leadCountries}
+              value={phone}
+              onChange={(value, meta) => {
+                setPhone(value);
+                setCountry(meta.country);
+              }}
+              defaultMask='.. ...-..-..'
+              inputProps={{ id: 'lead-phone', onPaste: replaceWithPastedUzPhone(setPhone) }}
+            />
+          </div>
+        </div>
+
         <div>
-          <label htmlFor='lead-name' className='block text-sm font-semibold text-ember-text mb-1.5'>
-            {t('leadName')}
+          <span className={css.label}>{t('leadContactVia')}</span>
+          <div className={ui.pills}>
+            <SegmentedPill selected={contact === 'telegram'} onClick={() => setContact('telegram')}>
+              <TelegramIcon /> Telegram
+            </SegmentedPill>
+            <SegmentedPill selected={contact === 'call'} onClick={() => setContact('call')}>
+              <PhoneIcon /> {t('leadCall')}
+            </SegmentedPill>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor='lead-comment' className={css.label}>
+            {t('leadComment')}
           </label>
-          <input
-            id='lead-name'
-            type='text'
-            value={name}
-            onChange={e => setName(e.target.value)}
-            placeholder={t('leadNamePlaceholder')}
-            className='w-full rounded-xl border border-ember-border bg-ember-bg text-ember-text placeholder:text-ember-muted px-3.5 py-2.5 text-sm outline-none focus:border-ember-accent transition-colors'
+          <textarea
+            id='lead-comment'
+            value={comment}
+            onChange={e => setComment(e.target.value.slice(0, MAX_COMMENT))}
+            placeholder={t('leadCommentPlaceholder')}
+            rows={2}
+            className={ui.field}
           />
         </div>
-        <div className='estimator-phone'>
-          <label htmlFor='lead-phone' className='block text-sm font-semibold text-ember-text mb-1.5'>
-            {t('leadPhone')}
-          </label>
-          <PhoneInput
-            defaultCountry='uz'
-            countries={leadCountries}
-            value={phone}
-            onChange={(value, meta) => {
-              setPhone(value);
-              setCountry(meta.country);
-            }}
-            defaultMask='.. ...-..-..'
-            inputProps={{ id: 'lead-phone' }}
-          />
+
+        {error && (
+          <p role='alert' className={css.error}>
+            {error}
+          </p>
+        )}
+
+        <div className={css.submit}>
+          <button type='submit' disabled={submitting} className={buttonClass()}>
+            {submitting ? t('leadSending') : t('leadSubmit')}
+          </button>
+          <p className={css.small}>{t('leadPrivacy')}</p>
         </div>
-      </div>
-
-      <div className='mb-4'>
-        <span className='block text-sm font-semibold text-ember-text mb-1.5'>{t('leadContactVia')}</span>
-        <div className='flex gap-1.5'>
-          <SegmentedPill selected={contact === 'telegram'} onClick={() => setContact('telegram')}>
-            ✈️ Telegram
-          </SegmentedPill>
-          <SegmentedPill selected={contact === 'call'} onClick={() => setContact('call')}>
-            📞 {t('leadCall')}
-          </SegmentedPill>
-        </div>
-      </div>
-
-      <div className='mb-5'>
-        <label htmlFor='lead-comment' className='block text-sm font-semibold text-ember-text mb-1.5'>
-          {t('leadComment')}
-        </label>
-        <textarea
-          id='lead-comment'
-          value={comment}
-          onChange={e => setComment(e.target.value.slice(0, MAX_COMMENT))}
-          placeholder={t('leadCommentPlaceholder')}
-          rows={2}
-          className='w-full rounded-xl border border-ember-border bg-ember-bg text-ember-text placeholder:text-ember-muted px-3.5 py-2.5 text-sm outline-none focus:border-ember-accent transition-colors resize-y'
-        />
-      </div>
-
-      {error && (
-        <p role='alert' className='text-sm text-ember-accent mb-4'>
-          {error}
-        </p>
-      )}
-
-      <div className='flex flex-col sm:flex-row sm:items-center gap-3'>
-        <button
-          type='submit'
-          disabled={submitting}
-          className='px-7 py-3 rounded-full bg-ember-accent text-[#0a0705] font-bold text-sm hover:shadow-[0_0_28px_var(--glow)] transition-shadow disabled:opacity-60 cursor-pointer'
-        >
-          {submitting ? t('leadSending') : t('leadSubmit')}
-        </button>
-        <p className='text-xs text-ember-muted'>{t('leadPrivacy')}</p>
       </div>
     </form>
   );

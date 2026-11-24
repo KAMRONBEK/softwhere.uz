@@ -128,7 +128,7 @@
   display: flex;
   flex-direction: column;
   border: 1px solid var(--ab-line);
-  border-radius: 26px;
+  border-radius: var(--ab-r-card, 26px);
   background: linear-gradient(180deg, var(--ab-surface2), var(--ab-surface));
   box-shadow: 0 40px 90px -60px rgba(0, 0, 0, 0.7);
   transition:
@@ -188,7 +188,7 @@
 .exampleChip {
   padding: 6px 13px;
   border: 1px solid var(--ab-line);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: transparent;
   color: color-mix(in srgb, var(--ab-ink) 86%, transparent);
   font-size: 13px;
@@ -266,7 +266,7 @@
 .shortcut {
   padding: 3px 8px;
   border: 1px solid var(--ab-line);
-  border-radius: 7px;
+  border-radius: var(--ab-r-control, 7px);
   color: var(--ab-muted);
   font-size: 12px;
   white-space: nowrap;
@@ -327,7 +327,7 @@
   height: 6px;
   flex: none;
   margin-top: calc(0.75em - 3px);
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
   background: var(--ab-accent);
   content: '';
 }
@@ -385,7 +385,7 @@
   gap: 6px;
   margin-bottom: 12px;
   padding: 14px 18px;
-  border-radius: 18px;
+  border-radius: var(--ab-r-card, 18px);
   font-size: 14.5px;
   line-height: 1.55;
   animation: ab-reveal 320ms var(--ab-ease-out) both;
@@ -508,7 +508,7 @@
   gap: 16px;
   padding: 16px 18px 16px 20px;
   border: 1px solid var(--ab-line);
-  border-radius: 18px;
+  border-radius: var(--ab-r-card, 18px);
   background: var(--ab-surface);
 }
 
@@ -639,7 +639,7 @@
   overflow: hidden;
   padding: 22px 24px 20px;
   border: 1px solid var(--ab-line);
-  border-radius: 22px;
+  border-radius: var(--ab-r-card, 22px);
   background: linear-gradient(180deg, var(--ab-surface2), var(--ab-surface));
 }
 
@@ -674,7 +674,7 @@
   width: 8px;
   height: 8px;
   flex: none;
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
   background: var(--ab-accent);
   animation: ab-pulse 1.6s ease-out infinite;
 }
@@ -730,7 +730,7 @@
   height: 20px;
   place-items: center;
   border: 2px solid var(--ab-line);
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
   background: var(--ab-surface);
   color: var(--ab-on-accent);
   transition:
@@ -875,7 +875,7 @@
 .flag {
   padding: 6px 12px;
   border: 1px solid var(--ab-line);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: var(--ab-surface);
   color: color-mix(in srgb, var(--ab-ink) 86%, transparent);
   font-size: 13.5px;
@@ -886,7 +886,7 @@
   margin-top: 22px;
   padding: 12px 16px;
   border-left: 3px solid var(--ab-accent2);
-  border-radius: 0 12px 12px 0;
+  border-radius: var(--ab-r-dot, 0 12px 12px 0);
   background: color-mix(in srgb, var(--ab-accent2) 9%, transparent);
   font-size: 14.5px;
   line-height: 1.55;
@@ -896,7 +896,7 @@
   position: relative;
   padding: 24px;
   border: 1px solid color-mix(in srgb, var(--ab-accent) 36%, var(--ab-line));
-  border-radius: 24px;
+  border-radius: var(--ab-r-card, 24px);
   background:
     radial-gradient(120% 70% at 100% 0%, color-mix(in srgb, var(--ab-accent) 15%, transparent), transparent 62%), var(--ab-surface);
   box-shadow: 0 40px 90px -56px var(--ab-glow);
@@ -926,7 +926,7 @@
 
 .confidence {
   padding: 4px 10px;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: color-mix(in srgb, var(--ab-ink) 8%, transparent);
   color: color-mix(in srgb, var(--ab-ink) 80%, transparent);
   font-size: 12px;
@@ -1048,7 +1048,7 @@
 .currencyPill {
   padding: 5px 11px;
   border: 1px solid var(--ab-line);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: transparent;
   color: var(--ab-muted);
   font-size: 12.5px;
@@ -1123,7 +1123,7 @@
 
 .team li {
   padding: 5px 11px;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: color-mix(in srgb, var(--ab-ink) 7%, transparent);
   font-size: 13.5px;
 }
@@ -1179,7 +1179,7 @@
   position: absolute;
   inset: 64px -16px -8px;
   z-index: -1;
-  border-radius: 28px;
+  border-radius: var(--ab-r-card, 28px);
   background: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ab-ink) 10%, transparent) 1px, transparent 1.5px) 0 0 / 22px 22px;
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 80%, transparent);
   mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 80%, transparent);
@@ -1229,7 +1229,7 @@
   height: 40px;
   place-items: center;
   border: 1px solid var(--ab-line);
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
   background: var(--ab-surface);
   color: var(--ab-ink);
   cursor: pointer;
@@ -1338,7 +1338,7 @@
 .laterBadge {
   padding: 2px 8px;
   border: 1px dashed var(--ab-line);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   color: var(--ab-muted);
   font-family: var(--ab-body);
   font-size: 11.5px;
@@ -1361,7 +1361,7 @@
 
 .ghostWide {
   width: var(--wide-w);
-  border-radius: 14px;
+  border-radius: var(--ab-r-control, 14px);
 }
 
 .ghostBar {
@@ -1478,7 +1478,7 @@
   width: 10px;
   height: 10px;
   flex: none;
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
 }
 
 .scopeMarkNow {
@@ -1558,7 +1558,7 @@
   position: relative;
   height: 12px;
   margin-top: 8px;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: color-mix(in srgb, var(--ab-ink) 5%, transparent);
 }
 
@@ -1568,7 +1568,7 @@
   top: 0;
   bottom: 0;
   left: var(--start);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
 }
 
 .phaseSpan {
@@ -1670,7 +1670,7 @@
 
 .notPriced {
   padding: 2px 9px;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: color-mix(in srgb, var(--ab-accent2) 14%, transparent);
   color: var(--ab-accent2);
   font-size: 12px;
@@ -1769,7 +1769,7 @@
 .asideSection {
   padding: 22px;
   border: 1px solid var(--ab-line);
-  border-radius: 20px;
+  border-radius: var(--ab-r-card, 20px);
   background: var(--ab-surface);
 }
 
@@ -1810,7 +1810,7 @@
   grid-column: 1 / -1;
   height: 6px;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: color-mix(in srgb, var(--ab-ink) 7%, transparent);
 }
 
@@ -1818,7 +1818,7 @@
   display: block;
   width: var(--share);
   height: 100%;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: linear-gradient(90deg, var(--ab-accent2), var(--ab-accent));
 }
 
@@ -1864,7 +1864,7 @@
 .stack li {
   padding: 4px 10px;
   border: 1px solid var(--ab-line);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   font-size: 12.5px;
 }
 
@@ -1888,7 +1888,7 @@
   left: 2px;
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
   background: var(--ab-muted);
   content: '';
 }
@@ -1906,7 +1906,7 @@
   justify-content: center;
   gap: 8px;
   padding: 0 24px;
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   font-family: var(--ab-display);
   font-size: 15.5px;
   font-weight: 600;
@@ -1946,7 +1946,7 @@
   flex: none;
   padding: 8px 14px;
   border: 1px solid var(--ab-line);
-  border-radius: 99px;
+  border-radius: var(--ab-r-control, 99px);
   background: transparent;
   color: var(--ab-ink);
   font-size: 14px;
@@ -2011,7 +2011,7 @@
   align-items: center;
   padding: 32px;
   border: 1px solid var(--ab-line);
-  border-radius: 28px;
+  border-radius: var(--ab-r-card, 28px);
   background:
     radial-gradient(90% 140% at 0% 100%, color-mix(in srgb, var(--ab-accent) 20%, transparent), transparent 62%), var(--ab-surface2);
 }
@@ -2071,7 +2071,7 @@
   gap: 20px 18px;
   padding: 28px;
   border: 1px solid color-mix(in srgb, var(--ab-accent) 30%, var(--ab-line));
-  border-radius: 24px;
+  border-radius: var(--ab-r-card, 24px);
   background:
     radial-gradient(110% 120% at 0% 0%, color-mix(in srgb, var(--ab-accent) 14%, transparent), transparent 60%), var(--ab-surface);
   box-shadow: 0 40px 90px -60px var(--ab-glow);
@@ -2082,7 +2082,7 @@
   width: 48px;
   height: 48px;
   place-items: center;
-  border-radius: 50%;
+  border-radius: var(--ab-r-dot, 50%);
   background: color-mix(in srgb, var(--ab-accent) 14%, transparent);
   color: var(--ab-accent);
 }
@@ -2118,7 +2118,7 @@
   display: inline-flex;
   margin-top: 14px;
   padding: 7px 13px;
-  border-radius: 14px;
+  border-radius: var(--ab-r-control, 14px);
   background: color-mix(in srgb, var(--ab-ink) 7%, transparent);
   font-size: 13.5px;
   font-weight: 600;
@@ -2278,5 +2278,283 @@
 
   to {
     opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Full page (/ai-estimate): the site's own surfaces, type and radii.  */
+/* The compact variant (the homepage) keeps everything above as it is. */
+/* ------------------------------------------------------------------ */
+
+:global([data-lab-root]) .full {
+  --ab-surface: var(--bg-2);
+  --ab-surface2: var(--surface2);
+  --ab-line: var(--border);
+  --ab-r-card: var(--radius);
+  --ab-r-control: var(--radius);
+  --ab-r-dot: min(var(--radius), 50%);
+  --ab-shadow: var(--glow);
+
+  padding-top: clamp(32px, 5vw, 72px);
+}
+
+.full .field {
+  border-color: var(--border-strong);
+  background: var(--ab-surface);
+  box-shadow: 0 40px 90px -50px var(--ab-glow);
+}
+
+.full .field:focus-within {
+  border-color: var(--ab-accent);
+  box-shadow:
+    0 0 0 1px var(--ab-accent),
+    0 40px 90px -50px var(--ab-glow);
+}
+
+.full .textarea::placeholder {
+  color: var(--ab-muted);
+}
+
+.full .sampleStage::before {
+  background: radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--ab-ink) 14%, transparent) 1px, transparent 1.5px) 0 0 / 20px 20px;
+}
+
+.full .ledger,
+.full .limit,
+.full .progress {
+  border-color: var(--border);
+  background: var(--ab-surface);
+}
+
+/* The closing panel, as the site's CtaBand. */
+.full .ctaBand {
+  padding: clamp(26px, 4.4vw, 60px);
+  border-color: var(--border);
+  background: var(--ab-surface);
+  box-shadow: 0 40px 90px -50px var(--ab-glow);
+}
+
+/* Type: headings in the look's display face at its own weight, small labels in the body face. */
+.full .heading,
+.full .title,
+.full .sectionTitle,
+.full .ctaTitle,
+.full .limitTitle,
+.full .discoveryTitle,
+.full .price {
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  overflow-wrap: break-word;
+}
+
+.full .heading {
+  font-size: calc(clamp(2.1rem, 4.7vw, 4rem) * var(--display-scale, 1));
+  line-height: 1.04;
+}
+
+.full .heading:lang(ru) {
+  font-size: calc(clamp(1.9rem, 4vw, 3.4rem) * var(--display-scale, 1));
+}
+
+.full .title {
+  font-size: calc(clamp(1.85rem, 3.8vw, 3.1rem) * var(--display-scale, 1));
+}
+
+.full .sectionTitle {
+  font-size: calc(clamp(1.5rem, 2.3vw, 2rem) * var(--display-scale, 1));
+  line-height: 1.1;
+}
+
+.full .ctaTitle {
+  font-size: calc(clamp(1.75rem, 3.2vw, 2.6rem) * var(--display-scale, 1));
+  line-height: 1.06;
+}
+
+.full .limitTitle,
+.full .discoveryTitle {
+  font-size: calc(clamp(1.45rem, 2.2vw, 1.85rem) * var(--display-scale, 1));
+}
+
+.full .price {
+  font-size: calc(clamp(1.8rem, 2.5vw, 2.2rem) * var(--display-scale, 1));
+}
+
+.full .price,
+.full .discoveryTitle {
+  background: none;
+  color: var(--ab-ink);
+}
+
+.full .progressTitle,
+.full .ledgerStat,
+.full .ledgerRowValue,
+.full .scopeHeading,
+.full .phaseWeeks,
+.full .asideTitle {
+  font-family: var(--ab-body);
+}
+
+.full .lede {
+  margin-top: 24px;
+  font-size: clamp(1.0625rem, 1.3vw, 1.1875rem);
+}
+
+/* --accent-2 never carries text; small accent text is the mixed token. */
+.full .fieldHint,
+.full .countWarn,
+.full .countOver,
+.full .confidence_low,
+.full .notPriced {
+  color: var(--ab-ink);
+}
+
+.full .fieldHint {
+  padding-left: 10px;
+  border-left: 2px solid var(--ab-accent);
+}
+
+.full .countWarn,
+.full .countOver {
+  font-weight: 700;
+}
+
+.full .confidence_low,
+.full .notPriced {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.full .policyNote {
+  border-left-color: var(--ab-accent);
+  border-radius: 0 calc(var(--radius) * 0.5) calc(var(--radius) * 0.5) 0;
+  background: color-mix(in srgb, var(--ab-accent) 8%, transparent);
+}
+
+.full .buildWhyLabel {
+  color: var(--accent-text);
+}
+
+.full .textLink {
+  min-height: 44px;
+  align-items: center;
+  color: var(--ab-ink);
+  text-decoration-color: var(--ab-accent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+/* Controls: the site's buttons. */
+:global([data-lab-root]) .full .primaryButton,
+:global([data-lab-root]) .full .secondaryButton {
+  min-height: 52px;
+  padding: 12px 26px;
+  font: 500 16px/1.2 var(--ab-body);
+  letter-spacing: 0.005em;
+  text-align: center;
+  text-transform: none;
+  white-space: normal;
+}
+
+.full .secondaryButton {
+  border-color: color-mix(in srgb, var(--ab-ink) 30%, transparent);
+}
+
+.full .exampleChip,
+.full .currencyPill,
+.full .ghostButton {
+  min-height: 44px;
+  padding-inline: 14px;
+}
+
+.full .exampleChip {
+  border-color: var(--border-strong);
+  font-size: 14px;
+}
+
+.full .currencyPill {
+  min-width: 52px;
+}
+
+.full .roundButton {
+  width: 44px;
+  height: 44px;
+}
+
+.full .flag,
+.full .team li,
+.full .stack li,
+.full .confidence,
+.full .notPriced,
+.full .laterBadge,
+.full .limitNext {
+  border-radius: calc(var(--radius) * 0.5);
+}
+
+.full .phaseTrack,
+.full .phaseSpan,
+.full .phaseSolid,
+.full .driverTrack,
+.full .driverBar,
+.full .spreadTrack {
+  border-radius: min(var(--radius), 99px);
+}
+
+.full .phaseSolid,
+.full .driverBar,
+.full .spreadTrack,
+.full .spreadTrack::before,
+.full .steps::after {
+  background: var(--ab-accent);
+}
+
+.full .limit {
+  margin-top: 28px;
+}
+
+.full .skel,
+.full .ghostWide {
+  border-radius: min(var(--radius), 10px);
+}
+
+.full .ctaBody {
+  margin-top: 14px;
+}
+
+.full .primaryButton:focus-visible,
+.full .secondaryButton:focus-visible,
+.full .ghostButton:focus-visible,
+.full .exampleChip:focus-visible,
+.full .currencyPill:focus-visible,
+.full .roundButton:focus-visible,
+.full .textLink:focus-visible {
+  outline: 2px solid var(--ab-accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .full .primaryButton:hover {
+    background: color-mix(in srgb, var(--ab-accent) 84%, var(--ab-ink));
+    box-shadow: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .full .resultAside {
+    top: calc(var(--lab-header-offset, 0px) + 16px);
+  }
+}
+
+@media (max-width: 640px) {
+  /* The longest placeholder (ru) fits whole. */
+  .full .textarea {
+    min-height: 196px;
+  }
+
+  .full .submitRow {
+    flex-wrap: wrap;
+  }
+
+  .full .submitRow .primaryButton {
+    flex: 1 1 auto;
   }
 }

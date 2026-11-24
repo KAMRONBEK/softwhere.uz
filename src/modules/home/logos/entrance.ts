@@ -2,8 +2,8 @@
 
 import type { RefObject } from 'react';
 import { useReducedMotion } from '../device/useDeviceTier';
-// GSAP core only, not '../global/gsap': that entry registers ScrollTrigger, and the
-// header's logo is on every first paint while ScrollTrigger is only for sections.
+// GSAP core only, not '../global/gsap': that entry registers ScrollTrigger, which is
+// only for sections.
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 
@@ -42,16 +42,16 @@ const ARRIVE_EASE = 'expo.out';
 const CLOSE_EASE = 'power2.in';
 
 /**
- * Plays the entrance once on mount when `isEnabled`; remount (change `key`) to replay.
+ * Plays the entrance once on mount; remount (change `key`) to replay.
  * `axis` is the mark's middle diagonal as a unit vector pointing down-right.
  */
-export function useLogoEntrance(ref: RefObject<SVGSVGElement | null>, isEnabled: boolean, axis: readonly [number, number]): void {
+export function useLogoEntrance(ref: RefObject<SVGSVGElement | null>, axis: readonly [number, number]): void {
   const reducedMotion = useReducedMotion();
   const [axisX, axisY] = axis;
   useGSAP(
     () => {
       const svg = ref.current;
-      if (!svg || !isEnabled || reducedMotion) return;
+      if (!svg || reducedMotion) return;
       const parts = (name: string) => svg.querySelectorAll(`[data-logo-part="${name}"]`);
       const [mark, whole, lt, gt, letters] = ['mark', 'whole', 'lt', 'gt', 'letter'].map(parts);
       if (lt.length === 0 || gt.length === 0) return;
@@ -74,6 +74,6 @@ export function useLogoEntrance(ref: RefObject<SVGSVGElement | null>, isEnabled:
         timeline.from(letters, { y: LETTER_RISE, opacity: 0, duration: 0.6, ease: 'expo.out', stagger: LETTER_STAGGER }, LETTERS_AT);
       }
     },
-    { scope: ref, dependencies: [isEnabled, reducedMotion, axisX, axisY], revertOnUpdate: true }
+    { scope: ref, dependencies: [reducedMotion, axisX, axisY], revertOnUpdate: true }
   );
 }

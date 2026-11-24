@@ -387,7 +387,7 @@ s.group('lab — S08 with the real brief: its own floor, static ids');
     `${floors} / ${demo}`
   );
   s.ok('…well below the scripted demo on phones (the 900 px blank band is gone)', floors[0] <= demo[0] - 800, `${floors[0]} vs ${demo[0]}`);
-  s.ok('the shell swaps the floor in only when the slot is filled', /withSlotFloor/.test(shell) && /meta\.slotMinHeight/.test(shell));
+  s.ok('the shell swaps the floor in only when the slot is filled', /withSlotFloor/.test(shell) && /meta\.slotMinHeight/.test(registry));
   const composer = read('src/modules/estimator/components/brief/Composer.tsx');
   const experience = read('src/modules/estimator/components/brief/AIBriefExperience.tsx');
   s.ok('the composer takes static ids (no useId mismatch inside the lab)', /idPrefix \?\? generatedId/.test(composer));

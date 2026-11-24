@@ -1,23 +1,16 @@
 import type { ParsedChart, ChartSeries } from '@/modules/blog/utils/chart';
-import {
-  DONUT_SLOT_ORDER,
-  donutSlicePath,
-  formatExactNumber,
-  makeNumberFormatter,
-  niceTicks,
-  truncateLabel,
-} from '@/modules/blog/utils/chart';
+import { donutSlicePath, formatExactNumber, makeNumberFormatter, niceTicks, truncateLabel } from '@/modules/blog/utils/chart';
 
 /**
  * Native, theme-aware rendering of a stored blog chart (decoded from its
  * QuickChart URL by parseQuickChartSrc). Server component — pure SVG/HTML
- * styled with the Ember chart tokens in globals.css, so it follows the
- * light/dark toggle with zero client JS. Hover detail is CSS-only; the
+ * styled with the chart tokens in globals.css, so it follows the visitor's
+ * look with zero client JS. Hover detail is CSS-only; the
  * <details> data table is the accessibility twin of every chart.
  *
  * Forms: bar (rendered horizontally — category labels in ru/uz run long),
  * line (with null gaps), doughnut. Series colors use the fixed --chart-1..6
- * slots, validated for CVD safety on both surfaces — never cycled.
+ * slots, validated for CVD safety in every look — never cycled.
  */
 
 interface BlogChartProps {
@@ -30,6 +23,19 @@ interface BlogChartProps {
   /** Header used when a dataset carried no label of its own. */
   valueLabel: string;
 }
+
+// Slots (1-based) per doughnut slice count. In a ring the last slice touches the
+// first, so the plain 1..n order is not enough. Picked for the worst neighbouring
+// pair over the four looks' --chart-* sets (dataviz validator: no FAIL, CVD ΔE 7.4
+// or more); run it again if those hexes change.
+const RING_ORDER: Record<number, readonly number[]> = {
+  1: [1],
+  2: [1, 6],
+  3: [1, 2, 4],
+  4: [1, 2, 3, 4],
+  5: [1, 2, 4, 5, 6],
+  6: [1, 2, 3, 4, 5, 6],
+};
 
 const slot = (i: number) => `var(--chart-${i + 1})`;
 
@@ -249,8 +255,8 @@ function Doughnut({ chart, locale, valueLabel }: { chart: ParsedChart; locale: s
   // near 100 — person-days [45,30,25] also sum to 100 and are not percentages.
   const unit = /%/.test(series.label) ? '%' : '';
   // Ring-safe color order: the last slice touches the first, so slot order
-  // depends on the slice count (see DONUT_SLOT_ORDER).
-  const slotOrder = DONUT_SLOT_ORDER[slices.length] ?? DONUT_SLOT_ORDER[6];
+  // depends on the slice count (see RING_ORDER).
+  const slotOrder = RING_ORDER[slices.length] ?? RING_ORDER[6];
   const arcs = slices.reduce<Array<{ label: string; v: number; i: number; color: string; start: number; end: number; pct: number }>>(
     (acc, s, i) => {
       const start = acc.length > 0 ? acc[acc.length - 1].end : 0;
@@ -367,7 +373,7 @@ export default function BlogChart({ chart, caption, locale, viewDataLabel, categ
           </div>
         </details>
       </div>
-      {caption && <figcaption className='text-center text-sm text-ember-muted mt-3'>{caption}</figcaption>}
+      {caption && <figcaption>{caption}</figcaption>}
     </figure>
   );
 }

@@ -4,6 +4,7 @@ import { Locale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import BlogListClient, { BlogPostSummary } from '@/modules/blog/components/BlogListClient';
 import { listPublished } from '@/modules/blog/model/posts.repository';
+import { Page, PageHero, Section } from '@/shared/components/site';
 import { validateLocale } from '@/core/auth';
 import { safeJsonLd } from '@/shared/utils/security';
 import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
@@ -86,17 +87,14 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   };
 
   return (
-    <div className='page-layout' style={{ backgroundColor: 'var(--bg)' }}>
+    <Page>
       <script type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(blogSchema) }} />
-      <div className='container py-20'>
-        <header className='mb-12 text-center'>
-          <h1 className='text-4xl font-bold font-display text-ember-text leading-tight tracking-tight mb-6'>{t('title')}</h1>
-          <p className='text-ember-muted text-base font-medium leading-5 tracking-tight max-w-2xl mx-auto'>{t('description')}</p>
-        </header>
+      <PageHero title={t('title')} lead={t('description')} />
+      <Section>
         <NextIntlClientProvider messages={clientMessages}>
           <BlogListClient posts={posts} locale={locale} />
         </NextIntlClientProvider>
-      </div>
-    </div>
+      </Section>
+    </Page>
   );
 }

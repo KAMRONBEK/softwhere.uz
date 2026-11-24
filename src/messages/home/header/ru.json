@@ -1,5 +1,7 @@
 {
   "homeLabel": "SoftWhere — в начало страницы",
+  "siteHomeLabel": "SoftWhere, на главную",
+  "toTop": "Наверх",
   "navLabel": "Главное меню",
   "menu": {
     "open": "Меню",

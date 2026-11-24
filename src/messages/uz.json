@@ -620,13 +620,16 @@
     "message": "Xabar",
     "messagePlaceholder": "Xabaringizni yozing...",
     "btn": "Yuborish",
-    "telegramCta": "Telegramda yozing"
+    "telegramCta": "Telegramda yozing",
+    "place": "Toshkent, Oʻzbekiston"
   },
   "toastMessage": {
     "phoneNumber": "Telefon raqamingizni kiriting!",
     "name": "Ismingizni kiriting!",
     "message": "Xabar yozing!",
-    "loading": "Biroz kuting..."
+    "loading": "Biroz kuting...",
+    "success": "Xabaringiz yuborildi.",
+    "error": "Xabar yuborilmadi. Qayta urinib koʻring."
   },
   "faq": {
     "title": "Sayt yaratish bosqichlari:",
@@ -731,10 +734,10 @@
   "privacy": {
     "title": "Maxfiylik siyosati",
     "metaDescription": "SoftWhere.uz maʼlumotlaringiz bilan qanday ishlaydi: aloqa va kalkulyator formalarida nima yigʻiladi, qayerda saqlanadi va qanday bogʻlanish mumkin.",
-    "updated": "Oxirgi yangilanish: 2026-yil 19-iyul",
+    "updated": "Oxirgi yangilanish: 2026-yil 24-noyabr",
     "intro": "SoftWhere.uz («biz») — Toshkentdagi (Oʻzbekiston) dasturlash studiyasi. Bu sahifada saytimiz qanday maʼlumotlarni, nima uchun yigʻishi va ular bilan nima boʻlishi tushuntirilgan. Murojaatingizga javob berish uchun eng zarur maʼlumotnigina yigʻamiz — ortigʻini emas.",
     "collectTitle": "Qanday maʼlumotlarni yigʻamiz",
-    "collectBody": "Sayt shaxsiy maʼlumotlarni faqat siz forma yuborganingizda saqlaydi. Aloqa formasi ismingiz, telefon raqamingiz va ixtiyoriy xabaringizni yigʻadi. Loyiha kalkulyatoridagi ariza formasi ismingiz, telefon raqamingiz, ixtiyoriy izoh, siz uchun qulay aloqa usuli va siz tuzgan loyiha konfiguratsiyasini (loyiha turi, funksiyalar, oʻzingiz yozgan loyiha tavsifi va taxminiy narx) yigʻadi. Email manzillarni yigʻmaymiz va IP-manzilingizni saqlamaymiz (u faqat soʻrovlar sonini cheklash uchun vaqtincha ishlatiladi). Saytni koʻrish uchun roʻyxatdan oʻtish shart emas.",
+    "collectBody": "Sayt siz kiritgan shaxsiy maʼlumotlarni faqat siz forma yuborganingizda saqlaydi. Aloqa formasi ismingiz, telefon raqamingiz yoki siz kiritgan boshqa kontakt va xabaringizni yigʻadi. Loyiha kalkulyatoridagi ariza formasi ismingiz, telefon raqamingiz, ixtiyoriy izoh, siz uchun qulay aloqa usuli va siz tuzgan loyiha konfiguratsiyasini (loyiha turi, funksiyalar, oʻzingiz yozgan loyiha tavsifi va taxminiy narx) yigʻadi. IP-manzilingizni saqlamaymiz: u soʻrovlar sonini cheklash uchun vaqtincha ishlatiladi, AI rejalar uchun esa noyob tashrif buyuruvchilarni sanash maqsadida uning kalitli, qaytarib boʻlmaydigan xeshini saqlaymiz. Saytni koʻrish uchun roʻyxatdan oʻtish shart emas.",
     "useTitle": "Maʼlumotlardan qanday foydalanamiz",
     "useBody": "Yuborilgan formalar bitta maqsadda ishlatiladi — murojaatingizga javob berish. Har bir ariza jamoamizning Telegram chatiga bildirishnoma sifatida ham yuboriladi, yaʼni siz yuborgan maʼlumotlarni Telegram ham qabul qiladi. Reklama xabarlarini tarqatmaymiz, maʼlumotlaringizni reklama beruvchilarga sotmaymiz va bermaymiz.",
     "storeTitle": "Maʼlumotlar qayerda saqlanadi",
@@ -742,9 +745,9 @@
     "analyticsTitle": "Analitika",
     "analyticsBody": "Vercel Analytics va Vercel Speed Insights xizmatlaridan foydalanamiz: ular cookie ishlatmaydi, faqat umumlashtirilgan statistikani yigʻadi va oʻz domenimizdan ishlaydi. Saytda reklama trekerlari, Google Analytics, Yandex Metrika va saytlararo kuzatuv yoʻq.",
     "cookiesTitle": "Cookie va brauzer xotirasi",
-    "cookiesBody": "Tashrif buyuruvchilar uchun oʻrnatiladigan yagona cookie — NEXT_LOCALE: u tanlagan tilingizni eslab qoladi. Sessiya cookie fayllari faqat sayt administratorlari uchun ishlatiladi. Tanlangan rang mavzusi va valyuta brauzeringizning lokal xotirasida (local storage), kalkulyator qoralamasi esa sessiya xotirasida (session storage, varaq yopilganda oʻchadi) saqlanadi — bularning hech biri qurilmangizdan tashqariga chiqmaydi.",
+    "cookiesBody": "Tashrif buyuruvchilar uchun bitta funksional cookie oʻrnatilishi mumkin: sw-style siz tanlagan sayt koʻrinishini bir yil eslab qoladi. U faqat koʻrinishni oʻzingiz tanlasangiz oʻrnatiladi. Til sahifa manzilidan aniqlanadi, buning uchun cookie kerak emas. Sessiya cookie fayllari faqat sayt administratorlari uchun ishlatiladi. Brauzeringizning lokal xotirasida (local storage) tanlangan koʻrinish, valyuta, maslahat koʻrsatilgani haqidagi belgi, oxirgi AI rejangiz va yozgan gʻoyangiz (7 kungacha koʻrsatiladi) hamda keyingi bepul reja vaqti saqlanadi. Sessiya xotirasida (session storage) kalkulyator qoralamasi, havola orqali ochilgan koʻrinish va aloqa formasi uchun tayyorlangan xabar turadi; varaq yopilganda oʻchadi. Bu ikki xotiradagi maʼlumotlar bizga faqat oʻzingiz yuborsangiz yetib keladi.",
     "aiTitle": "Kalkulyatorda AI qanday ishlaydi",
-    "aiBody": "Narxni hisoblash uchun loyiha konfiguratsiyasi — jumladan siz yozgan loyiha tavsifi — AI provayderlarimiz (Moonshot AI va DeepSeek) tomonidan qayta ishlanadi. Ismingiz va telefon raqamingiz ularga hech qachon yuborilmaydi. Iltimos, loyiha tavsifi maydoniga shaxsiy maʼlumot yozmang.",
+    "aiBody": "Narxni hisoblash uchun loyiha konfiguratsiyasi — jumladan siz yozgan loyiha tavsifi — AI provayderlarimiz (Moonshot AI va DeepSeek) tomonidan qayta ishlanadi. Ismingiz va telefon raqamingiz ularga hech qachon yuborilmaydi. Iltimos, loyiha tavsifi maydoniga shaxsiy maʼlumot yozmang. Bu AI rejalarga ham tegishli: siz yozgan gʻoya shu provayderlarga yuboriladi.",
     "rightsTitle": "Sizning huquqlaringiz",
     "rightsBody": "Istalgan vaqtda siz haqingizda qanday maʼlumot saqlayotganimizni soʻrashingiz yoki ularni oʻchirishni talab qilishingiz mumkin. kamuranbek98@gmail.com manziliga yozing yoki +998 33 249-91-11 raqamiga qoʻngʻiroq qiling — tezda hal qilamiz.",
     "changesTitle": "Siyosatga oʻzgartirishlar",
@@ -764,7 +767,8 @@
       "link_webDevelopment": "Sayt yaratish",
       "link_mobileApps": "Mobil ilova yaratish",
       "link_telegramBots": "Telegram bot yaratish",
-      "servicesHub": "Xizmatlar"
+      "servicesHub": "Xizmatlar",
+      "breadcrumb": "Sahifa yoʻli"
     },
     "index": {
       "metaTitle": "Xizmatlar: sayt, mobil ilova va Telegram bot yaratish | SoftWhere",
@@ -855,6 +859,12 @@
       "why3": "Botni CRM, ombor dasturi va saytingiz bilan bogʻlaymiz.",
       "why4": "Ishga tushgandan keyin hosting, monitoring va qoʻllab-quvvatlash."
     }
+  },
+  "notFound": {
+    "title": "Bunday sahifa yoʻq",
+    "body": "Sahifa koʻchirilgan yoki havolada xato bor.",
+    "home": "Bosh sahifaga oʻtish",
+    "services": "Xizmatlarimiz"
   },
   "metadata": {
     "title": "Mobil ilova, sayt va Telegram bot yaratish — SoftWhere",

@@ -83,10 +83,11 @@ export function applyStyleToDocument(id: StyleId): void {
  * re-renders for a switch; this flips the attribute instead (the boot script
  * did it before first paint). It reads the store, not the hook's value: while
  * hydrating the hook still reports the server's default, and writing that
- * would flash the default look for a frame. Restores the meta on unmount.
+ * would flash the default look for a frame. A client-side navigation brings a
+ * new meta with the server's default colour, hence the observer.
  * Render it after the root element: a layout effect sees refs attached only
- * for elements committed before it. On a client-side navigation to the
- * homepage the boot script does not run, so this is what sets the style.
+ * for elements committed before it. On a client-side navigation between
+ * the homepage and the site the boot script does not run, so this is what sets the style.
  */
 export function StyleRootSync({ rootRef }: { rootRef: RefObject<HTMLElement | null> }): null {
   const style = useLabStyle();
@@ -96,16 +97,23 @@ export function StyleRootSync({ rootRef }: { rootRef: RefObject<HTMLElement | nu
     // No root through the ref yet (a sibling rendered before it): set every lab root instead.
     if (!root) applyStyleToDocument(id);
     else if (root.getAttribute('data-style') !== id) root.setAttribute('data-style', id);
+    // A page rendered on the client (a 404) never ran the boot script that takes ThemeGroundScript's ground off.
+    document.documentElement.removeAttribute('data-ground');
+    document.documentElement.style.removeProperty('--bg');
+    document.documentElement.style.removeProperty('color-scheme');
   }, [rootRef, style]);
 
   useEffect(() => {
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!meta) return;
-    const previous = meta.content;
-    meta.content = LAB_STYLES[getStoredStyle()].colors.bg;
-    return () => {
-      meta.content = previous;
+    const paint = () => {
+      const { bg } = LAB_STYLES[getStoredStyle()].colors;
+      document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(meta => {
+        if (meta.content !== bg) meta.content = bg;
+      });
     };
+    paint();
+    const observer = new MutationObserver(paint);
+    observer.observe(document.head, { childList: true });
+    return () => observer.disconnect();
   }, [style]);
   return null;
 }

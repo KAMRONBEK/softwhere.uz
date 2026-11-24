@@ -1,0 +1,112 @@
+.grid {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The latest-posts card (LatestPosts.module.css). */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  color: var(--fg);
+  transition:
+    border-color 200ms ease,
+    transform 200ms var(--site-ease);
+}
+
+.media {
+  border-bottom: 1px solid var(--border);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(20px, 2.2vw, 28px);
+}
+
+.meta {
+  margin: 0;
+  color: var(--muted);
+  font: 400 13px/1.35 var(--font-body);
+}
+
+.title {
+  margin: 0;
+  font: 600 clamp(1.125rem, 1.5vw, 1.3125rem) / 1.28 var(--font-body);
+  letter-spacing: 0;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The title's link covers the whole card. */
+.link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.card:has(.link:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.text {
+  color: var(--muted);
+  font: 400 1rem/1.55 var(--font-body);
+  text-wrap: pretty;
+}
+
+.text > :first-child {
+  margin-top: 0;
+}
+
+.text > :last-child {
+  margin-bottom: 0;
+}
+
+.arrow {
+  flex: none;
+  transition: transform 200ms var(--site-ease);
+}
+
+.more {
+  margin-top: auto;
+  color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .linked:hover {
+    border-color: var(--accent);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .linked:hover {
+    transform: translateY(-3px);
+  }
+
+  .linked:hover .arrow,
+  a:hover > .arrow {
+    transform: translateX(3px);
+  }
+}
