@@ -581,6 +581,26 @@
 
 /* ── Reduced motion: fades only, nothing slides ──────────────────────────── */
 
+/* Russian and Uzbek labels fill the narrowest desktop bar: tighter, so the action stays inside the gutter. */
+@media (min-width: 1280px) and (max-width: 1365px) {
+  .header:is(:lang(ru), :lang(uz)) .bar {
+    gap: 8px;
+  }
+
+  .header:is(:lang(ru), :lang(uz)) .link {
+    padding: 0 5px;
+  }
+
+  .header:is(:lang(ru), :lang(uz)) .link::after {
+    left: 5px;
+    right: 5px;
+  }
+
+  .header:is(:lang(ru), :lang(uz)) .cta {
+    padding: 0 14px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .header {
     transition: opacity 180ms ease;
