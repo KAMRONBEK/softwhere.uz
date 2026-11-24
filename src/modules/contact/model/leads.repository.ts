@@ -16,6 +16,20 @@ export async function createLead(input: Pick<NewLead, 'name' | 'phone' | 'messag
   return row.id;
 }
 
+/** Persist a lead under a caller-made id; an id that exists is left alone, so a repeated submit is one lead. */
+export async function createLeadOnce(
+  input: Pick<NewLead, 'name' | 'phone' | 'message' | 'source'> & { id: string }
+): Promise<{ isNew: boolean; notified: LeadSummary['notifiedTelegram'] }> {
+  const inserted = await db
+    .insert(leads)
+    .values({ id: input.id, name: input.name, phone: input.phone, message: input.message ?? null, source: input.source ?? null })
+    .onConflictDoNothing({ target: leads.id })
+    .returning({ id: leads.id });
+  if (inserted.length > 0) return { isNew: true, notified: 'pending' };
+  const [row] = await db.select({ notified: leads.notifiedTelegram }).from(leads).where(eq(leads.id, input.id));
+  return { isNew: false, notified: row?.notified ?? 'pending' };
+}
+
 /** Record whether the Telegram notification for a stored lead succeeded. */
 export async function markLeadNotified(id: string, ok: boolean): Promise<void> {
   await db

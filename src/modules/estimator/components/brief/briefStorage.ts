@@ -1,4 +1,6 @@
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
+import { BRIEF_PRICE_MODE, type BriefPriceMode } from '@/modules/estimator/ai-brief/priceMode';
+import { hideSavedPrice } from '@/modules/estimator/ai-brief/publicBrief';
 import type { AiBrief } from '@/modules/estimator/ai-brief/types';
 
 /**
@@ -23,6 +25,8 @@ export interface SavedBrief {
   v: 2;
   idea: string;
   brief: AiBrief;
+  /** The sealed plan for "send request", when the server gave one. */
+  requestToken?: string | null;
   elapsedMs: number | null;
   savedAt: number;
 }
@@ -67,8 +71,13 @@ export function saveBrief(store: Storage | null, locale: BriefLocale, saved: Omi
   write(store, BRIEF_KEY_PREFIX + locale, { v: 2, ...saved } satisfies SavedBrief);
 }
 
-/** The saved brief of this locale, or null when there is none, it is malformed or older than SAVED_BRIEF_DAYS (then it is removed). */
-export function loadBrief(store: Storage | null, locale: BriefLocale, now: number): SavedBrief | null {
+/** The saved brief of this locale, or null when there is none, it is malformed or older than SAVED_BRIEF_DAYS (then it is removed). One saved while prices were shown loses them in 'request' mode. */
+export function loadBrief(
+  store: Storage | null,
+  locale: BriefLocale,
+  now: number,
+  mode: BriefPriceMode = BRIEF_PRICE_MODE
+): SavedBrief | null {
   const saved = read(store, BRIEF_KEY_PREFIX + locale);
   if (!isRecord(saved)) return null;
   const brief = saved.brief;
@@ -84,7 +93,8 @@ export function loadBrief(store: Storage | null, locale: BriefLocale, now: numbe
     remove(store, BRIEF_KEY_PREFIX + locale);
     return null;
   }
-  return saved as unknown as SavedBrief;
+  const known = saved as unknown as SavedBrief;
+  return mode === 'range' ? known : { ...known, brief: hideSavedPrice(known.brief, mode) };
 }
 
 /** Remember when the next free brief opens (a later time never moves it earlier). */

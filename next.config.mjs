@@ -2,6 +2,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin('./src/core/i18n.ts');
 
+// 'request' mode hides the price from visitors: without the secret that seals
+// the plan, it would be lost for the owner too (src/modules/estimator/ai-brief/requestToken.ts).
+if (process.env.NEXT_PUBLIC_BRIEF_PRICE_MODE === 'request' && (process.env.BRIEF_TOKEN_SECRET ?? '').length < 32) {
+  throw new Error('NEXT_PUBLIC_BRIEF_PRICE_MODE=request needs BRIEF_TOKEN_SECRET (32+ characters)');
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {

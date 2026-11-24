@@ -19,6 +19,8 @@ Scope legend: **server** = server-only (never sent to the browser); **client** =
 | `AI_FALLBACK_MODEL` | server | Optional | AI fallback model override | `src/core/ai.ts:52` |
 | `BLOG_MAX_TOKENS` | server | Optional | AI completion budget | `src/core/ai.ts:18` |
 | `AI_BRIEF_DAILY_USD` | server | Optional | AI brief per-instance daily spend cap (default 3) | `src/app/api/estimate/brief/route.ts` |
+| `NEXT_PUBLIC_BRIEF_PRICE_MODE` | public (build time) | Optional | `request` hides the AI plan's price and shows "send request"; anything else (default) is `range`, the price range. Needs a redeploy to change | `src/modules/estimator/ai-brief/priceMode.ts` |
+| `BRIEF_TOKEN_SECRET` | server | Required when the price mode is `request` (the build fails without it) | 32+ random characters; seals the plan and engine price a visitor's request carries. Changing it makes outstanding plans arrive as idea-only leads | `src/modules/estimator/ai-brief/requestToken.ts` |
 | `AI_BRIEF_OVERFLOW_DAILY_USD` / `AI_BRIEF_OVERFLOW_DAILY_CALLS` | server | Optional | AI brief overflow cap on deepseek-flash once the main cap is spent (default 1 / 150) | `src/app/api/estimate/brief/route.ts` |
 | `AI_BRIEF_DAILY_CALLS` | server | Optional | AI brief per-instance daily call cap (default 150) | `src/app/api/estimate/brief/route.ts` |
 | `NEON_AUTH_BASE_URL` | server | Optional | Admin login (Neon Auth) | `src/core/neonAuth.ts:12` |

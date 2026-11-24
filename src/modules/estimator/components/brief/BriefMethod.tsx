@@ -5,7 +5,8 @@ import { useId } from 'react';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { GENERIC_SUBTYPES } from '@/modules/estimator/ai-brief/constants';
-import { isPricedEstimate, type AiBrief, type BriefPreview } from '@/modules/estimator/ai-brief/types';
+import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { isDiscoveryEstimate, isPricedEstimate, type AiBrief, type BriefPreview } from '@/modules/estimator/ai-brief/types';
 import css from './brief.module.css';
 
 /** Biggest effort lines of the first version, as shares of its raw hours (engine data). */
@@ -53,6 +54,8 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
   const tx = tEstimator as unknown as (key: string) => string;
   const locale = useLocale();
   const { config, unpricedItems } = preview.estimate;
+  const tRequest = useTranslations('aiBrief.request');
+  const isDiscovery = isDiscoveryEstimate(preview.estimate);
   const isPriced = isPricedEstimate(preview.estimate);
   const isMobile = config.projectType === 'mobile';
   const platforms = config.platforms.length === 1 ? (config.platforms[0] === 'ios' ? 'iOS' : 'Android') : t('bothPlatforms');
@@ -82,10 +85,10 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
   return (
     <section className={css.asideSection} aria-labelledby={headingId}>
       <h3 id={headingId} className={css.asideTitle}>
-        {isPriced ? t('howTitle') : t('discovery.howTitle')}
+        {isDiscovery ? t('discovery.howTitle') : isPriced ? t('howTitle') : tRequest('howTitle')}
       </h3>
-      <p className={css.methodBody}>{isPriced ? t('howBody') : t('discovery.howBody')}</p>
-      {isPriced && (
+      <p className={css.methodBody}>{isPriced ? t('howBody') : isDiscovery ? t('discovery.howBody') : tRequest('howBody')}</p>
+      {!isDiscovery && (
         <dl className={css.config}>
           {rows.map(([label, value]) => (
             <div key={label} className={css.configRow}>
@@ -107,7 +110,7 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
       )}
       {unpricedItems.length > 0 && (
         <div className={css.methodBlock}>
-          <h4 className={css.miniHeading}>{isPriced ? t('unpriced') : t('discovery.unpriced')}</h4>
+          <h4 className={css.miniHeading}>{isPriced ? t('unpriced') : isDiscovery ? t('discovery.unpriced') : tRequest('unpriced')}</h4>
           <ul className={css.plainList}>
             {unpricedItems.map(item => (
               <li key={item}>{item}</li>
@@ -125,9 +128,12 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
           </ul>
         </div>
       )}
-      <Link href={`/${locale}/estimator`} className={css.textLink}>
-        {t('openEstimator')}
-      </Link>
+      {/* The step-by-step estimator shows a price: it is not offered while the plan does not. */}
+      {BRIEF_PRICE_MODE === 'range' && (
+        <Link href={`/${locale}/estimator`} className={css.textLink}>
+          {t('openEstimator')}
+        </Link>
+      )}
     </section>
   );
 }

@@ -15,6 +15,12 @@ interface Lead {
   createdAt: string;
 }
 
+/** The contact column holds a phone, an email or a Telegram @handle. */
+function contactHref(contact: string): string {
+  if (contact.startsWith('@')) return `https://t.me/${contact.slice(1)}`;
+  return contact.includes('@') ? `mailto:${contact}` : `tel:${contact}`;
+}
+
 export default function AdminLeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +71,7 @@ export default function AdminLeadsPage() {
                   <tr>
                     <th className='text-left font-medium px-4 py-3 whitespace-nowrap'>Date</th>
                     <th className='text-left font-medium px-4 py-3'>Name</th>
-                    <th className='text-left font-medium px-4 py-3'>Phone</th>
+                    <th className='text-left font-medium px-4 py-3'>Contact</th>
                     <th className='text-left font-medium px-4 py-3'>Message</th>
                     <th className='text-left font-medium px-4 py-3'>Source</th>
                     <th className='text-left font-medium px-4 py-3'>Notified</th>
@@ -77,7 +83,7 @@ export default function AdminLeadsPage() {
                       <td className='px-4 py-3 whitespace-nowrap text-ember-muted'>{format(new Date(lead.createdAt), 'MMM dd, HH:mm')}</td>
                       <td className='px-4 py-3 whitespace-nowrap'>{lead.name}</td>
                       <td className='px-4 py-3 whitespace-nowrap'>
-                        <a href={`tel:${lead.phone}`} className='hover:underline decoration-[color:var(--accent)] underline-offset-4'>
+                        <a href={contactHref(lead.phone)} className='hover:underline decoration-[color:var(--accent)] underline-offset-4'>
                           {lead.phone}
                         </a>
                       </td>

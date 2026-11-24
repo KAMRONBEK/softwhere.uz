@@ -4,7 +4,8 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useId, useRef } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
-import { isPricedEstimate } from '@/modules/estimator/ai-brief/types';
+import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { isDiscoveryEstimate } from '@/modules/estimator/ai-brief/types';
 import BriefHead, { BriefContext } from './BriefHead';
 import { Method, PriceDrivers } from './BriefMethod';
 import { BuildFirst, CanWait, Questions, Risks, ScopeSplit } from './BriefPlan';
@@ -13,6 +14,7 @@ import { NextFreeLine } from './DailyLimit';
 import type { BriefRunState } from './briefState';
 import EstimateLedger from './EstimateLedger';
 import ProgressTrack from './ProgressTrack';
+import RequestForm from './RequestForm';
 import ScreensStrip from './ScreensStrip';
 import css from './brief.module.css';
 
@@ -79,6 +81,8 @@ type NextStepsProps = {
 /** "Plan another idea", or — once today's free brief is used — the step-by-step estimator. */
 function SecondaryAction({ locale, nextFreeAt, onNewIdea }: NextStepsProps) {
   const t = useTranslations('aiBrief');
+  // 'request' mode offers no estimator: the note under the band says when the next plan opens.
+  if (nextFreeAt !== null && BRIEF_PRICE_MODE === 'request') return null;
   return nextFreeAt !== null ? (
     <Link href={`/${locale}/estimator`} className={css.secondaryButton}>
       {t('limit.estimator')}
@@ -145,7 +149,7 @@ export default function BriefResult({ state, locale, isCompact, nextFreeAt, full
   const isDone = state.status === 'done';
   const isAnimated = !state.restored;
   // A very large idea: a plan without a price, and the call to action is a discovery call.
-  const isDiscovery = preview !== null && !isPricedEstimate(preview.estimate);
+  const isDiscovery = preview !== null && isDiscoveryEstimate(preview.estimate);
 
   // Keyboard and screen-reader users land on the finished brief; sighted users keep their scroll position.
   useEffect(() => {
@@ -156,7 +160,7 @@ export default function BriefResult({ state, locale, isCompact, nextFreeAt, full
 
   const talkButton = (
     <button type='button' className={css.primaryButton} onClick={onTalk}>
-      {isDiscovery ? t('cta.discoveryButton') : t('cta.button')}
+      {BRIEF_PRICE_MODE === 'request' ? t('request.open') : isDiscovery ? t('cta.discoveryButton') : t('cta.button')}
     </button>
   );
 
@@ -164,6 +168,15 @@ export default function BriefResult({ state, locale, isCompact, nextFreeAt, full
   const closing =
     isCompact && fullPlanHref ? (
       <FullPlanBand href={fullPlanHref} titleId={titleId} locale={locale} nextFreeAt={nextFreeAt} onNewIdea={onNewIdea} />
+    ) : BRIEF_PRICE_MODE === 'request' ? (
+      <>
+        <RequestForm idea={state.idea} requestToken={state.requestToken} locale={locale} isDiscovery={isDiscovery} />
+        {nextFreeAt === null ? (
+          <SecondaryAction locale={locale} nextFreeAt={nextFreeAt} onNewIdea={onNewIdea} />
+        ) : (
+          <NextFreeLine nextFreeAt={nextFreeAt} locale={locale} kind='usedNote' className={css.ctaNote} />
+        )}
+      </>
     ) : (
       <section className={css.ctaBand} aria-labelledby={`${titleId}-cta`}>
         <div>

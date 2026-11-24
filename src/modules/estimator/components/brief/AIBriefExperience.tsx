@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
 import { isPricedEstimate } from '@/modules/estimator/ai-brief/types';
 import { prefillContactMessage } from '@/shared/utils/contactPrefill';
 import BriefFeedback from './BriefFeedback';
@@ -12,6 +13,7 @@ import DailyLimit from './DailyLimit';
 import SampleSketch from './SampleSketch';
 import { isBriefLocale, prefillIdea, priceRange, usdFormatter } from './format';
 import type { BriefRunState } from './briefState';
+import { REQUEST_SECTION_ID } from './RequestForm';
 import { useBriefRun } from './useBriefRun';
 import css from './brief.module.css';
 
@@ -92,6 +94,12 @@ export default function AIBriefExperience({
     rootRef.current?.dispatchEvent(new CustomEvent<AIBriefStage>(AI_BRIEF_STAGE_EVENT, { detail: stage, bubbles: true }));
   }, [stage]);
 
+  // Arriving from the homepage's summary: the form exists only once the saved brief is back, after the browser looked for the hash.
+  useEffect(() => {
+    if (!state.restored || window.location.hash !== `#${REQUEST_SECTION_ID}`) return;
+    scrollIntoViewSoftly(document.getElementById(REQUEST_SECTION_ID));
+  }, [state.restored]);
+
   const start = (idea: string) => {
     setShouldFocusComposer(false);
     void submit(idea);
@@ -118,6 +126,7 @@ export default function AIBriefExperience({
     if (!brief) return draft.trim() ? t('limit.message', { idea: prefillIdea(draft) }) : null;
     const idea = prefillIdea(state.idea);
     const { estimate } = brief;
+    if (estimate.mode === 'plan') return t('limit.message', { idea });
     return isPricedEstimate(estimate)
       ? t('cta.message', {
           title: brief.title,
@@ -129,6 +138,17 @@ export default function AIBriefExperience({
   };
 
   const talk = () => {
+    // 'request' mode with a plan: its own form, which carries the plan (on /ai-estimate; the homepage shows a summary).
+    if (BRIEF_PRICE_MODE === 'request' && state.status === 'done') {
+      const form = document.getElementById(REQUEST_SECTION_ID);
+      if (!form) {
+        router.push(`/${locale}/ai-estimate#${REQUEST_SECTION_ID}`);
+        return;
+      }
+      scrollIntoViewSoftly(form);
+      form.querySelector<HTMLElement>('input')?.focus({ preventScroll: true });
+      return;
+    }
     const message = contactMessage();
     if (message) prefillContactMessage(message);
     const section = document.getElementById(contactSectionId);
@@ -144,7 +164,7 @@ export default function AIBriefExperience({
       isCompact={isCompact}
       shouldFocus={shouldFocusComposer}
       idPrefix={idPrefix}
-      feedback={<BriefFeedback state={state} onRetry={() => start(state.idea)} />}
+      feedback={<BriefFeedback state={state} onRetry={() => start(state.idea)} onTalk={talk} />}
     />
   );
 
@@ -156,8 +176,10 @@ export default function AIBriefExperience({
       {!isCompact && (
         <div className={isComposing ? css.intro : css.introCollapsed}>
           <div className={css.introCopy}>
-            <h1 className={isComposing ? css.heading : css.srOnly}>{t('intro.heading')}</h1>
-            {isComposing && !isLimited && <p className={css.lede}>{t('intro.lede')}</p>}
+            <h1 className={isComposing ? css.heading : css.srOnly}>
+              {t(BRIEF_PRICE_MODE === 'request' ? 'request.heading' : 'intro.heading')}
+            </h1>
+            {isComposing && !isLimited && <p className={css.lede}>{t(BRIEF_PRICE_MODE === 'request' ? 'request.lede' : 'intro.lede')}</p>}
             {isComposing && opening}
           </div>
           {isComposing && <SampleSketch />}

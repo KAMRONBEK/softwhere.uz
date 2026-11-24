@@ -19,7 +19,8 @@ export type BriefStreamErrorCode = BriefErrorCode | 'internal';
 export type BriefStreamEvent =
   | { type: 'accepted' }
   | { type: 'progress'; progress: BriefProgress }
-  | { type: 'result'; data: Exclude<BriefOutcome, { status: 'error' }> }
+  /** `requestToken`: the sealed plan for "send request" ('request' mode only, `requestToken.ts`). */
+  | { type: 'result'; data: Exclude<BriefOutcome, { status: 'error' }>; requestToken?: string | null }
   | { type: 'error'; code: BriefStreamErrorCode };
 
 export function encodeBriefEvent(event: BriefStreamEvent): string {
