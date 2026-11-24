@@ -1,10 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useRef, type CSSProperties, type MouseEvent } from 'react';
+import { useCallback, useRef, type CSSProperties } from 'react';
 import type { SectionId } from '../types';
 import { BUILD_STORIES } from './LabHeader.copy';
 import { useDismiss, useSectionProgress, type DismissReason } from './LabHeader.hooks';
+import { SectionLink, useHeaderMode } from './SectionLink';
 import css from './LabHeaderStories.module.css';
 
 /** One menu per page (the header's); a fixed id keeps server and client markup identical. */
@@ -28,29 +29,28 @@ interface StoryListProps {
 export function StoryList({ variant, currentSection, isLive, onJump, staggerFrom = 0 }: StoryListProps) {
   const t = useTranslations('home.header.stories');
   const listRef = useRef<HTMLUListElement>(null);
-  useSectionProgress(listRef, isLive);
-
-  const jump = (target: SectionId) => (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    onJump(target);
-  };
+  // The stories are on the homepage: elsewhere there is no reading progress to show.
+  const isHome = useHeaderMode() === 'home';
+  useSectionProgress(listRef, isLive && isHome);
 
   return (
     <ul ref={listRef} className={variant === 'list' ? css.list : css.grid}>
       {BUILD_STORIES.map((story, index) => (
         <li key={story} style={{ '--i': staggerFrom + index } as CSSProperties}>
-          <a href={`#${story}`} className={css.story} aria-current={currentSection === story ? 'true' : undefined} onClick={jump(story)}>
+          <SectionLink target={story} className={css.story} aria-current={currentSection === story ? 'true' : undefined} onJump={onJump}>
             <span className={css.index} aria-hidden='true'>
               {index + 1}
             </span>
             <span className={css.text}>
               <span className={css.label}>{t(`${story}.label`)}</span>
               {variant === 'list' && <span className={css.note}>{t(`${story}.note`)}</span>}
-              <span className={css.track} aria-hidden='true'>
-                <span className={css.fill} data-progress-for={story} />
-              </span>
+              {isHome && (
+                <span className={css.track} aria-hidden='true'>
+                  <span className={css.fill} data-progress-for={story} />
+                </span>
+              )}
             </span>
-          </a>
+          </SectionLink>
         </li>
       ))}
     </ul>

@@ -1,10 +1,13 @@
 'use client';
 
 import type { AiRefinement, EstimateResult, EstimatorInput } from '@/modules/estimator/types';
+import { Arrow, buttonClass } from '@/shared/components/site';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import CurrencySwitcher, { type CurrencyCode } from './CurrencySwitcher';
 import LeadForm from './LeadForm';
+import css from './ResultPanel.module.css';
+import { PriceRange, RangeScale } from './ui';
 
 export type AiState = { status: 'loading' } | { status: 'ready'; ai: AiRefinement } | { status: 'unavailable' };
 
@@ -27,11 +30,7 @@ const TERMS = ['prepay', 'milestones', 'warranty'] as const;
 function ConfidenceBadge({ level }: { level: AiRefinement['confidence'] }) {
   const t = useTranslations('estimator');
   const tx = t as unknown as (key: string) => string;
-  return (
-    <span className='text-[11px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-[rgba(255,91,30,0.14)] text-ember-accent'>
-      {tx(`aiConfidence.${level}`)}
-    </span>
-  );
+  return <span className={css.small}>{tx(`aiConfidence.${level}`)}</span>;
 }
 
 export default function ResultPanel({ input, estimate, aiState, format, currency, available, setCurrency, onBack, onReset }: Props) {
@@ -40,57 +39,50 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   return (
-    <div className='space-y-5'>
+    <div className={css.result}>
       <div>
-        <div className='inline-flex items-center gap-2 bg-[rgba(255,91,30,0.14)] text-ember-accent text-xs font-bold px-3.5 py-1.5 rounded-full mb-4'>
-          ✳ {t('resultBadge')}
-        </div>
-        <h2 className='text-2xl font-bold font-display text-ember-text'>{t('resultHeading')}</h2>
-        <p className='text-sm text-ember-muted mt-1'>{t('resultSub')}</p>
+        <p className={css.badge}>{t('resultBadge')}</p>
+        <h2 className={css.heading}>{t('resultHeading')}</h2>
+        <p className={css.sub}>{t('resultSub')}</p>
       </div>
 
-      {/* Hero range */}
-      <div className='rounded-2xl border border-ember-accent p-6 bg-[linear-gradient(150deg,rgba(255,91,30,0.12),var(--surface))]'>
-        <div className='text-ember-muted text-sm font-semibold mb-1.5'>{t('estimateRange')}</div>
-        <div data-testid='result-range' className='font-display text-[34px] sm:text-[42px] font-extrabold text-ember-accent leading-none'>
-          {format(estimate.cost.min)} – {format(estimate.cost.max)}
-        </div>
-        <div className='text-ember-muted text-sm mt-3'>
+      <div className={`${css.panel} ${css.raised}`}>
+        <div className={css.priceLabel}>{t('estimateRange')}</div>
+        <PriceRange testId='result-range' min={format(estimate.cost.min)} max={format(estimate.cost.max)} />
+        <RangeScale min={estimate.cost.min} max={estimate.cost.max} />
+        <div className={css.basis}>
           {/* The rate follows the selected currency: "$14/hour" under a UZS total
               is two currencies in one sentence. */}
           ≈ {estimate.hours.min}–{estimate.hours.max} {t('hoursShort')} · {t('rateBasis', { rate: format(estimate.rate) })}
         </div>
         {/* The desktop sidebar owns the switcher — and it only exists from `xl`,
             so this one has to cover everything below that, not below `lg`. */}
-        <div className='xl:hidden mt-4 pt-4 border-t border-ember-border'>
+        <div className={css.currency}>
           <CurrencySwitcher currency={currency} available={available} onCurrencyChange={setCurrency} />
         </div>
-      </div>
 
-      <div className='grid grid-cols-2 gap-3.5'>
-        <div className='rounded-2xl border border-ember-border p-5 bg-ember-surface'>
-          <div className='text-ember-muted text-sm font-semibold mb-1.5'>{t('timeframe')}</div>
-          <div data-testid='result-weeks' className='font-display text-2xl sm:text-3xl font-extrabold text-ember-text'>
-            {t('weeksRange', { min: estimate.weeks.min, max: estimate.weeks.max })}
+        <div className={css.figures}>
+          <div>
+            <p className={css.muted}>{t('timeframe')}</p>
+            <div data-testid='result-weeks' className={css.figure}>
+              {t('weeksRange', { min: estimate.weeks.min, max: estimate.weeks.max })}
+            </div>
           </div>
-        </div>
-        <div className='rounded-2xl border border-ember-border p-5 bg-ember-surface'>
-          <div className='text-ember-muted text-sm font-semibold mb-1.5'>{t('supportCost')}</div>
-          <div className='font-display text-2xl sm:text-3xl font-extrabold text-ember-text'>
-            {format(estimate.supportMonthly)}
-            <span className='text-base text-ember-muted font-semibold'>{t('perMonth')}</span>
+          <div>
+            <p className={css.muted}>{t('supportCost')}</p>
+            <div className={css.figure}>
+              {format(estimate.supportMonthly)}
+              {t('perMonth')}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Suggested team */}
-      <div className='flex flex-wrap items-center gap-2 text-sm'>
-        <span className='text-ember-muted font-semibold'>{t('teamTitle')}:</span>
+      <div className={css.team}>
+        <span className={css.muted}>{t('teamTitle')}:</span>
         {estimate.team.map(role => (
-          <span
-            key={role}
-            className='px-2.5 py-1 rounded-full bg-ember-surface border border-ember-border text-ember-text text-xs font-semibold'
-          >
+          <span key={role} className={css.role}>
             {tx(role)}
           </span>
         ))}
@@ -98,129 +90,107 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
 
       {/* AI refinement */}
       {aiState.status !== 'unavailable' && (
-        <div data-testid='ai-block' className='rounded-2xl border border-ember-border bg-ember-surface p-5'>
-          <div className='flex items-center justify-between gap-3 mb-3'>
-            <h3 className='font-display font-bold text-ember-text flex items-center gap-2'>🤖 {t('aiTitle')}</h3>
+        <div data-testid='ai-block' className={css.panel}>
+          <div className={css.aiHead}>
+            <h3 className={css.title}>{t('aiTitle')}</h3>
             {aiState.status === 'ready' && <ConfidenceBadge level={aiState.ai.confidence} />}
           </div>
 
           {aiState.status === 'loading' ? (
-            <div className='flex items-center gap-3 py-2'>
-              <div className='animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-ember-accent' />
-              <p className='text-sm text-ember-muted'>{t('aiLoading')}</p>
+            <div className={css.loading}>
+              <div className={css.spinner} aria-hidden />
+              <p className={css.muted}>{t('aiLoading')}</p>
             </div>
           ) : (
-            <div className='space-y-3'>
-              <div data-testid='ai-range' className='font-display text-xl font-extrabold text-ember-text'>
+            <div className={css.aiBody}>
+              <div data-testid='ai-range' className={css.aiRange}>
                 {format(aiState.ai.cost.min)} – {format(aiState.ai.cost.max)}
-                <span className='text-sm text-ember-muted font-semibold ml-2'>
-                  · {t('weeksRange', { min: aiState.ai.weeks.min, max: aiState.ai.weeks.max })}
-                </span>
+                <span>· {t('weeksRange', { min: aiState.ai.weeks.min, max: aiState.ai.weeks.max })}</span>
               </div>
-              <p className='text-sm text-ember-text leading-relaxed'>{aiState.ai.summary}</p>
-              {aiState.ai.risks.length > 0 && (
-                <div>
-                  <div className='text-xs font-bold uppercase tracking-wide text-ember-muted mb-1'>{t('aiRisks')}</div>
-                  <ul className='space-y-1'>
-                    {aiState.ai.risks.map((risk, i) => (
-                      <li key={i} className='text-sm text-ember-text leading-relaxed flex gap-2'>
-                        <span aria-hidden>⚠️</span>
-                        {risk}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {aiState.ai.suggestions.length > 0 && (
-                <div>
-                  <div className='text-xs font-bold uppercase tracking-wide text-ember-muted mb-1'>{t('aiSuggestions')}</div>
-                  <ul className='space-y-1'>
-                    {aiState.ai.suggestions.map((suggestion, i) => (
-                      <li key={i} className='text-sm text-ember-text leading-relaxed flex gap-2'>
-                        <span aria-hidden>💡</span>
-                        {suggestion}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <p>{aiState.ai.summary}</p>
+              <div className={css.aiLists}>
+                {aiState.ai.risks.length > 0 && (
+                  <div>
+                    <h4 className={css.muted}>{t('aiRisks')}</h4>
+                    <ul className={css.list}>
+                      {aiState.ai.risks.map((risk, i) => (
+                        <li key={i}>{risk}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {aiState.ai.suggestions.length > 0 && (
+                  <div>
+                    <h4 className={css.muted}>{t('aiSuggestions')}</h4>
+                    <ul className={css.list}>
+                      {aiState.ai.suggestions.map((suggestion, i) => (
+                        <li key={i}>{suggestion}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       )}
 
       {/* How we calculated */}
-      <div className='rounded-2xl border border-ember-border bg-ember-surface overflow-hidden'>
-        <button
-          type='button'
-          onClick={() => setShowBreakdown(v => !v)}
-          aria-expanded={showBreakdown}
-          className='w-full flex items-center justify-between px-5 py-4 text-left cursor-pointer'
-        >
-          <span className='font-display font-bold text-ember-text'>{t('breakdownTitle')}</span>
-          <span className={`text-ember-muted transition-transform ${showBreakdown ? 'rotate-180' : ''}`} aria-hidden>
-            ▾
-          </span>
+      <div className={css.breakdown}>
+        <button type='button' onClick={() => setShowBreakdown(v => !v)} aria-expanded={showBreakdown} className={css.toggle}>
+          {t('breakdownTitle')}
+          <svg viewBox='0 0 16 16' width='18' height='18' fill='none' stroke='currentColor' strokeWidth='1.6' aria-hidden='true'>
+            <path d='m3 6 5 5 5-5' strokeLinecap='round' strokeLinejoin='round' />
+          </svg>
         </button>
         {showBreakdown && (
-          <div className='px-5 pb-5 space-y-1.5 text-sm'>
+          <div className={css.lines}>
             {estimate.breakdown.map(line => (
-              <div key={line.id} className='flex items-center justify-between gap-3'>
-                <span className='text-ember-muted'>{tx(line.labelKey)}</span>
-                <span className='font-semibold text-ember-text whitespace-nowrap'>
+              <div key={line.id} className={css.line}>
+                <span>{tx(line.labelKey)}</span>
+                <span>
                   {line.hours} {t('hoursShort')}
                 </span>
               </div>
             ))}
-            <div className='flex items-center justify-between gap-3 pt-2 mt-2 border-t border-ember-border'>
-              <span className='text-ember-muted'>{t('breakdownMultiplier')}</span>
-              <span className='font-semibold text-ember-text'>×{estimate.multiplier}</span>
+            <div className={css.line}>
+              <span>{t('breakdownMultiplier')}</span>
+              <span>×{estimate.multiplier}</span>
             </div>
-            <div className='flex items-center justify-between gap-3'>
-              <span className='text-ember-muted'>{t('breakdownRate')}</span>
-              <span className='font-semibold text-ember-text'>
+            <div className={css.line}>
+              <span>{t('breakdownRate')}</span>
+              <span>
                 {format(estimate.rate)}/{t('hoursShort')}
               </span>
             </div>
-            <p className='text-xs text-ember-muted pt-2 leading-relaxed'>{t('breakdownNote')}</p>
+            <p className={css.small}>{t('breakdownNote')}</p>
           </div>
         )}
       </div>
 
       {/* Included / excluded / terms */}
-      <div className='grid sm:grid-cols-3 gap-3.5 text-sm'>
-        <div className='rounded-2xl border border-ember-border bg-ember-surface p-4'>
-          <div className='font-bold text-ember-text mb-2'>{t('includedTitle')}</div>
-          <ul className='space-y-1.5'>
+      <div className={css.columns}>
+        <div className={css.column}>
+          <h3 className={css.title}>{t('includedTitle')}</h3>
+          <ul className={css.list} data-mark='check'>
             {INCLUDED.map(key => (
-              <li key={key} className='text-ember-muted flex gap-2 text-[13px] leading-snug'>
-                <span className='text-ember-accent' aria-hidden>
-                  ✓
-                </span>
-                {tx(`included.${key}`)}
-              </li>
+              <li key={key}>{tx(`included.${key}`)}</li>
             ))}
           </ul>
         </div>
-        <div className='rounded-2xl border border-ember-border bg-ember-surface p-4'>
-          <div className='font-bold text-ember-text mb-2'>{t('excludedTitle')}</div>
-          <ul className='space-y-1.5'>
+        <div className={css.column}>
+          <h3 className={css.title}>{t('excludedTitle')}</h3>
+          <ul className={css.list}>
             {EXCLUDED.map(key => (
-              <li key={key} className='text-ember-muted flex gap-2 text-[13px] leading-snug'>
-                <span aria-hidden>—</span>
-                {tx(`excluded.${key}`)}
-              </li>
+              <li key={key}>{tx(`excluded.${key}`)}</li>
             ))}
           </ul>
         </div>
-        <div className='rounded-2xl border border-ember-border bg-ember-surface p-4'>
-          <div className='font-bold text-ember-text mb-2'>{t('termsTitle')}</div>
-          <ul className='space-y-1.5'>
+        <div className={css.column}>
+          <h3 className={css.title}>{t('termsTitle')}</h3>
+          <ul className={css.list}>
             {TERMS.map(key => (
-              <li key={key} className='text-ember-muted flex gap-2 text-[13px] leading-snug'>
-                <span aria-hidden>·</span>
-                {tx(`terms.${key}`)}
-              </li>
+              <li key={key}>{tx(`terms.${key}`)}</li>
             ))}
           </ul>
         </div>
@@ -231,19 +201,11 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
 
       {/* Below xl there is no step rail, so without this the only way out of the
           result is "Start over" — which throws the whole configuration away. */}
-      <div className='flex flex-wrap justify-center items-center gap-x-5 gap-y-3'>
-        <button
-          type='button'
-          onClick={onBack}
-          className='px-6 py-2.5 rounded-full border border-ember-border text-ember-text text-sm font-semibold hover:border-ember-accent transition-colors cursor-pointer'
-        >
-          ← {t('back')}
+      <div className={css.exit}>
+        <button type='button' onClick={onBack} className={buttonClass('secondary', css.back)}>
+          <Arrow /> {t('back')}
         </button>
-        <button
-          type='button'
-          onClick={onReset}
-          className='text-sm text-ember-muted hover:text-ember-text transition-colors underline underline-offset-4 cursor-pointer'
-        >
+        <button type='button' onClick={onReset} className={css.startOver}>
           {t('startOver')}
         </button>
       </div>

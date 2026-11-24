@@ -3,6 +3,7 @@
 import { useLocale } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { SegmentedPill } from './ui';
+import css from './ui.module.css';
 
 export type CurrencyCode = 'USD' | 'UZS' | 'KZT' | 'RUB' | 'EUR';
 
@@ -102,7 +103,7 @@ type CurrencySwitcherProps = {
 
 export default function CurrencySwitcher({ currency, available, onCurrencyChange }: CurrencySwitcherProps) {
   return (
-    <div className='flex flex-wrap gap-1.5'>
+    <div className={css.currencies}>
       {available.map(c => (
         <SegmentedPill key={c} selected={currency === c} onClick={() => onCurrencyChange(c)}>
           {c}

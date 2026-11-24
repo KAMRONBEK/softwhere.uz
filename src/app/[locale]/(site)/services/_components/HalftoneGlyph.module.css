@@ -1,0 +1,34 @@
+/* Registered so a hover can grow the dots; elsewhere they stay at rest size. */
+@property --dot {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 38%;
+}
+
+.glyph {
+  --dots: radial-gradient(circle, #000 0 var(--dot), transparent calc(var(--dot) + 8%));
+  display: block;
+  flex: none;
+  aspect-ratio: 1;
+  color: var(--accent);
+  -webkit-mask: var(--dots) 0 0 / var(--dot-pitch, 6px) var(--dot-pitch, 6px);
+  mask: var(--dots) 0 0 / var(--dot-pitch, 6px) var(--dot-pitch, 6px);
+  transition: --dot 320ms var(--site-ease);
+  pointer-events: none;
+}
+
+.glyph[data-glyph='mark'] {
+  color: var(--logo-ink, var(--accent));
+}
+
+.glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph {
+    transition: none;
+  }
+}

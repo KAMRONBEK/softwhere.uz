@@ -1,4 +1,3 @@
-import ThemeProvider from '@/shared/components/ThemeProvider';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
@@ -8,10 +7,8 @@ import { notFound } from 'next/navigation';
 import React from 'react';
 import { CONTACT_INFO, ENV, SOCIAL_LINKS } from '@/core/constants';
 import { HOME_FACTS } from '@/modules/home/media/facts';
+import { ThemeGroundScript } from '@/modules/home/theme/ThemeScript';
 import { safeJsonLd } from '@/shared/utils/security';
-
-// The site fonts (Inter, Sora, Manrope) live in (site)/layout.tsx: the
-// homepage never uses them, so it neither preloads nor downloads them.
 
 // Only the three known locales are valid; anything else 404s via the
 // hasLocale() check in the layout body. Do NOT add `dynamicParams = false`
@@ -121,13 +118,14 @@ export default async function RootLayout({ children, params }: Props) {
   setRequestLocale(locale);
   return (
     <html lang={locale} suppressHydrationWarning>
+      <head>
+        <ThemeGroundScript />
+      </head>
       <body>
-        <ThemeProvider>
-          <StructuredData />
-          {/* The homepage and /lab bring their own chrome and messages; every other
-              page gets the site header, footer and fonts from (site)/layout.tsx. */}
-          {children}
-        </ThemeProvider>
+        <StructuredData />
+        {/* The homepage and /lab bring their own chrome and messages; every other
+            page gets the themed root, header and footer from (site)/layout.tsx. */}
+        {children}
         <SpeedInsights />
         <Analytics />
       </body>

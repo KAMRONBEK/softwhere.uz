@@ -1,5 +1,7 @@
 {
   "homeLabel": "SoftWhere, back to the top",
+  "siteHomeLabel": "SoftWhere, home page",
+  "toTop": "Back to the top",
   "navLabel": "Main",
   "menu": {
     "open": "Menu",

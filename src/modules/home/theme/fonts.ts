@@ -19,7 +19,8 @@ import {
  *    with literal options) with `variable: '--lab-ff-<key>'`.
  * 2. Check it covers Cyrillic before picking it — RU/UZ copy must render in
  *    the same face. Uzbek Latin needs only `latin` (its oʻ/gʻ apostrophe,
- *    U+02BB, is in Google's latin range):
+ *    U+02BB, is in Google's latin range; check the face draws it with a width,
+ *    Literata and Sofia Sans do not: theme/okina.css):
  *    node -e "console.log(require('next/dist/compiled/@next/font/dist/google/font-data.json')['Family Name'].subsets)"
  * 3. Register it in LAB_FONTS with the same css var, then reference the key
  *    from a style in styles.ts (fonts.display / fonts.body / fonts.mono).
@@ -150,18 +151,28 @@ interface LabFont {
   cssVar: string;
   /** Resolved family string, for canvas/WebGL text that cannot read CSS vars. */
   family: string;
+  /** The family's value inside a CSS font stack: the css var, after its okina face when it needs one. */
+  stack: string;
 }
 
-function entry(label: string, font: { variable: string; style: { fontFamily: string } }, cssVar: string): LabFont {
-  return { label, className: font.variable, cssVar, family: font.style.fontFamily };
+/** `okina`: the one-glyph face (theme/okina.css) that draws U+02BB for a family without a usable one. */
+function entry(label: string, font: { variable: string; style: { fontFamily: string } }, cssVar: string, okina?: string): LabFont {
+  const prefix = okina ? `'${okina}', ` : '';
+  return {
+    label,
+    className: font.variable,
+    cssVar,
+    family: `${prefix}${font.style.fontFamily}`,
+    stack: `${prefix}var(${cssVar})`,
+  };
 }
 
 export const LAB_FONTS = {
   'science-gothic': entry('Science Gothic', scienceGothic, '--lab-ff-science-gothic'),
   onest: entry('Onest', onest, '--lab-ff-onest'),
   'martian-mono': entry('Martian Mono', martianMono, '--lab-ff-martian-mono'),
-  'sofia-sans-xcond': entry('Sofia Sans Extra Condensed', sofiaSansExtraCondensed, '--lab-ff-sofia-sans-xcond'),
-  literata: entry('Literata', literata, '--lab-ff-literata'),
+  'sofia-sans-xcond': entry('Sofia Sans Extra Condensed', sofiaSansExtraCondensed, '--lab-ff-sofia-sans-xcond', 'SoftWhere Okina Display'),
+  literata: entry('Literata', literata, '--lab-ff-literata', 'SoftWhere Okina Text'),
   'ibm-plex-mono': entry('IBM Plex Mono', ibmPlexMono, '--lab-ff-ibm-plex-mono'),
   geologica: entry('Geologica', geologica, '--lab-ff-geologica'),
   'geist-mono': entry('Geist Mono', geistMono, '--lab-ff-geist-mono'),

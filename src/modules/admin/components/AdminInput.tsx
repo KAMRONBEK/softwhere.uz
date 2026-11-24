@@ -40,10 +40,10 @@ const AdminInput: React.FC<AdminInputProps> = ({
         required={required}
         disabled={disabled}
         className='
-          outline-none border border-ember-border rounded-lg bg-ember-surface
+          outline-none border border-[color:var(--border-strong)] rounded-[calc(var(--radius)*0.7)] bg-ember-bg min-h-[44px]
           text-ember-text placeholder:text-ember-muted text-lg font-normal leading-6 tracking-tight
           py-2 px-3
-          focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] transition-colors duration-300
+          focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] transition-colors duration-300
         '
       />
     </div>

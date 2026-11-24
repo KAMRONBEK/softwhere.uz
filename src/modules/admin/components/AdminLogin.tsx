@@ -33,8 +33,10 @@ export function AdminLogin() {
         setPassword('');
         router.refresh();
       }
-    } catch {
-      setError('Connection error');
+    } catch (err) {
+      // The client throws the server's refusal (4xx, with its message) as well as network failures.
+      const status = err instanceof Error && 'status' in err ? Number(err.status) : 0;
+      setError(err instanceof Error && status >= 400 && status < 500 ? err.message : 'Connection error');
     } finally {
       setLoading(false);
     }
@@ -54,9 +56,11 @@ export function AdminLogin() {
   }
 
   return (
-    <div className='min-h-screen bg-ember-bg flex items-center justify-center'>
-      <div className='bg-ember-surface p-8 rounded-xl shadow-sm border border-ember-border w-full max-w-sm space-y-4'>
-        <h2 className='text-xl font-bold font-display text-ember-text'>Admin Access</h2>
+    <div className='min-h-[70svh] bg-ember-bg flex items-center justify-center px-5 py-12'>
+      <div className='bg-ember-surface p-8 rounded-[var(--radius)] border border-ember-border w-full max-w-sm space-y-4'>
+        <h2 className='text-[length:calc(1.75rem*var(--display-scale,1))] leading-tight [font-weight:var(--display-weight)] tracking-[var(--display-tracking)] font-display text-ember-text'>
+          Admin Access
+        </h2>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
           <AdminInput
@@ -73,7 +77,11 @@ export function AdminLogin() {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             placeholder='Enter password...'
           />
-          {error && <p className='text-sm text-red-400'>{error}</p>}
+          {error && (
+            <p role='alert' className='text-sm text-ember-text border-l-2 border-[color:var(--accent)] pl-3'>
+              {error}
+            </p>
+          )}
           <AdminButton type='submit' variant='primary' className='w-full' disabled={loading}>
             {loading ? 'Signing in…' : 'Sign In'}
           </AdminButton>
@@ -89,7 +97,7 @@ export function AdminLogin() {
           type='button'
           onClick={handleGoogle}
           disabled={googleLoading}
-          className='w-full inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md bg-ember-surface2 border border-ember-border text-ember-text hover:border-ember-accent transition-colors disabled:opacity-50'
+          className='w-full inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] text-sm font-medium rounded-[calc(var(--radius)*0.7)] bg-ember-surface2 border border-ember-border text-ember-text hover:border-ember-accent transition-colors disabled:opacity-50'
         >
           <FcGoogle className='w-5 h-5' />
           {googleLoading ? 'Redirecting…' : 'Sign in with Google'}

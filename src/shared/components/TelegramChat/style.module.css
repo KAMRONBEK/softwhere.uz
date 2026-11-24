@@ -1,0 +1,62 @@
+.button {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: var(--float-bottom, 20px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--border-strong);
+  border-radius: min(var(--radius), 26px);
+  background: var(--bg-2);
+  color: var(--accent);
+  touch-action: manipulation;
+  transition:
+    transform 160ms var(--site-ease),
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.button:active {
+  transform: scale(0.96);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}
+
+/* SiteShell sets --float-chat where another bar owns the bottom edge. */
+@media (max-width: 1279px) {
+  .button {
+    display: var(--float-chat, flex);
+    right: max(12px, env(safe-area-inset-right, 0px));
+    left: auto;
+    width: 44px;
+    height: 44px;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      transform 160ms var(--site-ease),
+      background-color 200ms ease,
+      color 200ms ease,
+      opacity 200ms ease,
+      visibility 0s 200ms;
+  }
+
+  .shown {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
+  }
+}

@@ -69,7 +69,8 @@ function Contact() {
       const id = toast.loading(tM('loading'));
 
       try {
-        await sender(String(id), name, phone, message, '');
+        const isSent = await sender(String(id), name, phone, message, '', { success: tM('success'), error: tM('error') });
+        if (!isSent) return;
         setName('');
         setPhone('');
         setMessage('');

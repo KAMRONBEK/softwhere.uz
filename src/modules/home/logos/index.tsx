@@ -1,11 +1,10 @@
 'use client';
 
-import { useRef, type ComponentType, type CSSProperties, type ReactNode } from 'react';
+import type { ComponentType, CSSProperties, ReactNode } from 'react';
 import { useLabState } from '../context/LabContext';
 import { useLabTheme } from '../theme/useLabTheme';
 import type { LogoColor, LogoId } from '../types';
 import { BRAND_ORANGE, LOGO_INK } from './brand';
-import { useLogoEntrance } from './entrance';
 import { MARKS, TILE, type MarkGeometry } from './marks';
 import { WORDMARK } from './wordmark';
 import css from './logos.module.css';
@@ -32,18 +31,21 @@ import css from './logos.module.css';
  * - At rest the S is one path ([data-logo-part="whole"]), so a translucent
  *   ink never shows a seam where the chevrons meet.
  * - role="img" + an accessible name (the `title` prop).
- * - `animate` plays the entrance once on mount: the chevrons glide in along
- *   the middle diagonal, rest a beat apart (< / >), then click shut into the
+ * - `frame={EntranceFrame}` (./EntranceFrame) plays the entrance once on mount:
+ *   the chevrons glide in along the middle diagonal, rest a beat apart (< / >), then click shut into the
  *   S while the word rises (~1.2s); change the component's `key` to replay.
  *   Static under prefers-reduced-motion. For your own GSAP choreography,
- *   leave `animate` off and target [data-logo-part="mark|whole|letter|tile"].
+ *   leave `frame` off and target [data-logo-part="mark|whole|letter|tile"].
  */
 export interface LogoProps {
   className?: string;
   /** Accessible name. */
   title?: string;
-  /** Play the entrance animation on mount. */
-  animate?: boolean;
+  /**
+   * The <svg> to draw in: EntranceFrame plays the entrance on mount. Passed in, not
+   * imported here: it brings GSAP, which the site header's static logo must not.
+   */
+  frame?: ComponentType<LogoFrameProps>;
   /** Override the panel's Logo color (brand orange or the style accent). */
   color?: LogoColor;
 }
@@ -84,22 +86,19 @@ function round(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-interface FrameProps {
+export interface LogoFrameProps {
   logoId: LogoId;
   geometry: MarkGeometry;
   viewBox: string;
   className?: string;
   title: string;
-  animate: boolean;
   children: ReactNode;
 }
 
-function Frame({ logoId, geometry, viewBox, className, title, animate, children }: FrameProps) {
-  const ref = useRef<SVGSVGElement>(null);
-  useLogoEntrance(ref, animate, geometry.axis);
+function StaticFrame({ logoId, viewBox, className, title, children }: LogoFrameProps) {
   const classes = [css.logo, className ?? ''].filter(Boolean).join(' ');
   return (
-    <svg ref={ref} viewBox={viewBox} role='img' aria-label={title} className={classes} data-logo={logoId}>
+    <svg viewBox={viewBox} role='img' aria-label={title} className={classes} data-logo={logoId}>
       {children}
     </svg>
   );
@@ -142,22 +141,22 @@ function defineLogo(id: LogoId, geometry: MarkGeometry) {
   const baseline = round(MARK_BOX / 2 + WORDMARK.xHeight / 2);
   const lockupViewBox = `0 0 ${round(wordX + WORDMARK.x1)} ${MARK_BOX}`;
 
-  function Mark({ className, title = DEFAULT_TITLE, animate = false, color }: LogoProps) {
+  function Mark({ className, title = DEFAULT_TITLE, frame: Frame = StaticFrame, color }: LogoProps) {
     return (
-      <Frame logoId={id} geometry={geometry} viewBox={MARK_VIEWBOX} className={className} title={title} animate={animate}>
+      <Frame logoId={id} geometry={geometry} viewBox={MARK_VIEWBOX} className={className} title={title}>
         <g data-logo-part='mark' style={inkStyle(color)}>
-          <MarkBody geometry={geometry} isSplit={animate} />
+          <MarkBody geometry={geometry} isSplit={Frame !== StaticFrame} />
         </g>
       </Frame>
     );
   }
 
-  function Lockup({ className, title = DEFAULT_TITLE, animate = false, color }: LogoProps) {
+  function Lockup({ className, title = DEFAULT_TITLE, frame: Frame = StaticFrame, color }: LogoProps) {
     return (
-      <Frame logoId={id} geometry={geometry} viewBox={lockupViewBox} className={className} title={title} animate={animate}>
+      <Frame logoId={id} geometry={geometry} viewBox={lockupViewBox} className={className} title={title}>
         <g transform={`translate(${-inkLeft} 0)`}>
           <g data-logo-part='mark' style={inkStyle(color)}>
-            <MarkBody geometry={geometry} isSplit={animate} />
+            <MarkBody geometry={geometry} isSplit={Frame !== StaticFrame} />
           </g>
         </g>
         <g transform={`translate(${wordX} ${baseline})`} fill='currentColor'>
@@ -173,15 +172,15 @@ function defineLogo(id: LogoId, geometry: MarkGeometry) {
 }
 
 /** The app tile: brand orange (or the style accent) with the Refined S knocked out in white / on-accent. */
-function TileIcon({ className, title = DEFAULT_TITLE, animate = false, color }: LogoProps) {
+function TileIcon({ className, title = DEFAULT_TITLE, frame: Frame = StaticFrame, color }: LogoProps) {
   const inkColor = useLogoColorFor(color);
   const onInk = inkColor === 'brand' ? '#ffffff' : 'var(--on-accent)';
   return (
-    <Frame logoId={2} geometry={MARKS.refined} viewBox={MARK_VIEWBOX} className={className} title={title} animate={animate}>
+    <Frame logoId={2} geometry={MARKS.refined} viewBox={MARK_VIEWBOX} className={className} title={title}>
       <g data-logo-part='mark' style={inkStyle(color)}>
         <rect width={MARK_BOX} height={MARK_BOX} rx={TILE.radius} fill={LOGO_INK} data-logo-part='tile' />
         <g transform={`translate(${TILE.markOffset} ${TILE.markOffset}) scale(${TILE.markScale})`}>
-          <MarkBody geometry={MARKS.refined} isSplit={animate} fill={onInk} />
+          <MarkBody geometry={MARKS.refined} isSplit={Frame !== StaticFrame} fill={onInk} />
         </g>
       </g>
     </Frame>

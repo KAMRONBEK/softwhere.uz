@@ -9,8 +9,8 @@ interface AdminCardProps {
 export const AdminCard: React.FC<AdminCardProps> = ({ children, className = '', hover = false }) => (
   <div
     className={`
-    bg-ember-surface border border-ember-border rounded-xl p-6
-    ${hover ? 'hover:shadow-xl hover:-translate-y-1 transition-all duration-300' : ''}
+    bg-ember-surface border border-ember-border rounded-[var(--radius)] p-6
+    ${hover ? 'hover:border-ember-accent transition-colors duration-200' : ''}
     ${className}
   `}
   >

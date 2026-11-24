@@ -2,6 +2,7 @@
 
 import 'lenis/dist/lenis.css';
 import './lab.css';
+import './theme/okina.css';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';

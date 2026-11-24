@@ -37,17 +37,19 @@ export default function AdminLeadsPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-ember-surface2 flex items-center justify-center'>
+      <div className='min-h-screen bg-ember-bg flex items-center justify-center'>
         <AdminLoading message='Loading leads...' />
       </div>
     );
   }
 
   return (
-    <div className='page-layout min-h-screen bg-ember-surface2'>
+    <div className='page-layout !pt-0 min-h-screen bg-ember-bg'>
       <div className='bg-ember-surface border-b border-ember-border'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
-          <h1 className='text-3xl font-bold text-ember-text font-display'>Leads</h1>
+          <h1 className='text-[length:calc(2rem*var(--display-scale,1))] leading-tight [font-weight:var(--display-weight)] tracking-[var(--display-tracking)] text-ember-text font-display'>
+            Leads
+          </h1>
           <p className='mt-1 text-sm text-ember-muted'>{leads.length} contact-form submission(s)</p>
         </div>
       </div>
@@ -56,7 +58,7 @@ export default function AdminLeadsPage() {
         {leads.length === 0 ? (
           <div className='py-16 text-center text-ember-muted'>No leads yet.</div>
         ) : (
-          <div className='bg-ember-surface rounded-xl border border-ember-border overflow-hidden'>
+          <div className='bg-ember-surface rounded-[var(--radius)] border border-ember-border overflow-hidden'>
             <div className='overflow-x-auto'>
               <table className='w-full text-sm'>
                 <thead className='bg-ember-surface2 text-ember-muted'>
@@ -75,11 +77,11 @@ export default function AdminLeadsPage() {
                       <td className='px-4 py-3 whitespace-nowrap text-ember-muted'>{format(new Date(lead.createdAt), 'MMM dd, HH:mm')}</td>
                       <td className='px-4 py-3 whitespace-nowrap'>{lead.name}</td>
                       <td className='px-4 py-3 whitespace-nowrap'>
-                        <a href={`tel:${lead.phone}`} className='hover:text-ember-accent'>
+                        <a href={`tel:${lead.phone}`} className='hover:underline decoration-[color:var(--accent)] underline-offset-4'>
                           {lead.phone}
                         </a>
                       </td>
-                      <td className='px-4 py-3 max-w-md whitespace-pre-wrap'>
+                      <td className='px-4 py-3 min-w-[240px] max-w-md whitespace-pre-wrap'>
                         {lead.message || <span className='text-ember-muted'>—</span>}
                       </td>
                       <td className='px-4 py-3 whitespace-nowrap text-ember-muted'>{lead.source || '—'}</td>
@@ -87,9 +89,9 @@ export default function AdminLeadsPage() {
                         <span
                           className={
                             lead.notifiedTelegram === 'sent'
-                              ? 'text-green-400'
+                              ? 'text-ember-text'
                               : lead.notifiedTelegram === 'failed'
-                                ? 'text-red-400'
+                                ? 'font-semibold text-ember-text underline decoration-[color:var(--accent)] decoration-2 underline-offset-4'
                                 : 'text-ember-muted'
                           }
                         >

@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: 'class',
   // All source lives under src/; the legacy ./pages, ./components and ./app
   // globs pointed at directories that don't exist.
   content: ['./src/**/*.{ts,tsx}'],
@@ -13,10 +12,11 @@ const config: Config = {
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       fontFamily: {
-        sans: ['var(--font-manrope)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-sora)', 'var(--font-inter)', 'sans-serif'],
+        sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
+      // The old site's names, on the look's tokens (src/app/globals.css).
       colors: {
         ember: {
           bg: 'var(--bg)',

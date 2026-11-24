@@ -30,6 +30,7 @@ export default function AdminPostsPage() {
   });
 
   const openPreview = async (post: BlogPost) => {
+    if (previewLoading) return;
     if (post.content) {
       setSelectedPost(post);
       return;
@@ -360,20 +361,22 @@ export default function AdminPostsPage() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-ember-surface2 flex items-center justify-center'>
+      <div className='min-h-screen bg-ember-bg flex items-center justify-center'>
         <AdminLoading message='Loading posts...' />
       </div>
     );
   }
 
   return (
-    <div className='page-layout min-h-screen bg-ember-surface2'>
+    <div className='page-layout !pt-0 min-h-screen bg-ember-bg'>
       {/* Header */}
-      <div className='bg-ember-surface border-b border-ember-border sticky top-0 z-40'>
+      <div className='bg-ember-surface border-b border-ember-border sticky top-[var(--lab-header-offset,0px)] z-40'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex justify-between items-center py-6'>
+          <div className='flex flex-wrap gap-4 justify-between items-center py-6'>
             <div>
-              <h1 className='text-3xl font-bold text-ember-text font-display'>Content Management</h1>
+              <h1 className='text-[length:calc(2rem*var(--display-scale,1))] leading-tight [font-weight:var(--display-weight)] tracking-[var(--display-tracking)] text-ember-text font-display'>
+                Content Management
+              </h1>
               <p className='mt-1 text-sm text-ember-muted'>Manage and generate blog posts for your website</p>
             </div>
             <div className='flex space-x-3'>
@@ -396,9 +399,9 @@ export default function AdminPostsPage() {
         {/* Post Generator */}
         {showGenerator && (
           <div className='mb-8'>
-            <div className='bg-ember-surface rounded-xl shadow-sm border border-ember-border overflow-hidden'>
+            <div className='bg-ember-surface rounded-[var(--radius)] border border-ember-border overflow-hidden'>
               <div className='bg-ember-surface2 px-6 py-4 border-b border-ember-border'>
-                <h3 className='text-lg font-semibold text-ember-text font-display flex items-center'>
+                <h3 className='text-lg font-semibold text-ember-text flex items-center'>
                   <svg className='w-5 h-5 mr-2 text-ember-accent' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                     <path
                       strokeLinecap='round'
@@ -414,16 +417,16 @@ export default function AdminPostsPage() {
 
               <div className='p-6'>
                 {/* Mode tabs */}
-                <div className='flex space-x-1 mb-6 bg-ember-surface2 rounded-lg p-1'>
+                <div className='flex space-x-1 mb-6 bg-ember-surface2 rounded-[calc(var(--radius)*0.7)] p-1'>
                   <button
                     onClick={() => setGenMode('topic')}
-                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'topic' ? 'bg-ember-surface text-ember-text shadow-sm' : 'text-ember-muted hover:text-ember-text'}`}
+                    className={`flex-1 min-h-[44px] py-2 px-4 text-sm font-medium rounded-[calc(var(--radius)*0.7)] transition-colors ${genMode === 'topic' ? 'bg-ember-surface text-ember-text' : 'text-ember-muted hover:text-ember-text'}`}
                   >
                     Topic / Category
                   </button>
                   <button
                     onClick={() => setGenMode('source')}
-                    className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${genMode === 'source' ? 'bg-ember-surface text-ember-text shadow-sm' : 'text-ember-muted hover:text-ember-text'}`}
+                    className={`flex-1 min-h-[44px] py-2 px-4 text-sm font-medium rounded-[calc(var(--radius)*0.7)] transition-colors ${genMode === 'source' ? 'bg-ember-surface text-ember-text' : 'text-ember-muted hover:text-ember-text'}`}
                   >
                     From Source
                   </button>
@@ -492,7 +495,7 @@ export default function AdminPostsPage() {
                             rows={5}
                             maxLength={5000}
                             disabled={!!generationForm.sourceUrl}
-                            className='w-full rounded-lg px-3 py-2 text-sm bg-ember-surface border border-ember-border text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-1 focus:ring-[color:var(--accent)] disabled:bg-ember-surface2 disabled:text-ember-muted'
+                            className='w-full rounded-[calc(var(--radius)*0.7)] px-3 py-2 text-base bg-ember-bg border border-[color:var(--border-strong)] text-ember-text placeholder:text-ember-muted focus:border-ember-accent focus:ring-2 focus:ring-[color:var(--accent)] disabled:bg-ember-surface2 disabled:text-ember-muted'
                           />
                           <p className='mt-1 text-xs text-ember-muted'>
                             {generationForm.sourceText?.length ?? 0}/5000 chars. AI will write an original post using this as context.
@@ -509,7 +512,7 @@ export default function AdminPostsPage() {
                         {['en', 'ru', 'uz'].map(locale => (
                           <label
                             key={locale}
-                            className='flex items-center p-3 border border-ember-border rounded-lg cursor-pointer hover:bg-ember-surface2 transition-colors'
+                            className='flex items-center p-3 border border-ember-border rounded-[calc(var(--radius)*0.7)] cursor-pointer hover:bg-ember-surface2 transition-colors'
                           >
                             <input
                               type='checkbox'
@@ -527,7 +530,7 @@ export default function AdminPostsPage() {
                                   });
                                 }
                               }}
-                              className='mr-3 w-4 h-4 text-ember-accent border-ember-border rounded focus:ring-[color:var(--accent)]'
+                              className='mr-3 w-4 h-4 accent-[color:var(--accent)]'
                             />
                             <span className='text-sm font-medium text-ember-text'>{locale.toUpperCase()}</span>
                           </label>
@@ -574,20 +577,20 @@ export default function AdminPostsPage() {
         )}
 
         {/* Posts Overview */}
-        <div className='bg-ember-surface rounded-xl shadow-sm border border-ember-border overflow-hidden'>
+        <div className='bg-ember-surface rounded-[var(--radius)] border border-ember-border overflow-hidden'>
           <div className='px-6 py-4 border-b border-ember-border bg-ember-surface2'>
-            <div className='flex justify-between items-center'>
+            <div className='flex flex-wrap gap-3 justify-between items-center'>
               <div className='flex items-center space-x-4'>
                 {postGroups.length > 0 && (
                   <input
                     type='checkbox'
                     checked={postGroups.length > 0 && selectedGroups.size === postGroups.length}
                     onChange={toggleAll}
-                    className='w-4 h-4 text-ember-accent border-ember-border rounded focus:ring-[color:var(--accent)] cursor-pointer'
+                    className='w-4 h-4 accent-[color:var(--accent)] cursor-pointer'
                   />
                 )}
                 <div>
-                  <h3 className='text-lg font-semibold text-ember-text font-display'>
+                  <h3 className='text-lg font-semibold text-ember-text'>
                     {selectedGroups.size > 0 ? `${selectedGroups.size} of ${postGroups.length} groups selected` : 'All Posts'}
                   </h3>
                   <p className='text-sm text-ember-muted'>
@@ -596,10 +599,10 @@ export default function AdminPostsPage() {
                 </div>
               </div>
               <div className='flex space-x-2'>
-                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-green-400'>
+                <span className='inline-flex items-center px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium bg-[color:color-mix(in_srgb,var(--accent)_14%,transparent)] text-ember-text'>
                   {posts.filter(p => p.status === 'published').length} Published
                 </span>
-                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-ember-surface2 text-ember-muted'>
+                <span className='inline-flex items-center px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium bg-ember-surface2 text-ember-muted'>
                   {posts.filter(p => p.status === 'draft').length} Drafts
                 </span>
               </div>
@@ -616,23 +619,23 @@ export default function AdminPostsPage() {
                   d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
                 ></path>
               </svg>
-              <h3 className='mt-4 text-lg font-medium text-ember-text font-display'>No posts yet</h3>
+              <h3 className='mt-4 text-lg font-medium text-ember-text'>No posts yet</h3>
               <p className='mt-2 text-ember-muted'>Get started by generating your first blog post.</p>
             </div>
           ) : (
             <div className='divide-y divide-ember-border'>
               {postGroups.map((group, _groupIndex) => (
-                <div key={group.generationGroupId} className='p-6'>
+                <div key={group.generationGroupId} className='p-4 sm:p-6'>
                   {/* Group Header */}
-                  <div className='flex justify-between items-start mb-4'>
-                    <div className='flex items-center flex-1 min-w-0'>
+                  <div className='flex flex-wrap gap-3 justify-between items-start mb-4'>
+                    <div className='flex items-center min-w-0'>
                       <input
                         type='checkbox'
                         checked={selectedGroups.has(group.generationGroupId)}
                         onChange={() => toggleGroup(group.generationGroupId)}
-                        className='w-4 h-4 mr-4 text-ember-accent border-ember-border rounded focus:ring-[color:var(--accent)] cursor-pointer flex-shrink-0'
+                        className='w-4 h-4 mr-4 accent-[color:var(--accent)] cursor-pointer flex-shrink-0'
                       />
-                      <div className='flex items-center space-x-3'>
+                      <div className='flex flex-wrap items-center gap-x-3 gap-y-1'>
                         <h4 className='text-sm font-medium text-ember-text'>
                           {group.posts.length > 1 ? `Post Group (${group.posts.length} languages)` : 'Individual Post'}
                         </h4>
@@ -640,7 +643,7 @@ export default function AdminPostsPage() {
                           {group.status}
                         </AdminBadge>
                         {missingLocales(group).length > 0 && (
-                          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[rgba(245,158,11,0.15)] text-amber-400'>
+                          <span className='inline-flex items-center px-2.5 py-1 rounded-[var(--radius)] text-xs font-medium border border-dashed border-[color:var(--border-strong)] text-ember-text'>
                             missing:{' '}
                             {missingLocales(group)
                               .map(l => l.toUpperCase())
@@ -652,12 +655,12 @@ export default function AdminPostsPage() {
                     </div>
 
                     {/* Group Actions */}
-                    <div className='flex space-x-2'>
+                    <div className='flex flex-wrap gap-2'>
                       {missingLocales(group).length > 0 && (
                         <button
                           onClick={() => generateMissing(group)}
                           disabled={fillingGroups.has(group.generationGroupId)}
-                          className='inline-flex items-center px-3 py-1.5 border border-amber-500/40 text-xs font-medium rounded-md text-amber-400 bg-ember-surface hover:border-amber-400 focus:outline-none transition-colors disabled:opacity-50'
+                          className='inline-flex items-center px-3 py-1.5 min-h-[44px] border border-dashed border-[color:var(--border-strong)] text-xs font-medium rounded-[calc(var(--radius)*0.7)] text-ember-text bg-ember-surface hover:border-ember-accent transition-colors disabled:opacity-50'
                         >
                           {fillingGroups.has(group.generationGroupId) ? (
                             <>
@@ -692,7 +695,7 @@ export default function AdminPostsPage() {
                       {group.status !== 'published' && (
                         <button
                           onClick={() => updateGroupStatus(group, 'published')}
-                          className='inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-semibold rounded-lg text-[#0a0705] bg-ember-accent hover:shadow-[0_0_20px_var(--glow)] focus:outline-none transition-colors'
+                          className='inline-flex items-center px-3 py-1.5 min-h-[44px] border border-transparent text-xs font-semibold rounded-[calc(var(--radius)*0.7)] text-[color:var(--on-accent)] bg-ember-accent transition-colors'
                         >
                           <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M5 13l4 4L19 7'></path>
@@ -703,7 +706,7 @@ export default function AdminPostsPage() {
                       {group.status !== 'draft' && (
                         <button
                           onClick={() => updateGroupStatus(group, 'draft')}
-                          className='inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent focus:outline-none transition-colors'
+                          className='inline-flex items-center px-3 py-1.5 min-h-[44px] text-xs font-medium rounded-[calc(var(--radius)*0.7)] bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
                         >
                           <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                             <path
@@ -718,7 +721,7 @@ export default function AdminPostsPage() {
                       )}
                       <button
                         onClick={() => deleteGroup(group)}
-                        className='inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors'
+                        className='inline-flex items-center px-3 py-1.5 min-h-[44px] border border-[color:var(--accent)] text-xs font-medium rounded-[calc(var(--radius)*0.7)] text-ember-text bg-transparent hover:bg-[color:color-mix(in_srgb,var(--accent)_14%,transparent)] transition-colors'
                       >
                         <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                           <path
@@ -736,8 +739,11 @@ export default function AdminPostsPage() {
                   {/* Posts in Group */}
                   <div className='space-y-3'>
                     {group.posts.map(post => (
-                      <div key={post._id} className='flex items-center justify-between p-4 bg-ember-surface2 rounded-lg'>
-                        <div className='flex-1 min-w-0'>
+                      <div
+                        key={post._id}
+                        className='flex flex-wrap gap-3 items-center justify-between p-4 bg-ember-surface2 rounded-[calc(var(--radius)*0.7)]'
+                      >
+                        <div className='flex-1 min-w-[min(100%,260px)]'>
                           <div className='flex items-center space-x-3'>
                             <AdminBadge variant='locale' locale={post.locale as 'en' | 'ru' | 'uz'}>
                               {post.locale.toUpperCase()}
@@ -754,8 +760,9 @@ export default function AdminPostsPage() {
                         <div className='flex space-x-2'>
                           <button
                             onClick={() => openPreview(post)}
-                            disabled={previewLoading}
-                            className='inline-flex items-center px-3 py-1.5 border border-ember-border shadow-sm text-xs font-medium rounded-md text-ember-text bg-ember-surface hover:border-ember-accent focus:outline-none transition-colors disabled:opacity-50'
+                            // Not disabled: that would drop its focus, which the dialog gives back on close.
+                            aria-disabled={previewLoading}
+                            className='inline-flex items-center px-3 py-1.5 min-h-[44px] border border-ember-border text-xs font-medium rounded-[calc(var(--radius)*0.7)] text-ember-text bg-ember-surface hover:border-ember-accent transition-colors aria-disabled:opacity-50'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -777,7 +784,7 @@ export default function AdminPostsPage() {
                             href={`/${post.locale}/blog/${post.slug}`}
                             target='_blank'
                             rel='noopener noreferrer'
-                            className='inline-flex items-center px-3 py-1.5 border border-ember-border shadow-sm text-xs font-medium rounded-md text-ember-text bg-ember-surface hover:border-ember-accent focus:outline-none transition-colors'
+                            className='inline-flex items-center px-3 py-1.5 min-h-[44px] border border-ember-border text-xs font-medium rounded-[calc(var(--radius)*0.7)] text-ember-text bg-ember-surface hover:border-ember-accent transition-colors'
                           >
                             <svg className='w-4 h-4 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                               <path
@@ -804,33 +811,33 @@ export default function AdminPostsPage() {
       </div>
 
       {selectedGroups.size > 0 && (
-        <div className='fixed bottom-0 inset-x-0 z-50 bg-ember-surface border-t border-ember-border shadow-lg'>
-          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between'>
+        <div className='fixed bottom-0 inset-x-0 z-50 bg-ember-surface border-t border-ember-border'>
+          <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap gap-3 items-center justify-between'>
             <span className='text-sm font-medium text-ember-muted'>
               {selectedGroups.size} group(s) selected ({getSelectedGroups().flatMap(g => g.posts).length} posts)
             </span>
-            <div className='flex items-center space-x-3'>
+            <div className='flex flex-wrap items-center gap-3'>
               <button
                 onClick={() => batchUpdateStatus('published')}
-                className='inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg text-[#0a0705] bg-ember-accent hover:shadow-[0_0_20px_var(--glow)] transition-colors'
+                className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-semibold rounded-[calc(var(--radius)*0.7)] text-[color:var(--on-accent)] bg-ember-accent transition-colors'
               >
                 Publish Selected
               </button>
               <button
                 onClick={() => batchUpdateStatus('draft')}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
+                className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-medium rounded-[calc(var(--radius)*0.7)] bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
               >
                 Unpublish Selected
               </button>
               <button
                 onClick={batchDelete}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 transition-colors'
+                className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-medium rounded-[calc(var(--radius)*0.7)] border border-[color:var(--accent)] text-ember-text hover:bg-[color:color-mix(in_srgb,var(--accent)_14%,transparent)] transition-colors'
               >
                 Delete Selected
               </button>
               <button
                 onClick={() => setSelectedGroups(new Set())}
-                className='inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
+                className='inline-flex items-center px-4 py-2 min-h-[44px] text-sm font-medium rounded-[calc(var(--radius)*0.7)] bg-ember-surface border border-ember-border text-ember-text hover:border-ember-accent transition-colors'
               >
                 Cancel
               </button>

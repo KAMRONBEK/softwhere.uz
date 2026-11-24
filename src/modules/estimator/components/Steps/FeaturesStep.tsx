@@ -6,6 +6,7 @@ import { marginalCost } from '@/modules/estimator/utils/estimator';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import { StepLabel, ToggleChip } from '../ui';
+import css from '../ui.module.css';
 
 type Props = {
   input: EstimatorInput;
@@ -35,29 +36,21 @@ export default function FeaturesStep({ input, format, onToggleFeature }: Props) 
   return (
     <div>
       <StepLabel hint={t('featuresHint')}>{t('featuresTitle')}</StepLabel>
-      <div className='space-y-5'>
+      <div className={css.groups}>
         {FEATURE_CATEGORIES.map(category => {
           const items = available.filter(f => f.category === category);
           if (items.length === 0) return null;
           return (
             <div key={category}>
-              <div className='uppercase tracking-[0.14em] text-[11px] font-bold text-ember-muted mb-2'>{tx(`category.${category}`)}</div>
-              <div className='flex flex-wrap gap-2'>
+              <div className={css.groupLabel}>{tx(`category.${category}`)}</div>
+              <div className={css.options}>
                 {items.map(f => (
                   <ToggleChip
                     key={f.id}
                     selected={input.features.includes(f.id)}
                     onClick={() => onToggleFeature(f.id)}
-                    label={
-                      <>
-                        {tx(`feature.${f.id}`)}
-                        {popular.has(f.id) && (
-                          <span className='ml-1.5 text-[10px] font-bold uppercase tracking-wide text-ember-accent2'>
-                            ★ {t('popularBadge')}
-                          </span>
-                        )}
-                      </>
-                    }
+                    label={tx(`feature.${f.id}`)}
+                    badge={popular.has(f.id) ? t('popularBadge') : undefined}
                     hint={hints.get(f.id)}
                   />
                 ))}

@@ -57,9 +57,31 @@ interface Anchor {
   top: number;
 }
 
+/** A page without sections (an article, a form) anchors to the block of text being read, below the header's bar. */
+const BLOCKS = ':is(h1,h2,h3,h4,p,li,dt,dd,figure,pre,table,blockquote,fieldset)';
+const BAR_PX = 64;
+
+function isInFlow(el: HTMLElement): boolean {
+  for (let node: HTMLElement | null = el; node && !node.hasAttribute('data-page-content'); node = node.parentElement) {
+    const { position } = getComputedStyle(node);
+    if (position === 'sticky' || position === 'fixed') return false;
+  }
+  return true;
+}
+
+function findReadingBlock(): HTMLElement | undefined {
+  // At the very top the page simply stays there.
+  if (window.scrollY <= BAR_PX) return undefined;
+  const blocks = Array.from(document.querySelectorAll<HTMLElement>(`[data-page-content] ${BLOCKS}`));
+  return blocks.find(block => {
+    const { bottom, height } = block.getBoundingClientRect();
+    return height > 0 && bottom > BAR_PX && isInFlow(block);
+  });
+}
+
 function findAnchor(): Anchor | null {
   const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-lab-root] [data-section]'));
-  const el = sections.find(section => section.getBoundingClientRect().bottom > 0);
+  const el = sections.length > 0 ? sections.find(section => section.getBoundingClientRect().bottom > 0) : findReadingBlock();
   return el ? { el, top: el.getBoundingClientRect().top } : null;
 }
 
@@ -151,6 +173,9 @@ function transitionTo(id: StyleId, { origin, onApply }: PickOptions): void {
   const cleanUp = () => {
     if (token === transitionToken) html.removeAttribute(SWITCH_ATTR);
   };
+  // The phone menu's scroll lock (LabHeaderMenu's usePageLock) is lifted in `update`; WebKit
+  // crashes when the root's overflow:hidden goes inside the callback, so it goes just before.
+  html.style.overflow = '';
   try {
     const transition = document.startViewTransition(update);
     transition.updateCallbackDone.catch(() => undefined);

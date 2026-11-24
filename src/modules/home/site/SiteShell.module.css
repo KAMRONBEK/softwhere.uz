@@ -1,0 +1,79 @@
+/* The themed root of every page but the homepage (LabShell.module.css is the homepage's). */
+.root {
+  /* The header's bar, safe area included: pages start below it. */
+  --lab-header-h: calc(56px + env(safe-area-inset-top, 0px));
+  --lab-header-offset: 0px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (min-width: 900px) {
+  .root {
+    --lab-header-h: calc(64px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* What the header covers right now: sticky elements sit under it. */
+.root:has(> [data-lab-header]:not([data-hidden='true'])) {
+  --lab-header-offset: var(--lab-header-h);
+}
+
+.content {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+
+.root[data-site-admin] .content {
+  padding-top: var(--lab-header-h);
+}
+
+.floats {
+  --float-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Narrow screens have no gutter to float in: one column at the bottom right, away from
+   the start of the lines, and out of the way with the header while the visitor reads down. */
+@media (max-width: 1279px) {
+  .floats {
+    --float-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    --float-stack: 56px;
+    transition: opacity 200ms ease;
+  }
+
+  .root:has(> [data-lab-header][data-hidden='true']) .floats:not(:focus-within) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* The estimator's own bar holds the bottom edge there: no chat button, scroll-to-top above the bar. */
+  .floats[data-lifted] {
+    --float-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    --float-stack: 0px;
+    --float-chat: none;
+  }
+
+  /* No chat button over the AI plan's fields and the contact form. */
+  .floats[data-form] {
+    --float-stack: 0px;
+    --float-chat: none;
+  }
+}
+
+/* The floating buttons sit over the page's end on narrow screens: leave them room under the footer. */
+.footer {
+  background: var(--bg);
+}
+
+@media (max-width: 1279px) {
+  .root:not([data-site-admin]) .footer {
+    padding-bottom: 72px;
+  }
+}

@@ -1,0 +1,178 @@
+.prose {
+  max-width: 70ch;
+  color: color-mix(in srgb, var(--fg) 92%, var(--muted));
+  font: 400 clamp(1.0625rem, 1.2vw, 1.125rem) / 1.7 var(--font-body);
+  overflow-wrap: break-word;
+}
+
+.prose > :global(:first-child) {
+  margin-top: 0;
+}
+
+.prose > :global(:last-child) {
+  margin-bottom: 0;
+}
+
+.prose :where(p, ul, ol, dl) {
+  margin: 0 0 1.15em;
+}
+
+.prose :where(p) {
+  text-wrap: pretty;
+}
+
+.prose :where(h2, h3, h4) {
+  color: var(--fg);
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.prose :where(h2) {
+  margin: 2.1em 0 0.65em;
+  font-family: var(--font-display);
+  font-size: calc(clamp(1.5rem, 2.5vw, 2rem) * var(--display-scale, 1));
+  font-weight: var(--display-weight);
+  letter-spacing: var(--display-tracking);
+  line-height: 1.14;
+}
+
+/* Below display size the body face reads better in every look (as on the homepage's cards). */
+.prose :where(h3) {
+  margin: 1.8em 0 0.55em;
+  font: 600 1.25rem/1.32 var(--font-body);
+}
+
+.prose :where(h4) {
+  margin: 1.6em 0 0.5em;
+  font: 600 1.0625rem/1.4 var(--font-body);
+}
+
+.prose :where(strong, b) {
+  color: var(--fg);
+  font-weight: 650;
+}
+
+.prose :where(a) {
+  color: var(--fg);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 75%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.2em;
+}
+
+.prose :where(a:hover) {
+  text-decoration-color: var(--accent);
+}
+
+.prose :where(a:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.prose :where(ul, ol) {
+  padding-left: 1.4em;
+}
+
+.prose :where(ul) {
+  list-style: disc;
+}
+
+.prose :where(ol) {
+  list-style: decimal;
+}
+
+.prose :where(li) {
+  margin: 0.4em 0;
+  padding-left: 0.2em;
+}
+
+.prose :where(li)::marker {
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.prose :where(li > p) {
+  margin: 0.3em 0;
+}
+
+.prose :where(blockquote) {
+  margin: 1.8em 0;
+  padding: 0.2em 0 0.2em 1.25em;
+  border-left: 2px solid var(--accent);
+  color: var(--fg);
+}
+
+.prose :where(hr) {
+  margin: 2.6em 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.prose :where(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+.prose :where(figure) {
+  margin: 1.9em 0;
+}
+
+.prose :where(figcaption) {
+  margin-top: 0.7em;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.prose :where(code) {
+  padding: 0.12em 0.36em;
+  border-radius: min(var(--radius), 6px);
+  background: var(--surface2);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 0.87em;
+}
+
+.prose :where(pre) {
+  margin: 1.7em 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-2);
+  font: 400 0.9rem/1.6 var(--font-mono);
+  overflow-wrap: normal;
+}
+
+.prose :where(pre code) {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+/* A table scrolls inside its own box on a phone. */
+.prose :where(table) {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 1.8em 0;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.prose :where(th, td) {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose :where(thead th) {
+  background: var(--surface2);
+  color: var(--fg);
+  font-weight: 600;
+}

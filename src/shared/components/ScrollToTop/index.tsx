@@ -1,36 +1,33 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+import { useEffect, useState } from 'react';
 import { trackEvent } from '@/shared/utils/analytics';
-import React, { useEffect, useState } from 'react';
 import css from './style.module.css';
-import ArrowIcon from '../../../../public/icons/chevron_right_small_24.svg';
-import Image from 'next/image';
+
+const SHOW_AFTER_PX = 500;
 
 function ScrollToTop() {
-  const [show, setShow] = useState<boolean>(false);
+  const t = useTranslations('home.header');
+  const [isShown, setIsShown] = useState(false);
 
   useEffect(() => {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 500) {
-        setShow(true);
-      } else {
-        setShow(false);
-      }
-    });
+    const onScroll = () => setIsShown(window.scrollY > SHOW_AFTER_PX);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const handleClick = () => {
     trackEvent('scroll_to_top');
-    window.scroll({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
-    });
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, left: 0, behavior: isReduced ? 'instant' : 'smooth' });
   };
 
   return (
-    <button onClick={handleClick} className={`${css.scrollToTop} ${show ? css.show : ''}`}>
-      <Image src={ArrowIcon} alt='' />
+    <button type='button' onClick={handleClick} aria-label={t('toTop')} className={`${css.button} ${isShown ? css.shown : ''}`}>
+      <svg width='18' height='18' viewBox='0 0 18 18' aria-hidden='true'>
+        <path d='M9 15V3M4 8l5-5 5 5' fill='none' stroke='currentColor' strokeWidth='1.6' strokeLinecap='round' strokeLinejoin='round' />
+      </svg>
     </button>
   );
 }

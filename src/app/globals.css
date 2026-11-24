@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -18,112 +14,114 @@ html {
 }
 
 /* ============================================================
-   EMBER THEME TOKENS
-   Ember maps onto the existing token names (so every CSS Module /
-   marketing component re-themes automatically) AND adds new
-   semantic tokens (--bg/--surface/--text/--muted/--accent2/--border)
-   for the new sections. Light values live here in :root; dark (the
-   default theme) overrides them in html.dark below.
+   LOOK TOKENS
+   The look the visitor picked (A Observatory, B Concrete, C Silk,
+   D Pomegranate) comes from src/modules/home/theme/tokens.ts, which
+   sets --bg, --bg-2, --fg, --muted, --accent, --accent-2,
+   --on-accent, --glow, --font-*, --display-* and --radius on the
+   themed root and on <html>. Here: the default look's colours for a
+   document without a themed root, and the tokens derived from them.
    ============================================================ */
 :root {
-  color-scheme: light;
-
-  /* Existing token names, retuned to the Ember light palette */
-  --gray-900: #2a1408; /* primary text */
-  --gray-800: #3d2414;
-  --gray-700: #7c5c46; /* muted text */
-  --gray-500: #9c7a63;
-  --gray-300: #e6d2c2; /* hairline borders */
-  --gray-100: #fbf3ec; /* page background */
-  --accent: #dd450a;
-  --accent-opacity: #dd450aaa;
-  --accent-text: #bf3d07;
-  --light-accent: #c47a2ecc;
-  --white: #ffffff; /* card surface */
-
-  --bg-footer: #201009;
-  --text-on-footer: #fbeee6;
-  --admin-bg: #fbf3ec;
-
-  /* New Ember semantic tokens */
-  --bg: #fbf3ec;
-  --bg2: #f5e9df;
-  --surface: #ffffff;
-  --surface2: #fff6ef;
-  --border: rgba(190, 90, 40, 0.16);
-  --text: #2a1408;
-  --muted: #7c5c46;
-  --accent2: #c47a2e;
-  --glow: rgba(221, 69, 10, 0.24);
-
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-border: rgba(190, 90, 40, 0.16);
-  --glass-shadow: 0 2px 20px rgba(120, 50, 20, 0.1);
-  --glass-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), inset 0 0 16px 0 rgba(255, 255, 255, 0.2);
-  --glass-blur: blur(30px) saturate(160%);
-
-  /* Blog chart series slots (fixed order, never cycled) + chart chrome.
-     Validated against the light surface (#ffffff) with the dataviz palette
-     checks: lightness band, chroma floor, CVD ΔE ≥ 8 on adjacent AND ring
-     (doughnut wrap) pairs, normal-vision ΔE ≥ 15, contrast ≥ 3:1. Keep the
-     order and re-validate if any hex changes. */
-  --chart-1: #dd450a;
-  --chart-2: #00897a;
-  --chart-3: #c47a2e;
-  --chart-4: #3572d9;
-  --chart-5: #578b24;
-  --chart-6: #c1518f;
-  --chart-grid: #f0e6dc;
-  --chart-axis: #e6d2c2;
+  color-scheme: dark;
+  --bg: #050816;
+  --bg-2: #0c1230;
+  --fg: #edf1ff;
+  --muted: #8f97c2;
+  --accent: #fe4502;
+  --accent-2: #8e6bff;
+  --on-accent: #03141a;
+  --glow: rgba(254, 69, 2, 0.4);
+  --radius: 12px;
 }
 
-html.dark {
-  color-scheme: dark;
+/* On <html> for portals and the body, on the root for browsers without :has(). */
+:root,
+[data-lab-root] {
+  /* Accent as small text: 5.2:1 or more on --bg, --bg-2 and --surface2 in every look. */
+  --accent-text: color-mix(in srgb, var(--accent) 80%, var(--fg));
+  --border: color-mix(in srgb, var(--fg) 13%, transparent);
+  --border-strong: color-mix(in srgb, var(--fg) 28%, transparent);
+  /* A step above --bg-2: table heads, code, chips. */
+  --surface2: color-mix(in srgb, var(--fg) 6%, var(--bg-2));
+  --site-gutter: clamp(20px, 5.5vw, 96px);
+  --site-width: 1320px;
+  --site-ease: cubic-bezier(0.23, 1, 0.32, 1);
 
-  /* Existing token names, retuned to the Ember dark palette (default) */
-  --gray-900: #fbeee6; /* primary text (light-on-dark) */
-  --gray-800: #ecd9cb;
-  --gray-700: #c2a693; /* muted text */
-  --gray-500: #a88a76;
-  --gray-300: #3a2616; /* hairline borders */
-  --gray-100: #0a0705; /* page background */
-  --accent: #ff5b1e;
-  --accent-opacity: #ff5b1eaa;
-  --accent-text: #ff8a4d;
-  --light-accent: #ffb057cc;
-  --white: #181009; /* card surface */
+  /* The old site's names, on the look's tokens. New code uses the tokens above. */
+  --text: var(--fg);
+  --surface: var(--bg-2);
+  --bg2: color-mix(in srgb, var(--bg-2) 55%, var(--bg));
+  --accent2: var(--accent-2);
+  --accent-opacity: color-mix(in srgb, var(--accent) 67%, transparent);
+  --light-accent: color-mix(in srgb, var(--accent-2) 80%, transparent);
+  --gray-900: var(--fg);
+  --gray-800: color-mix(in srgb, var(--fg) 88%, var(--muted));
+  --gray-700: var(--muted);
+  --gray-500: var(--muted);
+  --gray-300: color-mix(in srgb, var(--fg) 18%, var(--bg-2));
+  --gray-100: var(--bg);
+  --white: var(--bg-2);
+  --bg-footer: var(--bg);
+  --text-on-footer: var(--muted);
+  --admin-bg: var(--bg);
+  --glass-bg: color-mix(in srgb, var(--bg-2) 88%, transparent);
+  --glass-border: var(--border);
+  --glass-shadow: 0 18px 50px -34px var(--glow);
+  --glass-highlight: inset 0 1px 0 color-mix(in srgb, var(--fg) 5%, transparent);
+  --glass-blur: blur(16px) saturate(1.3);
+  --font-sora: var(--font-display);
+  --font-manrope: var(--font-body);
+  --font-inter: var(--font-body);
 
-  --bg-footer: #120b07;
-  --text-on-footer: #c2a693;
-  --admin-bg: #0a0705;
+  --chart-grid: color-mix(in srgb, var(--fg) 10%, transparent);
+  --chart-axis: color-mix(in srgb, var(--fg) 24%, transparent);
+}
 
-  /* New Ember semantic tokens */
-  --bg: #0a0705;
-  --bg2: #120b07;
-  --surface: #181009;
-  --surface2: #20140b;
-  --border: rgba(255, 150, 90, 0.15);
-  --text: #fbeee6;
-  --muted: #c2a693;
-  --accent2: #ffb057;
-  --glow: rgba(255, 91, 30, 0.45);
+/* Blog chart series slots (fixed order, never cycled), one set per look,
+   led by its accent. Validated on that look's --bg-2 with the dataviz palette
+   checks: lightness band, chroma floor, CVD separation of neighbours (and of
+   the last with the first, for doughnuts), contrast 3:1 or more. Keep the
+   order and validate again if any hex changes. */
+:root,
+[data-lab-root][data-style='A'],
+html:has([data-lab-root][data-style='A']) {
+  --chart-1: #fe4502;
+  --chart-2: #17a292;
+  --chart-3: #c98127;
+  --chart-4: #8e6bff;
+  --chart-5: #7ea43f;
+  --chart-6: #cd66a2;
+}
 
-  --glass-bg: rgba(24, 16, 9, 0.55);
-  --glass-border: rgba(255, 150, 90, 0.15);
-  --glass-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
-  --glass-highlight: inset 0 1px 0 0 rgba(255, 180, 120, 0.08), inset 0 0 18px 0 rgba(255, 120, 60, 0.05);
-  --glass-blur: blur(30px) saturate(150%);
+[data-lab-root][data-style='B'],
+html:has([data-lab-root][data-style='B']) {
+  --chart-1: #2b2bff;
+  --chart-2: #b5480a;
+  --chart-3: #1f7fb5;
+  --chart-4: #a03c7c;
+  --chart-5: #6b8a00;
+  --chart-6: #c1518f;
+}
 
-  /* Blog chart slots re-stepped for the dark surface (#181009) — same hues,
-     same fixed order, separately validated (see :root note). */
-  --chart-1: #f2500f;
+[data-lab-root][data-style='C'],
+html:has([data-lab-root][data-style='C']) {
+  --chart-1: #00835e;
+  --chart-2: #d4560a;
+  --chart-3: #3572d9;
+  --chart-4: #c1518f;
+  --chart-5: #578b24;
+  --chart-6: #8a4fd0;
+}
+
+[data-lab-root][data-style='D'],
+html:has([data-lab-root][data-style='D']) {
+  --chart-1: #ff2e4c;
   --chart-2: #17a292;
   --chart-3: #c98127;
   --chart-4: #5b8fe4;
   --chart-5: #7ea43f;
-  --chart-6: #cd66a2;
-  --chart-grid: #2a1b10;
-  --chart-axis: #3a2616;
+  --chart-6: #b06bd0;
 }
 
 body {
@@ -131,22 +129,29 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   background-color: var(--bg);
-  color: var(--text);
-  font-family: var(--font-manrope), var(--font-inter), system-ui, sans-serif;
+  color: var(--fg);
+  font-family: var(--font-body, system-ui, sans-serif);
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
 }
 
-.hide {
-  height: 100vh;
-  overflow-y: hidden;
+/* Until the boot script has put the visitor's look on the root (theme/ThemeScript.tsx). */
+html[data-ground] [data-lab-root] {
+  background: transparent !important;
 }
 
-/* Default keyboard focus indicator for interactive elements (light + dark) */
+/* A look switch is already a view transition, and a page rendered on the client (the 404)
+   must not fade from the default look's ground to the visitor's. */
+html:has([data-site-root]) body {
+  transition: none;
+}
+
+/* Default keyboard focus indicator for interactive elements */
 a:focus-visible,
 button:focus-visible,
 [role='button']:focus-visible,
+summary:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
@@ -154,120 +159,136 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* Universal page layout to account for fixed header */
-.page-layout {
-  padding-top: 120px;
-  min-height: 100vh;
+/* Anchors land clear of the fixed header (the homepage places its own jumps). */
+html:has([data-site-root]) {
+  scroll-padding-top: 88px;
 }
 
-/* Admin page layout to account for fixed header */
+/* Pages not built on src/shared/components/site yet: clear of the fixed header. */
+.page-layout {
+  padding-top: calc(var(--lab-header-h, 64px) + 24px);
+  min-height: 100svh;
+}
+
+/* The admin pages: SiteShell already clears the header for the whole section. */
 .admin-layout {
-  padding-top: 120px;
-  min-height: 100vh;
+  padding-top: 24px;
+  min-height: 100svh;
   background-color: var(--admin-bg);
 }
 
-/* Phone input dark mode overrides */
-html.dark .react-international-phone-input-container .react-international-phone-input {
-  background: transparent !important;
-  color: var(--gray-900) !important;
+[data-site-admin] .page-layout {
+  padding-top: 24px;
 }
 
-html.dark .react-international-phone-country-selector-button {
-  background: transparent !important;
-  border-color: transparent !important;
-}
-
-html.dark .react-international-phone-country-selector-dropdown {
-  background: var(--white) !important;
-  border-color: var(--gray-300) !important;
-}
-
-/* The contact form sits on an always-dark ember panel, so force its phone
-   input dark in BOTH themes (react-international-phone emits global classes). */
-.contact-form .react-international-phone-input-container,
-.contact-form .react-international-phone-input,
-.contact-form .react-international-phone-country-selector-button {
-  background: transparent !important;
-  color: #fbeee6 !important;
-  border-color: transparent !important;
-}
-
-.contact-form .react-international-phone-input::placeholder {
-  color: #8a6a55 !important;
-}
-
-.contact-form .react-international-phone-country-selector-dropdown {
-  background: #181009 !important;
-  border-color: rgba(255, 150, 90, 0.2) !important;
-  color: #fbeee6 !important;
-}
-
-/* Estimator lead form phone input — ember tokens in both themes. */
-.estimator-phone .react-international-phone-input-container {
+/* Phone inputs (react-international-phone emits global classes). Scoped to
+   their forms so the library's own sheet, loaded later, never wins. */
+:is(.contact-form, .estimator-phone) .react-international-phone-input-container {
   width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: calc(var(--radius) * 0.7);
   background: var(--bg) !important;
   transition: border-color 0.15s ease;
 }
 
-.estimator-phone .react-international-phone-input-container:focus-within {
+:is(.contact-form, .estimator-phone) .react-international-phone-input-container:focus-within {
   border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
-.estimator-phone .react-international-phone-input {
+:is(.contact-form, .estimator-phone) .react-international-phone-input {
   width: 100%;
-  background: transparent !important;
-  border: none !important;
-  color: var(--text) !important;
-  font-size: 14px;
+  height: auto !important;
+  min-height: 48px;
   padding-top: 10px;
   padding-bottom: 10px;
-  height: auto !important;
-}
-
-.estimator-phone .react-international-phone-country-selector-button {
-  background: transparent !important;
   border: none !important;
-  padding-left: 10px;
+  outline: none !important;
+  background: transparent !important;
+  color: var(--fg) !important;
+  /* 16px keeps iOS from zooming the page on focus. */
+  font: 400 16px/1.4 var(--font-body) !important;
 }
 
-.estimator-phone .react-international-phone-country-selector-dropdown {
-  background: var(--surface) !important;
-  border-color: var(--border) !important;
-  color: var(--text) !important;
+:is(.contact-form, .estimator-phone) .react-international-phone-input::placeholder {
+  color: var(--muted) !important;
+}
+
+:is(.contact-form, .estimator-phone) .react-international-phone-country-selector-button {
+  height: 100% !important;
+  min-width: 48px;
+  padding-left: 10px;
+  border: none !important;
+  background: transparent !important;
+}
+
+:is(.contact-form, .estimator-phone) .react-international-phone-country-selector-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+:is(.contact-form, .estimator-phone) .react-international-phone-country-selector-dropdown {
+  --react-international-phone-dropdown-item-background-color: var(--bg-2);
+  --react-international-phone-selected-dropdown-item-background-color: var(--surface2);
+  --react-international-phone-dropdown-item-text-color: var(--fg);
+  --react-international-phone-selected-dropdown-item-text-color: var(--fg);
+  --react-international-phone-dropdown-item-dial-code-color: var(--muted);
+  --react-international-phone-selected-dropdown-item-dial-code-color: var(--muted);
+  border: 1px solid var(--border) !important;
+  border-radius: min(var(--radius), 12px);
+  background: var(--bg-2) !important;
+  color: var(--fg) !important;
+  box-shadow: 0 24px 60px -30px var(--glow);
+}
+
+/* Toasts (react-toastify): variables on its own wrapper beat the library's
+   :root defaults whenever its sheet arrives. */
+.Toastify {
+  --toastify-color-light: var(--bg-2);
+  --toastify-color-dark: var(--bg-2);
+  --toastify-text-color-light: var(--fg);
+  --toastify-text-color-dark: var(--fg);
+  --toastify-color-success: var(--accent);
+  --toastify-color-error: var(--accent);
+  --toastify-color-warning: var(--accent);
+  --toastify-color-info: var(--accent);
+  --toastify-icon-color-success: var(--accent);
+  --toastify-icon-color-error: var(--accent);
+  --toastify-icon-color-warning: var(--accent);
+  --toastify-icon-color-info: var(--accent);
+  --toastify-color-progress-success: var(--accent);
+  --toastify-color-progress-error: var(--accent);
+  --toastify-color-progress-warning: var(--accent);
+  --toastify-color-progress-info: var(--accent);
+  --toastify-color-progress-light: var(--accent);
+  --toastify-color-progress-dark: var(--accent);
+  --toastify-spinner-color: var(--accent);
+  --toastify-spinner-color-empty-area: var(--border);
+  --toastify-font-family: var(--font-body);
+  --toastify-z-index: 120;
+}
+
+.Toastify .Toastify__toast {
+  border: 1px solid var(--border);
+  border-radius: min(var(--radius), 14px);
+  font-size: 15px;
+  box-shadow: 0 24px 60px -30px var(--glow);
+}
+
+.Toastify .Toastify__close-button {
+  color: var(--fg);
+  opacity: 0.8;
 }
 
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), var(--glass-highlight);
+  background: var(--bg-2);
+  border: 1px solid var(--border);
 }
 
 .container {
-  width: 1222px;
+  width: min(1222px, calc(100% - 2 * var(--site-gutter)));
   margin: 0 auto;
-}
-
-@media (max-width: 1025px) {
-  .container {
-    width: 980px;
-  }
-}
-
-@media (max-width: 770px) {
-  .container {
-    width: 600px;
-  }
-}
-
-@media (max-width: 450px) {
-  .container {
-    width: 95%;
-  }
 }
 
 /* ============================================================
@@ -281,7 +302,7 @@ html.dark .react-international-phone-country-selector-dropdown {
 .blog-chart .bc-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   padding: 1.25rem 1.25rem 0.875rem;
 }
 .blog-chart .bc-measure {
@@ -309,13 +330,13 @@ html.dark .react-international-phone-country-selector-dropdown {
 .blog-chart .bc-key {
   width: 0.75rem;
   height: 0.75rem;
-  border-radius: 3px;
+  border-radius: min(var(--radius), 3px);
   flex: none;
 }
 .blog-chart .bc-key-line {
   width: 1rem;
   height: 3px;
-  border-radius: 2px;
+  border-radius: min(var(--radius), 2px);
   flex: none;
 }
 .blog-chart .bc-legend-label {
@@ -351,7 +372,7 @@ html.dark .react-international-phone-country-selector-dropdown {
   height: 14px;
   flex: none;
   min-width: 2px;
-  border-radius: 0 4px 4px 0; /* rounded data-end, square at the baseline */
+  border-radius: 0 min(var(--radius), 4px) min(var(--radius), 4px) 0; /* rounded data-end, square at the baseline */
 }
 .blog-chart .bc-row:hover .bc-bar {
   filter: brightness(1.08);
@@ -429,8 +450,6 @@ html.dark .react-international-phone-country-selector-dropdown {
   width: fit-content;
 }
 .blog-chart .bc-details summary:hover {
-  /* --accent measures 4.26:1 on the light card, under the 4.5:1 AA floor for
-     this 13px text; --accent-text is the theme's accent-as-text token (5.40:1). */
   color: var(--accent-text);
 }
 .blog-chart .bc-table-wrap {

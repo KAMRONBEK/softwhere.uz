@@ -5,6 +5,7 @@ import { MAX_DESCRIPTION_LENGTH } from '@/modules/estimator/utils/sanitize';
 import type { DesignStatus, EstimatorInput, Urgency } from '@/modules/estimator/types';
 import { useTranslations } from 'next-intl';
 import { SegmentedPill, SelectCard, StepLabel } from '../ui';
+import css from '../ui.module.css';
 
 type Props = {
   input: EstimatorInput;
@@ -23,17 +24,16 @@ export default function DetailsStep({ input, onDesignChange, onLanguagesChange, 
   const showDesign = hasScreens(input.projectType, input.subtype);
 
   return (
-    <div className='space-y-7'>
+    <div className={css.steps}>
       {showDesign && (
         <div>
           <StepLabel>{t('designTitle')}</StepLabel>
-          <div className='grid md:grid-cols-3 gap-3'>
+          <div className={css.cards}>
             {DESIGNS.map(design => (
               <SelectCard
                 key={design}
                 selected={input.design === design}
                 onClick={() => onDesignChange(design)}
-                icon={design === 'ready' ? '📐' : design === 'template' ? '🧩' : '🎨'}
                 title={tx(`design.${design}`)}
                 desc={tx(`designDesc.${design}`)}
               />
@@ -42,10 +42,10 @@ export default function DetailsStep({ input, onDesignChange, onLanguagesChange, 
         </div>
       )}
 
-      <div className='grid md:grid-cols-2 xl:grid-cols-1 gap-7'>
+      <div className={css.steps}>
         <div>
           <StepLabel hint={t('languagesHint')}>{t('languagesTitle')}</StepLabel>
-          <div className='flex flex-wrap gap-1.5'>
+          <div className={css.pills}>
             {[1, 2, 3].map(n => (
               <SegmentedPill key={n} selected={input.languages === n} onClick={() => onLanguagesChange(n)}>
                 {tx(`langCount.${n}`)}
@@ -56,7 +56,7 @@ export default function DetailsStep({ input, onDesignChange, onLanguagesChange, 
 
         <div>
           <StepLabel>{t('urgencyTitle')}</StepLabel>
-          <div className='flex flex-wrap gap-1.5'>
+          <div className={css.pills}>
             {URGENCIES.map(urgency => (
               <SegmentedPill key={urgency} selected={input.urgency === urgency} onClick={() => onUrgencyChange(urgency)}>
                 {tx(`urgency.${urgency}`)}
@@ -73,9 +73,10 @@ export default function DetailsStep({ input, onDesignChange, onLanguagesChange, 
           onChange={e => onDescriptionChange(e.target.value.slice(0, MAX_DESCRIPTION_LENGTH))}
           placeholder={t('descriptionPlaceholder')}
           rows={4}
-          className='w-full rounded-2xl border border-ember-border bg-ember-surface text-ember-text placeholder:text-ember-muted p-4 text-sm leading-relaxed outline-none focus:border-ember-accent transition-colors resize-y'
+          aria-label={t('descriptionTitle')}
+          className={`${css.field} ${css.onGround}`}
         />
-        <div className='text-right text-[11px] text-ember-muted mt-1'>
+        <div className={css.counter}>
           {(input.description ?? '').length}/{MAX_DESCRIPTION_LENGTH}
         </div>
       </div>

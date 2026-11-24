@@ -1,5 +1,7 @@
 {
   "homeLabel": "SoftWhere, sahifa boshiga qaytish",
+  "siteHomeLabel": "SoftWhere, bosh sahifa",
+  "toTop": "Yuqoriga",
   "navLabel": "Asosiy menyu",
   "menu": {
     "open": "Menyu",

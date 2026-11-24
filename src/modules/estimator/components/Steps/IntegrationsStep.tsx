@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
 import TechIcon from '../TechIcon';
 import { StepLabel, ToggleChip } from '../ui';
+import css from '../ui.module.css';
 
 type Props = {
   input: EstimatorInput;
@@ -33,20 +34,20 @@ export default function IntegrationsStep({ input, format, onToggleIntegration }:
   return (
     <div>
       <StepLabel hint={t('integrationsHint')}>{t('integrationsTitle')}</StepLabel>
-      <div className='space-y-5'>
+      <div className={css.groups}>
         {INTEGRATION_GROUPS.map(group => {
           const items = available.filter(i => i.group === group);
           if (items.length === 0) return null;
           return (
             <div key={group}>
-              <div className='uppercase tracking-[0.14em] text-[11px] font-bold text-ember-muted mb-2'>{tx(`intGroup.${group}`)}</div>
-              <div className='flex flex-wrap gap-2'>
+              <div className={css.groupLabel}>{tx(`intGroup.${group}`)}</div>
+              <div className={css.options}>
                 {items.map(i => (
                   <ToggleChip
                     key={i.id}
                     selected={input.integrations.includes(i.id)}
                     onClick={() => onToggleIntegration(i.id)}
-                    icon={<TechIcon icon={i.icon} flag={i.flag} label={tx(`integration.${i.id}`)} />}
+                    icon={<TechIcon icon={i.icon} label={tx(`integration.${i.id}`)} />}
                     label={tx(`integration.${i.id}`)}
                     hint={hints.get(i.id)}
                   />

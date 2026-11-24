@@ -1,0 +1,171 @@
+/* The blog's lists: filters and post cards (the card itself is the site's). */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: clamp(24px, 3.2vw, 40px);
+}
+
+.filter {
+  flex: none;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: calc(var(--radius) * 2);
+  background: transparent;
+  color: var(--fg);
+  font: 500 14px/1.2 var(--font-body);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.filter[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.filter:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .filter[aria-pressed='false']:hover {
+    border-color: var(--accent);
+    background: var(--bg-2);
+  }
+}
+
+/* Phones and tablets get one swipeable row, edge to edge: fourteen labels would fill its first screen. */
+@media (max-width: 999px) {
+  .filters {
+    flex-wrap: nowrap;
+    margin-right: calc(-1 * var(--site-gutter));
+    margin-left: calc(-1 * var(--site-gutter));
+    padding: 6px var(--site-gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-padding: 0 var(--site-gutter);
+    scrollbar-width: none;
+  }
+
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: 48px 0;
+  color: var(--muted);
+  font: 400 1.125rem/1.55 var(--font-body);
+}
+
+/* auto-fill: a short list keeps its card size instead of stretching one card across the page. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li.postCard > :first-child {
+  position: relative;
+}
+
+.cover {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.coverImage {
+  object-fit: cover;
+}
+
+/* The hero mark's halftone, lit from one spot. */
+.halftone {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, var(--accent) 2.4px, transparent 2.9px) 0 0 / 10px 10px;
+  mask-image: radial-gradient(circle at var(--x) var(--y), #000 0, rgb(0 0 0 / 0.55) 22%, transparent 62%);
+}
+
+/* Over a photo, so it carries its own ground. */
+.credit {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 1;
+  max-width: calc(100% - 16px);
+  padding: 2px 8px;
+  border-radius: min(var(--radius), 6px);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  color: var(--fg);
+  font: 400 11px/1.5 var(--font-body);
+}
+
+.credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2px 16px;
+}
+
+.category {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+@media (min-width: 900px) {
+  li.lead {
+    grid-column: 1 / -1;
+    flex-direction: row;
+  }
+
+  /* A tall card must not widen the cover (its ratio would follow the height) and squeeze the text out. */
+  li.lead > :first-child {
+    flex: 0 0 58%;
+    min-width: 0;
+    aspect-ratio: 16 / 9;
+    border-right: 1px solid var(--border);
+    border-bottom: 0;
+  }
+
+  li.lead > :last-child {
+    min-width: 0;
+    gap: 20px;
+    padding: clamp(28px, 3vw, 44px);
+  }
+
+  .lead .cover {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+  }
+
+  .lead h2 {
+    font-family: var(--font-display);
+    font-size: calc(clamp(1.5rem, 2.4vw, 2.125rem) * var(--display-scale, 1));
+    font-weight: var(--display-weight);
+    letter-spacing: var(--display-tracking);
+    line-height: 1.14;
+  }
+
+  .lead:lang(ru) h2 {
+    font-size: calc(clamp(1.375rem, 2.1vw, 1.875rem) * var(--display-scale, 1));
+  }
+}

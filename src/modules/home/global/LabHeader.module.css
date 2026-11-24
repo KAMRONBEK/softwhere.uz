@@ -169,11 +169,11 @@
   transition: transform 280ms var(--ease-out);
 }
 
-.link[aria-current='true'] {
+.link:is([aria-current='true'], [aria-current='page']) {
   color: var(--fg);
 }
 
-.link[aria-current='true']::after {
+.link:is([aria-current='true'], [aria-current='page'])::after {
   transform: scaleX(1);
 }
 
@@ -525,7 +525,7 @@
   transition: color 160ms ease;
 }
 
-.sheetLink[aria-current='true'] {
+.sheetLink:is([aria-current='true'], [aria-current='page']) {
   color: var(--accent);
 }
 

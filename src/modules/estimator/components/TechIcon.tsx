@@ -1,10 +1,13 @@
 'use client';
 
 import type { ComponentType } from 'react';
+import css from './ui.module.css';
 import {
   SiAmazonwebservices,
+  SiAndroid,
   SiAngular,
   SiAnthropic,
+  SiApple,
   SiAstro,
   SiClaude,
   SiClickhouse,
@@ -58,13 +61,15 @@ import {
   SiWordpress,
 } from 'react-icons/si';
 
-type IconComponent = ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+type IconComponent = ComponentType<{ className?: string; size?: number; 'aria-hidden'?: boolean }>;
 
 /** Brand icons referenced by name from the catalog (react-icons/si subset). */
 const ICONS: Record<string, IconComponent> = {
   SiAmazonwebservices,
+  SiAndroid,
   SiAngular,
   SiAnthropic,
+  SiApple,
   SiAstro,
   SiClaude,
   SiClickhouse,
@@ -121,32 +126,20 @@ const ICONS: Record<string, IconComponent> = {
 type Props = {
   /** react-icons/si component name from the catalog. */
   icon?: string;
-  /** Emoji fallback (regional services without brand icons). */
-  flag?: string;
   /** Used for the letter-chip fallback. */
   label: string;
-  className?: string;
+  size?: number;
 };
 
 /**
- * Brand icon for tech/integration chips: Simple Icons when available, emoji
- * for regional services (Payme/Click/1C have no SI glyph), letter chip last.
+ * Brand icon for tech/integration chips: Simple Icons when available, else a
+ * letter (regional services like Payme and 1C have no SI glyph).
  */
-export default function TechIcon({ icon, flag, label, className = 'w-4 h-4' }: Props) {
+export default function TechIcon({ icon, label, size = 18 }: Props) {
   const Icon = icon ? ICONS[icon] : undefined;
-  if (Icon) return <Icon className={className} aria-hidden />;
-  if (flag) {
-    return (
-      <span className='text-sm leading-none' aria-hidden>
-        {flag}
-      </span>
-    );
-  }
+  if (Icon) return <Icon className={css.brand} size={size} aria-hidden />;
   return (
-    <span
-      className='w-4 h-4 rounded-[5px] bg-ember-surface2 text-ember-muted text-[10px] font-bold flex items-center justify-center leading-none'
-      aria-hidden
-    >
+    <span className={css.letter} aria-hidden>
       {label.charAt(0).toUpperCase()}
     </span>
   );

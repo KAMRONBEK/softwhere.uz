@@ -61,13 +61,11 @@ rules are deliberately left off because modules do not yet expose uniform public
   that `app` routes call, rather than routes importing Drizzle from `core`.
 - **The rule runs at `warn`, not `error`.** `yarn lint` stays at 0 errors while
   still surfacing real coupling debt. Promoting to `error` (and gating CI on it) is
-  blocked on one remaining violation: `src/shared/components/Header` imports
-  `src/modules/blog` (`BlogContext` + the related-post client) to power the
-  locale switcher. The global header therefore knows about the blog feature. See
-  the "Known violations" section of [`../architecture.md`](../architecture.md).
+  blocked on the remaining violation listed in the "Known violations" section of
+  [`../architecture.md`](../architecture.md).
 - **Already paid down:** `core/http.ts` is now a generic, dependency-free client;
-  feature-specific calls moved to `src/modules/estimator/api.ts` and
-  `src/modules/blog/api/posts.ts`.
+  feature-specific calls moved to `src/modules/estimator/api.ts`
+  and the blog module. The global header no longer imports `src/modules/blog`.
 - **Not adopted:** the per-module Zustand "Memory Bank" store and `husky`/`lint-staged`
   commit hooks described in older drafts do not exist — run `yarn lint`,
   `yarn type-check`, `yarn build` manually. This ADR set *is* the `docs/adr/`

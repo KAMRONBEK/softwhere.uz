@@ -1,30 +1,59 @@
-.scrollToTop {
+.button {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  z-index: 100000;
-  transition: all 0.2s ease-out;
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  padding: 10px;
-  border-radius: 6px;
-  box-shadow: var(--glass-shadow), var(--glass-highlight);
-  transform: translateX(100px);
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: var(--float-bottom, 20px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border-strong);
+  border-radius: min(var(--radius), 24px);
+  background: var(--bg-2);
+  color: var(--fg);
+  cursor: pointer;
+  touch-action: manipulation;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    transform 200ms var(--site-ease),
+    opacity 200ms ease,
+    border-color 200ms ease,
+    visibility 0s 200ms;
 }
 
-.show {
-  transform: translateX(0);
+.shown {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition-delay: 0s;
 }
 
-.scrollToTop img {
-  transform: rotate(-90deg);
-  width: 30px;
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
-@media (max-width: 770px) {
-  .scrollToTop img {
-    width: 25px;
+/* Above the Telegram button (SiteShell sets --float-stack). */
+@media (max-width: 1279px) {
+  .button {
+    right: max(12px, env(safe-area-inset-right, 0px));
+    bottom: calc(var(--float-bottom, 20px) + var(--float-stack, 0px));
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    border-color: var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transform: none;
   }
 }

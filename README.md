@@ -59,7 +59,7 @@ A modern, multilingual blog platform and portfolio website built with Next.js 16
 ### 🎨 Portfolio & UI
 
 - **Responsive Design**: Mobile-first with Tailwind CSS
-- **Dark/Light Theme**: `next-themes` integration
+- **Four looks**: visitor-pickable themes on shared tokens (`src/modules/home/theme`)
 - **Animations**: AOS (Animate On Scroll), React Type Animation
 - **Project Showcase**: Portfolio slider with App Store / Play Market links
 
@@ -210,7 +210,7 @@ softwhere.uz/
 │   ├── core/                # Framework/app-agnostic infra (imports: core only)
 │   │   │                    #   env, logger, db, i18n, ai, http, auth, constants
 │   ├── shared/              # Reusable non-domain code (imports: core, shared)
-│   │   ├── components/      # Button, Header, Footer, sections/, …
+│   │   ├── components/      # site/ (page primitives), TelegramChat, …
 │   │   ├── data/            # projects
 │   │   ├── types/
 │   │   └── utils/           # slug, analytics, send, security, rateLimit

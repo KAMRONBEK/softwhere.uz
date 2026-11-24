@@ -41,7 +41,7 @@ let cancelSettle: (() => void) | null = null;
 function jumpTo(y: number): void {
   const lenis = getLabLenis();
   if (lenis) lenis.scrollTo(y, { immediate: true, force: true });
-  else window.scrollTo({ top: y, behavior: 'auto' });
+  else window.scrollTo({ top: y, behavior: 'instant' });
 }
 
 /**

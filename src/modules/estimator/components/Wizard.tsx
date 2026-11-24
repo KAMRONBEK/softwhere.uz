@@ -21,6 +21,7 @@ import {
   togglePlatform,
   toggleTech,
 } from '@/modules/estimator/utils/wizardState';
+import { Arrow, buttonClass, Container, Page, PageHero } from '@/shared/components/site';
 import { trackEvent } from '@/shared/utils/analytics';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -28,6 +29,7 @@ import { useCurrency } from './CurrencySwitcher';
 import LivePreview from './LivePreview';
 import ResultPanel, { type AiState } from './ResultPanel';
 import { DetailsStep, FeaturesStep, IntegrationsStep, ScopeStep, TechStep, TypeStep } from './Steps';
+import css from './Wizard.module.css';
 
 type StepId = 'type' | 'scope' | 'features' | 'integrations' | 'tech' | 'details';
 const STEPS: StepId[] = ['type', 'scope', 'features', 'integrations', 'tech', 'details'];
@@ -73,7 +75,6 @@ export default function Wizard() {
 
   const resultIndex = STEPS.length;
   const isResultStep = step >= resultIndex;
-  const progress = Math.round((Math.min(step, resultIndex) / resultIndex) * 100);
 
   const estimate = useMemo(() => calculateEstimate(input), [input]);
 
@@ -239,62 +240,38 @@ export default function Wizard() {
   const railItems = [...STEPS.map(id => ({ id, label: tx(`step.${id}`) })), { id: 'result', label: t('step.result') }];
 
   return (
-    <div className='page-layout container mx-auto pb-28 xl:pb-16'>
-      {/* Header */}
-      <div className='text-center max-w-2xl mx-auto mb-10'>
-        <div className='uppercase tracking-[0.2em] text-xs font-bold text-ember-accent mb-3'>{t('eyebrow')}</div>
-        <h1 className='font-display text-4xl md:text-5xl font-extrabold tracking-tight text-ember-text mb-3'>{t('headline')}</h1>
-        <p className='text-ember-muted'>{t('subtitle')}</p>
+    <Page className={css.page}>
+      <div className={css.intro} data-started={step > 0 || undefined}>
+        <PageHero eyebrow={t('eyebrow')} title={t('headline')} lead={t('subtitle')} />
       </div>
 
-      {/* 3-column wizard */}
-      <div className='grid grid-cols-1 xl:grid-cols-[240px_minmax(0,1fr)_320px] gap-6 xl:gap-7 items-start'>
-        {/* Step rail */}
-        <aside data-testid='step-rail' className='hidden xl:flex flex-col gap-1.5 xl:sticky xl:top-28'>
-          {railItems.map((item, i) => {
-            const active = i === step;
-            const done = i < step;
-            return (
-              <button
-                key={item.id}
-                type='button'
-                onClick={() => gotoStep(i)}
-                aria-current={active}
-                className={`flex items-center gap-3 px-3.5 py-3 rounded-xl text-left transition-colors cursor-pointer ${
-                  active ? 'bg-ember-surface border border-ember-accent' : 'border border-transparent hover:bg-ember-surface'
-                }`}
-              >
-                <span
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                    active
-                      ? 'bg-ember-accent text-[#0a0705]'
-                      : done
-                        ? 'bg-[rgba(255,91,30,0.2)] text-ember-accent'
-                        : 'bg-ember-surface2 text-ember-muted'
-                  }`}
-                >
-                  {done ? '✓' : i + 1}
-                </span>
-                <span className='text-sm font-semibold text-ember-text'>{item.label}</span>
-              </button>
-            );
-          })}
-        </aside>
+      <Container className={css.layout}>
+        {/* Step rail (desktop) */}
+        <div data-testid='step-rail' className={css.rail}>
+          {railItems.map((item, i) => (
+            <button
+              key={item.id}
+              type='button'
+              onClick={() => gotoStep(i)}
+              aria-current={i === step ? 'step' : undefined}
+              data-state={i === step ? 'active' : i < step ? 'done' : 'todo'}
+              className={css.stop}
+            >
+              <span className={css.num} aria-hidden>
+                {i + 1}
+              </span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
 
         {/* Step body */}
-        <div
-          data-testid='step-body'
-          className='rounded-3xl border border-ember-border p-5 sm:p-8 bg-[linear-gradient(160deg,var(--surface2),var(--bg2))] min-h-[440px]'
-        >
-          <div className='xl:hidden text-sm text-ember-muted mb-3'>
-            {isResultStep ? t('step.result') : t('stepProgress', { current: step + 1, total: STEPS.length })}
-          </div>
-
-          <div className='h-1 rounded-full bg-ember-surface overflow-hidden mb-7'>
-            <div
-              className='h-full rounded-full bg-[linear-gradient(90deg,var(--accent),var(--accent2))] transition-[width] duration-500 ease-out'
-              style={{ width: `${progress}%` }}
-            />
+        <div data-testid='step-body' className={css.body}>
+          <p className={css.progress}>{isResultStep ? t('step.result') : t('stepProgress', { current: step + 1, total: STEPS.length })}</p>
+          <div className={css.bar} aria-hidden>
+            {STEPS.map((id, i) => (
+              <i key={id} data-on={i <= step || undefined} />
+            ))}
           </div>
 
           {isResultStep ? (
@@ -313,24 +290,16 @@ export default function Wizard() {
             <>
               {renderStep()}
 
-              <div className='hidden xl:flex justify-between items-center mt-8 pt-6 border-t border-ember-border'>
+              <div className={css.nav}>
                 {step > 0 ? (
-                  <button
-                    type='button'
-                    onClick={() => gotoStep(step - 1)}
-                    className='px-6 py-2.5 rounded-full border border-ember-border text-ember-text text-sm font-semibold hover:border-ember-accent transition-colors cursor-pointer'
-                  >
-                    ← {t('back')}
+                  <button type='button' onClick={() => gotoStep(step - 1)} className={buttonClass('secondary', css.back)}>
+                    <Arrow /> {t('back')}
                   </button>
                 ) : (
                   <span />
                 )}
-                <button
-                  type='button'
-                  onClick={() => gotoStep(step + 1)}
-                  className='px-7 py-2.5 rounded-full bg-ember-accent text-[#0a0705] font-bold text-sm hover:shadow-[0_0_28px_var(--glow)] transition-shadow cursor-pointer'
-                >
-                  {step === STEPS.length - 1 ? `${t('seeEstimate')} →` : `${t('next')} →`}
+                <button type='button' onClick={() => gotoStep(step + 1)} className={buttonClass()}>
+                  {step === STEPS.length - 1 ? t('seeEstimate') : t('next')} <Arrow />
                 </button>
               </div>
             </>
@@ -346,43 +315,36 @@ export default function Wizard() {
           available={available}
           setCurrency={setCurrency}
         />
-      </div>
+      </Container>
 
-      {/* Mobile sticky bottom bar: live range + primary action, always thumb-reachable */}
+      {/* Below 1280px, a fixed bottom bar: live range + primary action, always thumb-reachable */}
       {!isResultStep && (
-        <div
-          data-testid='mobile-bar'
-          className='xl:hidden fixed bottom-0 inset-x-0 z-40 border-t border-ember-border bg-[color:var(--surface)]/95 backdrop-blur px-4 py-3'
-        >
-          <div className='flex items-center justify-between gap-3 max-w-xl mx-auto'>
-            <div className='min-w-0'>
-              <div className='text-[11px] uppercase tracking-wide font-bold text-ember-muted'>{t('liveEstimate')}</div>
-              <div data-testid='live-range' className='font-display font-extrabold text-ember-accent text-lg leading-tight truncate'>
-                {format(estimate.cost.min)} – {format(estimate.cost.max)}
+        <div data-testid='mobile-bar' className={css.dock}>
+          <div className={css.dockInner}>
+            <div className={css.dockPrice}>
+              <div className={css.dockLabel}>{t('liveEstimate')}</div>
+              <div data-testid='live-range' className={css.dockRange}>
+                <span>{format(estimate.cost.min)} –</span> <span>{format(estimate.cost.max)}</span>
               </div>
             </div>
-            <div className='flex items-center gap-2 shrink-0'>
+            <div className={css.dockActions}>
               {step > 0 && (
                 <button
                   type='button'
                   onClick={() => gotoStep(step - 1)}
                   aria-label={t('back')}
-                  className='w-11 h-11 rounded-full border border-ember-border text-ember-text font-bold cursor-pointer'
+                  className={buttonClass('secondary', css.back)}
                 >
-                  ←
+                  <Arrow />
                 </button>
               )}
-              <button
-                type='button'
-                onClick={() => gotoStep(step + 1)}
-                className='px-5 h-11 rounded-full bg-ember-accent text-[#0a0705] font-bold text-sm cursor-pointer'
-              >
-                {step === STEPS.length - 1 ? t('seeEstimate') : t('next')} →
+              <button type='button' onClick={() => gotoStep(step + 1)} className={buttonClass()}>
+                {step === STEPS.length - 1 ? t('seeEstimate') : t('next')} <Arrow />
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </Page>
   );
 }

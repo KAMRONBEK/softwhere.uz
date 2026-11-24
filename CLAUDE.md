@@ -38,7 +38,7 @@ Import direction is one-way: `core → shared → modules → app`. Enforced by 
 | `modules` | `src/modules/*/**` | `core`, `shared`, and **its own module only** — features (`blog`, `estimator`, `admin`, `contact`). One module must not import another. |
 | `app` | `src/app/**` | anything (`core`, `shared`, `module`, `app`) — thin route handlers & pages |
 
-Rule severity is **`warn`**, not `error`, so `yarn lint` reports 0 errors while surfacing known pre-existing couplings (e.g. `shared/components/Header` reaches into `modules/blog` for the language switcher). Do not add new violations; the plan is to remove the remaining ones and promote to `error`. Details and tracked exceptions: `docs/architecture.md`.
+Rule severity is **`warn`**, not `error`, so `yarn lint` reports 0 errors while surfacing known pre-existing couplings (e.g. `core/db.ts` imports the modules' schemas). Do not add new violations; the plan is to remove the remaining ones and promote to `error`. Details and tracked exceptions: `docs/architecture.md`.
 
 ## AI provider chain (important nuance)
 

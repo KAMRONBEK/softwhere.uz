@@ -4,19 +4,17 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
 import { buildOgUrl } from '@/core/og';
+import { Arrow, ButtonLink, CtaBand, Page, Section } from '@/shared/components/site';
 import { SERVICE_NAMESPACES, SERVICE_SLUGS } from '@/shared/data/services';
 import { safeJsonLd } from '@/shared/utils/security';
+import { HalftoneGlyph } from './_components/HalftoneGlyph';
+import { splitRange } from './_components/PriceTable';
+import { ServiceHero } from './_components/ServiceHero';
+import css from './services.module.css';
 
 // The /services hub: one card per service landing page, plus the work that has
 // no landing page yet (CRM/ERP, AI on documents), which links to the estimator.
-// Same layout and card styles as services/[service]/page.tsx.
 const MORE_KEYS = ['crm', 'ai'] as const;
-
-const CARD_CLASS =
-  'bg-ember-surface rounded-lg border border-ember-border p-5 relative transition-colors hover:border-ember-accent focus-within:border-ember-accent';
-/** The card's title link covers the whole card (a stretched link), so the card itself is the tap target. */
-const CARD_LINK_CLASS = "underline-offset-4 hover:underline after:absolute after:inset-0 after:content-['']";
-const H2_CLASS = 'text-2xl font-bold font-display tracking-tight text-ember-text mb-6';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = (await params) as { locale: Locale };
@@ -85,78 +83,72 @@ export default async function ServicesHubPage({ params }: { params: Promise<{ lo
     },
   ];
 
+  const actions = (
+    <>
+      <ButtonLink href={`/${locale}/estimator`}>{t('common.estimateCta')}</ButtonLink>
+      <ButtonLink variant='secondary' href={`/${locale}#contact`}>
+        {t('common.contactCta')}
+      </ButtonLink>
+    </>
+  );
+
   return (
-    <main className='page-layout' style={{ backgroundColor: 'var(--bg)' }}>
+    <Page>
       {schemas.map((schema, i) => (
         <script key={i} type='application/ld+json' dangerouslySetInnerHTML={{ __html: safeJsonLd(schema) }} />
       ))}
-      <div className='container py-20'>
-        <div className='max-w-4xl mx-auto'>
-          <header className='mb-12'>
-            <h1 className='text-4xl md:text-5xl font-bold font-display text-ember-text leading-tight tracking-tight mb-5'>
-              {t('index.h1')}
-            </h1>
-            <p className='text-ember-muted text-lg leading-8 max-w-3xl'>{t('index.intro')}</p>
-          </header>
+      <ServiceHero title={t('index.h1')} lead={t('index.intro')} glyph='mark' actions={actions} />
 
-          <section className='mb-12 grid grid-cols-1 md:grid-cols-3 gap-4'>
-            {SERVICE_SLUGS.map(slug => {
-              const ns = SERVICE_NAMESPACES[slug];
-              return (
-                <div key={slug} className={CARD_CLASS}>
-                  <h2 className='text-xl font-semibold font-display text-ember-text mb-2'>
-                    <Link href={`/${locale}/services/${slug}`} className={CARD_LINK_CLASS}>
+      <Section>
+        <ul className={css.index}>
+          {SERVICE_SLUGS.map(slug => {
+            const ns = SERVICE_NAMESPACES[slug];
+            const [price, dollars] = splitRange(t(`${ns}.price1Range`));
+            return (
+              <li key={slug} className={css.service}>
+                <div className={css.serviceCopy}>
+                  <h2 className={css.serviceTitle}>
+                    <Link href={`/${locale}/services/${slug}`} className={css.link}>
                       {t(`${ns}.h1`)}
-                      <span aria-hidden='true' className='text-ember-accent'>
-                        {'\u00A0'}→
-                      </span>
                     </Link>
                   </h2>
-                  <p className='text-ember-muted text-sm leading-6'>{t(`${ns}.intro`)}</p>
+                  <p className={css.serviceText}>{t(`${ns}.intro`)}</p>
                 </div>
-              );
-            })}
-          </section>
-
-          <section className='mb-12'>
-            <h2 className={H2_CLASS}>{t('index.moreTitle')}</h2>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {MORE_KEYS.map(key => (
-                <div key={key} className={CARD_CLASS}>
-                  <h3 className='font-semibold font-display text-ember-text mb-2'>
-                    <Link href={`/${locale}/estimator`} className={CARD_LINK_CLASS}>
-                      {t(`index.${key}Title`)}
-                      <span aria-hidden='true' className='text-ember-accent'>
-                        {'\u00A0'}→
-                      </span>
-                    </Link>
-                  </h3>
-                  <p className='text-ember-muted text-sm leading-6'>{t(`index.${key}Desc`)}</p>
+                <HalftoneGlyph name={slug} className={css.serviceGlyph} />
+                <div className={css.facts}>
+                  <p className={css.fact}>
+                    {t(`${ns}.price1Name`)} <strong>{price}</strong> {dollars}
+                  </p>
+                  <Arrow className={css.arrow} />
                 </div>
-              ))}
-            </div>
-          </section>
+              </li>
+            );
+          })}
+        </ul>
+      </Section>
 
-          <section className='bg-ember-surface rounded-lg border border-ember-border p-8 text-center'>
-            <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-3'>{t('common.ctaTitle')}</h2>
-            <p className='text-ember-muted mb-6'>{t('common.ctaBody')}</p>
-            <div className='flex flex-wrap justify-center gap-4'>
-              <Link
-                href={`/${locale}/estimator`}
-                className='!bg-ember-accent !text-[#0a0705] font-bold !rounded-full px-6 py-3 inline-block'
-              >
-                {t('common.estimateCta')}
-              </Link>
-              <Link
-                href={`/${locale}#contact`}
-                className='border border-ember-border text-ember-text font-semibold rounded-full px-6 py-3 inline-block hover:opacity-70'
-              >
-                {t('common.contactCta')}
-              </Link>
-            </div>
-          </section>
-        </div>
-      </div>
-    </main>
+      <Section heading={t('index.moreTitle')}>
+        <ul className={css.moreGrid}>
+          {MORE_KEYS.map(key => (
+            <li key={key} className={css.more}>
+              <div>
+                <h3 className={css.moreTitle}>
+                  <Link href={`/${locale}/estimator`} className={css.link}>
+                    {t(`index.${key}Title`)}
+                  </Link>
+                </h3>
+                <p className={css.text}>{t(`index.${key}Desc`)}</p>
+                <Arrow className={css.arrow} />
+              </div>
+              <HalftoneGlyph name={key} className={css.moreGlyph} />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section>
+        <CtaBand title={t('common.ctaTitle')} body={t('common.ctaBody')} actions={actions} />
+      </Section>
+    </Page>
   );
 }

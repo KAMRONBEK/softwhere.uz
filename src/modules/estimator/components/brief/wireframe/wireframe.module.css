@@ -56,7 +56,7 @@
   border: 1px solid var(--wf-line);
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--wf-ink) 3%, transparent) inset,
-    0 34px 70px -38px rgba(0, 0, 0, 0.55);
+    0 34px 70px -38px var(--ab-shadow, rgba(0, 0, 0, 0.55));
   color: var(--wf-text);
   line-height: 1.3;
 }

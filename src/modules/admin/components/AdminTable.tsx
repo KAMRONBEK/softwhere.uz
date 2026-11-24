@@ -7,7 +7,7 @@ interface AdminTableProps {
 }
 
 export const AdminTable: React.FC<AdminTableProps> = ({ headers, children, className = '' }) => (
-  <div className={`bg-ember-surface border border-ember-border rounded-xl shadow-lg overflow-hidden ${className}`}>
+  <div className={`bg-ember-surface border border-ember-border rounded-[var(--radius)] overflow-hidden ${className}`}>
     <div className='overflow-x-auto'>
       <table className='min-w-full divide-y divide-ember-border'>
         <thead className='bg-ember-surface2'>

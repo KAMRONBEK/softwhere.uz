@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent } from 'react';
 import { prefetchStyleFonts } from '../theme/fontWarm';
 import { LAB_FONTS } from '../theme/fonts';
@@ -36,7 +37,7 @@ function StyleSwatch({ id }: { id: StyleId }) {
   const t = useTranslations('home.header.swatch');
   const { colors, fonts, type, radius } = LAB_STYLES[id];
   const face: CSSProperties = {
-    fontFamily: `var(${LAB_FONTS[fonts.display].cssVar}), var(${LAB_FONTS[fonts.body].cssVar})`,
+    fontFamily: `${LAB_FONTS[fonts.display].stack}, ${LAB_FONTS[fonts.body].stack}`,
     fontWeight: type.displayWeight,
     letterSpacing: type.displayTracking,
     fontSize: `calc(var(--swatch-type, 15px) * ${type.displayScale})`,
@@ -163,9 +164,11 @@ type NudgePhase = 'waiting' | 'shown' | 'done';
 /**
  * First visit only: a small "Try 4 looks" beside the trigger, after the hero
  * has entered, gone for good at the first scroll, a tap on it or any header
- * layer opening. Never for a visitor who has picked a look before.
+ * layer opening. Never for a visitor who has picked a look before, nor in the
+ * admin, where it would cover the section links under the bar.
  */
 function useFirstVisitNudge(isBusy: boolean): [boolean, () => void] {
+  const isAdmin = usePathname()?.split('/')[2] === 'admin';
   const [phase, setPhase] = useState<NudgePhase>('waiting');
   // A header layer opened (the picker, the menu): the visitor found their way; adjust during render, no effect.
   if (isBusy && phase !== 'done') setPhase('done');
@@ -173,7 +176,7 @@ function useFirstVisitNudge(isBusy: boolean): [boolean, () => void] {
   const dismiss = useCallback(() => setPhase('done'), []);
 
   useEffect(() => {
-    if (readSavedPick() || hasSeenNudge() || window.scrollY > NUDGE_SCROLL_PX) return;
+    if (isAdmin || readSavedPick() || hasSeenNudge() || window.scrollY > NUDGE_SCROLL_PX) return;
     const timer = setTimeout(() => {
       if (window.scrollY <= NUDGE_SCROLL_PX) setPhase(previous => (previous === 'waiting' ? 'shown' : previous));
     }, NUDGE_DELAY_MS);
@@ -188,7 +191,7 @@ function useFirstVisitNudge(isBusy: boolean): [boolean, () => void] {
       clearTimeout(timer);
       window.removeEventListener('scroll', onScroll);
     };
-  }, []);
+  }, [isAdmin]);
 
   // Remember it once it has been seen and dismissed; one that never showed may show next visit.
   const wasShown = useRef(false);
@@ -197,7 +200,7 @@ function useFirstVisitNudge(isBusy: boolean): [boolean, () => void] {
     if (phase === 'done' && wasShown.current) rememberNudgeSeen();
   }, [phase]);
 
-  return [phase === 'shown', dismiss];
+  return [phase === 'shown' && !isAdmin, dismiss];
 }
 
 interface ThemePickerProps {

@@ -8,25 +8,19 @@ interface AdminBadgeProps {
   className?: string;
 }
 
-export const AdminBadge: React.FC<AdminBadgeProps> = ({ children, variant = 'default', status, locale, className = '' }) => {
-  let badgeClasses = 'px-3 py-1 text-xs font-medium rounded-full';
+export const AdminBadge: React.FC<AdminBadgeProps> = ({ children, variant = 'default', status, className = '' }) => {
+  let badgeClasses = 'px-3 py-1 text-xs font-medium rounded-[var(--radius)]';
 
   if (variant === 'status') {
     if (status === 'published') {
-      badgeClasses += ' bg-[rgba(34,197,94,0.15)] text-green-400';
+      badgeClasses += ' bg-[color:color-mix(in_srgb,var(--accent)_14%,transparent)] text-ember-text';
     } else if (status === 'mixed') {
-      badgeClasses += ' bg-[rgba(249,115,22,0.15)] text-orange-400';
+      badgeClasses += ' border border-dashed border-[color:var(--border-strong)] text-ember-text';
     } else {
       badgeClasses += ' bg-ember-surface2 text-ember-muted border border-ember-border';
     }
   } else if (variant === 'locale') {
-    const localeColors = {
-      en: 'bg-[rgba(59,130,246,0.15)] text-blue-400',
-      ru: 'bg-[rgba(239,68,68,0.15)] text-red-400',
-      uz: 'bg-[rgba(34,197,94,0.15)] text-green-400',
-    };
-
-    badgeClasses += ` ${localeColors[locale || 'en']}`;
+    badgeClasses += ' font-mono bg-ember-surface text-ember-text border border-[color:var(--border-strong)]';
   } else {
     badgeClasses += ' bg-ember-surface2 text-ember-muted border border-ember-border';
   }

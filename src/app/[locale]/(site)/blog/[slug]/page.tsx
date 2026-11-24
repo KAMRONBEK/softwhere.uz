@@ -1,53 +1,22 @@
 import { cache, Suspense } from 'react';
-import { format } from 'date-fns';
-import type { Locale as DateFnsLocale } from 'date-fns';
-import { ru, uz } from 'date-fns/locale';
 import { Metadata } from 'next';
 import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import Image from 'next/image';
-import Link from 'next/link';
 import { notFound, permanentRedirect } from 'next/navigation';
-import TrackedCTALink from '@/shared/components/TrackedCTALink';
-import ReactMarkdown from 'react-markdown';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeSlug from 'rehype-slug';
-import remarkGfm from 'remark-gfm';
-import BlogChart from '@/modules/blog/components/BlogChart';
+import BlogArticle from '@/modules/blog/components/BlogArticle';
 import BlogPostClient from '@/modules/blog/components/BlogPostClient';
-import { parseQuickChartSrc } from '@/modules/blog/utils/chart';
+import PostCard from '@/modules/blog/components/PostCard';
+import PostGrid from '@/modules/blog/components/PostGrid';
 import { resolveLegacyAlias } from '@/modules/blog/model/legacy-aliases';
 import * as postsRepo from '@/modules/blog/model/posts.repository';
+import { Section } from '@/shared/components/site';
 import { CoverImage } from '@/shared/types';
 import { validateLocale } from '@/core/auth';
 import { logger } from '@/core/logger';
 import { buildOgUrl } from '@/core/og';
 import { getSlugRoot } from '@/shared/utils/slug';
 import { ENV, BLOG_CONFIG, OG_LOCALE } from '@/core/constants';
-import { BlogPost, BlogPostSchema, extractDescription, getKeywords, PILLAR_LABELS } from '@/modules/blog/lib/seo';
-import { jetbrainsMono } from '@/shared/fonts';
-
-// Routes a post's pillar to the commercial page that answers it, so every post
-// in a mapped category emits one in-body link to a real service page. Before
-// this, the only site-wide links to /services/* were footer boilerplate, and
-// Googlebot left all six service URLs "Discovered - currently not indexed".
-//
-// Only confident mappings are listed: an off-topic link is worth less than no
-// link, since anchor relevance is the whole point. Categories left out
-// (ai-solutions, maintenance-support, ui-ux-design, cybersecurity,
-// project-rescue, outsourcing) keep the original #contact CTA.
-type ServiceLinkKey = 'link_webDevelopment' | 'link_mobileApps' | 'link_telegramBots';
-
-const SERVICE_BY_CATEGORY: Record<string, { slug: string; labelKey: ServiceLinkKey }> = {
-  'mobile-app-development': { slug: 'mobile-apps', labelKey: 'link_mobileApps' },
-  'web-app-development': { slug: 'web-development', labelKey: 'link_webDevelopment' },
-  'telegram-bot-development': { slug: 'telegram-bots', labelKey: 'link_telegramBots' },
-  'business-automation': { slug: 'telegram-bots', labelKey: 'link_telegramBots' },
-  ecommerce: { slug: 'web-development', labelKey: 'link_webDevelopment' },
-  'saas-development': { slug: 'web-development', labelKey: 'link_webDevelopment' },
-  'crm-development': { slug: 'web-development', labelKey: 'link_webDevelopment' },
-  'mvp-startup': { slug: 'web-development', labelKey: 'link_webDevelopment' },
-};
+import { BlogPost, BlogPostSchema, extractDescription, getKeywords } from '@/modules/blog/lib/seo';
 
 // ISR: prerender every published post at build time, cache indefinitely.
 //
@@ -86,8 +55,6 @@ interface PostLocaleSlug {
   slug: string;
   locale: 'en' | 'ru' | 'uz';
 }
-
-const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
 
 // Returns null ONLY when the query succeeds and finds no document (genuine
 // 404). A DB/infra error is rethrown so the route returns 500 instead of a
@@ -323,44 +290,14 @@ async function RelatedPosts({ category, currentId, locale }: { category?: string
   const t = await getTranslations('blog');
 
   return (
-    <section className='mt-12'>
-      <h2 className='text-2xl font-bold font-display tracking-tight text-ember-text mb-6'>{t('relatedArticles')}</h2>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+    <Section id='related-articles' heading={t('relatedArticles')}>
+      <PostGrid>
         {relatedPosts.map(rp => (
-          <Link
-            key={rp.slug}
-            href={`/${locale}/blog/${rp.slug}`}
-            className='bg-ember-surface rounded-lg shadow border border-ember-border overflow-hidden hover:shadow-md transition-shadow'
-          >
-            {rp.coverImage?.thumbUrl ? (
-              <div className='relative h-40'>
-                <Image src={rp.coverImage.thumbUrl} alt={rp.title} fill className='object-cover' sizes='(max-width: 768px) 100vw, 33vw' />
-              </div>
-            ) : (
-              <div
-                className='h-40 flex items-center justify-center'
-                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))' }}
-              >
-                <span className='text-[#0a0705] text-4xl font-bold'>{rp.title.charAt(0)}</span>
-              </div>
-            )}
-            <div className='p-4'>
-              <h3 className='font-semibold font-display text-ember-text line-clamp-2'>{rp.title}</h3>
-            </div>
-          </Link>
+          <PostCard key={rp.slug} title={rp.title} slug={rp.slug} locale={locale} coverImage={rp.coverImage} />
         ))}
-      </div>
-    </section>
+      </PostGrid>
+    </Section>
   );
-}
-
-// Does this markdown node contain an <img> at any depth? Used to keep the
-// image/chart <figure> out of a <p>, which is invalid HTML.
-function containsImage(node: unknown): boolean {
-  const el = node as { type?: string; tagName?: string; children?: unknown[] } | undefined;
-  if (!el) return false;
-  if (el.type === 'element' && el.tagName === 'img') return true;
-  return Array.isArray(el.children) && el.children.some(containsImage);
 }
 
 // ---------------------------------------------------------------------------
@@ -371,10 +308,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const { locale, slug } = (await params) as { locale: Locale; slug: string };
   setRequestLocale(locale);
   const post = await getBlogPost(slug, locale);
-  const t = await getTranslations('blog');
-  const tCat = await getTranslations('blog.categories');
-  const tSvc = await getTranslations('servicePages.common');
-  const tNav = await getTranslations('header');
 
   if (!post) {
     // Recover legacy/renamed URLs with a 308 before 404ing.
@@ -395,17 +328,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
     permanentRedirect(`/${target.locale}/blog/${encodeURIComponent(target.slug)}`);
   }
 
-  const relatedService = post.category ? SERVICE_BY_CATEGORY[post.category] : undefined;
-
-  // RU/UZ read day-first ('3 июля 2026'); 'MMMM dd, yyyy' is English-only order.
-  const formattedDate = format(new Date(post.createdAt), locale === 'en' ? 'MMMM dd, yyyy' : 'd MMMM yyyy', {
-    locale: DATE_LOCALES[locale],
-  });
   const readingTime = Math.ceil(post.content.split(/\s+/).length / 200);
-  // Generated posts open with '# <title>' duplicating the page <h1> above the
-  // article (two stacked H1s, often with diverging wording). Strip only that
-  // first leading H1 line; section headings are already H2+.
-  const articleMarkdown = post.content.replace(/^\s*#\s+.*(\r?\n|$)/, '');
 
   return (
     <BlogPostClient
@@ -414,323 +337,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
       readingTime={readingTime}
     >
       <BlogPostSchema post={post} />
-
-      <div className={`page-layout min-h-screen ${jetbrainsMono.variable}`} style={{ backgroundColor: 'var(--bg)' }}>
-        {/* Breadcrumbs */}
-        <nav className='bg-ember-surface border-b border-ember-border' aria-label='Breadcrumb'>
-          <div className='container py-4'>
-            <ol className='flex items-center space-x-2 text-sm text-ember-muted'>
-              <li>
-                <Link href={`/${locale}`} className='hover:text-ember-accent transition-colors'>
-                  {tNav('home')}
-                </Link>
-              </li>
-              <li>›</li>
-              <li>
-                <Link href={`/${locale}/blog`} className='hover:text-ember-accent transition-colors'>
-                  {tNav('blog')}
-                </Link>
-              </li>
-              <li>›</li>
-              <li className='text-ember-text truncate max-w-xs'>{post.title}</li>
-            </ol>
-          </div>
-        </nav>
-
-        {/* Header with navigation */}
-        <header className='bg-ember-surface border-b border-ember-border sticky top-0 z-10 shadow-sm'>
-          <div className='container py-4'>
-            <Link
-              href={`/${locale}/blog`}
-              className='inline-flex items-center text-ember-muted hover:text-ember-accent transition-colors duration-300 font-medium'
-            >
-              <svg className='w-5 h-5 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>
-              </svg>
-              {t('backToBlog')}
-            </Link>
-          </div>
-        </header>
-
-        {/* Hero cover image */}
-        {post.coverImage?.url && (
-          <div className='relative w-full h-64 md:h-96'>
-            <Image
-              src={post.coverImage.url}
-              alt={post.title}
-              fill
-              priority
-              className='object-cover'
-              sizes='(max-width: 768px) 100vw, 1280px'
-            />
-            <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent' />
-            <span className='absolute bottom-3 right-4 text-xs text-white/80 bg-black/30 px-2 py-1 rounded'>
-              Photo by{' '}
-              <a
-                href={`${post.coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='underline'
-              >
-                {post.coverImage.authorName}
-              </a>
-              {' on '}
-              <a
-                href='https://unsplash.com?utm_source=softwhere&utm_medium=referral'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='underline'
-              >
-                Unsplash
-              </a>
-            </span>
-          </div>
-        )}
-
-        {/* Main content */}
-        <main className='container py-12'>
-          <div className='bg-ember-surface rounded-xl shadow-lg border border-ember-border overflow-hidden'>
-            <article className='p-8 md:p-12'>
-              {/* Article header */}
-              <header className='mb-12 text-center'>
-                <h1 className='text-4xl md:text-5xl font-bold font-display text-ember-text mb-8 leading-tight tracking-tight'>
-                  {post.title}
-                </h1>
-                <div className='flex items-center justify-center flex-wrap gap-4 text-ember-muted text-sm font-medium'>
-                  <time dateTime={post.createdAt} className='flex items-center'>
-                    <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
-                      ></path>
-                    </svg>
-                    {formattedDate}
-                  </time>
-                  <span className='flex items-center'>
-                    <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth='2'
-                        d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
-                      ></path>
-                    </svg>
-                    {readingTime} {t('readingTime')}
-                  </span>
-                  <span className='px-3 py-1 bg-ember-accent text-[#0a0705] text-xs font-semibold rounded-full'>
-                    {post.locale.toUpperCase()}
-                  </span>
-                  {post.category && PILLAR_LABELS[post.category] && (
-                    <span className='px-3 py-1 bg-ember-surface2 text-ember-muted text-xs font-semibold rounded-full'>
-                      {(tCat as (k: string) => string)(post.category)}
-                    </span>
-                  )}
-                </div>
-              </header>
-
-              {/* Article content */}
-              <div className='prose prose-lg prose-gray dark:prose-invert prose-headings:font-display max-w-none'>
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  // rehype-slug gives headings stable ids so sections are
-                  // deep-linkable (#faq etc.); the custom heading components
-                  // must forward the id or the anchors are silently dropped.
-                  rehypePlugins={[rehypeSlug, rehypeHighlight]}
-                  components={{
-                    h1: ({ children, id }) => (
-                      <h1
-                        id={id}
-                        className='text-3xl md:text-4xl font-bold font-display text-ember-text mt-12 mb-6 leading-tight tracking-tight'
-                      >
-                        {children}
-                      </h1>
-                    ),
-                    h2: ({ children, id }) => (
-                      <h2
-                        id={id}
-                        className='text-2xl md:text-3xl font-bold font-display text-ember-text mt-10 mb-5 leading-tight tracking-tight'
-                      >
-                        {children}
-                      </h2>
-                    ),
-                    h3: ({ children, id }) => (
-                      <h3 id={id} className='text-xl md:text-2xl font-bold font-display text-ember-text mt-8 mb-4 leading-tight'>
-                        {children}
-                      </h3>
-                    ),
-                    p: ({ node, children }) => {
-                      // Markdown images are inline, so a `![…](…)` line arrives
-                      // wrapped in a paragraph — but our img override renders a
-                      // <figure> (and charts a whole card), which is invalid
-                      // inside <p> and triggers hydration errors. Use a styled
-                      // <div> for any paragraph containing an image. The search
-                      // is recursive: an image can sit under a link or emphasis
-                      // (`[![alt](src)](href)`), not just as a direct child.
-                      const Tag = containsImage(node) ? 'div' : 'p';
-                      return <Tag className='text-lg text-ember-text leading-relaxed mb-6 font-light'>{children}</Tag>;
-                    },
-                    ul: ({ children }) => <ul className='list-disc pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ul>,
-                    ol: ({ children }) => <ol className='list-decimal pl-6 mb-6 space-y-2 text-lg text-ember-text'>{children}</ol>,
-                    li: ({ children }) => <li className='leading-relaxed'>{children}</li>,
-                    blockquote: ({ children }) => (
-                      <blockquote className='border-l-4 border-ember-accent pl-6 py-2 my-8 bg-ember-surface italic text-lg text-ember-muted rounded-r-lg'>
-                        {children}
-                      </blockquote>
-                    ),
-                    code: ({ children }) => (
-                      <code className='bg-[#050302] border border-ember-border px-2 py-1 rounded text-sm font-mono text-ember-text'>
-                        {children}
-                      </code>
-                    ),
-                    pre: ({ children }) => (
-                      <pre className='bg-[#050302] border border-ember-border font-mono text-ember-text p-4 rounded-lg overflow-x-auto my-6'>
-                        {children}
-                      </pre>
-                    ),
-                    a: ({ href, children }) => {
-                      // Some generated posts emit locale-relative internal links
-                      // ('uz/estimator', 'en#contact') that resolve under the post
-                      // path and 404 — normalize them to absolute paths.
-                      const normalizedHref = href && /^(en|ru|uz)([/#]|$)/.test(href) ? `/${href}` : href;
-                      const isExternal = normalizedHref?.startsWith('http');
-                      return (
-                        <a
-                          href={normalizedHref}
-                          className='text-ember-accent hover:text-ember-accent2 underline transition-colors'
-                          target={isExternal ? '_blank' : undefined}
-                          // nofollow: AI-cited sources are often competitor agency
-                          // blogs — don't pass them link equity from every post.
-                          rel={isExternal ? 'nofollow noopener noreferrer' : undefined}
-                        >
-                          {children}
-                        </a>
-                      );
-                    },
-                    img: ({ src, alt }) => {
-                      // Stored charts are QuickChart PNG URLs (white background,
-                      // default Chart.js styling). Decode the config back out of
-                      // the URL and render a themed SVG/HTML chart instead; the
-                      // PNG stays as the fallback for anything unparseable.
-                      const chart = typeof src === 'string' ? parseQuickChartSrc(src) : null;
-                      if (chart) {
-                        return (
-                          <BlogChart
-                            chart={chart}
-                            caption={alt || ''}
-                            locale={locale}
-                            viewDataLabel={t('chart.viewData')}
-                            categoryLabel={t('chart.category')}
-                            valueLabel={t('chart.value')}
-                          />
-                        );
-                      }
-                      return (
-                        <figure className='my-8'>
-                          {/* The pipeline only emits Unsplash images (allow-listed in
-                            next.config), so serve them through next/image for AVIF/WebP
-                            + responsive sizing; keep a plain-<img> fallback for any
-                            other host (next/image would 400 on non-allow-listed hosts).
-                            The 16:9 wrapper reserves space to eliminate layout shift (CLS). */}
-                          <span className='relative block w-full overflow-hidden rounded-lg' style={{ aspectRatio: '16 / 9' }}>
-                            {typeof src === 'string' && src.startsWith('https://images.unsplash.com/') ? (
-                              <Image src={src} alt={alt || ''} fill className='object-cover' sizes='(max-width: 768px) 100vw, 768px' />
-                            ) : (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={src}
-                                alt={alt || ''}
-                                loading='lazy'
-                                decoding='async'
-                                className='absolute inset-0 h-full w-full object-cover'
-                              />
-                            )}
-                          </span>
-                          {alt && <figcaption className='text-center text-sm text-ember-muted mt-2'>{alt}</figcaption>}
-                        </figure>
-                      );
-                    },
-                    table: ({ children }) => (
-                      <div className='overflow-x-auto my-6'>
-                        <table className='min-w-full border-collapse border border-ember-border text-base'>{children}</table>
-                      </div>
-                    ),
-                    th: ({ children }) => (
-                      <th className='border border-ember-border bg-ember-surface2 px-4 py-2 text-left font-semibold text-ember-text'>
-                        {children}
-                      </th>
-                    ),
-                    td: ({ children }) => <td className='border border-ember-border px-4 py-2 text-ember-text'>{children}</td>,
-                  }}
-                >
-                  {articleMarkdown}
-                </ReactMarkdown>
-              </div>
-
-              {/* Call to Action */}
-              <div
-                className='mt-16 p-8 rounded-xl text-[#160a04]'
-                style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))' }}
-              >
-                <div className='text-center'>
-                  <h3 className='text-2xl font-bold mb-4'>{t('cta.title')}</h3>
-                  <p className='text-lg mb-6 max-w-2xl mx-auto opacity-90'>{t('cta.description')}</p>
-                  <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-                    {/* Primary CTA is the service page that answers this post's
-                        pillar; posts in an unmapped category keep #contact. */}
-                    <TrackedCTALink
-                      href={relatedService ? `/${locale}/services/${relatedService.slug}` : `/${locale}#contact`}
-                      type={relatedService ? 'service' : 'get_started'}
-                      slug={post.slug}
-                      className='inline-flex items-center px-6 py-3 bg-white text-ember-accent font-semibold rounded-lg hover:bg-gray-100 transition-colors duration-300'
-                    >
-                      {relatedService ? tSvc(relatedService.labelKey) : t('cta.getStarted')}
-                      <svg className='w-4 h-4 ml-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M9 5l7 7-7 7'></path>
-                      </svg>
-                    </TrackedCTALink>
-                    <TrackedCTALink
-                      href={`/${locale}/estimator`}
-                      type='estimate'
-                      slug={post.slug}
-                      className='inline-flex items-center px-6 py-3 bg-transparent text-[#160a04] font-semibold rounded-lg border-2 border-[#160a04] hover:bg-[#160a04] hover:text-[#ffe9dc] transition-colors duration-300'
-                    >
-                      {t('cta.estimate')}
-                    </TrackedCTALink>
-                    <TrackedCTALink
-                      href={`/${locale}#work-wall`}
-                      type='view_work'
-                      slug={post.slug}
-                      className='inline-flex items-center px-6 py-3 bg-transparent text-[#160a04] font-semibold rounded-lg border-2 border-[#160a04] hover:bg-[#160a04] hover:text-[#ffe9dc] transition-colors duration-300'
-                    >
-                      {t('cta.viewWork')}
-                    </TrackedCTALink>
-                  </div>
-                </div>
-              </div>
-            </article>
-          </div>
-
-          {/* Related Posts (streamed independently) */}
+      <BlogArticle
+        post={post}
+        readingTime={readingTime}
+        related={
           <Suspense>
             <RelatedPosts category={post.category} currentId={post._id} locale={post.locale} />
           </Suspense>
-
-          {/* Back to blog link */}
-          <div className='text-center mt-12'>
-            <Link
-              href={`/${locale}/blog`}
-              className='inline-flex items-center text-ember-accent hover:text-ember-accent2 font-semibold transition-colors duration-300'
-            >
-              <svg className='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M15 19l-7-7 7-7'></path>
-              </svg>
-              {t('readMoreArticles')}
-            </Link>
-          </div>
-        </main>
-      </div>
+        }
+      />
     </BlogPostClient>
   );
 }
