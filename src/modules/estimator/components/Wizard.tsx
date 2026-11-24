@@ -64,6 +64,8 @@ export default function Wizard() {
 
   const startedRef = useRef(false);
   const hydratedRef = useRef(false);
+  const shouldFocusResultRef = useRef(false);
+  const resultHeadingRef = useRef<HTMLHeadingElement>(null);
   const completedKeyRef = useRef('');
   const aiFetchKeyRef = useRef('');
   const aiAbortRef = useRef<AbortController | null>(null);
@@ -116,6 +118,13 @@ export default function Wizard() {
       /* storage full/blocked — persistence is best-effort */
     }
   }, [input, step, resultIndex]);
+
+  // The button that led here unmounts: keyboard and screen reader continue at the result (not on a restored session).
+  useEffect(() => {
+    if (!isResultStep || !shouldFocusResultRef.current) return;
+    shouldFocusResultRef.current = false;
+    resultHeadingRef.current?.focus({ preventScroll: true });
+  }, [isResultStep]);
 
   // AI refinement: fires when the user reaches the result; the formula range
   // is already on screen, so this is pure enrichment (never blocks the UX).
@@ -170,6 +179,7 @@ export default function Wizard() {
 
   const gotoStep = (i: number) => {
     setStep(i);
+    shouldFocusResultRef.current = i >= resultIndex;
     if (i >= resultIndex) {
       // Once per configuration — re-entering the result after "back" is not a
       // new completion.
@@ -179,7 +189,8 @@ export default function Wizard() {
         trackEvent('estimator_complete', { projectType: input.projectType, subtype: input.subtype, tier: input.tier, locale });
       }
     }
-    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: isReduced ? 'auto' : 'smooth' });
   };
 
   const handleReset = () => {
@@ -276,6 +287,7 @@ export default function Wizard() {
 
           {isResultStep ? (
             <ResultPanel
+              headingRef={resultHeadingRef}
               input={input}
               estimate={estimate}
               aiState={aiState}

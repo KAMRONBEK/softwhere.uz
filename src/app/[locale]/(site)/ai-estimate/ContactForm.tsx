@@ -28,6 +28,7 @@ export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState(false);
   const [nameError, setNameError] = useState(false);
+  const [messageError, setMessageError] = useState(false);
   const t = useTranslations('contact');
   const tM = useTranslations('toastMessage');
   // Nothing is sent until the visitor submits.
@@ -37,9 +38,12 @@ export default function ContactForm() {
     const isPhoneInvalid = phone.replace(/\D/g, '').length < 9;
     const isNameInvalid = name.trim() === '';
     setPhoneError(isPhoneInvalid);
+    const isMessageInvalid = message.trim() === '';
     setNameError(isNameInvalid);
-    if (!isPhoneInvalid && !isNameInvalid && message.trim() !== '') return true;
+    setMessageError(isMessageInvalid);
+    if (!isPhoneInvalid && !isNameInvalid && !isMessageInvalid) return true;
     toast.error(tM(isPhoneInvalid ? 'phoneNumber' : isNameInvalid ? 'name' : 'message'));
+    document.getElementById(isPhoneInvalid ? 'phone-input' : isNameInvalid ? 'name' : 'message')?.focus();
     return false;
   };
 
@@ -56,6 +60,7 @@ export default function ContactForm() {
       setMessage('');
       setPhoneError(false);
       setNameError(false);
+      setMessageError(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -133,15 +138,25 @@ export default function ContactForm() {
                 )}
               </div>
             </div>
-            <div className={css.field}>
+            <div className={css.field} data-invalid={messageError}>
               <label htmlFor='message'>{t('message')}</label>
               <textarea
                 value={message}
-                onChange={event => setMessage(event.target.value)}
+                onChange={event => {
+                  setMessage(event.target.value);
+                  if (messageError) setMessageError(false);
+                }}
                 id='message'
                 placeholder={t('messagePlaceholder')}
                 rows={5}
+                aria-invalid={messageError}
+                aria-describedby={messageError ? 'message-error' : undefined}
               />
+              {messageError && (
+                <span id='message-error' role='alert' className={css.error}>
+                  {tM('message')}
+                </span>
+              )}
             </div>
             <button className={buttonClass('primary', css.submit)} type='submit' disabled={isSubmitting}>
               {t('btn')}

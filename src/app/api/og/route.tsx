@@ -120,9 +120,9 @@ export async function GET(request: Request) {
       uz: 'Mobil ilovalar • Veb ishlab chiqish • Telegram botlar',
     };
 
-    // Subset covers every string the image renders.
+    // Subset covers every string the image renders, the clamp's ellipsis included.
     const subtitle = localizedSubtitle[locale as keyof typeof localizedSubtitle];
-    const renderedText = `${title} SoftWhere.uz ${subtitle}`;
+    const renderedText = `${title} SoftWhere.uz ${subtitle} …`;
     const [display, body, fallback] = await Promise.all([
       loadFontSubset(DISPLAY, 500, renderedText),
       loadFontSubset(BODY, 400, renderedText),

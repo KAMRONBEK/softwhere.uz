@@ -3,7 +3,7 @@
 import type { AiRefinement, EstimateResult, EstimatorInput } from '@/modules/estimator/types';
 import { Arrow, buttonClass } from '@/shared/components/site';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 import CurrencySwitcher, { type CurrencyCode } from './CurrencySwitcher';
 import LeadForm from './LeadForm';
 import css from './ResultPanel.module.css';
@@ -12,6 +12,7 @@ import { PriceRange, RangeScale } from './ui';
 export type AiState = { status: 'loading' } | { status: 'ready'; ai: AiRefinement } | { status: 'unavailable' };
 
 type Props = {
+  headingRef: RefObject<HTMLHeadingElement | null>;
   input: EstimatorInput;
   estimate: EstimateResult;
   aiState: AiState;
@@ -33,7 +34,18 @@ function ConfidenceBadge({ level }: { level: AiRefinement['confidence'] }) {
   return <span className={css.small}>{tx(`aiConfidence.${level}`)}</span>;
 }
 
-export default function ResultPanel({ input, estimate, aiState, format, currency, available, setCurrency, onBack, onReset }: Props) {
+export default function ResultPanel({
+  headingRef,
+  input,
+  estimate,
+  aiState,
+  format,
+  currency,
+  available,
+  setCurrency,
+  onBack,
+  onReset,
+}: Props) {
   const t = useTranslations('estimator');
   const tx = t as unknown as (key: string) => string;
   const [showBreakdown, setShowBreakdown] = useState(false);
@@ -42,7 +54,9 @@ export default function ResultPanel({ input, estimate, aiState, format, currency
     <div className={css.result}>
       <div>
         <p className={css.badge}>{t('resultBadge')}</p>
-        <h2 className={css.heading}>{t('resultHeading')}</h2>
+        <h2 ref={headingRef} tabIndex={-1} className={css.heading} style={{ outline: 'none' }}>
+          {t('resultHeading')}
+        </h2>
         <p className={css.sub}>{t('resultSub')}</p>
       </div>
 

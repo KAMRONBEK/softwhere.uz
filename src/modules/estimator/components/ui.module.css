@@ -534,3 +534,12 @@
     transform: none;
   }
 }
+
+/* High contrast drops fills and shadows: the pressed state gets an edge of its own. */
+@media (forced-colors: active) {
+  .card[aria-pressed='true'],
+  .option[aria-pressed='true'],
+  .pill[aria-pressed='true'] {
+    border: 3px solid Highlight;
+  }
+}

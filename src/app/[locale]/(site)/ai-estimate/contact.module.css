@@ -142,6 +142,7 @@
 }
 
 .field[data-invalid='true'] > input,
+.field[data-invalid='true'] > textarea,
 .field[data-invalid='true'] :global(.react-international-phone-input-container) {
   border-color: var(--accent) !important;
 }
