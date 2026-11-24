@@ -1,5 +1,7 @@
-import type { CSSProperties } from 'react';
+'use client';
+
 import Image from 'next/image';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import css from './blog.module.css';
 
 interface PostCoverProps {
@@ -10,6 +12,8 @@ interface PostCoverProps {
   seed: string;
   sizes: string;
   isPriority?: boolean;
+  /** The photo's credit: goes when the photo does. */
+  credit?: ReactNode;
 }
 
 function spot(seed: string): { x: number; y: number } {
@@ -19,12 +23,25 @@ function spot(seed: string): { x: number; y: number } {
 }
 
 /** A post card's picture. */
-export default function PostCover({ src, alt, seed, sizes, isPriority }: PostCoverProps) {
-  if (src) {
+export default function PostCover({ src, alt, seed, sizes, isPriority, credit }: PostCoverProps) {
+  // Unsplash authors delete photos: a dead one gets the halftone too.
+  const [failedSrc, setFailedSrc] = useState<string>();
+  if (src && src !== failedSrc) {
     return (
-      <div className={css.cover}>
-        <Image src={src} alt={alt} fill className={css.coverImage} sizes={sizes} priority={isPriority} />
-      </div>
+      <>
+        <div className={css.cover}>
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            className={css.coverImage}
+            sizes={sizes}
+            priority={isPriority}
+            onError={() => setFailedSrc(src)}
+          />
+        </div>
+        {credit}
+      </>
     );
   }
   const { x, y } = spot(seed);

@@ -1,13 +1,11 @@
 import type { ReactNode } from 'react';
-import { format } from 'date-fns';
-import type { Locale as DateFnsLocale } from 'date-fns';
-import { ru, uz } from 'date-fns/locale';
 import { getTranslations } from 'next-intl/server';
-import Image from 'next/image';
 import Link from 'next/link';
 import TrackedCTALink from '@/shared/components/TrackedCTALink';
 import { Arrow, Breadcrumbs, Container, CtaBand, Page, PageHero, Section, buttonClass } from '@/shared/components/site';
 import { type BlogPost, PILLAR_LABELS } from '../lib/seo';
+import { formatPostDate } from '../utils/postDate';
+import ArticleCover from './ArticleCover';
 import ArticleMarkdown from './ArticleMarkdown';
 import css from './article.module.css';
 
@@ -33,8 +31,6 @@ const SERVICE_BY_CATEGORY: Record<string, { slug: string; labelKey: ServiceLinkK
   'mvp-startup': { slug: 'web-development', labelKey: 'link_webDevelopment' },
 };
 
-const DATE_LOCALES: Record<string, DateFnsLocale> = { ru, uz };
-
 interface BlogArticleProps {
   post: BlogPost;
   readingTime: number;
@@ -52,10 +48,6 @@ export default async function BlogArticle({ post, readingTime, related }: BlogAr
 
   const relatedService = post.category ? SERVICE_BY_CATEGORY[post.category] : undefined;
 
-  // RU/UZ read day-first ('3 июля 2026'); 'MMMM dd, yyyy' is English-only order.
-  const formattedDate = format(new Date(post.createdAt), locale === 'en' ? 'MMMM dd, yyyy' : 'd MMMM yyyy', {
-    locale: DATE_LOCALES[locale],
-  });
   // Generated posts open with '# <title>' duplicating the page <h1> above the
   // article (two stacked H1s, often with diverging wording). Strip only that
   // first leading H1 line; section headings are already H2+.
@@ -77,7 +69,7 @@ export default async function BlogArticle({ post, readingTime, related }: BlogAr
           title={post.title}
           meta={
             <>
-              <time dateTime={post.createdAt}>{formattedDate}</time>
+              <time dateTime={post.createdAt}>{formatPostDate(post.createdAt, locale)}</time>
               <span>
                 {readingTime} {t('readingTime')}
               </span>
@@ -86,23 +78,7 @@ export default async function BlogArticle({ post, readingTime, related }: BlogAr
           }
         />
 
-        {post.coverImage?.url && (
-          <figure className={css.coverFigure}>
-            <div className={css.coverFrame}>
-              <Image src={post.coverImage.url} alt={post.title} fill priority sizes='(max-width: 1200px) 100vw, 1080px' />
-            </div>
-            <figcaption>
-              Photo by{' '}
-              <a href={`${post.coverImage.authorUrl}?utm_source=softwhere&utm_medium=referral`} target='_blank' rel='noopener noreferrer'>
-                {post.coverImage.authorName}
-              </a>
-              {' on '}
-              <a href='https://unsplash.com?utm_source=softwhere&utm_medium=referral' target='_blank' rel='noopener noreferrer'>
-                Unsplash
-              </a>
-            </figcaption>
-          </figure>
-        )}
+        {post.coverImage?.url && <ArticleCover key={post.slug} cover={post.coverImage} alt={post.title} />}
 
         <Container width='prose' className={css.body}>
           <ArticleMarkdown markdown={articleMarkdown} locale={locale} />
