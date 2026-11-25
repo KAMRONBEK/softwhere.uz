@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useId, useState } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
-import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import { nextFreeDay, timeFormatter } from './format';
 import css from './brief.module.css';
 
@@ -44,7 +44,7 @@ type DailyLimitProps = {
 export default function DailyLimit({ nextFreeAt, locale, onTalk }: DailyLimitProps) {
   const t = useTranslations('aiBrief.limit');
   const tRequest = useTranslations('aiBrief.request');
-  const isRequest = BRIEF_PRICE_MODE === 'request';
+  const isRequest = IS_PLAN_LAUNCHED;
   const headingId = useId();
 
   return (

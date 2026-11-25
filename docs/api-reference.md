@@ -412,9 +412,9 @@ Eval harness: `npx tsx scripts/eval-ai-brief.ts --chain` (production chains and 
 
 ### POST `/api/estimate/brief/request`
 
-`src/app/api/estimate/brief/request/route.ts` · 5 requests / min per IP · `404` unless `NEXT_PUBLIC_BRIEF_PRICE_MODE=request`
+`src/app/api/estimate/brief/request/route.ts` · 5 requests / min per IP · `404` unless `NEXT_PUBLIC_BRIEF_PRICE_MODE` is `from` or `request`
 
-In `request` mode the AI plan shows weeks and scope but no price (`ai-brief/publicBrief.ts` is the single exit; the page sends `contract: 2`, and a tab from an older deploy gets the number-free `discovery` shape). An `ok` result carries `requestToken`: idea, scope and engine price (`ai-brief/quote.ts`), AES-256-GCM sealed for 7 days. Nothing is stored before the visitor sends the request, and the price never comes from the browser. The repository is public, so this hides the price from the page; it is not a secret.
+In `request` mode the AI plan shows weeks and scope but no price; in `from` mode also the low end of the first version's range (`ai-brief/publicBrief.ts` is the single exit; the page sends `contract: 2`, and a tab from an older deploy gets the number-free `discovery` shape). An `ok` result carries `requestToken`: idea, scope and engine price (`ai-brief/quote.ts`), AES-256-GCM sealed for 7 days. Nothing is stored before the visitor sends the request, and the price never comes from the browser. The repository is public, so this hides the price from the page; it is not a secret.
 
 **Request body** — `{ "token"?, "idea"?, "name", "contact" (phone, Telegram or email), "comment"?, "locale", "website"? (honeypot) }`, 64KB. A missing, expired or forged token still saves the lead, idea only.
 

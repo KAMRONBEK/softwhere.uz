@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import TrackedCTALink from '@/shared/components/TrackedCTALink';
@@ -101,7 +102,7 @@ export default async function BlogArticle({ post, readingTime, related }: BlogAr
               >
                 {relatedService ? tSvc(relatedService.labelKey) : t('cta.getStarted')}
               </TrackedCTALink>
-              <TrackedCTALink href={`/${locale}/estimator`} type='estimate' slug={post.slug} className={buttonClass('secondary')}>
+              <TrackedCTALink href={`/${locale}${ESTIMATE_PATH}`} type='estimate' slug={post.slug} className={buttonClass('secondary')}>
                 {t('cta.estimate')}
               </TrackedCTALink>
               <TrackedCTALink href={`/${locale}#work-wall`} type='view_work' slug={post.slug} className={buttonClass('secondary')}>

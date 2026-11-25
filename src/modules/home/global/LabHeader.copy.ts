@@ -1,4 +1,5 @@
 import type { SectionId } from '../types';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 
 /**
  * The visitor header's structure: where each item jumps and which sections
@@ -62,11 +63,11 @@ export const BAR_PAGE_LINKS: readonly PageLink[] = PAGE_LINKS.filter(link => lin
 /**
  * The header on every other page (site/SiteShell.tsx). There the chapters are
  * links to the homepage, so the bar spends its width on the site's own pages:
- * "Free estimate" goes to the estimator itself and "Blog" takes the place of
+ * "Free estimate" goes to the estimate page itself and "Blog" takes the place of
  * "Working with us" (the sheet keeps every link).
  */
 export const SITE_BAR_LINKS: readonly HeaderLink[] = BAR_LINKS.filter(link => link.target !== 'process');
-export const SITE_ESTIMATOR: { target: LinkTarget; path: `/${string}` } = { target: 'ai-demo', path: '/estimator' };
+export const SITE_ESTIMATOR: { target: LinkTarget; path: `/${string}` } = { target: 'ai-demo', path: ESTIMATE_PATH };
 
 /** aria-current of a page link: the page itself, one below it (a service under Services, a post under Blog), or neither. */
 export function pageCurrent(pathname: string, href: string): 'page' | 'true' | undefined {

@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useEffect, useId, useRef } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
-import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { BRIEF_PRICE_MODE, IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import { isDiscoveryEstimate } from '@/modules/estimator/ai-brief/types';
 import BriefHead, { BriefContext } from './BriefHead';
 import { Method, PriceDrivers } from './BriefMethod';
@@ -81,8 +81,8 @@ type NextStepsProps = {
 /** "Plan another idea", or — once today's free brief is used — the step-by-step estimator. */
 function SecondaryAction({ locale, nextFreeAt, onNewIdea }: NextStepsProps) {
   const t = useTranslations('aiBrief');
-  // 'request' mode offers no estimator: the note under the band says when the next plan opens.
-  if (nextFreeAt !== null && BRIEF_PRICE_MODE === 'request') return null;
+  // Launched, the plan offers no estimator: the note under the band says when the next plan opens.
+  if (nextFreeAt !== null && IS_PLAN_LAUNCHED) return null;
   return nextFreeAt !== null ? (
     <Link href={`/${locale}/estimator`} className={css.secondaryButton}>
       {t('limit.estimator')}
@@ -160,7 +160,11 @@ export default function BriefResult({ state, locale, isCompact, nextFreeAt, full
 
   const talkButton = (
     <button type='button' className={css.primaryButton} onClick={onTalk}>
-      {BRIEF_PRICE_MODE === 'request' ? t('request.open') : isDiscovery ? t('cta.discoveryButton') : t('cta.button')}
+      {IS_PLAN_LAUNCHED && !isDiscovery
+        ? t(BRIEF_PRICE_MODE === 'from' ? 'from.open' : 'request.open')
+        : isDiscovery
+          ? t('cta.discoveryButton')
+          : t('cta.button')}
     </button>
   );
 
@@ -168,7 +172,7 @@ export default function BriefResult({ state, locale, isCompact, nextFreeAt, full
   const closing =
     isCompact && fullPlanHref ? (
       <FullPlanBand href={fullPlanHref} titleId={titleId} locale={locale} nextFreeAt={nextFreeAt} onNewIdea={onNewIdea} />
-    ) : BRIEF_PRICE_MODE === 'request' ? (
+    ) : IS_PLAN_LAUNCHED ? (
       <>
         <RequestForm idea={state.idea} requestToken={state.requestToken} locale={locale} isDiscovery={isDiscovery} />
         {nextFreeAt === null ? (

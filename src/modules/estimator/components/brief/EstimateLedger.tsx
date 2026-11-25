@@ -124,25 +124,42 @@ function DiscoveryCard({ estimate, action }: DiscoveryCardProps) {
 
 type PlanCardProps = { estimate: PlanEstimate; locale: BriefLocale; action?: ReactNode };
 
-/** 'request' mode: weeks and team; the price is the owner's answer, with the public from-prices one link away. */
+/** 'from' mode: the starting price, weeks and team. 'request' mode: no price, with the public from-prices one link away. */
 function PlanCard({ estimate, locale, action }: PlanCardProps) {
   const t = useTranslations('aiBrief.estimate');
   const tRequest = useTranslations('aiBrief.request');
   const tEstimator = useTranslations('estimator');
   const tx = tEstimator as unknown as (key: string) => string;
   const headingId = useId();
-  const { weeks, fullWeeks, extras, team } = estimate;
+  const tFrom = useTranslations('aiBrief.from');
+  const local = useCurrency();
+  const { weeks, fullWeeks, extras, team, fromUsd } = estimate;
+  const format = locale === 'en' ? usdFormatter(locale) : local.format;
+  const weeksText = t('weeks', { min: weeks.min, max: weeks.max });
 
   return (
     <aside className={`${css.ledger} ${css.reveal}`} aria-labelledby={headingId}>
       <h3 id={headingId} className={css.ledgerLabel}>
         {t('title')}
       </h3>
-      <p className={css.price}>{t('weeks', { min: weeks.min, max: weeks.max })}</p>
-      <p className={css.rangeNote}>{tRequest('priceNote')}</p>
-      <Link href={`/${locale}/services`} className={css.textLink}>
-        {tRequest('fromPrices')}
-      </Link>
+      {fromUsd ? (
+        <>
+          <p className={css.price}>{tFrom('price', { price: format(fromUsd) })}</p>
+          <p className={css.ledgerStat}>{weeksText}</p>
+          <p className={css.rangeNote}>{tFrom('priceNote')}</p>
+          {locale !== 'en' && (
+            <CurrencyPills label={tx('currencyLabel')} currency={local.currency} available={local.available} onChange={local.setCurrency} />
+          )}
+        </>
+      ) : (
+        <>
+          <p className={css.price}>{weeksText}</p>
+          <p className={css.rangeNote}>{tRequest('priceNote')}</p>
+          <Link href={`/${locale}/services`} className={css.textLink}>
+            {tRequest('fromPrices')}
+          </Link>
+        </>
+      )}
       {fullWeeks && (
         <div className={css.ledgerRow}>
           <span className={css.ledgerRowLabel}>{t('full')}</span>

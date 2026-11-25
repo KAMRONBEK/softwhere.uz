@@ -5,7 +5,7 @@ import { useId } from 'react';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { GENERIC_SUBTYPES } from '@/modules/estimator/ai-brief/constants';
-import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { BRIEF_PRICE_MODE, IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import { isDiscoveryEstimate, isPricedEstimate, type AiBrief, type BriefPreview } from '@/modules/estimator/ai-brief/types';
 import css from './brief.module.css';
 
@@ -55,6 +55,7 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
   const locale = useLocale();
   const { config, unpricedItems } = preview.estimate;
   const tRequest = useTranslations('aiBrief.request');
+  const tFrom = useTranslations('aiBrief.from');
   const isDiscovery = isDiscoveryEstimate(preview.estimate);
   const isPriced = isPricedEstimate(preview.estimate);
   const isMobile = config.projectType === 'mobile';
@@ -87,7 +88,15 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
       <h3 id={headingId} className={css.asideTitle}>
         {isDiscovery ? t('discovery.howTitle') : isPriced ? t('howTitle') : tRequest('howTitle')}
       </h3>
-      <p className={css.methodBody}>{isPriced ? t('howBody') : isDiscovery ? t('discovery.howBody') : tRequest('howBody')}</p>
+      <p className={css.methodBody}>
+        {isPriced
+          ? t('howBody')
+          : isDiscovery
+            ? t('discovery.howBody')
+            : BRIEF_PRICE_MODE === 'from'
+              ? tFrom('howBody')
+              : tRequest('howBody')}
+      </p>
       {!isDiscovery && (
         <dl className={css.config}>
           {rows.map(([label, value]) => (
@@ -128,8 +137,8 @@ export function Method({ preview, brief }: { preview: BriefPreview; brief: AiBri
           </ul>
         </div>
       )}
-      {/* The step-by-step estimator shows a price: it is not offered while the plan does not. */}
-      {BRIEF_PRICE_MODE === 'range' && (
+      {/* Once the plan is launched the step-by-step estimator is retired. */}
+      {!IS_PLAN_LAUNCHED && (
         <Link href={`/${locale}/estimator`} className={css.textLink}>
           {t('openEstimator')}
         </Link>

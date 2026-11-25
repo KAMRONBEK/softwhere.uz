@@ -4,7 +4,7 @@ import { logger } from '@/core/logger';
 import { getClientIp, rateLimit } from '@/shared/utils/rateLimit';
 import { createLeadOnce, markLeadNotified } from '@/modules/contact/model/leads.repository';
 import { deliverRequest, parsePlanRequest } from '@/modules/estimator/ai-brief/planRequest';
-import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 
 /**
  * POST /api/estimate/brief/request  { token?, idea?, name, contact, comment?, locale, website? }
@@ -12,7 +12,7 @@ import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
  * The visitor sends their AI plan and asks for a quote. The plan and the
  * engine's price come from the sealed token only; with a missing, expired or
  * forged token the lead is saved with the idea alone. 404 unless the site runs
- * in 'request' mode (`priceMode.ts`).
+ * outside 'range' mode (`priceMode.ts`).
  *
  *   200 { success: true, data: { plan: 'attached' | 'not_attached' } }
  *   400 invalid_input (+ field) · 413 too_large · 429 rate_limited · 503 not_stored
@@ -51,7 +51,7 @@ async function notifyTelegram(text: string): Promise<boolean> {
 }
 
 export async function POST(request: NextRequest) {
-  if (BRIEF_PRICE_MODE !== 'request') return fail(404, 'not_found');
+  if (!IS_PLAN_LAUNCHED) return fail(404, 'not_found');
   try {
     const { allowed, retryAfter } = rateLimit(`plan-request:${getClientIp(request)}`, RATE.count, RATE.windowMs);
     if (!allowed) return fail(429, 'rate_limited', undefined, { 'Retry-After': String(retryAfter) });

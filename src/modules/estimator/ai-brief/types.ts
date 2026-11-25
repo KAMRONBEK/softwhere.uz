@@ -189,11 +189,13 @@ export interface DiscoveryEstimate {
 }
 
 /**
- * A normal estimate as a page in 'request' mode gets it (`publicBrief.ts`):
- * weeks and scope, no price. Only the route makes it; the pipeline never does.
+ * A normal estimate as a page in 'from' or 'request' mode gets it
+ * (`publicBrief.ts`): weeks and scope, at most a starting price. Only the route makes it; the pipeline never does.
  */
 export interface PlanEstimate {
   mode: 'plan';
+  /** The first version's low end ('from' mode); null or absent when no price is shown. */
+  fromUsd?: number | null;
   config: EngineConfig;
   weeks: Range;
   /** With everything planned for later; null when there is no later scope. */

@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 import Link from 'next/link';
 import {
   useCallback,
@@ -210,7 +211,7 @@ export default function ContactPanel({ ref, meta, onLaunch, onTypingChange, isRe
             </div>
             <p className={css.estimate}>
               <span>{t('estimate.lead')}</span>{' '}
-              <Link href={`/${locale}/estimator`} className={css.estimateLink}>
+              <Link href={`/${locale}${ESTIMATE_PATH}`} className={css.estimateLink}>
                 {t('estimate.link')}
               </Link>
             </p>

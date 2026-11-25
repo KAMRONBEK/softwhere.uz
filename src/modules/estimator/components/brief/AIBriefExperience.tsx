@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { BRIEF_PRICE_MODE, IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import { isPricedEstimate } from '@/modules/estimator/ai-brief/types';
 import { prefillContactMessage } from '@/shared/utils/contactPrefill';
 import BriefFeedback from './BriefFeedback';
@@ -16,6 +16,8 @@ import type { BriefRunState } from './briefState';
 import { REQUEST_SECTION_ID } from './RequestForm';
 import { useBriefRun } from './useBriefRun';
 import css from './brief.module.css';
+
+const LEDE = ({ range: 'intro.lede', from: 'from.lede', request: 'request.lede' } as const)[BRIEF_PRICE_MODE];
 
 /** Bubbling event the lab's AI section listens for: 'idle' | 'thinking' | 'done'. */
 export const AI_BRIEF_STATUS_EVENT = 'ai-brief:status';
@@ -138,8 +140,8 @@ export default function AIBriefExperience({
   };
 
   const talk = () => {
-    // 'request' mode with a plan: its own form, which carries the plan (on /ai-estimate; the homepage shows a summary).
-    if (BRIEF_PRICE_MODE === 'request' && state.status === 'done') {
+    // Launched, with a plan: its own form, which carries the plan (on /ai-estimate; the homepage shows a summary).
+    if (IS_PLAN_LAUNCHED && state.status === 'done') {
       const form = document.getElementById(REQUEST_SECTION_ID);
       if (!form) {
         router.push(`/${locale}/ai-estimate#${REQUEST_SECTION_ID}`);
@@ -179,7 +181,7 @@ export default function AIBriefExperience({
             <h1 className={isComposing ? css.heading : css.srOnly}>
               {t(BRIEF_PRICE_MODE === 'request' ? 'request.heading' : 'intro.heading')}
             </h1>
-            {isComposing && !isLimited && <p className={css.lede}>{t(BRIEF_PRICE_MODE === 'request' ? 'request.lede' : 'intro.lede')}</p>}
+            {isComposing && !isLimited && <p className={css.lede}>{t(LEDE)}</p>}
             {isComposing && opening}
           </div>
           {isComposing && <SampleSketch />}

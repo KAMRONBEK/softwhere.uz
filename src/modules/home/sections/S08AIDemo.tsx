@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { IS_PLAN_LAUNCHED } from '@/core/briefPriceMode';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { SectionHeading } from '../components/LabSection';
@@ -128,6 +129,7 @@ function useBriefStage(slotRef: RefObject<HTMLDivElement | null>): BriefStage {
 function EstimatorLink() {
   const t = useTranslations('home.ai-demo');
   const locale = useLocale();
+  if (IS_PLAN_LAUNCHED) return null;
   return (
     <p className={css.altRoute}>
       <span>{t('estimator.lead')}</span>{' '}

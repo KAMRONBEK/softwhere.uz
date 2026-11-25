@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useId, useState, type FormEvent } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
 import { parseContact } from '@/modules/estimator/ai-brief/contact';
+import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
 import { trackEvent } from '@/shared/utils/analytics';
 import css from './brief.module.css';
 
@@ -29,6 +30,8 @@ type Status = 'idle' | 'sending' | 'sent' | 'failed' | 'wait';
 /** "Send request": name, one contact and an optional comment; the plan travels in its sealed token. */
 export default function RequestForm({ idea, requestToken, locale, isDiscovery }: RequestFormProps) {
   const t = useTranslations('aiBrief.request');
+  const tFrom = useTranslations('aiBrief.from');
+  const tCta = useTranslations('aiBrief.cta');
   const baseId = useId();
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
@@ -90,7 +93,7 @@ export default function RequestForm({ idea, requestToken, locale, isDiscovery }:
     <section id={REQUEST_SECTION_ID} className={css.request} aria-labelledby={id('title')}>
       <div>
         <h3 id={id('title')} className={css.ctaTitle}>
-          {t('title')}
+          {isDiscovery ? tCta('discoveryTitle') : BRIEF_PRICE_MODE === 'from' ? tFrom('open') : t('title')}
         </h3>
         <p className={css.ctaBody}>{isDiscovery ? t('discoveryBody') : t('body')}</p>
       </div>

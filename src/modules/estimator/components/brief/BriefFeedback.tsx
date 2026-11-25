@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import type { BriefRunState } from './briefState';
 import css from './brief.module.css';
 
@@ -12,7 +12,7 @@ const RATE_LIMIT_MINUTES_SHOWN = 60;
 type BriefFeedbackProps = {
   state: BriefRunState;
   onRetry: () => void;
-  /** The contact form with the idea: the way forward that needs no AI ('request' mode). */
+  /** The contact form with the idea: the way forward that needs no AI (outside 'range' mode). */
   onTalk: () => void;
 };
 
@@ -25,7 +25,7 @@ export default function BriefFeedback({ state, onRetry, onTalk }: BriefFeedbackP
   const t = useTranslations('aiBrief.errors');
   const tRequest = useTranslations('aiBrief.request');
   const locale = useLocale();
-  const isRequest = BRIEF_PRICE_MODE === 'request';
+  const isRequest = IS_PLAN_LAUNCHED;
   const estimatorLink = isRequest ? (
     <button type='button' className={css.secondaryButton} onClick={onTalk}>
       {tRequest('sendIdea')}

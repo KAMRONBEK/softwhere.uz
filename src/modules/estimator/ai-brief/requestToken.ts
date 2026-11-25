@@ -23,6 +23,8 @@ export interface SealedPlan {
   /** Reasons a very large idea needs a discovery call. */
   discovery: string[];
   quote: OwnerQuote;
+  /** The starting price the visitor saw, USD. */
+  shownFrom: number | null;
 }
 
 export const REQUEST_TOKEN_TTL_MS = 7 * 24 * 60 * 60_000;

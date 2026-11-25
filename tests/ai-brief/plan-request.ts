@@ -25,7 +25,7 @@ import {
   type RequestDeps,
 } from '../../src/modules/estimator/ai-brief/planRequest';
 import { parsePriceMode } from '../../src/modules/estimator/ai-brief/priceMode';
-import { publicOutcome, publicProgress, type Audience } from '../../src/modules/estimator/ai-brief/publicBrief';
+import { hideSavedPrice, publicOutcome, publicProgress, shownFrom, type Audience } from '../../src/modules/estimator/ai-brief/publicBrief';
 import { ownerQuote } from '../../src/modules/estimator/ai-brief/quote';
 import { openPlan, REQUEST_TOKEN_TTL_MS, sealPlan } from '../../src/modules/estimator/ai-brief/requestToken';
 import { encodeBriefEvent } from '../../src/modules/estimator/ai-brief/stream';
@@ -97,6 +97,7 @@ function runOf(locale: BriefLocale, idea = IDEA): BriefRun {
 
 const RANGE: Audience = { mode: 'range', knowsPlan: true };
 const REQUEST: Audience = { mode: 'request', knowsPlan: true };
+const FROM: Audience = { mode: 'from', knowsPlan: true };
 const OLD_TAB: Audience = { mode: 'request', knowsPlan: false };
 const PRICE_KEYS = /"(?:price|basis|drivers|confidence|hours|rate|quote|cost|currency)"/;
 
@@ -104,6 +105,7 @@ const PRICE_KEYS = /"(?:price|basis|drivers|confidence|hours|rate|quote|cost|cur
 s.group('price mode — off unless asked for');
 for (const value of [undefined, '', 'range', 'Request', 'none']) s.eq(`"${value}" is range`, parsePriceMode(value), 'range');
 s.eq('"request" is request', parsePriceMode('request'), 'request');
+s.eq('"from" is from', parsePriceMode('from'), 'from');
 {
   const build = (env: Record<string, string>) =>
     spawnSync(process.execPath, ['-e', "import('./next.config.mjs').then(()=>process.exit(0),()=>process.exit(3))"], {
@@ -111,6 +113,7 @@ s.eq('"request" is request', parsePriceMode('request'), 'request');
       env: { ...process.env, BRIEF_TOKEN_SECRET: '', ...env },
     }).status;
   s.eq('a request build without the secret is refused', build({ NEXT_PUBLIC_BRIEF_PRICE_MODE: 'request' }), 3);
+  s.eq('so is a from build', build({ NEXT_PUBLIC_BRIEF_PRICE_MODE: 'from' }), 3);
   s.eq('with a secret it builds', build({ NEXT_PUBLIC_BRIEF_PRICE_MODE: 'request', BRIEF_TOKEN_SECRET: SECRET }), 0);
   s.eq('a range build needs none', build({ NEXT_PUBLIC_BRIEF_PRICE_MODE: 'range' }), 0);
 }
@@ -144,6 +147,25 @@ for (const locale of ['uz', 'ru', 'en'] as const) {
   const weeks = shown.status === 'ok' && shown.brief.estimate.mode === 'plan' ? shown.brief.estimate.weeks : null;
   s.eq(`${locale}: a plan keeps its weeks`, weeks, run.quote?.mvp.weeks);
   s.eq(`${locale}: an old tab gets the discovery shape`, old.status === 'ok' && old.brief.estimate.mode, 'discovery');
+  const from = publicOutcome(run.outcome, FROM);
+  const q = run.quote?.mvp;
+  const low = locale === 'en' ? q?.en.min : q?.local.min;
+  s.eq(`${locale}, from: the low end of this page's range`, shownFrom(from), low);
+  const fromWire =
+    encodeBriefEvent({ type: 'progress', progress: publicProgress(scoped, FROM) }) + encodeBriefEvent({ type: 'result', data: from });
+  s.ok(`${locale}, from: no other price key`, !PRICE_KEYS.test(fromWire), fromWire.match(PRICE_KEYS)?.[0]);
+  const others = [run.quote?.mvp, run.quote?.full]
+    .flatMap(x => (x ? [x.local.min, x.local.max, x.en.min, x.en.max] : []))
+    .filter(n => n !== low);
+  s.ok(
+    `${locale}, from: no other engine price`,
+    others.every(n => !fromWire.split(/\D+/).includes(String(n)))
+  );
+  s.eq(`${locale}, from: an old tab gets no price`, shownFrom(publicOutcome(run.outcome, { mode: 'from', knowsPlan: false })), null);
+  if (from.status === 'ok') {
+    const saved = (mode: 'from' | 'request') => shownFrom({ ...from, brief: hideSavedPrice(from.brief, mode) });
+    s.eq(`${locale}: a saved starting price stays in from, goes in request`, [saved('from'), saved('request')], [low, null]);
+  }
   s.eq(`${locale}: the pipeline's brief is untouched`, brief.estimate.mode, 'priced');
 }
 
@@ -265,6 +287,9 @@ s.group("the owner's text");
       .join('\n')
       .includes('no engine price')
   );
+  s.ok('says the visitor saw no price', text.includes('Visitor saw no price'));
+  const sawFrom = parse({ ...BODY, token: planToken(runOf('ru'), 'ru', SECRET, NOW, 4200) });
+  s.ok('or the starting price they saw', ownerLines(sawFrom).join('\n').includes('Visitor saw: from $4,200'));
   const long = parse({ ...BODY, token: null, idea: '😀&<'.repeat(900), comment: '&'.repeat(1000), name: '&'.repeat(120) });
   s.ok('the Telegram text stays under the limit', ownerNotice(long, true, 'https://x/en/admin/leads').length < 4096);
   s.ok('a notice without a saved lead says so', ownerNotice(request, false, 'x').includes('NOT SAVED'));
@@ -350,6 +375,8 @@ function client() {
     hidden?.brief.estimate.mode === 'plan' && !PRICE_KEYS.test(JSON.stringify(hidden.brief))
   );
   s.eq('the token survives', hidden?.requestToken, token);
+  const fromSaved = loadBrief(store, 'ru', NOW, 'from')?.brief.estimate;
+  s.eq('from: it keeps the low end', fromSaved?.mode === 'plan' && fromSaved.fromUsd, run.quote?.mvp.local.min);
   const started = briefReducer(INITIAL_BRIEF_STATE, { type: 'start', idea: IDEA, at: 1 });
   const done = briefReducer(started, { type: 'event', event: { type: 'result', data: run.outcome, requestToken: token }, at: 2 });
   s.eq('the result carries the token', done.requestToken, token);

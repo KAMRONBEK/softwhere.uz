@@ -58,3 +58,13 @@ yarn db:push       # push schema changes to Neon (no migration files)
 yarn db:generate   # generate SQL migration files under drizzle/
 yarn db:studio     # open Drizzle Studio
 ```
+
+## Lead retention (manual)
+
+The privacy policy promises that a request is removed 12 months after the last contact unless it became a project. Nothing does this automatically. About once a month, list the old leads, keep active clients and anyone contacted since, and remove the rest by id:
+
+```sql
+SELECT id, created_at, name, source FROM leads WHERE created_at < now() - interval '12 months' ORDER BY created_at;
+```
+
+A removal request from a visitor covers the Telegram message too.

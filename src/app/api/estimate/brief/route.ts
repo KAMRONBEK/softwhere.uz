@@ -11,7 +11,7 @@ import { BRIEF_LOCALES, MAX_IDEA_CHARS, type BriefLocale } from '@/modules/estim
 import { runBrief, type BriefRun } from '@/modules/estimator/ai-brief/orchestrator';
 import { planToken } from '@/modules/estimator/ai-brief/planRequest';
 import { BRIEF_CONTRACT, BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
-import { publicOutcome, publicProgress, type Audience } from '@/modules/estimator/ai-brief/publicBrief';
+import { publicOutcome, publicProgress, shownFrom, type Audience } from '@/modules/estimator/ai-brief/publicBrief';
 import { briefRunRecord, busyRecord, visitorHash } from '@/modules/estimator/ai-brief/runRecord';
 import { totalRedactions } from '@/modules/estimator/ai-brief/scrub';
 import { BRIEF_STREAM_CONTENT_TYPE, encodeBriefEvent, type BriefStreamEvent } from '@/modules/estimator/ai-brief/stream';
@@ -29,8 +29,9 @@ import { getBriefProvider, recordBriefRun } from '@/modules/estimator/model/brie
  * spent, briefs are served fully on deepseek-flash under their own smaller
  * cap (the overflow) before the route says it is resting for today.
  *
- * In 'request' mode (`priceMode.ts`) no price leaves the server: everything
- * sent goes through `publicBrief.ts`, and an 'ok' result carries a sealed
+ * Outside 'range' mode (`priceMode.ts`) no price leaves the server but, in
+ * 'from' mode, a starting one: everything sent goes through
+ * `publicBrief.ts`, and an 'ok' result carries a sealed
  * `requestToken` beside its data.
  *
  * Responses (`success` envelope like every route here):
@@ -115,8 +116,8 @@ interface RunContext {
 
 /** The sealed plan beside an 'ok' result; nothing in 'range' mode, whose answers stay as they were. */
 function requestTokenOf(run: BriefRun, { locale, audience }: RunContext): { requestToken?: string | null } {
-  if (audience.mode !== 'request' || run.outcome.status !== 'ok') return {};
-  const requestToken = planToken(run, locale, process.env.BRIEF_TOKEN_SECRET, Date.now());
+  if (audience.mode === 'range' || run.outcome.status !== 'ok') return {};
+  const requestToken = planToken(run, locale, process.env.BRIEF_TOKEN_SECRET, Date.now(), shownFrom(publicOutcome(run.outcome, audience)));
   if (!requestToken) logger.warn('BRIEF_TOKEN_SECRET missing or too short: plan requests carry the idea only', undefined, 'AI_BRIEF');
   return { requestToken };
 }

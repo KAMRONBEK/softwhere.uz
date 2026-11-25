@@ -36,6 +36,7 @@ const WARN_AT = Math.round(MAX_IDEA_CHARS * 0.9);
 export default function Composer({ value, onChange, onSubmit, feedback, isCompact = false, shouldFocus = false, idPrefix }: ComposerProps) {
   const t = useTranslations('aiBrief.composer');
   const tRequest = useTranslations('aiBrief.request');
+  const tFrom = useTranslations('aiBrief.from');
   const generatedId = useId();
   const baseId = idPrefix ?? generatedId;
   const fieldId = `${baseId}-field`;
@@ -158,7 +159,9 @@ export default function Composer({ value, onChange, onSubmit, feedback, isCompac
       </div>
       <div className={css.notes}>
         <p className={css.freeNote}>{t('freeNote')}</p>
-        <p className={css.freeNote}>{BRIEF_PRICE_MODE === 'request' ? tRequest('exactNote') : t('exactNote')}</p>
+        <p className={css.freeNote}>
+          {BRIEF_PRICE_MODE === 'from' ? tFrom('exactNote') : BRIEF_PRICE_MODE === 'request' ? tRequest('exactNote') : t('exactNote')}
+        </p>
       </div>
     </form>
   );

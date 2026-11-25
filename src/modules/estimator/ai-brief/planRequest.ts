@@ -39,7 +39,13 @@ function cleanLine(value: unknown, max: number): string {
 /* ------------------------------ the sealed plan ------------------------------ */
 
 /** The token of a finished run; null when it delivered no brief or no secret is set (the lead then carries the idea only). */
-export function planToken(run: BriefRun, locale: BriefLocale, secret: string | undefined, now: number): string | null {
+export function planToken(
+  run: BriefRun,
+  locale: BriefLocale,
+  secret: string | undefined,
+  now: number,
+  shownFrom: number | null = null
+): string | null {
   if (run.outcome.status !== 'ok' || !run.quote) return null;
   const { brief } = run.outcome;
   const { estimate } = brief;
@@ -57,6 +63,7 @@ export function planToken(run: BriefRun, locale: BriefLocale, secret: string | u
       unpriced: estimate.unpricedItems,
       discovery: estimate.mode === 'discovery' ? estimate.reasons : [],
       quote: run.quote,
+      shownFrom,
     },
     secret
   );
@@ -121,7 +128,8 @@ export function ownerLines(request: PlanRequest, ideaMax = MAX_IDEA_CHARS): stri
     ...head,
     `Plan: ${cleanLine(plan.title, 200)} (${plan.product})`,
     plan.discovery.length > 0 ? `VERY LARGE IDEA, discovery call first: ${list(plan.discovery)}. Numbers below are rough` : '',
-    line('Engine price, first version (not shown to the visitor)', plan.quote.mvp),
+    plan.shownFrom ? `Visitor saw: from $${plan.shownFrom.toLocaleString('en-US')} (first version)` : 'Visitor saw no price',
+    line('Engine price, first version (internal)', plan.quote.mvp),
     plan.quote.full ? line('With everything planned for later', plan.quote.full) : '',
     plan.unpriced.length > 0 ? `Not in the price: ${cleanLine(list(plan.unpriced), MAX_UNPRICED_CHARS)}` : '',
     `First version: ${list(plan.mvp)}`,

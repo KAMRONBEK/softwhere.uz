@@ -3,6 +3,7 @@ import { Locale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 import { buildOgUrl } from '@/core/og';
 import { Arrow, ButtonLink, CtaBand, Page, Section } from '@/shared/components/site';
 import { SERVICE_NAMESPACES, SERVICE_SLUGS } from '@/shared/data/services';
@@ -85,7 +86,7 @@ export default async function ServicesHubPage({ params }: { params: Promise<{ lo
 
   const actions = (
     <>
-      <ButtonLink href={`/${locale}/estimator`}>{t('common.estimateCta')}</ButtonLink>
+      <ButtonLink href={`/${locale}${ESTIMATE_PATH}`}>{t('common.estimateCta')}</ButtonLink>
       <ButtonLink variant='secondary' href={`/${locale}#contact`}>
         {t('common.contactCta')}
       </ButtonLink>
@@ -133,7 +134,7 @@ export default async function ServicesHubPage({ params }: { params: Promise<{ lo
             <li key={key} className={css.more}>
               <div>
                 <h3 className={css.moreTitle}>
-                  <Link href={`/${locale}/estimator`} className={css.link}>
+                  <Link href={`/${locale}${ESTIMATE_PATH}`} className={css.link}>
                     {t(`index.${key}Title`)}
                   </Link>
                 </h3>

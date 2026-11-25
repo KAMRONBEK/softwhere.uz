@@ -71,7 +71,7 @@ export function saveBrief(store: Storage | null, locale: BriefLocale, saved: Omi
   write(store, BRIEF_KEY_PREFIX + locale, { v: 2, ...saved } satisfies SavedBrief);
 }
 
-/** The saved brief of this locale, or null when there is none, it is malformed or older than SAVED_BRIEF_DAYS (then it is removed). One saved while prices were shown loses them in 'request' mode. */
+/** The saved brief of this locale, or null when there is none, it is malformed or older than SAVED_BRIEF_DAYS (then it is removed). Outside 'range' mode one saved with prices keeps only what that mode shows. */
 export function loadBrief(
   store: Storage | null,
   locale: BriefLocale,

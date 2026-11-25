@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { IS_PLAN_LAUNCHED } from '@/core/briefPriceMode';
 import Link from 'next/link';
 import SectionFallback from '../../components/SectionFallback';
 import css from '../../components/SectionFallback.module.css';
@@ -16,9 +17,11 @@ export default function AIDemoFallback({ meta }: LabSectionProps) {
   const locale = useLocale();
   return (
     <SectionFallback meta={meta}>
-      <p className={css.extra}>
-        {t('estimator.lead')} <Link href={`/${locale}/estimator`}>{t('estimator.link')}</Link>
-      </p>
+      {!IS_PLAN_LAUNCHED && (
+        <p className={css.extra}>
+          {t('estimator.lead')} <Link href={`/${locale}/estimator`}>{t('estimator.link')}</Link>
+        </p>
+      )}
     </SectionFallback>
   );
 }

@@ -2,10 +2,11 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin('./src/core/i18n.ts');
 
-// 'request' mode hides the price from visitors: without the secret that seals
-// the plan, it would be lost for the owner too (src/modules/estimator/ai-brief/requestToken.ts).
-if (process.env.NEXT_PUBLIC_BRIEF_PRICE_MODE === 'request' && (process.env.BRIEF_TOKEN_SECRET ?? '').length < 32) {
-  throw new Error('NEXT_PUBLIC_BRIEF_PRICE_MODE=request needs BRIEF_TOKEN_SECRET (32+ characters)');
+// Mirrors IS_PLAN_LAUNCHED in src/core/briefPriceMode.ts. These modes hide the engine's price from visitors:
+// without the secret that seals the plan, the owner would lose it too (src/modules/estimator/ai-brief/requestToken.ts).
+const isPlanLaunched = ['from', 'request'].includes(process.env.NEXT_PUBLIC_BRIEF_PRICE_MODE);
+if (isPlanLaunched && (process.env.BRIEF_TOKEN_SECRET ?? '').length < 32) {
+  throw new Error('NEXT_PUBLIC_BRIEF_PRICE_MODE=from|request needs BRIEF_TOKEN_SECRET (32+ characters)');
 }
 
 /** @type {import('next').NextConfig} */
@@ -40,6 +41,9 @@ const nextConfig = {
       // Routing-layer redirect (zero function compute — cheaper than the
       // middleware 308 the locale-less feed would otherwise get).
       { source: '/feed.xml', destination: '/uz/feed.xml', permanent: true },
+      // The AI plan replaced the step-by-step estimator. Temporary while the launch can still be
+      // undone by the setting: browsers would remember a permanent one.
+      ...(isPlanLaunched ? [{ source: '/:locale(uz|ru|en)/estimator', destination: '/:locale/ai-estimate', permanent: false }] : []),
     ];
   },
 };
