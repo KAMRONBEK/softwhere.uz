@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 import { listForSitemap } from '@/modules/blog/model/posts.repository';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 import { BLOG_CONFIG, ENV } from '@/core/constants';
 import { logger } from '@/core/logger';
 import { getSlugRoot } from '@/shared/utils/slug';
@@ -23,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = [
     '',
     '/blog',
-    '/estimator',
+    ESTIMATE_PATH,
     '/services',
     '/services/web-development',
     '/services/mobile-apps',

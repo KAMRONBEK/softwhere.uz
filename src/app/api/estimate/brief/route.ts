@@ -9,13 +9,16 @@ import { providerChainSet, type BriefProvider } from '@/modules/estimator/ai-bri
 import { pickBriefLane, type BriefLane } from '@/modules/estimator/ai-brief/lanes';
 import { BRIEF_LOCALES, MAX_IDEA_CHARS, type BriefLocale } from '@/modules/estimator/ai-brief/constants';
 import { runBrief, type BriefRun } from '@/modules/estimator/ai-brief/orchestrator';
+import { planToken } from '@/modules/estimator/ai-brief/planRequest';
+import { BRIEF_CONTRACT, BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
+import { publicOutcome, publicProgress, shownFrom, type Audience } from '@/modules/estimator/ai-brief/publicBrief';
 import { briefRunRecord, busyRecord, visitorHash } from '@/modules/estimator/ai-brief/runRecord';
 import { totalRedactions } from '@/modules/estimator/ai-brief/scrub';
 import { BRIEF_STREAM_CONTENT_TYPE, encodeBriefEvent, type BriefStreamEvent } from '@/modules/estimator/ai-brief/stream';
 import { getBriefProvider, recordBriefRun } from '@/modules/estimator/model/briefRuns.repository';
 
 /**
- * POST /api/estimate/brief  { idea: string, locale: 'uz' | 'ru' | 'en' }
+ * POST /api/estimate/brief  { idea: string, locale: 'uz' | 'ru' | 'en', contract?: number }
  *
  * Plain-words idea → AI project brief: scope, lo-fi wireframes, an estimate
  * computed by the estimator engine (never by the model) and a localized
@@ -25,6 +28,11 @@ import { getBriefProvider, recordBriefRun } from '@/modules/estimator/model/brie
  * and the idea itself is never logged. Once the day's main (Kimi) cap is
  * spent, briefs are served fully on deepseek-flash under their own smaller
  * cap (the overflow) before the route says it is resting for today.
+ *
+ * Outside 'range' mode (`priceMode.ts`) no price leaves the server but, in
+ * 'from' mode, a starting one: everything sent goes through
+ * `publicBrief.ts`, and an 'ok' result carries a sealed
+ * `requestToken` beside its data.
  *
  * Responses (`success` envelope like every route here):
  *   200 { success: true, data: { status: 'ok', brief } }
@@ -103,6 +111,15 @@ interface RunContext {
   provider: BriefProvider;
   lane: BriefLane;
   ip: string;
+  audience: Audience;
+}
+
+/** The sealed plan beside an 'ok' result; nothing in 'range' mode, whose answers stay as they were. */
+function requestTokenOf(run: BriefRun, { locale, audience }: RunContext): { requestToken?: string | null } {
+  if (audience.mode === 'range' || run.outcome.status !== 'ok') return {};
+  const requestToken = planToken(run, locale, process.env.BRIEF_TOKEN_SECRET, Date.now(), shownFrom(publicOutcome(run.outcome, audience)));
+  if (!requestToken) logger.warn('BRIEF_TOKEN_SECRET missing or too short: plan requests carry the idea only', undefined, 'AI_BRIEF');
+  return { requestToken };
 }
 
 /**
@@ -145,11 +162,15 @@ function streamBrief(idea: string, ctx: RunContext): Response {
       try {
         const run = await runBrief(
           { idea, locale: ctx.locale },
-          { ...lane.options, onProgress: progress => send({ type: 'progress', progress }) }
+          { ...lane.options, onProgress: progress => send({ type: 'progress', progress: publicProgress(progress, ctx.audience) }) }
         );
         const recorded = recordRun(run, ctx); // the stats row is written while the result goes out
         settleAllowance(ip, run);
-        send(run.outcome.status === 'error' ? { type: 'error', code: run.outcome.code } : { type: 'result', data: run.outcome });
+        send(
+          run.outcome.status === 'error'
+            ? { type: 'error', code: run.outcome.code }
+            : { type: 'result', data: publicOutcome(run.outcome, ctx.audience), ...requestTokenOf(run, ctx) }
+        );
         await recorded;
       } catch (error) {
         lane.budget.record(0); // release the reserve held for this brief
@@ -217,7 +238,8 @@ export async function POST(request: NextRequest) {
     }
 
     const idea = body.idea;
-    const ctx: RunContext = { locale, provider, lane, ip };
+    const audience: Audience = { mode: BRIEF_PRICE_MODE, knowsPlan: typeof body.contract === 'number' && body.contract >= BRIEF_CONTRACT };
+    const ctx: RunContext = { locale, provider, lane, ip, audience };
     if ((request.headers.get('accept') ?? '').includes(BRIEF_STREAM_CONTENT_TYPE)) return streamBrief(idea, ctx);
 
     let run: BriefRun;
@@ -233,7 +255,10 @@ export async function POST(request: NextRequest) {
     if (run.outcome.status === 'error') {
       return fail(503, run.outcome.code, 'The AI brief is temporarily unavailable. Please try again or use the estimator.');
     }
-    return NextResponse.json({ success: true, data: run.outcome }, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json(
+      { success: true, data: publicOutcome(run.outcome, audience), ...requestTokenOf(run, ctx) },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   } catch (error) {
     logger.error('AI brief route failed', error instanceof Error ? error.message : 'unknown error', 'AI_BRIEF');
     return fail(500, 'internal', 'Internal server error');

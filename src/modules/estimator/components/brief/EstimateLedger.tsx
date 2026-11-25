@@ -1,9 +1,16 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useId, useEffect, useState, type ReactNode } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
-import { isPricedEstimate, type BriefPreview, type DiscoveryEstimate } from '@/modules/estimator/ai-brief/types';
+import {
+  isDiscoveryEstimate,
+  isPricedEstimate,
+  type BriefPreview,
+  type DiscoveryEstimate,
+  type PlanEstimate,
+} from '@/modules/estimator/ai-brief/types';
 import { useCurrency, type CurrencyCode } from '../CurrencySwitcher';
 import { priceRange, usdFormatter } from './format';
 import css from './brief.module.css';
@@ -115,6 +122,73 @@ function DiscoveryCard({ estimate, action }: DiscoveryCardProps) {
   );
 }
 
+type PlanCardProps = { estimate: PlanEstimate; locale: BriefLocale; action?: ReactNode };
+
+/** 'from' mode: the starting price, weeks and team. 'request' mode: no price, with the public from-prices one link away. */
+function PlanCard({ estimate, locale, action }: PlanCardProps) {
+  const t = useTranslations('aiBrief.estimate');
+  const tRequest = useTranslations('aiBrief.request');
+  const tEstimator = useTranslations('estimator');
+  const tx = tEstimator as unknown as (key: string) => string;
+  const headingId = useId();
+  const tFrom = useTranslations('aiBrief.from');
+  const local = useCurrency();
+  const { weeks, fullWeeks, extras, team, fromUsd } = estimate;
+  const format = locale === 'en' ? usdFormatter(locale) : local.format;
+  const weeksText = t('weeks', { min: weeks.min, max: weeks.max });
+
+  return (
+    <aside className={`${css.ledger} ${css.reveal}`} aria-labelledby={headingId}>
+      <h3 id={headingId} className={css.ledgerLabel}>
+        {t('title')}
+      </h3>
+      {fromUsd ? (
+        <>
+          <p className={css.price}>{tFrom('price', { price: format(fromUsd) })}</p>
+          <p className={css.ledgerStat}>{weeksText}</p>
+          <p className={css.rangeNote}>{tFrom('priceNote')}</p>
+          {locale !== 'en' && (
+            <CurrencyPills label={tx('currencyLabel')} currency={local.currency} available={local.available} onChange={local.setCurrency} />
+          )}
+        </>
+      ) : (
+        <>
+          <p className={css.price}>{weeksText}</p>
+          <p className={css.rangeNote}>{tRequest('priceNote')}</p>
+          <Link href={`/${locale}/services`} className={css.textLink}>
+            {tRequest('fromPrices')}
+          </Link>
+        </>
+      )}
+      {fullWeeks && (
+        <div className={css.ledgerRow}>
+          <span className={css.ledgerRowLabel}>{t('full')}</span>
+          <span className={css.ledgerRowValue}>{t('weeks', { min: fullWeeks.min, max: fullWeeks.max })}</span>
+        </div>
+      )}
+      {extras.length > 0 && (
+        <div className={css.ledgerRow}>
+          <span className={css.ledgerRowLabel}>{t('extras')}</span>
+          <ul className={css.extras}>
+            {extras.map(extra => (
+              <li key={extra.subtype}>{tx(extra.labelKey)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className={css.ledgerRow}>
+        <span className={css.ledgerRowLabel}>{t('team')}</span>
+        <ul className={css.team}>
+          {team.map(role => (
+            <li key={role}>{tx(role)}</li>
+          ))}
+        </ul>
+      </div>
+      {action}
+    </aside>
+  );
+}
+
 /**
  * The engine's numbers for the first version and the full vision: price
  * ranges and weeks, never hours or rates (the API sends none). Every figure
@@ -132,7 +206,8 @@ export default function EstimateLedger({ preview, locale, isAnimated, action }: 
   const progress = useCountUp(preview !== null && isPricedEstimate(preview.estimate), isAnimated);
 
   if (!preview) return <LedgerSkeleton />;
-  if (!isPricedEstimate(preview.estimate)) return <DiscoveryCard estimate={preview.estimate} action={action} />;
+  if (isDiscoveryEstimate(preview.estimate)) return <DiscoveryCard estimate={preview.estimate} action={action} />;
+  if (!isPricedEstimate(preview.estimate)) return <PlanCard estimate={preview.estimate} locale={locale} action={action} />;
 
   const isEn = locale === 'en';
   const format = isEn ? usdFormatter(locale) : local.format;

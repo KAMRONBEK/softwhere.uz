@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { MAX_IDEA_CHARS, MIN_IDEA_CHARS } from '@/modules/estimator/ai-brief/constants';
+import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
 import css from './brief.module.css';
 
 /** Example ideas, the same keys in every locale (the texts are market-specific). */
@@ -34,6 +35,8 @@ const WARN_AT = Math.round(MAX_IDEA_CHARS * 0.9);
 
 export default function Composer({ value, onChange, onSubmit, feedback, isCompact = false, shouldFocus = false, idPrefix }: ComposerProps) {
   const t = useTranslations('aiBrief.composer');
+  const tRequest = useTranslations('aiBrief.request');
+  const tFrom = useTranslations('aiBrief.from');
   const generatedId = useId();
   const baseId = idPrefix ?? generatedId;
   const fieldId = `${baseId}-field`;
@@ -156,7 +159,9 @@ export default function Composer({ value, onChange, onSubmit, feedback, isCompac
       </div>
       <div className={css.notes}>
         <p className={css.freeNote}>{t('freeNote')}</p>
-        <p className={css.freeNote}>{t('exactNote')}</p>
+        <p className={css.freeNote}>
+          {BRIEF_PRICE_MODE === 'from' ? tFrom('exactNote') : BRIEF_PRICE_MODE === 'request' ? tRequest('exactNote') : t('exactNote')}
+        </p>
       </div>
     </form>
   );

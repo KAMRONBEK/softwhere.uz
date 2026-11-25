@@ -34,6 +34,8 @@ export interface BriefRunState {
   screens: WireframeScreen[] | null;
   hasNarrative: boolean;
   brief: AiBrief | null;
+  /** The sealed plan for "send request" ('request' mode; null: the request carries the idea only). */
+  requestToken: string | null;
   /** Wall-clock duration once finished. */
   elapsedMs: number | null;
   /** True when this brief came back from session storage (no entrance animation). */
@@ -59,6 +61,7 @@ export const INITIAL_BRIEF_STATE: BriefRunState = {
   screens: null,
   hasNarrative: false,
   brief: null,
+  requestToken: null,
   elapsedMs: null,
   restored: false,
   rejection: null,
@@ -70,9 +73,9 @@ export const INITIAL_BRIEF_STATE: BriefRunState = {
 export type BriefAction =
   | { type: 'start'; idea: string; at: number }
   | { type: 'event'; event: BriefStreamEvent; at: number }
-  | { type: 'outcome'; outcome: Exclude<BriefOutcome, { status: 'error' }>; at: number }
+  | { type: 'outcome'; outcome: Exclude<BriefOutcome, { status: 'error' }>; requestToken?: string | null; at: number }
   | { type: 'fail'; failure: BriefFailure; at: number }
-  | { type: 'restore'; idea: string; brief: AiBrief; elapsedMs: number | null }
+  | { type: 'restore'; idea: string; brief: AiBrief; requestToken?: string | null; elapsedMs: number | null }
   /** The next free brief's time from storage, or null once it has passed. */
   | { type: 'quota'; nextFreeAt: number | null }
   | { type: 'reset' };
@@ -86,7 +89,12 @@ function laterOf(a: number | null, b: number): number {
   return a === null ? b : Math.max(a, b);
 }
 
-function applyOutcome(state: BriefRunState, outcome: Exclude<BriefOutcome, { status: 'error' }>, at: number): BriefRunState {
+function applyOutcome(
+  state: BriefRunState,
+  outcome: Exclude<BriefOutcome, { status: 'error' }>,
+  requestToken: string | null | undefined,
+  at: number
+): BriefRunState {
   const elapsedMs = finishedAfter(state, at);
   switch (outcome.status) {
     case 'ok':
@@ -97,6 +105,7 @@ function applyOutcome(state: BriefRunState, outcome: Exclude<BriefOutcome, { sta
         // The server's window opened when this brief started.
         nextFreeAt: laterOf(state.nextFreeAt, (state.startedAt ?? at) + DAY_MS),
         brief: outcome.brief,
+        requestToken: requestToken ?? null,
         preview: state.preview ?? outcome.brief,
         screens: outcome.brief.screens,
         hasNarrative: true,
@@ -120,7 +129,7 @@ function applyEvent(state: BriefRunState, event: BriefStreamEvent, at: number): 
       return { ...state, hasNarrative: true };
     }
     case 'result':
-      return applyOutcome(state, event.data, at);
+      return applyOutcome(state, event.data, event.requestToken, at);
     case 'error':
       return { ...state, status: 'error', elapsedMs: finishedAfter(state, at), failure: { code: 'failed' } };
   }
@@ -133,7 +142,7 @@ export function briefReducer(state: BriefRunState, action: BriefAction): BriefRu
     case 'event':
       return applyEvent(state, action.event, action.at);
     case 'outcome':
-      return state.status === 'running' ? applyOutcome(state, action.outcome, action.at) : state;
+      return state.status === 'running' ? applyOutcome(state, action.outcome, action.requestToken, action.at) : state;
     case 'fail': {
       if (state.status !== 'running') return state;
       const { failure } = action;
@@ -154,6 +163,7 @@ export function briefReducer(state: BriefRunState, action: BriefAction): BriefRu
         screens: action.brief.screens,
         hasNarrative: true,
         brief: action.brief,
+        requestToken: action.requestToken ?? null,
         elapsedMs: action.elapsedMs,
         restored: true,
       };

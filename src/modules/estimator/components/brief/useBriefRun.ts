@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
 import { BRIEF_STREAM_CONTENT_TYPE, createBriefEventDecoder, type BriefStreamEvent } from '@/modules/estimator/ai-brief/stream';
+import { BRIEF_CONTRACT } from '@/modules/estimator/ai-brief/priceMode';
 import type { BriefOutcome } from '@/modules/estimator/ai-brief/types';
 import { briefReducer, INITIAL_BRIEF_STATE, type BriefAction, type BriefFailure } from './briefState';
-import { browserStore, DAY_MS, loadBrief, loadNextFree, saveBrief, saveNextFree } from './briefStorage';
+import { browserStore, DAY_MS, loadBrief, loadNextFree, saveBrief, saveNextFree, type SavedBrief } from './briefStorage';
 
 const ENDPOINT = '/api/estimate/brief';
 /** Above the route's 120s maxDuration: the server always answers first unless the connection is gone. */
@@ -29,6 +30,14 @@ async function failureOf(res: Response): Promise<BriefFailure> {
       return { code: 'failed' };
   }
 }
+
+const restoreOf = ({ idea, brief, requestToken, elapsedMs }: SavedBrief): BriefAction => ({
+  type: 'restore',
+  idea,
+  brief,
+  requestToken,
+  elapsedMs,
+});
 
 type Dispatch = (action: BriefAction) => void;
 
@@ -67,15 +76,21 @@ export function useBriefRun(locale: BriefLocale) {
     const nextFreeAt = loadNextFree(store, now);
     if (nextFreeAt !== null) dispatch({ type: 'quota', nextFreeAt });
     const saved = loadBrief(store, locale, now);
-    if (saved) dispatch({ type: 'restore', idea: saved.idea, brief: saved.brief, elapsedMs: saved.elapsedMs });
+    if (saved) dispatch(restoreOf(saved));
     return () => controllerRef.current?.abort();
   }, [locale]);
 
   useEffect(() => {
     if (state.status === 'done' && state.brief && !state.restored) {
-      saveBrief(browserStore(), locale, { idea: state.idea, brief: state.brief, elapsedMs: state.elapsedMs, savedAt: Date.now() });
+      saveBrief(browserStore(), locale, {
+        idea: state.idea,
+        brief: state.brief,
+        ...(state.requestToken ? { requestToken: state.requestToken } : {}),
+        elapsedMs: state.elapsedMs,
+        savedAt: Date.now(),
+      });
     }
-  }, [locale, state.status, state.brief, state.idea, state.elapsedMs, state.restored]);
+  }, [locale, state.status, state.brief, state.idea, state.requestToken, state.elapsedMs, state.restored]);
 
   // Remember when the next free brief opens, and reopen the composer once that time passes with the page still open.
   useEffect(() => {
@@ -105,7 +120,7 @@ export function useBriefRun(locale: BriefLocale) {
         const res = await fetch(ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: BRIEF_STREAM_CONTENT_TYPE },
-          body: JSON.stringify({ idea, locale }),
+          body: JSON.stringify({ idea, locale, contract: BRIEF_CONTRACT }),
           signal: controller.signal,
         });
         hasResponse = true;
@@ -113,7 +128,7 @@ export function useBriefRun(locale: BriefLocale) {
           const failure = await failureOf(res);
           fail(failure);
           const saved = failure.code === 'daily_limit' ? loadBrief(browserStore(), locale, Date.now()) : null;
-          if (saved) dispatch({ type: 'restore', idea: saved.idea, brief: saved.brief, elapsedMs: saved.elapsedMs });
+          if (saved) dispatch(restoreOf(saved));
           return;
         }
 
@@ -122,9 +137,9 @@ export function useBriefRun(locale: BriefLocale) {
           return;
         }
         // A plain JSON answer (a proxy that dropped the Accept header).
-        const json = (await res.json()) as { success?: boolean; data?: BriefOutcome };
+        const json = (await res.json()) as { success?: boolean; data?: BriefOutcome; requestToken?: string | null };
         if (json?.success && json.data && json.data.status !== 'error') {
-          dispatch({ type: 'outcome', outcome: json.data, at: Date.now() });
+          dispatch({ type: 'outcome', outcome: json.data, requestToken: json.requestToken, at: Date.now() });
         } else {
           fail({ code: 'failed' });
         }

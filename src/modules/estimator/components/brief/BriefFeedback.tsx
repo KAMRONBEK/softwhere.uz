@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import type { BriefRunState } from './briefState';
 import css from './brief.module.css';
 
@@ -11,6 +12,8 @@ const RATE_LIMIT_MINUTES_SHOWN = 60;
 type BriefFeedbackProps = {
   state: BriefRunState;
   onRetry: () => void;
+  /** The contact form with the idea: the way forward that needs no AI (outside 'range' mode). */
+  onTalk: () => void;
 };
 
 /**
@@ -18,10 +21,16 @@ type BriefFeedbackProps = {
  * say more, a calm policy decline, or a failure with a way forward. The idea
  * stays in the field in every case.
  */
-export default function BriefFeedback({ state, onRetry }: BriefFeedbackProps) {
+export default function BriefFeedback({ state, onRetry, onTalk }: BriefFeedbackProps) {
   const t = useTranslations('aiBrief.errors');
+  const tRequest = useTranslations('aiBrief.request');
   const locale = useLocale();
-  const estimatorLink = (
+  const isRequest = IS_PLAN_LAUNCHED;
+  const estimatorLink = isRequest ? (
+    <button type='button' className={css.secondaryButton} onClick={onTalk}>
+      {tRequest('sendIdea')}
+    </button>
+  ) : (
     <Link href={`/${locale}/estimator`} className={css.textLink}>
       {t('estimator')}
     </Link>
@@ -55,7 +64,9 @@ export default function BriefFeedback({ state, onRetry }: BriefFeedbackProps) {
     const minutes = Math.max(1, Math.ceil(failure.retryAfterSec / 60));
     return (
       <div className={`${css.callout} ${css.calloutWarn}`} role='alert'>
-        <p>{minutes > RATE_LIMIT_MINUTES_SHOWN ? t('rate_limited_later') : t('rate_limited', { minutes })}</p>
+        <p>
+          {minutes > RATE_LIMIT_MINUTES_SHOWN ? (isRequest ? tRequest('later') : t('rate_limited_later')) : t('rate_limited', { minutes })}
+        </p>
         <div className={css.calloutActions}>{estimatorLink}</div>
       </div>
     );
@@ -64,7 +75,7 @@ export default function BriefFeedback({ state, onRetry }: BriefFeedbackProps) {
   if (failure.code === 'busy') {
     return (
       <div className={`${css.callout} ${css.calloutWarn}`} role='alert'>
-        <p>{t('busy')}</p>
+        <p>{isRequest ? tRequest('busy') : t('busy')}</p>
         <div className={css.calloutActions}>{estimatorLink}</div>
       </div>
     );

@@ -2282,7 +2282,7 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Full page (/ai-estimate): the site's own surfaces, type and radii.  */
+/* Full page (/ai-plan): the site's own surfaces, type and radii.  */
 /* The compact variant (the homepage) keeps everything above as it is. */
 /* ------------------------------------------------------------------ */
 
@@ -2557,4 +2557,106 @@
   .full .submitRow .primaryButton {
     flex: 1 1 auto;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Send request ('request' mode): the plan goes to the owner            */
+/* ------------------------------------------------------------------ */
+
+.request {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
+  padding: clamp(24px, 3vw, 44px);
+  border: 1px solid var(--ab-line);
+  border-radius: var(--ab-r-card, 28px);
+  background: var(--ab-surface2);
+}
+
+@media (min-width: 900px) {
+  .request:has(.requestForm) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 44px;
+  }
+}
+
+.requestForm {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+
+.requestField {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.requestField label {
+  color: var(--ab-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.requestField input,
+.requestField textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--ab-ink) 46%, transparent);
+  border-radius: 12px;
+  background: var(--ab-surface);
+  color: var(--ab-ink);
+  /* 16px keeps iOS from zooming the page on focus. */
+  font: inherit;
+  font-size: 16px;
+}
+
+.requestField textarea {
+  resize: vertical;
+}
+
+.requestField input::placeholder {
+  color: var(--ab-muted);
+  opacity: 1;
+}
+
+.requestField input:focus-visible,
+.requestField textarea:focus-visible {
+  border-color: var(--ab-accent);
+  outline: 2px solid var(--ab-accent);
+  outline-offset: 1px;
+}
+
+.requestField input[aria-invalid='true'] {
+  border-color: var(--ab-accent);
+}
+
+.requestError {
+  padding-left: 10px;
+  border-left: 2px solid var(--ab-accent);
+  color: var(--ab-ink);
+  font-size: 14px;
+}
+
+.requestConsent {
+  color: var(--ab-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.requestConsent a {
+  color: var(--ab-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.requestTrap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }

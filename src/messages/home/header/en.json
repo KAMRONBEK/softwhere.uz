@@ -35,7 +35,8 @@
     }
   },
   "links": {
-    "ai-demo": "Free estimate",
+    "ai-demo": "Free AI plan",
+    "estimate": "Free estimate",
     "work-wall": "Work",
     "process": "Working with us",
     "stack-physics": "Stack",

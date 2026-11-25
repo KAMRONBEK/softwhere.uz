@@ -34,6 +34,7 @@ import { checkBriefConsistency, type ViewSource } from '@/modules/estimator/ai-b
 import { pricedScopeOf, type PricedScope } from '@/modules/estimator/ai-brief/digest';
 import { guardBriefText, guardScopeText } from '@/modules/estimator/ai-brief/guard';
 import { assessBigIdea, type BigIdeaReason, type BigIdeaVerdict } from '@/modules/estimator/ai-brief/bigIdea';
+import { ownerQuote, type OwnerQuote } from '@/modules/estimator/ai-brief/quote';
 import { buildEstimate, engineSize, mapScopeToInputs, toDiscoveryEstimate, type MappedScope } from '@/modules/estimator/ai-brief/mapping';
 import type { TextContext } from '@/modules/estimator/ai-brief/parse';
 import {
@@ -185,6 +186,8 @@ export interface BriefRun {
   polish: PolishLog | null;
   /** The big-idea verdict with its signals (eval/audit only; the page gets the reasons alone). */
   bigIdea: BigIdeaVerdict | null;
+  /** The engine's numbers for the owner, very large ideas included; never sent to the page. */
+  quote: OwnerQuote | null;
   model: string | null;
   totalCostUsd: number;
   totalMs: number;
@@ -601,7 +604,7 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
 
   const finish = (
     outcome: BriefOutcome,
-    extra: Partial<Pick<BriefRun, 'scope' | 'priced' | 'model' | 'guard' | 'samples' | 'polish' | 'bigIdea'>> = {}
+    extra: Partial<Pick<BriefRun, 'scope' | 'priced' | 'model' | 'guard' | 'samples' | 'polish' | 'bigIdea' | 'quote'>> = {}
   ): BriefRun => ({
     outcome,
     scrubbedIdea: scrubbed.text,
@@ -615,6 +618,7 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
     samples: extra.samples ?? null,
     polish: extra.polish ?? null,
     bigIdea: extra.bigIdea ?? null,
+    quote: extra.quote ?? null,
     model: extra.model ?? null,
     totalCostUsd: attempts.reduce((sum, a) => sum + a.costUsd, 0),
     totalMs: Date.now() - startedAt,
@@ -745,7 +749,16 @@ export async function runBrief(request: { idea: string; locale: BriefLocale }, o
   if (guard.removed.length) logger.info(`Brief consistency guard dropped ${guard.removed.length} text(s)`, undefined, LOG);
   return finish(
     { status: 'ok', brief },
-    { scope: polishedScope, priced, model: scopeModel, guard, samples, polish: polishing ? polishLog : null, bigIdea: stage.bigIdea }
+    {
+      scope: polishedScope,
+      priced,
+      model: scopeModel,
+      guard,
+      samples,
+      polish: polishing ? polishLog : null,
+      bigIdea: stage.bigIdea,
+      quote: ownerQuote(polishedScope, stage.mapped),
+    }
   );
 }
 

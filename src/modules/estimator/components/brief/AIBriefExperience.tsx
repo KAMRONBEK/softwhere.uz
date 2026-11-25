@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { BRIEF_PRICE_MODE, IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import { isPricedEstimate } from '@/modules/estimator/ai-brief/types';
 import { prefillContactMessage } from '@/shared/utils/contactPrefill';
 import BriefFeedback from './BriefFeedback';
@@ -12,8 +13,11 @@ import DailyLimit from './DailyLimit';
 import SampleSketch from './SampleSketch';
 import { isBriefLocale, prefillIdea, priceRange, usdFormatter } from './format';
 import type { BriefRunState } from './briefState';
+import { REQUEST_SECTION_ID } from './RequestForm';
 import { useBriefRun } from './useBriefRun';
 import css from './brief.module.css';
+
+const LEDE = ({ range: 'intro.lede', from: 'from.lede', request: 'request.lede' } as const)[BRIEF_PRICE_MODE];
 
 /** Bubbling event the lab's AI section listens for: 'idle' | 'thinking' | 'done'. */
 export const AI_BRIEF_STATUS_EVENT = 'ai-brief:status';
@@ -34,7 +38,7 @@ function stageOf(state: BriefRunState): AIBriefStage {
 }
 
 export type AIBriefExperienceProps = {
-  /** 'full' = the /ai-estimate page; 'compact' = a homepage section (no page heading, plan collapsed). */
+  /** 'full' = the /ai-plan page; 'compact' = a homepage section (no page heading, plan collapsed). */
   variant?: 'full' | 'compact';
   /** id of the contact section to prefill; when it is not on the page the visitor goes to the homepage one. */
   contactSectionId?: string;
@@ -61,7 +65,7 @@ function scrollIntoViewSoftly(element: Element | null) {
  * the contact form and the step-by-step estimator instead of a new run.
  * The compact variant (a homepage section) shows a summary of a finished
  * brief — price, weeks, team, key screens — and links to the full plan on
- * /ai-estimate, which reads the same saved brief from this browser.
+ * /ai-plan, which reads the same saved brief from this browser.
  */
 export default function AIBriefExperience({
   variant = 'full',
@@ -92,6 +96,12 @@ export default function AIBriefExperience({
     rootRef.current?.dispatchEvent(new CustomEvent<AIBriefStage>(AI_BRIEF_STAGE_EVENT, { detail: stage, bubbles: true }));
   }, [stage]);
 
+  // Arriving from the homepage's summary: the form exists only once the saved brief is back, after the browser looked for the hash.
+  useEffect(() => {
+    if (!state.restored || window.location.hash !== `#${REQUEST_SECTION_ID}`) return;
+    scrollIntoViewSoftly(document.getElementById(REQUEST_SECTION_ID));
+  }, [state.restored]);
+
   const start = (idea: string) => {
     setShouldFocusComposer(false);
     void submit(idea);
@@ -118,6 +128,7 @@ export default function AIBriefExperience({
     if (!brief) return draft.trim() ? t('limit.message', { idea: prefillIdea(draft) }) : null;
     const idea = prefillIdea(state.idea);
     const { estimate } = brief;
+    if (estimate.mode === 'plan') return t('limit.message', { idea });
     return isPricedEstimate(estimate)
       ? t('cta.message', {
           title: brief.title,
@@ -129,6 +140,17 @@ export default function AIBriefExperience({
   };
 
   const talk = () => {
+    // Launched, with a plan: its own form, which carries the plan (on /ai-plan; the homepage shows a summary).
+    if (IS_PLAN_LAUNCHED && state.status === 'done') {
+      const form = document.getElementById(REQUEST_SECTION_ID);
+      if (!form) {
+        router.push(`/${locale}/ai-plan#${REQUEST_SECTION_ID}`);
+        return;
+      }
+      scrollIntoViewSoftly(form);
+      form.querySelector<HTMLElement>('input')?.focus({ preventScroll: true });
+      return;
+    }
     const message = contactMessage();
     if (message) prefillContactMessage(message);
     const section = document.getElementById(contactSectionId);
@@ -144,7 +166,7 @@ export default function AIBriefExperience({
       isCompact={isCompact}
       shouldFocus={shouldFocusComposer}
       idPrefix={idPrefix}
-      feedback={<BriefFeedback state={state} onRetry={() => start(state.idea)} />}
+      feedback={<BriefFeedback state={state} onRetry={() => start(state.idea)} onTalk={talk} />}
     />
   );
 
@@ -156,8 +178,10 @@ export default function AIBriefExperience({
       {!isCompact && (
         <div className={isComposing ? css.intro : css.introCollapsed}>
           <div className={css.introCopy}>
-            <h1 className={isComposing ? css.heading : css.srOnly}>{t('intro.heading')}</h1>
-            {isComposing && !isLimited && <p className={css.lede}>{t('intro.lede')}</p>}
+            <h1 className={isComposing ? css.heading : css.srOnly}>
+              {t(BRIEF_PRICE_MODE === 'request' ? 'request.heading' : 'intro.heading')}
+            </h1>
+            {isComposing && !isLimited && <p className={css.lede}>{t(LEDE)}</p>}
             {isComposing && opening}
           </div>
           {isComposing && <SampleSketch />}
@@ -183,7 +207,7 @@ export default function AIBriefExperience({
             locale={locale}
             isCompact={isCompact}
             nextFreeAt={state.nextFreeAt}
-            fullPlanHref={isCompact ? `/${locale}/ai-estimate` : null}
+            fullPlanHref={isCompact ? `/${locale}/ai-plan` : null}
             onTalk={talk}
             onNewIdea={newIdea}
           />

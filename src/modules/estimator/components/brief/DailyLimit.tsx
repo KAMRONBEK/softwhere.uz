@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useId, useState } from 'react';
 import type { BriefLocale } from '@/modules/estimator/ai-brief/constants';
+import { IS_PLAN_LAUNCHED } from '@/modules/estimator/ai-brief/priceMode';
 import { nextFreeDay, timeFormatter } from './format';
 import css from './brief.module.css';
 
@@ -42,6 +43,8 @@ type DailyLimitProps = {
  */
 export default function DailyLimit({ nextFreeAt, locale, onTalk }: DailyLimitProps) {
   const t = useTranslations('aiBrief.limit');
+  const tRequest = useTranslations('aiBrief.request');
+  const isRequest = IS_PLAN_LAUNCHED;
   const headingId = useId();
 
   return (
@@ -56,16 +59,18 @@ export default function DailyLimit({ nextFreeAt, locale, onTalk }: DailyLimitPro
         <h2 id={headingId} className={css.limitTitle}>
           {t('title')}
         </h2>
-        <p className={css.limitBody}>{t('body')}</p>
+        <p className={css.limitBody}>{isRequest ? tRequest('limitBody') : t('body')}</p>
         <NextFreeLine nextFreeAt={nextFreeAt} locale={locale} kind='next' className={css.limitNext} />
       </div>
       <div className={css.limitActions}>
         <button type='button' className={css.primaryButton} onClick={onTalk}>
           {t('talk')}
         </button>
-        <Link href={`/${locale}/estimator`} className={css.secondaryButton}>
-          {t('estimator')}
-        </Link>
+        {!isRequest && (
+          <Link href={`/${locale}/estimator`} className={css.secondaryButton}>
+            {t('estimator')}
+          </Link>
+        )}
       </div>
     </section>
   );

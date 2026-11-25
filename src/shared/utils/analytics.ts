@@ -14,6 +14,7 @@ type EventMap = {
   estimator_start: { projectType: string; locale: string };
   estimator_complete: { projectType: string; subtype: string; tier: string; locale: string };
   estimator_lead_submit: { projectType: string; locale: string };
+  plan_request_submit: { locale: string; plan: 'sealed' | 'idea' };
   estimator_ai: { status: 'ok' | 'unavailable' | 'error' };
 };
 

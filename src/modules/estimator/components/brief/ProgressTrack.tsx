@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useId, useEffect, useState, type CSSProperties } from 'react';
+import { BRIEF_PRICE_MODE } from '@/modules/estimator/ai-brief/priceMode';
 import { BRIEF_STEPS, stepStates, type BriefRunState, type StepState } from './briefState';
 import css from './brief.module.css';
 
@@ -34,6 +35,9 @@ function StepDot({ state }: { state: StepState }) {
  */
 export default function ProgressTrack({ state }: { state: BriefRunState }) {
   const t = useTranslations('aiBrief.progress');
+  const tRequest = useTranslations('aiBrief.request');
+  const label = (step: (typeof BRIEF_STEPS)[number]) =>
+    step === 'price' && BRIEF_PRICE_MODE === 'request' ? tRequest('stepWeeks') : t(`steps.${step}`);
   const headingId = useId();
   const [now, setNow] = useState(() => Date.now());
   const isRunning = state.status === 'running';
@@ -49,7 +53,7 @@ export default function ProgressTrack({ state }: { state: BriefRunState }) {
     0,
     Math.round(((isRunning ? now : (state.startedAt ?? 0) + (state.elapsedMs ?? 0)) - (state.startedAt ?? now)) / 1000)
   );
-  const active = BRIEF_STEPS.filter(step => steps[step] === 'active').map(step => t(`steps.${step}`));
+  const active = BRIEF_STEPS.filter(step => steps[step] === 'active').map(label);
   const doneCount = BRIEF_STEPS.filter(step => steps[step] === 'done' || steps[step] === 'skipped').length;
 
   return (
@@ -65,7 +69,7 @@ export default function ProgressTrack({ state }: { state: BriefRunState }) {
         {BRIEF_STEPS.map(step => (
           <li key={step} className={`${css.step} ${css[`step_${steps[step]}`]}`}>
             <StepDot state={steps[step]} />
-            <span className={css.stepLabel}>{t(`steps.${step}`)}</span>
+            <span className={css.stepLabel}>{label(step)}</span>
           </li>
         ))}
       </ol>

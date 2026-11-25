@@ -188,16 +188,40 @@ export interface DiscoveryEstimate {
   adjustments: string[];
 }
 
-export type BriefEstimate = PricedEstimate | DiscoveryEstimate;
+/**
+ * A normal estimate as a page in 'from' or 'request' mode gets it
+ * (`publicBrief.ts`): weeks and scope, at most a starting price. Only the route makes it; the pipeline never does.
+ */
+export interface PlanEstimate {
+  mode: 'plan';
+  /** The first version's low end ('from' mode); null or absent when no price is shown. */
+  fromUsd?: number | null;
+  config: EngineConfig;
+  weeks: Range;
+  /** With everything planned for later; null when there is no later scope. */
+  fullWeeks: Range | null;
+  team: string[];
+  extras: DiscoveryEstimate['extras'];
+  phases: BriefPhase[];
+  unpricedItems: string[];
+  adjustments: string[];
+}
+
+export type BriefEstimate = PricedEstimate | DiscoveryEstimate | PlanEstimate;
 
 /** True for a normal, priced estimate (runs saved before 2026-10-10 have no `mode`: they are priced). */
 export function isPricedEstimate(estimate: BriefEstimate): estimate is PricedEstimate {
-  return estimate.mode !== 'discovery';
+  return estimate.mode !== 'discovery' && estimate.mode !== 'plan';
+}
+
+/** True for a very large idea's plan (no price, no weeks). */
+export function isDiscoveryEstimate(estimate: BriefEstimate): estimate is DiscoveryEstimate {
+  return estimate.mode === 'discovery';
 }
 
 /** The estimate with each phase's text rewritten by `f` (a priced phase keeps its engine weeks). */
 export function mapPhases(estimate: BriefEstimate, f: (phase: DiscoveryPhase) => DiscoveryPhase): BriefEstimate {
-  if (!isPricedEstimate(estimate)) return { ...estimate, phases: estimate.phases.map(f) };
+  if (isDiscoveryEstimate(estimate)) return { ...estimate, phases: estimate.phases.map(f) };
   return { ...estimate, phases: estimate.phases.map(p => ({ ...f(p), weeks: p.weeks })) };
 }
 

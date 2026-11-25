@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocale, useTranslations } from 'next-intl';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 import Link from 'next/link';
 import SectionFallback from '../../components/SectionFallback';
 import css from '../../components/SectionFallback.module.css';
@@ -37,7 +38,7 @@ export default function FinaleFallback({ meta }: LabSectionProps) {
           ))}
         </ul>
         <p className={css.extra}>
-          {t('estimate.lead')} <Link href={`/${locale}/estimator`}>{t('estimate.link')}</Link>
+          {t('estimate.lead')} <Link href={`/${locale}${ESTIMATE_PATH}`}>{t('estimate.link')}</Link>
         </p>
       </SectionFallback>
     </div>

@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ENV, BLOG_CONFIG, ogLocaleFields } from '@/core/constants';
+import { ESTIMATE_PATH } from '@/core/briefPriceMode';
 import { buildOgUrl } from '@/core/og';
 import { Arrow, Breadcrumbs, ButtonLink, CtaBand, Page, Section } from '@/shared/components/site';
 import { SERVICE_NAMESPACES, type ServiceSlug } from '@/shared/data/services';
@@ -120,7 +121,7 @@ export default async function ServicePage({ params }: { params: Promise<{ locale
   }));
   const actions = (
     <>
-      <ButtonLink href={`/${locale}/estimator`}>{tc('estimateCta')}</ButtonLink>
+      <ButtonLink href={`/${locale}${ESTIMATE_PATH}`}>{tc('estimateCta')}</ButtonLink>
       <ButtonLink variant='secondary' href={`/${locale}#contact`}>
         {tc('contactCta')}
       </ButtonLink>
