@@ -218,7 +218,7 @@ export default function S08AIDemo({ meta }: LabSectionProps) {
   const noiseRef = useRef<HTMLSpanElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const hasSlot = slot !== null && slot !== undefined && slot !== false;
-  const aiHref = `/${locale}/ai-estimate`;
+  const aiHref = `/${locale}/ai-plan`;
 
   useHeadlineDecode(lineRef, noiseRef, t('headingLines.second'), !reducedMotion);
   useTitleFit(headerRef);

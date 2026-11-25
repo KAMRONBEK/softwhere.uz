@@ -20,4 +20,4 @@ export const BRIEF_PRICE_MODE = parsePriceMode(process.env.NEXT_PUBLIC_BRIEF_PRI
 export const IS_PLAN_LAUNCHED = BRIEF_PRICE_MODE !== 'range';
 
 /** Where "get an estimate" leads, without the locale. */
-export const ESTIMATE_PATH = IS_PLAN_LAUNCHED ? '/ai-estimate' : '/estimator';
+export const ESTIMATE_PATH = IS_PLAN_LAUNCHED ? '/ai-plan' : '/estimator';

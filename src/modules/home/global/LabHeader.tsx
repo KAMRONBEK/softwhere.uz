@@ -172,7 +172,7 @@ export default function LabHeader() {
                     className={css.link}
                     aria-current={pageCurrent(pathname, `/${locale}${SITE_ESTIMATOR.path}`)}
                   >
-                    {t(`links.${link.target}`)}
+                    {t(SITE_ESTIMATOR.label)}
                   </Link>
                 ) : (
                   <SectionLink

@@ -43,7 +43,7 @@ interface ScriptedDemoProps {
   /** The section header; it sits in the stage grid above the demo. */
   header: ReactNode;
   examples: readonly DemoExample[];
-  /** The real AI brief (/[locale]/ai-estimate). */
+  /** The real AI brief (/[locale]/ai-plan). */
   aiHref: string;
   sourceRef: RefObject<HTMLDivElement | null>;
   graphRef: RefObject<HTMLDivElement | null>;

@@ -43,7 +43,9 @@ const nextConfig = {
       { source: '/feed.xml', destination: '/uz/feed.xml', permanent: true },
       // The AI plan replaced the step-by-step estimator. Temporary while the launch can still be
       // undone by the setting: browsers would remember a permanent one.
-      ...(isPlanLaunched ? [{ source: '/:locale(uz|ru|en)/estimator', destination: '/:locale/ai-estimate', permanent: false }] : []),
+      ...(isPlanLaunched ? [{ source: '/:locale(uz|ru|en)/estimator', destination: '/:locale/ai-plan', permanent: false }] : []),
+      // The AI plan's first address, renamed before it was ever indexed.
+      { source: '/:locale(uz|ru|en)/ai-estimate', destination: '/:locale/ai-plan', permanent: true },
     ];
   },
 };

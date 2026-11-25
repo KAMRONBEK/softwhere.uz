@@ -38,7 +38,7 @@ function stageOf(state: BriefRunState): AIBriefStage {
 }
 
 export type AIBriefExperienceProps = {
-  /** 'full' = the /ai-estimate page; 'compact' = a homepage section (no page heading, plan collapsed). */
+  /** 'full' = the /ai-plan page; 'compact' = a homepage section (no page heading, plan collapsed). */
   variant?: 'full' | 'compact';
   /** id of the contact section to prefill; when it is not on the page the visitor goes to the homepage one. */
   contactSectionId?: string;
@@ -65,7 +65,7 @@ function scrollIntoViewSoftly(element: Element | null) {
  * the contact form and the step-by-step estimator instead of a new run.
  * The compact variant (a homepage section) shows a summary of a finished
  * brief — price, weeks, team, key screens — and links to the full plan on
- * /ai-estimate, which reads the same saved brief from this browser.
+ * /ai-plan, which reads the same saved brief from this browser.
  */
 export default function AIBriefExperience({
   variant = 'full',
@@ -140,11 +140,11 @@ export default function AIBriefExperience({
   };
 
   const talk = () => {
-    // Launched, with a plan: its own form, which carries the plan (on /ai-estimate; the homepage shows a summary).
+    // Launched, with a plan: its own form, which carries the plan (on /ai-plan; the homepage shows a summary).
     if (IS_PLAN_LAUNCHED && state.status === 'done') {
       const form = document.getElementById(REQUEST_SECTION_ID);
       if (!form) {
-        router.push(`/${locale}/ai-estimate#${REQUEST_SECTION_ID}`);
+        router.push(`/${locale}/ai-plan#${REQUEST_SECTION_ID}`);
         return;
       }
       scrollIntoViewSoftly(form);
@@ -207,7 +207,7 @@ export default function AIBriefExperience({
             locale={locale}
             isCompact={isCompact}
             nextFreeAt={state.nextFreeAt}
-            fullPlanHref={isCompact ? `/${locale}/ai-estimate` : null}
+            fullPlanHref={isCompact ? `/${locale}/ai-plan` : null}
             onTalk={talk}
             onNewIdea={newIdea}
           />

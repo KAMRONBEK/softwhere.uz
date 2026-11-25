@@ -2,7 +2,7 @@ import type { Locale } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 import { CONTACT_INFO, SOCIAL_LINKS } from '@/core/constants';
-import { ESTIMATE_PATH } from '@/core/briefPriceMode';
+import { ESTIMATE_PATH, IS_PLAN_LAUNCHED } from '@/core/briefPriceMode';
 import { SERVICE_SLUGS, type ServiceSlug } from '@/shared/data/services';
 import css from './HomeFooter.module.css';
 
@@ -63,7 +63,7 @@ export default async function HomeFooter({ locale }: HomeFooterProps) {
               <Link href={`/${locale}/blog`}>{t('blog')}</Link>
             </li>
             <li>
-              <Link href={`/${locale}${ESTIMATE_PATH}`}>{t('estimator')}</Link>
+              <Link href={`/${locale}${ESTIMATE_PATH}`}>{t(IS_PLAN_LAUNCHED ? 'aiPlan' : 'estimator')}</Link>
             </li>
             <li>
               <Link href={`/${locale}/privacy-policy`}>{t('privacy')}</Link>

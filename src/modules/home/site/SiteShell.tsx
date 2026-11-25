@@ -68,7 +68,7 @@ export default function SiteShell({ children, bootScript, footer }: SiteShellPro
           className={css.floats}
           data-page-chrome=''
           data-lifted={segment === 'estimator' ? '' : undefined}
-          data-form={segment === 'ai-estimate' ? '' : undefined}
+          data-form={segment === 'ai-plan' ? '' : undefined}
         >
           {isAdmin ? null : <TelegramChat />}
           <ScrollToTop />

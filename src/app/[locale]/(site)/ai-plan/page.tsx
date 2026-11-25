@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const description = META_KEYS === 'meta' ? t('meta.description') : t(`${META_KEYS}.metaDescription`);
   if (!IS_PLAN_LAUNCHED) return { title, description, robots: { index: false, follow: false, googleBot: { index: false, follow: false } } };
 
-  const url = (l: string) => `${ENV.BASE_URL}/${l}/ai-estimate`;
+  const url = (l: string) => `${ENV.BASE_URL}/${l}/ai-plan`;
   const ogImageUrl = await buildOgUrl({ title, locale });
   return {
     title,

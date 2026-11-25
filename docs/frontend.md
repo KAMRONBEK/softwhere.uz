@@ -28,7 +28,7 @@ src/app/layout.tsx                  passthrough
    ├─ page.tsx                      homepage (HomeExperience)
    ├─ lab/                          noindex staging copy of the homepage
    └─ (site)/layout.tsx             client messages, SiteShell, HomeFooter
-      └─ services, blog, estimator, ai-estimate, privacy-policy, admin
+      └─ services, blog, estimator, ai-plan, privacy-policy, admin
 ```
 
 - `generateStaticParams()` returns the three locales. `dynamicParams = false` is deliberately **not**
@@ -78,7 +78,7 @@ the floating buttons.
 - `TelegramChat` is at the bottom left from 1280px, where there is a gutter for it. Below that it sits
   at the bottom right under `ScrollToTop`, and both fade with the header while the visitor reads down; there it
   appears after the first screen (500px), as `ScrollToTop` does.
-  It is not shown on `/admin`, nor below 1280px on `/estimator` (its bar holds the bottom edge) and `/ai-estimate` (a page of form fields).
+  It is not shown on `/admin`, nor below 1280px on `/estimator` (its bar holds the bottom edge) and `/ai-plan` (a page of form fields).
 - While the phone menu is open, `[data-page-content]` and `[data-page-chrome]` are `inert`.
 - The language switch is a plain link with the locale swapped; a post's server route 308s to its
   sibling. See [i18n.md](./i18n.md#locale-switching).
@@ -102,7 +102,7 @@ imports them.
 
 ## Toasts
 
-Pages that need toasts mount react-toastify's container themselves (`ai-estimate/PageToasts.tsx`).
+Pages that need toasts mount react-toastify's container themselves (`ai-plan/PageToasts.tsx`).
 Colours come from the `.Toastify` block in `globals.css`.
 
 ## 404 pages

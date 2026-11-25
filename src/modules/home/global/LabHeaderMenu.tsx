@@ -132,7 +132,7 @@ export function MenuSheet({ id, headerRef, style, currentSection, currentLink, o
                   aria-current={pageCurrent(pathname, `/${locale}${SITE_ESTIMATOR.path}`)}
                   onClick={onClose}
                 >
-                  {t(`links.${link.target}`)}
+                  {t(SITE_ESTIMATOR.label)}
                 </Link>
               ) : (
                 <SectionLink
