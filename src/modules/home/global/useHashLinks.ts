@@ -13,14 +13,16 @@ function idFromHash(hash: string): string {
 }
 
 /**
- * Section ids the old homepage used. The site header, the AI blog generator
- * and posts already stored in the database still link to them, so map each
- * one to the section that now covers it.
+ * Other names for a section. Most are ids the old homepage used: the site
+ * header, the AI blog generator and posts already stored in the database
+ * still link to them. 'ai-plan' is the shareable name of the AI section
+ * (/uz#ai-plan), matching the AI plan page (/uz/ai-plan).
  */
 const LEGACY_HASH: Readonly<Record<string, string>> = {
   services: 'manifesto',
   portfolio: 'work-wall',
   ai: 'ai-demo',
+  'ai-plan': 'ai-demo',
 };
 
 /** The id to scroll to: the hash itself when the page has it, else its legacy alias. */
