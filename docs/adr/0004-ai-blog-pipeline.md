@@ -9,7 +9,7 @@ Blog posts are AI-written but grounded: statistics must come from a fact sheet b
 | **Status** | Accepted |
 | **Landed / evolved** | `154df07` grounded pipeline → `3ff7587` pipeline v2 → `55d80e9` DeepSeek V4 Pro default → `4533955` in-place regeneration |
 | **Providers** | Kimi K2.6 (primary) → DeepSeek V4 Pro (fallback), both via the OpenAI-compatible `openai` SDK |
-| **Grounding** | Kimi server-side `$web_search` fact sheet + deterministic sources; no fact sheet ⇒ qualitative writing |
+| **Grounding** | Kimi web-search fact sheet (Moonshot `/v1/tools/search`; the `$web_search` builtin was retired 2026-10-20) + deterministic sources; no fact sheet ⇒ qualitative writing |
 | **Entry points** | admin route `/api/blog/generate` (`mode: 'fast'`), CLI `scripts/generate-post.ts` / `scripts/regenerate-post.ts` (`mode: 'deep'`) |
 | **Hard failure** | fabricated (unapproved) citation URLs — revised away or stripped; refusal is the last-resort backstop |
 | **Client** | `src/core/ai.ts` |
@@ -37,8 +37,8 @@ Run every locale's body through one pipeline (`src/modules/blog/api/pipeline.ts`
 `producePostContent`) with four phases, each fail-safe:
 
 1. **Research → fact sheet** (`src/modules/blog/api/research.ts`,
-   `buildFactSheet`). Two calls on purpose: Kimi's server-side `$web_search`
-   (`src/core/ai.ts` `generateWithWebSearch`) returns findings as prose, then a
+   `buildFactSheet`). Two calls on purpose: Kimi with a `web_search` tool
+   (`src/core/ai.ts` `generateWithWebSearch`, Moonshot `/v1/tools/search`) returns findings as prose, then a
    tool-free call converts them to strict JSON. Facts with no URL are dropped;
    dead URLs are pruned by `verifyFactUrls` (HEAD→GET, behind an SSRF guard). If
    **no search actually ran**, the sheet is discarded — the writer is then forced
@@ -81,7 +81,7 @@ per-provider quota cooldowns so a rate-limited provider steps aside instead of
 blocking the other. Everything is env-overridable (`AI_MODEL`, `AI_FALLBACK_MODEL`,
 `BLOG_MAX_TOKENS`, base URLs). Provider quirks are handled centrally: Kimi K2.6
 must run with `thinking: { type: 'disabled' }` or every call 400s, its sampling is
-fixed so tuned `temperature` applies to DeepSeek only, and `$web_search` is
+fixed so tuned `temperature` applies to DeepSeek only, and web search is
 Kimi-only.
 
 ## Consequences
@@ -96,7 +96,7 @@ Kimi-only.
   cross-model critique is skipped (`configuredProviders().length > 1`).
 - **Cost/latency knobs are real.** `BLOG_MAX_TOKENS` defaults to 32K (the old 8K
   "cap" was itself the truncation cause); deep mode is several extra model calls;
-  each `$web_search` costs ~$0.005 and rounds are bounded (`MAX_SEARCH_ROUNDS`).
+  each search is billed per call and rounds are bounded (`MAX_SEARCH_ROUNDS`).
 - **Owner secrets:** at least one of `MOONSHOT_API_KEY`/`KIMI_API_KEY` or
   `DEEPSEEK_API_KEY` must be set (the generate route logs an error if neither is),
   plus `DATABASE_URL`. Machine runs authenticate via the `API_SECRET` bearer of
@@ -109,7 +109,7 @@ Kimi-only.
 
 ## References
 
-- `src/core/ai.ts` — provider chain, cooldowns, `generateContentWithProvider`, `generateWithWebSearch` ($web_search protocol), Kimi `thinking`/temperature quirks, `BLOG_MAX_TOKENS`.
+- `src/core/ai.ts` — provider chain, cooldowns, `generateContentWithProvider`, `generateWithWebSearch` (search tool loop), Kimi `thinking`/temperature quirks, `BLOG_MAX_TOKENS`.
 - `src/modules/blog/api/research.ts` — `buildFactSheet` (two-stage search→JSON), `verifyFactUrls`, `PREFERRED_SOURCES`.
 - `src/modules/blog/api/pipeline.ts` — `producePostContent` (the four phases), `looksTruncated`, the final link gate, `persistLocalePost`.
 - `src/modules/blog/api/quality.ts`, `src/modules/blog/utils/normalize.ts` — lint and deterministic normalization.

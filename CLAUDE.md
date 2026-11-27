@@ -22,7 +22,7 @@ High-signal orientation for AI coding agents (Claude Code / Cursor) working in `
 ## Golden rules
 
 1. **DB only through the repository layer — never touch Drizzle in routes/pages.** All queries live in `src/modules/blog/model/posts.repository.ts`, `src/modules/contact/model/leads.repository.ts` and `src/modules/estimator/model/briefRuns.repository.ts`. These own the `db` client, the `blogPosts`/`leads` tables, and serialization. Routes/pages/components call repository functions (`listPublished`, `getPublishedBySlug`, `createPost`, `pingDb`, …); they must not `import { db }` or build Drizzle queries.
-2. **AI only through `src/core/ai.ts`.** Use the exported helpers — `safeGenerateContent`, `generateContentWithProvider`, `safeGenerateJSON`, `safeGenerateJSONWithTimeout`, `generateWithWebSearch`. Never instantiate `new OpenAI(...)` elsewhere. The module owns provider selection, quota cooldowns, retries, and the Kimi-only `$web_search` grounding loop.
+2. **AI only through `src/core/ai.ts`.** Use the exported helpers — `safeGenerateContent`, `generateContentWithProvider`, `safeGenerateJSON`, `safeGenerateJSONWithTimeout`, `generateWithWebSearch`. Never instantiate `new OpenAI(...)` elsewhere. The module owns provider selection, quota cooldowns, retries, and the Kimi-only web-search grounding loop.
 3. **Log via the logger, not `console`.** Import `logger` (or `logError`/`logWarn`/`logInfo`/`logDebug`) from `src/core/logger.ts`. `no-console` is a lint warning; `logger` is the sanctioned console boundary. `warn`/`error` always emit (prod included); `info`/`debug` are dev-only.
 4. **User-facing strings come from next-intl messages, not hardcoded literals.** Add keys to `src/messages/{uz,ru,en}.json` and read them with next-intl. Keep all three locales in sync.
 5. **Respect layer boundaries** (next section). Don't add a cross-layer import to make something compile — move the code to the right layer instead.
@@ -44,7 +44,7 @@ Rule severity is **`warn`**, not `error`, so `yarn lint` reports 0 errors while 
 
 `src/core/ai.ts` runs a **two-provider chain**, not DeepSeek alone:
 
-- **Primary: Kimi K2.6** (Moonshot, host `https://api.moonshot.ai/v1`, key `MOONSHOT_API_KEY`/`KIMI_API_KEY`). Provides strict `json_schema` output and the server-side `$web_search` grounding tool. Sampling is fixed by the API (temperature pinned; `thinking` must be disabled or calls 400).
+- **Primary: Kimi K2.6** (Moonshot, host `https://api.moonshot.ai/v1`, key `MOONSHOT_API_KEY`/`KIMI_API_KEY`). Provides strict `json_schema` output and web-search grounding (`generateWithWebSearch`: a `web_search` function tool backed by Moonshot's `POST /v1/tools/search`; the old `$web_search` builtin was retired 2026-10-20). Sampling is fixed by the API (temperature pinned; `thinking` must be disabled or calls 400).
 - **Fallback: DeepSeek** (`https://api.deepseek.com`, key `DEEPSEEK_API_KEY`, model `deepseek-v4-pro`). Takes tuned temperatures; degrades strict schemas to `json_object`. Preferred first for Uzbek content via `prefer: 'deepseek'`.
 
 If only one key is configured, that provider is used alone. All hosts/models/keys are env-overridable (`AI_BASE_URL`, `AI_MODEL`, `AI_FALLBACK_*`). See `docs/blog-pipeline.md` for how the blog generator uses these.

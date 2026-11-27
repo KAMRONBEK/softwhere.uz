@@ -16,9 +16,13 @@ const DEFAULT_TEMPERATURE = 0.6;
 // (flash and pro) up to 384K, so 32K costs nothing extra unless used and no
 // realistic post ever hits it. Env-overridable.
 const BLOG_MAX_TOKENS = Number(process.env.BLOG_MAX_TOKENS) || 32_000;
-// Server-side $web_search rounds are bounded so a runaway tool loop can't
-// spend unbounded searches ($0.005 each) or wall-clock.
+// Search rounds are bounded so a runaway tool loop can't spend unbounded
+// searches (billed per call) or wall-clock.
 const MAX_SEARCH_ROUNDS = 6;
+// Results per search and characters per snippet fed back to the model.
+const SEARCH_RESULTS_PER_QUERY = 6;
+const SEARCH_SNIPPET_CHARS = 600;
+const SEARCH_TIMEOUT_S = 30;
 
 /**
  * Provider config. Primary = Kimi K2.6 (Moonshot, OpenAI-compatible — note the
@@ -591,21 +595,83 @@ export async function safeGenerateJSON(
   return res?.text ?? null;
 }
 
+export interface WebSearchResult {
+  title: string;
+  url: string;
+  date?: string;
+  snippet: string;
+}
+
 /**
- * Grounded generation via Moonshot's server-side `$web_search` builtin tool
- * (Kimi-only; DeepSeek has no search API). Protocol per the official docs:
- * declare `{type:'builtin_function', function:{name:'$web_search'}}`, disable
- * thinking, and when the model emits a `$web_search` tool call, echo the
- * call's arguments back unchanged as the tool result — the search itself ran
- * server-side ($0.005/search). Loops until the model produces text or
- * MAX_SEARCH_ROUNDS is hit. Returns null when Kimi is unconfigured, cooled
- * down, or the loop fails — callers must degrade to ungrounded generation.
+ * The search response's results, tolerant of both shapes seen live:
+ * `{ title, url, site_name, snippet, date }` (documented) and
+ * `{ title, url, siteName, description, published }`. Results without a URL
+ * are dropped — a fact must be traceable to a page.
+ */
+export function parseSearchResults(body: unknown): WebSearchResult[] {
+  const rows = (body as { search_results?: unknown })?.search_results;
+  if (!Array.isArray(rows)) return [];
+  const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '');
+  return rows.flatMap((row): WebSearchResult[] => {
+    const r = (row ?? {}) as Record<string, unknown>;
+    const url = str(r.url);
+    if (!/^https?:\/\//.test(url)) return [];
+    const chunks = Array.isArray(r.chunks) ? r.chunks.map(c => str((c as { text?: unknown })?.text)).join(' ') : '';
+    const snippet = (str(r.snippet) || str(r.description) || chunks || str(r.text)).replace(/\s+/g, ' ').slice(0, SEARCH_SNIPPET_CHARS);
+    const date = str(r.date) || str(r.published);
+    return [{ title: str(r.title) || url, url, ...(date && { date }), snippet }];
+  });
+}
+
+/**
+ * One Moonshot web search: POST {base}/tools/search with `text_query`. It
+ * replaced the chat-completions `$web_search` builtin, retired 2026-10-20 (it
+ * now answers 400 "no longer supported"). Billed per call, only when results
+ * come back. Throws on an HTTP error so the caller can report it to the model.
+ */
+async function searchWeb(query: string): Promise<WebSearchResult[]> {
+  const res = await fetch(`${KIMI.baseURL.replace(/\/$/, '')}/tools/search`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${KIMI.apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text_query: query, limit: SEARCH_RESULTS_PER_QUERY, timeout_seconds: SEARCH_TIMEOUT_S }),
+    signal: AbortSignal.timeout((SEARCH_TIMEOUT_S + 10) * 1000),
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    const detail = (await res.text().catch(() => '')).slice(0, 200);
+    throw Object.assign(new Error(`search HTTP ${res.status} ${detail}`), { status: res.status });
+  }
+  return parseSearchResults(await res.json());
+}
+
+const WEB_SEARCH_TOOL: OpenAI.ChatCompletionTool = {
+  type: 'function',
+  function: {
+    name: 'web_search',
+    description:
+      'Search the live web. Returns up to 6 results, each with title, url, date and a snippet of the page. Use it for any current fact, statistic, price or date.',
+    parameters: {
+      type: 'object',
+      properties: { query: { type: 'string', description: 'The search query, in the language most likely to find good sources' } },
+      required: ['query'],
+    },
+  },
+};
+
+/**
+ * Grounded generation (Kimi-only; DeepSeek has no search API). Kimi gets a
+ * plain function tool, `web_search`; each call runs one Moonshot search here
+ * and the results go back as the tool result. Loops until the model produces
+ * text or MAX_SEARCH_ROUNDS is hit. `sources` is every URL the searches
+ * returned, so callers can drop citations that never appeared in a result.
+ * Returns null when Kimi is unconfigured, cooled down, or the loop fails —
+ * callers must degrade to ungrounded generation.
  */
 export async function generateWithWebSearch(
   prompt: string,
   label: string,
   opts?: { system?: string; maxTokens?: number; timeout?: number }
-): Promise<{ text: string; searches: number } | null> {
+): Promise<{ text: string; searches: number; sources: string[] } | null> {
   if (!KIMI.apiKey || isCooled(KIMI.name)) {
     logger.info(`Web search unavailable (no Kimi key or cooldown): ${label}`, undefined, CONTEXT);
     return null;
@@ -619,7 +685,10 @@ export async function generateWithWebSearch(
     : [{ role: 'user', content: prompt }];
 
   let searches = 0;
-  // Whether the model calls $web_search is sampled, not guaranteed — the same
+  const sources = new Set<string>();
+  // Searches the model asked for, including ones that failed: a failed search is not a reason to nudge.
+  let asked = 0;
+  // Whether the model calls web_search is sampled, not guaranteed — the same
   // prompt sometimes gets answered from stale memory (observed live). When
   // that happens we keep the conversation and nudge it to actually search.
   let nudges = 0;
@@ -634,8 +703,8 @@ export async function generateWithWebSearch(
           messages,
           temperature: KIMI_TEMPERATURE,
           ...(opts?.maxTokens && { max_tokens: opts.maxTokens }),
-          tools: [{ type: 'builtin_function', function: { name: '$web_search' } }],
-          // $web_search requires thinking disabled (Moonshot docs).
+          tools: [WEB_SEARCH_TOOL],
+          // K2.6 rejects tool calls with thinking enabled.
           thinking: { type: 'disabled' },
         } as unknown as OpenAI.ChatCompletionCreateParamsNonStreaming,
         { timeout: opts?.timeout ?? 120_000, maxRetries: 0 }
@@ -648,33 +717,52 @@ export async function generateWithWebSearch(
         messages.push(choice.message);
         for (const call of choice.message.tool_calls) {
           const fn = 'function' in call ? call.function : undefined;
-          if (fn?.name === '$web_search') searches++;
-          messages.push({
-            role: 'tool',
-            tool_call_id: call.id,
-            // The search executed server-side; the protocol is to return the
-            // tool call's arguments verbatim as the tool result.
-            content: fn?.arguments ?? '{}',
-          });
+          let content: string;
+          if (fn?.name !== 'web_search') {
+            content = JSON.stringify({ error: `unknown tool ${fn?.name ?? ''}` });
+          } else {
+            let query = '';
+            try {
+              query = String((JSON.parse(fn.arguments || '{}') as { query?: unknown }).query ?? '').trim();
+            } catch {
+              // Malformed arguments: answered as an error below.
+            }
+            if (query) asked++;
+            if (!query) {
+              content = JSON.stringify({ error: 'query is required' });
+            } else {
+              try {
+                const results = await searchWeb(query);
+                searches++;
+                results.forEach(r => sources.add(r.url));
+                content = JSON.stringify({ query, results });
+              } catch (error) {
+                if (isQuotaError(error)) throw error;
+                logger.warn(`Web search call failed: ${label}`, error instanceof Error ? error.message : error, CONTEXT);
+                content = JSON.stringify({ query, error: 'search failed, try a different query' });
+              }
+            }
+          }
+          messages.push({ role: 'tool', tool_call_id: call.id, content });
         }
         continue;
       }
 
       const text = choice.message?.content;
 
-      if (searches === 0 && nudges < MAX_NUDGES) {
+      if (asked === 0 && nudges < MAX_NUDGES) {
         nudges++;
         logger.info(`Model answered without searching — nudging (${nudges}/${MAX_NUDGES}): ${label}`, undefined, CONTEXT);
         messages.push(choice.message);
         messages.push({
           role: 'user',
           content:
-            'You answered from memory without calling the $web_search tool. That answer is unusable. Call $web_search now and answer again using ONLY what the search results say.',
+            'You answered from memory without calling the web_search tool. That answer is unusable. Call web_search now and answer again using ONLY what the search results say.',
         });
         continue;
       }
 
-      if (text) return { text, searches };
+      if (text) return { text, searches, sources: [...sources] };
       return null;
     }
     logger.warn(`Web search loop exceeded ${MAX_SEARCH_ROUNDS} rounds: ${label}`, undefined, CONTEXT);
