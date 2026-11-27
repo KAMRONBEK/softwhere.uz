@@ -30,7 +30,8 @@
     "test:estimator:logic": "tsx tests/estimator/logic.ts",
     "test:estimator:e2e": "tsx tests/estimator/e2e.ts",
     "test:brief": "tsx tests/ai-brief/admin.ts && tsx tests/ai-brief/client.ts && tsx tests/ai-brief/consistency.ts && tsx tests/ai-brief/daily-limit.ts && tsx tests/ai-brief/iteration.ts && tsx tests/ai-brief/iteration2.ts && tsx tests/ai-brief/iteration3.ts && tsx tests/ai-brief/logic.ts && tsx tests/ai-brief/plan-request.ts && tsx tests/ai-brief/providers.ts && tsx tests/ai-brief/quality.ts && tsx tests/ai-brief/round3-review.ts && tsx tests/ai-brief/round3.ts",
-    "test:home": "tsx tests/home/globe.ts && tsx tests/i18n/parity.ts"
+    "test:home": "tsx tests/home/globe.ts && tsx tests/i18n/parity.ts",
+    "test:blog": "tsx tests/blog/web-search.ts"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

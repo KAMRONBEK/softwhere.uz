@@ -11,7 +11,7 @@ This is the canonical reference for the generation pipeline. Every claim below i
 | Entry points | Admin API route `POST /api/blog/generate` (mode `fast`) and CLI `scripts/generate-post.ts` (mode `deep`) |
 | Shared core | `src/modules/blog/api/pipeline.ts` — `producePostContent` + `persistLocalePost`, used by BOTH entry points so they cannot drift |
 | AI providers | Primary **Kimi K2.6** (Moonshot), fallback **DeepSeek V4 Pro** — both via the OpenAI-compatible `openai` SDK in `src/core/ai.ts` |
-| Web-search grounding | Kimi-only (`$web_search` builtin); DeepSeek has no search path |
+| Web-search grounding | Kimi-only (a `web_search` function tool backed by Moonshot's `POST /v1/tools/search`); DeepSeek has no search path |
 | Locales | `en` first (anchors the others), then `ru`, `uz`; linked by `generationGroupId` |
 | Persistence | Single `blog_posts` table via the repository layer (`src/modules/blog/model/posts.repository.ts`) — routes never touch Drizzle directly |
 | Cron | GitHub Actions `generate-post.yml`, twice daily 06:17 / 18:17 UTC, runs the CLI in `deep` mode and saves **drafts** for review |
@@ -48,7 +48,7 @@ Both entry points run the same ordered steps. Only `mode` (`fast` vs `deep`), `s
 1. Select topic        smartSelectTopic() | category pool | customTopic | source classification
 2. Fetch images        getCoverImageForTopic() + getImagesForPost()   (Unsplash)
 3. EN meta description  generateMetaDescription()
-4. Research            buildFactSheet() -> verifyFactUrls()           (Kimi $web_search)
+4. Research            buildFactSheet() -> verifyFactUrls()           (Kimi + Moonshot search)
 5. Per locale (en, ru, uz):
      producePostContent()  ->  persistLocalePost()
 6. Post-run             route: revalidate caches
@@ -99,9 +99,9 @@ The same images are reused across all three locales (fetched once per group). On
 
 `buildFactSheet(topic)` in `research.ts:104` grounds every statistic the writer is allowed to cite. Two-stage on purpose:
 
-- **Stage A** — a natural-language "please search and report" prompt through `generateWithWebSearch` (Kimi `$web_search`). A strict-JSON instruction here makes the model skip tool calls and answer from memory, so stage A stays conversational.
+- **Stage A** — a natural-language "please search and report" prompt through `generateWithWebSearch` (Kimi with a `web_search` tool). A strict-JSON instruction here makes the model skip tool calls and answer from memory, so stage A stays conversational.
 - **Hard precondition**: if `res.searches === 0` (no search actually ran), the whole sheet is discarded and `EMPTY_FACT_SHEET` returned — unsearched "facts" are parametric-memory fabrications with guessed URLs, the exact failure mode this module exists to prevent.
-- **Stage B** — a second, tool-free call converts the report to strict JSON: `{"facts":[{statement, year, source_name, source_url}]}`, dropping any fact without an `http(s)` URL. Capped at `MAX_FACTS = 12`, ids assigned `F1…Fn`.
+- **Stage B** — a second, tool-free call converts the report to strict JSON: `{"facts":[{statement, year, source_name, source_url}]}`, dropping any fact without an `http(s)` URL and any fact whose URL no search returned (`sourceKey`: host without `www`, path without trailing slash). Capped at `MAX_FACTS = 12`, ids assigned `F1…Fn`.
 
 `verifyFactUrls(sheet)` then drops facts whose source URL is dead — SSRF-guarded, HEAD then GET, treating only 404/410 as dead (403/405 pass because bot-blocking hosts are still real). Surviving facts are re-numbered contiguous.
 
@@ -176,7 +176,7 @@ Key behaviors:
 - **Completion budget.** Blog bodies (label starts with `blog-`) get `BLOG_MAX_TOKENS` (default `32_000`, env-overridable) and a 300 s timeout; other calls use the 120 s default.
 - **`finishReason` is propagated.** `'length'` means the completion cap truncated the output; the pipeline uses it to trigger continuation instead of shipping a cut-off post.
 - **Quota handling.** A 429 sets a per-provider cooldown (parsed from the retry hint) so a rate-limited Kimi doesn't block DeepSeek.
-- **Web search** (`generateWithWebSearch`): Kimi-only. Declares `{type:'builtin_function', function:{name:'$web_search'}}`; when the model emits a tool call, the search ran server-side and the protocol is to echo the call's `arguments` back verbatim as the tool result. Loops up to `MAX_SEARCH_ROUNDS = 6`, with up to 2 "nudges" if the model answers without searching. Each search costs ~$0.005.
+- **Web search** (`generateWithWebSearch`): Kimi-only. Moonshot retired the chat-completions `$web_search` builtin on 2026-10-20 (it now answers 400 "no longer supported"). Kimi gets a plain function tool, `web_search({query})`; each call runs one `POST {AI_BASE_URL}/tools/search` (`{text_query, limit: 6, timeout_seconds: 30}`, billed per call, only when results come back) and the results (title, url, date, snippet ≤ 600 chars) go back as the tool result. A failed search is reported to the model, not fatal. Loops up to `MAX_SEARCH_ROUNDS = 6`, with up to 2 "nudges" if the model answers without trying to search. Returns `{text, searches, sources}`; `sources` is every URL the searches returned. Tests: `yarn test:blog`.
 
 Entry points used by the pipeline: `generateContentWithProvider` (bodies, returns `{text, provider, finishReason}`), `safeGenerateContent` (text-only), `safeGenerateJSON` (json_object), `generateWithWebSearch` (grounded research).
 

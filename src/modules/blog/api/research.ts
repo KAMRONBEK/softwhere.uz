@@ -6,7 +6,7 @@ const CONTEXT = 'BLOG';
 
 /**
  * A single verified fact the writer is allowed to cite. Facts come from two
- * places: Kimi's server-side $web_search (found live on the web) and the
+ * places: Kimi's web search (found live on the web) and the
  * deterministic World Bank fetch below. The writing prompt hard-constrains
  * statistics to this sheet — anything not here must be written qualitatively.
  */
@@ -148,10 +148,26 @@ Return ONLY JSON:
   const raw = await safeGenerateJSON(extractPrompt, 'research-extract', 2000);
   if (!raw) return { ...EMPTY_FACT_SHEET };
 
-  const parsed = parseFacts(raw).slice(0, MAX_FACTS);
+  // A URL no search returned was guessed by the model, however plausible.
+  const seen = new Set(res.sources.map(sourceKey));
+  const all = parseFacts(raw);
+  const parsed = all.filter(f => seen.has(sourceKey(f.sourceUrl))).slice(0, MAX_FACTS);
+  if (parsed.length < all.length) {
+    logger.warn(`Dropped ${all.length - parsed.length} fact(s) citing a URL no search returned`, undefined, CONTEXT);
+  }
   const facts = parsed.map((f, i) => ({ ...f, id: `F${i + 1}` }));
   logger.info(`Research produced ${facts.length} facts via ${res.searches} search(es)`, undefined, CONTEXT);
   return { facts, searched: true, searches: res.searches };
+}
+
+/** A URL compared loosely: host without www, path without a trailing slash; scheme, query and hash ignored. */
+export function sourceKey(url: string): string {
+  try {
+    const u = new URL(url);
+    return `${u.hostname.replace(/^www\./, '')}${u.pathname.replace(/\/+$/, '')}`.toLowerCase();
+  } catch {
+    return url.trim().toLowerCase();
+  }
 }
 
 /**
