@@ -1,0 +1,60 @@
+name: Apply Post Edits
+
+# Manual-only: writes hand-reviewed bodies from content/post-edits/ to the
+# live blog (scripts/apply-post-edits.ts). A post whose live body changed since
+# the edit was made is refused, never overwritten. Old rows are uploaded as an
+# artifact first. Defaults to a dry run.
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: 'Edit names without extension (e.g. uz--my-slug), comma-separated, or "all"'
+        required: true
+        type: string
+      dryRun:
+        description: 'Dry run: check hashes and report, no DB writes'
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: generate-post
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: Production
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Apply edits
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          API_SECRET: ${{ secrets.API_SECRET }}
+          INPUT_FILES: ${{ github.event.inputs.files }}
+          INPUT_DRY_RUN: ${{ github.event.inputs.dryRun }}
+        run: npx tsx scripts/apply-post-edits.ts --files "$INPUT_FILES" --dryRun "$INPUT_DRY_RUN"
+
+      - name: Upload backups of replaced rows
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: post-edit-backups-${{ github.run_id }}
+          path: post-edit-backups/
+          if-no-files-found: ignore
+          retention-days: 90
