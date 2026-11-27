@@ -46,6 +46,7 @@ next-env.d.ts
 
 # Blog regeneration working dirs (CI artifacts, never committed)
 regen-backups/
+post-edit-backups/
 regen-preview/
 
 .env*.local
